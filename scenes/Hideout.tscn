@@ -23,6 +23,7 @@
 [ext_resource type="Script" path="res://scripts/ItemIcon.gd" id="21"]
 [ext_resource type="PackedScene" path="res://scenes/PlushiePetReveal.tscn" id="22"]
 [ext_resource type="PackedScene" path="res://scenes/PlushiesPanel.tscn" id="23"]
+[ext_resource type="PackedScene" path="res://scenes/WanderingPlushie.tscn" id="24"]
 
 [node name="Hideout" type="Node2D"]
 script = ExtResource("1")
@@ -137,6 +138,8 @@ text = "Lil Dirty"
 position = Vector2(0, -287.5)
 zone_size = Vector2(150, 137.5)
 prompt_text = "Press F: Talk to Lil Dirty"
+speech_lines = Array[String](["Don't touch the merchandise.", "Still don't know if I trust you.", "Got a blueprint? Bring it here."])
+speech_bubble_offset = Vector2(0, -80)
 
 [node name="WorkbenchTable1" parent="." instance=ExtResource("8")]
 position = Vector2(-360, 130)
@@ -223,11 +226,15 @@ text = "Pet Shop"
 position = Vector2(600, 300)
 zone_size = Vector2(140, 130)
 prompt_text = "Press F: Talk to Justin"
+speech_lines = Array[String](["Still trying to read what these things are saying.", "Bring me an Engram. I need to know.", "Some answers you're not sure you want."])
+speech_bubble_offset = Vector2(0, -110)
 
 [node name="GhostStation" parent="." instance=ExtResource("5")]
 position = Vector2(150, 450)
 zone_size = Vector2(100, 100)
 prompt_text = "Press F: Talk to the Ghost"
+speech_lines = Array[String](["...", "It's quiet here. I don't mind.", "Thanks for bringing me back."])
+speech_bubble_offset = Vector2(0, -40)
 
 [node name="RoseSprite" parent="." instance=ExtResource("20")]
 position = Vector2(-850, 550)
@@ -236,6 +243,20 @@ position = Vector2(-850, 550)
 position = Vector2(-850, 550)
 zone_size = Vector2(90, 130)
 prompt_text = "Press F: Talk to Rose"
+speech_lines = Array[String](["Got any Plushies for me?", "Bags, boba, and vibes. That's the whole plan.", "Ask me about the Lore sometime - fair warning, it's a lot."])
+speech_bubble_offset = Vector2(0, -150)
+
+[node name="WanderingPlushie1" parent="." instance=ExtResource("24")]
+position = Vector2(-800, 590)
+body_color = Color(0.85, 0.55, 0.65, 1)
+
+[node name="WanderingPlushie2" parent="." instance=ExtResource("24")]
+position = Vector2(-890, 610)
+body_color = Color(0.55, 0.7, 0.9, 1)
+
+[node name="WanderingPlushie3" parent="." instance=ExtResource("24")]
+position = Vector2(-820, 640)
+body_color = Color(0.95, 0.8, 0.4, 1)
 
 [node name="HideoutGhost" type="Node2D" parent="."]
 position = Vector2(150, 440)
