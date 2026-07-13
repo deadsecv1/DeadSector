@@ -20,3 +20,7 @@ polygon = PackedVector2Array(-22, 16, -22, 26, -10, 26, -10, 16)
 [node name="WheelR" type="Polygon2D" parent="."]
 color = Color(0.05, 0.05, 0.05, 1)
 polygon = PackedVector2Array(16, 16, 16, 26, 28, 26, 28, 16)
+
+[node name="CarSprite" type="Sprite2D" parent="."]
+visible = false
+scale = Vector2(3.2, 3.2)
