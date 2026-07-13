@@ -226,6 +226,14 @@ func play_impact_thud() -> void:
 	p.volume_db = -14.0
 	p.play()
 
+# Same thud, much quieter - the Lil Dirty cursor cameo "hitting the wall".
+func play_lildirty_ouch() -> void:
+	var p := _get_free_player()
+	p.stream = _impact_thud
+	p.volume_db = -24.0
+	p.pitch_scale = randf_range(1.3, 1.6)
+	p.play()
+
 # A quiet glassy chime - used for the Sapphire Signal Studio crystal's
 # shatter moment.
 func play_crystal_chime() -> void:

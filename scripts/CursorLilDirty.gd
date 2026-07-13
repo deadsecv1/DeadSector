@@ -2,18 +2,39 @@ extends Control
 
 # A tiny cameo of Lil Dirty that follows your cursor on the title screen,
 # purely for fun. Wiggles harder the faster you move the mouse, and if
-# you drag him into a screen edge he "hits the wall" - a small blood
-# splatter and a pleading speech bubble, on a cooldown so it doesn't spam.
+# you drag him into a screen edge he "hits the wall" - a blood splatter,
+# a quiet "ouch" thud, and a pleading speech bubble, on a cooldown so it
+# doesn't spam. Uses his real Hideout sprite (assets/npcs/lildirty.png)
+# instead of a hand-drawn silhouette, so it actually looks like him.
 # Fades away the moment the player actually starts the game.
 
 const BloodSplatterScene := preload("res://scenes/BloodSplatter.tscn")
+const LilDirtyTexture := preload("res://assets/npcs/lildirty.png")
 
 const EDGE_MARGIN := 46.0
 const HIT_COOLDOWN := 1.1
 const FOLLOW_LERP := 0.22
-const CURSOR_OFFSET := Vector2(22, 26)
+const CURSOR_OFFSET := Vector2(18, 20)
+# Deliberately modest - this is a small cursor cameo, not a full character.
+const BODY_SCALE := 1.3
+
+const PLEADING_LINES := [
+	"Please dont hurt me bro",
+	"Mercy!! I'll wash off the dirtyness, I swear!",
+	"Jay please make it stop!!",
+	"Tell James I said sorry for everything",
+	"Not the face man, not the face",
+	"Glenn warned me this would happen to me",
+	"I'll tell Clarity Interactive whatever you want, just stop",
+	"The dirtyness is a lifestyle, not a crime!!",
+	"James saw nothing, I saw nothing, nobody saw anything",
+	"Ok ok ok I get it, less dirtyness, I hear you",
+	"Ask Glenn, he'll vouch for me!! GLENN",
+	"Jay c'mon man we go way back",
+]
 
 var body: Node2D
+var name_tag: Label
 var _hit_cooldown: float = 0.0
 var _last_mouse_pos: Vector2 = Vector2.ZERO
 var _mouse_speed: float = 0.0
@@ -29,34 +50,42 @@ func _ready() -> void:
 	_build_character()
 	set_process(true)
 
-# Rebuilds Lil Dirty's exact Hideout silhouette (body/head/vest/hat/gun)
-# from the same polygon shapes, just scaled up and re-centered on his
-# own origin instead of relative to a table.
+# Real sprite (his actual Hideout look) plus a small shadow, gun, and
+# name tag - same pieces as the Hideout NPC, just recomposed around his
+# own origin and scaled down for a cursor-following cameo.
 func _build_character() -> void:
 	body = Node2D.new()
-	body.scale = Vector2(2.3, 2.3)
 	add_child(body)
 
-	var parts := [
-		{"color": Color(0.16, 0.16, 0.18, 1), "pos": Vector2(0, 0), "poly": _poly([-9, -3, 9, -3, 8, 6, 0, 10, -8, 6])},
-		{"color": Color(0.18, 0.32, 0.15, 1), "pos": Vector2(0, 0), "poly": _poly([-12, 0, 12, 0, 10.39, 7, 6, 12.12, 0, 14, -6, 12.12, -10.39, 7])},
-		{"color": Color(0.28, 0.24, 0.1, 1), "pos": Vector2(0, 0), "poly": _poly([-2, -4, 2, -4, 2, 9, -2, 9])},
-		{"color": Color(0.6, 0.45, 0.35, 1), "pos": Vector2(0, -27.5), "poly": _poly([8, 0, 6.47, 4.7, 2.47, 7.61, -2.47, 7.61, -6.47, 4.7, -8, 0, -6.47, -4.7, -2.47, -7.61, 2.47, -7.61, 6.47, -4.7])},
-		{"color": Color(0.12, 0.22, 0.1, 1), "pos": Vector2(0, -33.5), "poly": _poly([-8, -1, 8, -1, 9, 2, 10, 4, -10, 4, -9, 2])},
-	]
-	for p in parts:
-		var poly := Polygon2D.new()
-		poly.polygon = p["poly"]
-		poly.color = p["color"]
-		poly.position = p["pos"]
-		body.add_child(poly)
+	var shadow := Polygon2D.new()
+	shadow.color = Color(0, 0, 0, 0.25)
+	shadow.position = Vector2(0, 18) * BODY_SCALE
+	shadow.polygon = _poly([-10, 0, 10, 0, 8, 6, -8, 6])
+	body.add_child(shadow)
+
+	var sprite := Sprite2D.new()
+	sprite.texture = LilDirtyTexture
+	sprite.scale = Vector2(BODY_SCALE, BODY_SCALE)
+	body.add_child(sprite)
 
 	var gun := Polygon2D.new()
 	gun.polygon = _poly([-3, -2, 9, -2, 9, 1, -3, 1, -3, 5, -5, 5, -5, -2])
 	gun.color = Color(0.12, 0.12, 0.13, 1)
-	gun.position = Vector2(11, 2.5)
+	gun.position = Vector2(11, 8) * BODY_SCALE
+	gun.scale = Vector2(BODY_SCALE, BODY_SCALE)
 	gun.rotation = 0.3
 	body.add_child(gun)
+
+	name_tag = Label.new()
+	name_tag.text = "Lil Dirty"
+	name_tag.add_theme_font_size_override("font_size", 11)
+	name_tag.add_theme_color_override("font_color", Color(0.9, 0.75, 0.35, 1))
+	name_tag.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	name_tag.add_theme_constant_override("outline_size", 3)
+	name_tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_tag.custom_minimum_size = Vector2(80, 14)
+	name_tag.position = Vector2(-40, -34 * BODY_SCALE - 14)
+	add_child(name_tag)
 
 # Converts a flat [x1, y1, x2, y2, ...] list into real Vector2 pairs -
 # PackedVector2Array(...) only accepts flat numbers like that inside
@@ -93,13 +122,17 @@ func _process(delta: float) -> void:
 func _hit_wall() -> void:
 	_hit_cooldown = HIT_COOLDOWN
 	var splatter = BloodSplatterScene.instantiate()
+	splatter.particle_count = 16
+	splatter.size_mult = 2.0
+	splatter.distance_mult = 1.8
 	get_tree().current_scene.add_child(splatter)
 	splatter.global_position = position
+	Sfx.play_lildirty_ouch()
 	_show_ouch_bubble()
 
 func _show_ouch_bubble() -> void:
 	var bubble := Label.new()
-	bubble.text = "Please dont hurt me bro"
+	bubble.text = PLEADING_LINES[randi() % PLEADING_LINES.size()]
 	bubble.add_theme_font_size_override("font_size", 13)
 	bubble.add_theme_color_override("font_color", Color(1, 0.9, 0.9, 1))
 	bubble.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
