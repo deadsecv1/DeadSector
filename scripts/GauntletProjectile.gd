@@ -41,3 +41,7 @@ func _impact_burst() -> void:
 	parent.call_deferred("add_child", particles)
 	particles.call_deferred("set", "global_position", global_position)
 	particles.call_deferred("set", "emitting", true)
+	get_tree().create_timer(particles.lifetime + 0.15).timeout.connect(func():
+		if is_instance_valid(particles):
+			particles.queue_free()
+	)

@@ -10,6 +10,7 @@ extends Area2D
 @export var tick_interval: float = 1.0
 
 var player_inside: bool = false
+var player_ref: Node = null
 var tick_timer: float = 0.0
 var drift_offset: Vector2 = Vector2.ZERO
 var base_position: Vector2
@@ -55,6 +56,7 @@ func _setup_particles(scale_f: float) -> void:
 func _on_entered(body: Node) -> void:
 	if body.is_in_group("player"):
 		player_inside = true
+		player_ref = body
 
 func _on_exited(body: Node) -> void:
 	if body.is_in_group("player"):
@@ -89,10 +91,9 @@ func _physics_process(delta: float) -> void:
 		return
 	if GameManager.has_gas_mask():
 		return
-	var player = get_tree().get_first_node_in_group("player")
-	if player == null or not player.alive:
+	if player_ref == null or not is_instance_valid(player_ref) or not player_ref.alive:
 		return
 	tick_timer -= delta
 	if tick_timer <= 0.0:
 		tick_timer = tick_interval
-		player.take_damage(damage_per_tick)
+		player_ref.take_damage(damage_per_tick)

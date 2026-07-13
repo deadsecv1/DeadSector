@@ -60,8 +60,12 @@ func _hold_distance() -> float:
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	_spin_spikes(delta)
-	_check_spike_damage(delta)
-	_handle_grenade(delta)
+	# super._physics_process() only stops movement/shooting while stunned -
+	# without this check the ring kept dealing damage and grenades kept
+	# launching on schedule regardless of being "stunned".
+	if Time.get_ticks_msec() >= stunned_until_ms:
+		_check_spike_damage(delta)
+		_handle_grenade(delta)
 
 func _spin_spikes(delta: float) -> void:
 	spike_angle += delta * 2.0
@@ -95,6 +99,7 @@ func _throw_grenade_at_player() -> void:
 	g.target_position = player.global_position
 	g.damage = 80
 	g.radius = 95.0
+	g.is_enemy_grenade = true
 
 # A bigger, purple, higher-damage bolt instead of the regular pistol shot.
 func _shoot() -> void:

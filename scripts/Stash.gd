@@ -51,9 +51,21 @@ func _input(event: InputEvent) -> void:
 		GameManager.save_game()
 		Transition.change_scene_instant(GameManager.stash_return_scene)
 	elif event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+		# _input() runs before any sub-panel's own _unhandled_input(), so
+		# unconditionally consuming Escape here meant TagEditPanel/
+		# InspectPanel/etc. never got a chance to close themselves -
+		# Escape always exited the whole screen instead. Let it fall
+		# through to their own handler when one of them is actually open.
+		if _any_sub_panel_open():
+			return
 		get_viewport().set_input_as_handled()
 		GameManager.save_game()
 		Transition.change_scene_instant(GameManager.stash_return_scene)
+
+func _any_sub_panel_open() -> bool:
+	return tag_edit_panel.visible or inspect_panel.visible or skins_panel.visible \
+		or open_bag_panel.visible or attachments_panel.visible or pet_case_panel.visible \
+		or filter_popup.visible or backpack_storage_popup.visible
 
 func _ready() -> void:
 	GameManager.set_default_cursor()
@@ -70,7 +82,17 @@ func _ready() -> void:
 		GameManager.save_game()
 		Transition.change_scene_instant(GameManager.stash_return_scene)
 	)
-	sort_button.pressed.connect(func(): GameManager.sort_stash(); refresh())
+	sort_button.pressed.connect(func():
+		# Quick Sell tracks stash_items indices while items are selected -
+		# sorting reorders that same array out from under it, so a
+		# confirmed sale could hit whatever item now sits at a stale
+		# index instead of what was actually selected.
+		if quick_sell_mode:
+			GameManager.toast_requested.emit("Finish or cancel Quick Sell first")
+			return
+		GameManager.sort_stash()
+		refresh()
+	)
 	# Double-click-to-equip (InventoryTile.gd) calls GameManager.equip_item()/
 	# equip_from_carried() directly with no local refresh() of its own - every
 	# OTHER way to equip from this screen (drag-drop, right-click menu) already
@@ -117,6 +139,11 @@ func _ready() -> void:
 	tag_edit_panel.saved.connect(refresh)
 	item_context_menu.equip_requested.connect(func(index, source, _item):
 		if source == "stash":
+			# Equipping removes the item from stash_items, shifting every
+			# later index down by one - same stale-index risk as Sort.
+			if quick_sell_mode:
+				GameManager.toast_requested.emit("Finish or cancel Quick Sell first")
+				return
 			GameManager.equip_item(index)
 		elif source == "carried":
 			GameManager.equip_from_carried(index)
@@ -462,6 +489,11 @@ func _build_filter_popup() -> void:
 
 		var filter_id: String = str(cat.get("id", ""))
 		btn.pressed.connect(func():
+			# Same stale-index risk as Sort - filtering reorders stash_items.
+			if quick_sell_mode:
+				GameManager.toast_requested.emit("Finish or cancel Quick Sell first")
+				filter_popup.visible = false
+				return
 			GameManager.filter_sort_stash(filter_id)
 			filter_popup.visible = false
 			refresh()

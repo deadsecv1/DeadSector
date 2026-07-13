@@ -26,6 +26,13 @@ var rebinding_action: String = ""
 func _input(event: InputEvent) -> void:
 	if rebinding_action != "" and event is InputEventKey and event.pressed and not event.echo:
 		get_viewport().set_input_as_handled()
+		if event.keycode == KEY_ESCAPE:
+			# Escape cancels the rebind instead of becoming the new bind -
+			# without this there was no way to back out of rebind mode
+			# once you'd clicked into it.
+			rebinding_action = ""
+			_refresh_keybind_labels()
+			return
 		GameManager.set_keybind(rebinding_action, event.keycode)
 		_refresh_keybind_labels()
 		rebinding_action = ""

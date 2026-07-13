@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bwhoo8o1553b"
-path="res://.godot/imported/thorn_before_topdownpack_swap.png-d2f728a1a6dcdae1357375e65564b116.ctex"
+uid="uid://4y5lq14bn814"
+path="res://.godot/imported/enemy_ghoul.png-60455a1ebac361cb7d0b3d2629eb2e79.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/backups/thorn_before_topdownpack_swap.png"
-dest_files=["res://.godot/imported/thorn_before_topdownpack_swap.png-d2f728a1a6dcdae1357375e65564b116.ctex"]
+source_file="res://assets/enemy_ghoul.png"
+dest_files=["res://.godot/imported/enemy_ghoul.png-60455a1ebac361cb7d0b3d2629eb2e79.ctex"]
 
 [params]
 

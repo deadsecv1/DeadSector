@@ -109,8 +109,8 @@ func _draw() -> void:
 			_draw_ghost_icon()
 		"wisp_icon":
 			_draw_wisp_icon()
-		"bonedog_icon":
-			_draw_bonedog_icon()
+		"ghoul_icon":
+			_draw_ghoul_icon()
 		"bat_icon":
 			_draw_bat_icon()
 		"goblin_icon":
@@ -391,18 +391,18 @@ func _draw_wisp_icon() -> void:
 	var tail := PackedVector2Array([_p(0.44, 0.5), _p(0.56, 0.5), _p(0.52, 0.86), _p(0.48, 0.86)])
 	draw_colored_polygon(tail, Color(icon_color.r, icon_color.g, icon_color.b, 0.4))
 
-func _draw_bonedog_icon() -> void:
-	# A skeletal dog silhouette - low body, pointed ears, a tail.
-	var body := PackedVector2Array([_p(0.16, 0.6), _p(0.24, 0.4), _p(0.5, 0.36), _p(0.78, 0.44), _p(0.86, 0.62), _p(0.7, 0.7), _p(0.3, 0.7)])
-	draw_colored_polygon(body, icon_color)
-	var ear1 := PackedVector2Array([_p(0.28, 0.4), _p(0.24, 0.24), _p(0.36, 0.38)])
-	draw_colored_polygon(ear1, icon_color)
-	var ear2 := PackedVector2Array([_p(0.44, 0.36), _p(0.42, 0.2), _p(0.52, 0.34)])
-	draw_colored_polygon(ear2, icon_color)
-	draw_rect(Rect2(_p(0.28, 0.7), Vector2(size.x * 0.07, size.y * 0.16)), icon_color)
-	draw_rect(Rect2(_p(0.62, 0.7), Vector2(size.x * 0.07, size.y * 0.16)), icon_color)
-	var tail := PackedVector2Array([_p(0.82, 0.58), _p(0.94, 0.44), _p(0.9, 0.56)])
-	draw_colored_polygon(tail, icon_color)
+func _draw_ghoul_icon() -> void:
+	# A hunched, shambling humanoid silhouette - rounded head, arched
+	# back, one arm reaching forward.
+	draw_circle(_p(0.42, 0.22), size.x * 0.11, icon_color)
+	var torso := PackedVector2Array([_p(0.28, 0.32), _p(0.56, 0.28), _p(0.7, 0.5), _p(0.6, 0.72), _p(0.32, 0.74), _p(0.22, 0.5)])
+	draw_colored_polygon(torso, icon_color)
+	var arm_front := PackedVector2Array([_p(0.58, 0.42), _p(0.82, 0.5), _p(0.8, 0.6), _p(0.56, 0.56)])
+	draw_colored_polygon(arm_front, icon_color)
+	var arm_back := PackedVector2Array([_p(0.26, 0.4), _p(0.14, 0.56), _p(0.2, 0.64), _p(0.32, 0.5)])
+	draw_colored_polygon(arm_back, icon_color)
+	draw_rect(Rect2(_p(0.32, 0.74), Vector2(size.x * 0.09, size.y * 0.16)), icon_color)
+	draw_rect(Rect2(_p(0.5, 0.74), Vector2(size.x * 0.09, size.y * 0.16)), icon_color)
 
 # A bat silhouette - wide pointed wings, a small round body, and two
 # short ears - distinct from the Goblin's icon below, since they used

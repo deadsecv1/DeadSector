@@ -15,7 +15,7 @@
 [ext_resource type="Script" path="res://scripts/Atmosphere.gd" id="13"]
 [ext_resource type="Script" path="res://scripts/BoneScatter.gd" id="14"]
 [ext_resource type="PackedScene" path="res://scenes/Rattles.tscn" id="18"]
-[ext_resource type="PackedScene" path="res://scenes/Bonedog.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://scenes/Ghoul.tscn" id="19"]
 [ext_resource type="PackedScene" path="res://scenes/FlareBeacon.tscn" id="15"]
 [ext_resource type="Script" path="res://scripts/RoofFade.gd" id="16"]
 [ext_resource type="PackedScene" path="res://scenes/DiscoveryZone.tscn" id="17"]
@@ -647,13 +647,13 @@ position = Vector2(-1350, 1050)
 [node name="Rattles" parent="." instance=ExtResource("18")]
 position = Vector2(-1500, 1240)
 
-[node name="Bonedog1" parent="." instance=ExtResource("19")]
+[node name="Ghoul1" parent="." instance=ExtResource("19")]
 position = Vector2(-1400, 1260)
 
-[node name="Bonedog2" parent="." instance=ExtResource("19")]
+[node name="Ghoul2" parent="." instance=ExtResource("19")]
 position = Vector2(-1600, 1260)
 
-[node name="Bonedog3" parent="." instance=ExtResource("19")]
+[node name="Ghoul3" parent="." instance=ExtResource("19")]
 position = Vector2(-1500, 1320)
 
 [node name="Skeleton1" parent="." instance=ExtResource("9")]

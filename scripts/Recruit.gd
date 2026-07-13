@@ -11,11 +11,17 @@ extends CharacterBody2D
 @export var attack_damage: int = 14
 @export var shoot_cooldown: float = 0.5
 
+# Retargeting every physics tick is an O(recruits x enemies) group scan -
+# a new nearest target every 0.25s is imperceptible during combat but
+# cuts that scan rate 15x. Matches Pet.gd's ATTACK_COOLDOWN pattern.
+const RETARGET_INTERVAL := 0.25
+
 var player: Node2D = null
 var target_enemy: Node2D = null
 var can_shoot: bool = true
 var recoil: float = 0.0
 var walk_cycle: float = 0.0
+var _retarget_timer: float = 0.0
 
 const BULLET_SCENE := preload("res://scenes/Bullet.tscn")
 const USERNAME_PREFIXES := ["Shadow", "Ghost", "Raven", "Viper", "Reaper", "Rogue", "Silent", "Iron", "Night", "Rusty", "Grim", "Cold", "Wolf", "Blaze", "Dusty", "Steel"]
@@ -72,7 +78,10 @@ func _physics_process(delta: float) -> void:
 		return
 
 	walk_cycle += delta
-	_find_target_enemy()
+	_retarget_timer -= delta
+	if _retarget_timer <= 0.0 or target_enemy == null or not is_instance_valid(target_enemy):
+		_retarget_timer = RETARGET_INTERVAL
+		_find_target_enemy()
 
 	if target_enemy != null and is_instance_valid(target_enemy):
 		gun_pivot.look_at(target_enemy.global_position)

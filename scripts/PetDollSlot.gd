@@ -49,7 +49,7 @@ func refresh() -> void:
 	pet_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(pet_icon)
 
-	if pet_id.begins_with("hatched_") or pet_id.begins_with("plushie_"):
+	if pet_id.begins_with("hatched_") or pet_id.begins_with("plushie_") or pet_id.begins_with("pacified_"):
 		var instance: Dictionary = GameManager.owned_pet_instances.get(pet_id, {})
 		var trait_data := GameManager.get_trait_data(instance.get("trait", ""))
 		if trait_data.get("glow", false):
@@ -90,7 +90,7 @@ func _show_info_popup() -> void:
 	name_lbl.add_theme_color_override("font_color", pet.get("color", Color.WHITE))
 	vbox.add_child(name_lbl)
 
-	var is_hatched: bool = pet_id.begins_with("hatched_") or pet_id.begins_with("plushie_")
+	var is_hatched: bool = pet_id.begins_with("hatched_") or pet_id.begins_with("plushie_") or pet_id.begins_with("pacified_")
 	if is_hatched:
 		var instance: Dictionary = GameManager.owned_pet_instances.get(pet_id, {})
 		var info_lbl := Label.new()

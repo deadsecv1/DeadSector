@@ -89,6 +89,13 @@ func _ready() -> void:
 	ghost_station.visible = GameManager.ghost_recruited
 	ghost_station.monitoring = GameManager.ghost_recruited
 	hideout_ghost.visible = GameManager.ghost_recruited
+	# Unlike the Ghost, recruit NPCs are meant to be visible in the
+	# Hideout before their unlock quest - just not usable yet. Grey out
+	# the prompt instead of hiding the station entirely, and re-check on
+	# quest_state_changed so completing that quest while still standing
+	# in the Hideout unlocks them immediately, no re-entry needed.
+	_refresh_recruit_station_locks()
+	GameManager.quest_state_changed.connect(_refresh_recruit_station_locks)
 	gym_panel.closed.connect(_close_gym)
 	lildirty_panel.closed.connect(_close_lildirty)
 	workbench_panel.closed.connect(_close_workbench)
@@ -209,6 +216,13 @@ func _open_bitcoin_farm() -> void:
 func _close_bitcoin_farm() -> void:
 	bitcoin_farm_panel.visible = false
 	player.set_input_locked(false)
+
+func _refresh_recruit_station_locks() -> void:
+	var locked: bool = not GameManager.recruits_hideout_unlocked()
+	clarity_station.set_locked(locked, "Finish a quest to unlock")
+	sorrow_station.set_locked(locked, "Finish a quest to unlock")
+	glenn_station.set_locked(locked, "Finish a quest to unlock")
+	big_crax_station.set_locked(locked, "Finish a quest to unlock")
 
 func _open_recruit_doll(recruit_id: String) -> void:
 	if sleeping or _any_panel_open():

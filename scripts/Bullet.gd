@@ -161,7 +161,6 @@ func _physics_process(delta: float) -> void:
 
 const BLOOD_SCENE := preload("res://scenes/BloodSplatter.tscn")
 const BLOOD_DECAL_SCENE := preload("res://scenes/BloodDecal.tscn")
-const DAMAGE_NUMBER_SCENE := preload("res://scenes/DamageNumber.tscn")
 const GAS_CLOUD_SCENE := preload("res://scenes/GasCloud.tscn")
 const ICE_PATCH_SCENE := preload("res://scenes/IcePatch.tscn")
 const SCORCH_SCENE := preload("res://scenes/ScorchZone.tscn")
@@ -261,7 +260,4 @@ func _spawn_blood() -> void:
 	decal.global_position = global_position
 
 func _spawn_damage_number() -> void:
-	var num = DAMAGE_NUMBER_SCENE.instantiate()
-	get_tree().current_scene.add_child(num)
-	num.global_position = global_position + Vector2(0, -12)
-	num.setup(damage, is_crit)
+	DamageNumber.get_instance(get_tree().current_scene, global_position + Vector2(0, -12), damage, is_crit)

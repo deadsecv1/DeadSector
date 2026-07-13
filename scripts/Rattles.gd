@@ -51,8 +51,12 @@ func _build_bone_ring() -> void:
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	_spin_bones(delta)
-	_check_bone_damage(delta)
-	_handle_throw(delta)
+	# super._physics_process() only stops movement/shooting while stunned -
+	# without this check the ring kept dealing damage and bones kept
+	# launching on schedule regardless of being "stunned".
+	if Time.get_ticks_msec() >= stunned_until_ms:
+		_check_bone_damage(delta)
+		_handle_throw(delta)
 
 func _spin_bones(delta: float) -> void:
 	bone_angle += delta * 2.3
@@ -86,6 +90,7 @@ func _throw_bone_at_player() -> void:
 	g.target_position = player.global_position
 	g.damage = 90
 	g.radius = 95.0
+	g.is_enemy_grenade = true
 
 # A bigger, bone-white bolt instead of the regular pistol shot.
 func _shoot() -> void:

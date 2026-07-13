@@ -35,6 +35,13 @@ func _ready() -> void:
 	visible = false
 	# Full-screen panel (fills the whole viewport) - no draggable edges here, unlike the smaller centered popups.
 	close_button.pressed.connect(func(): closed.emit())
+	# A listing can resolve (sold/expired) in the background while this
+	# panel is sitting open - without this, "My Listings" kept showing a
+	# live countdown and a Cancel button for something already gone.
+	GameManager.flea_market_changed.connect(func():
+		if visible:
+			refresh()
+	)
 	sort_button.pressed.connect(func():
 		_browse_sort_by_rarity = not _browse_sort_by_rarity
 		sort_button.text = "Sort: Rarity ✓" if _browse_sort_by_rarity else "Sort: Rarity"
@@ -60,6 +67,13 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	# This panel's anchors were reading back as 0,0,0,0 at runtime instead
+	# of the 0,0,1,1 (full-rect) set in the .tscn - reproducible even
+	# after a full editor-cache wipe, so something about how this specific
+	# instanced sub-scene resolves its root layout isn't taking. Forcing
+	# it explicitly here is a direct, reliable fix regardless of that
+	# underlying cause.
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	GameManager._check_flea_market()
 	refresh()
 	set_process(true)

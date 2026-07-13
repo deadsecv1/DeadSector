@@ -28,9 +28,15 @@ signal died
 # Set true on the Spike boss scene - ties into the "Kill Spike" quest.
 @export var is_boss: bool = false
 var is_on_ice: bool = false
+var _ice_sources: int = 0
 
+# Reference-counted, not a plain toggle - overlapping ice patches used to
+# end the slide the instant this enemy left ANY one of them, even while
+# still standing on another. Same public API, so IcePatch.gd needs no
+# changes. Matches Player.gd's identical fix.
 func set_on_ice(value: bool) -> void:
-	is_on_ice = value
+	_ice_sources = max(0, _ice_sources + (1 if value else -1))
+	is_on_ice = _ice_sources > 0
 
 func _ice_control_rate() -> float:
 	return 3.0 if is_on_ice else 10.0
@@ -41,6 +47,12 @@ var player: Player = null
 var walk_cycle: float = 0.0
 var recoil: float = 0.0
 var _using_external_sprite: bool = false
+
+# queue_free() only removes the node at end of frame, so without this
+# guard a second take_damage() landing in the same frame (e.g. multiple
+# shotgun pellets hitting at once) could re-enter die() and double-grant
+# its kill credit, loot roll, and corpse spawn.
+var is_dead: bool = false
 
 # Real Player operators dash every 4-7 seconds - a quick burst of speed
 # straight at (or past) you, on top of their normal chase movement.
@@ -119,7 +131,7 @@ func _ready() -> void:
 	if not is_real_player and not is_boss:
 		name_tag.visible = true
 		# Deferred on purpose: every typed subclass (NoxiousBat, ToxicWaste,
-		# Marauder, Sentinel, RiftWraith, Skeleton, Bonedog, Ghost) calls
+		# Marauder, Sentinel, RiftWraith, Skeleton, Ghoul, Ghost) calls
 		# add_to_group(its own type) AFTER this super._ready() call returns -
 		# reading get_display_name() right here, synchronously, would run
 		# BEFORE that group tag exists, so every single one of them fell
@@ -141,8 +153,8 @@ func get_display_name() -> String:
 		return "SKELETON"
 	if is_in_group("ghost"):
 		return "GHOST"
-	if is_in_group("bonedog"):
-		return "BONEDOG"
+	if is_in_group("ghoul"):
+		return "GHOUL"
 	if is_in_group("wisp"):
 		return "WISP"
 	if is_in_group("bat"):
@@ -327,16 +339,23 @@ func _physics_process(delta: float) -> void:
 	# fired their gun. A gunshot is loud enough to give away exactly
 	# where you are regardless of cover - the bush only hides someone
 	# sitting still and quiet, not someone actively shooting from it.
-	var effective_range := detection_range - GameManager.get_upgrade_bonus("stealth")
-	if GameManager.player_trait == "ghost_step":
-		effective_range *= 0.8
-	var is_hidden: bool = (player.in_bush or _player_in_smoke()) and not player.is_making_noise()
-	if is_hidden:
-		effective_range = detection_range * 0.25 - GameManager.get_upgrade_bonus("stealth")
-	effective_range = max(effective_range, 60.0)
-
 	var dist := global_position.distance_to(player.global_position)
-	var can_detect: bool = dist <= effective_range and _has_line_of_sight_to_player()
+
+	# effective_range is always <= detection_range below (stealth only ever
+	# shrinks it), so an enemy already further than that can never detect
+	# the player regardless of stealth - skip the smoke-zone group scan
+	# entirely once that's true instead of running it on every enemy every
+	# physics tick no matter the distance.
+	var can_detect: bool = false
+	if dist <= max(detection_range, 60.0):
+		var effective_range := detection_range - GameManager.get_upgrade_bonus("stealth")
+		if GameManager.player_trait == "ghost_step":
+			effective_range *= 0.8
+		var is_hidden: bool = (player.in_bush or _player_in_smoke()) and not player.is_making_noise()
+		if is_hidden:
+			effective_range = detection_range * 0.25 - GameManager.get_upgrade_bonus("stealth")
+		effective_range = max(effective_range, 60.0)
+		can_detect = dist <= effective_range and _has_line_of_sight_to_player()
 	if can_detect:
 		gun_pivot.look_at(player.global_position)
 		_turn_body_toward(player.global_position, delta)
@@ -468,6 +487,8 @@ const HIT_LINES := [
 var _took_first_hit: bool = false
 
 func take_damage(amount: int) -> void:
+	if is_dead:
+		return
 	health -= amount
 	if health <= 0:
 		die()
@@ -496,6 +517,9 @@ func _show_hit_bubble() -> void:
 	tw.tween_callback(bubble.queue_free)
 
 func die() -> void:
+	if is_dead:
+		return
+	is_dead = true
 	died.emit()
 	GameManager.notify_event("kill_enemy")
 	GameManager.record_kill()
@@ -522,8 +546,8 @@ func _mark_discovered() -> void:
 		GameManager.mark_enemy_discovered("skeleton")
 	elif is_in_group("ghost"):
 		GameManager.mark_enemy_discovered("ghost")
-	elif is_in_group("bonedog"):
-		GameManager.mark_enemy_discovered("bonedog")
+	elif is_in_group("ghoul"):
+		GameManager.mark_enemy_discovered("ghoul")
 	elif is_in_group("wisp"):
 		GameManager.mark_enemy_discovered("wisp")
 	elif is_in_group("bat"):

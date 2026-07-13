@@ -14,6 +14,7 @@ var speed: float
 var max_health: int
 var shoot_cooldown: float
 var damage: int
+var health_regen_rate: float = 0.0
 
 var health: int
 var can_shoot: bool = true
@@ -166,6 +167,7 @@ var is_prone: bool = false
 var is_on_ice: bool = false
 var hazard_speed_mult: float = 1.0
 var _slow_sources: int = 0
+var _ice_sources: int = 0
 var _prone_key_was_down: bool = false
 
 const BODY_COLOR_DEFAULT := Color(0.18, 0.42, 0.75, 1)
@@ -285,6 +287,7 @@ func _recompute_stats() -> void:
 	max_health = base_max_health + int(GameManager.get_equipped_bonus("max_health") + GameManager.get_upgrade_bonus("max_health") + GameManager.get_hideout_bonus("max_health"))
 	shoot_cooldown = max(0.08, base_shoot_cooldown - GameManager.get_equipped_bonus("fire_rate") - GameManager.get_upgrade_bonus("fire_rate"))
 	damage = base_damage + int(GameManager.get_equipped_bonus("damage") + GameManager.get_upgrade_bonus("damage") + GameManager.get_upgrade_bonus("melee_damage") + GameManager.get_hideout_bonus("damage"))
+	health_regen_rate = GameManager.get_equipped_bonus("health_regen") + GameManager.get_upgrade_bonus("health_regen") + GameManager.get_hideout_bonus("health_regen")
 
 	vision_range = VISION_RANGE_BASE + GameManager.get_equipped_bonus("vision_range") + GameManager.get_upgrade_bonus("vision_range")
 	if flashlight != null:
@@ -476,6 +479,14 @@ func _update_appearance() -> void:
 var _gun_sprite_cache: Dictionary = {}
 
 func _update_external_gun_sprite() -> void:
+	# weapon_icon defaults to "pistol" even when nothing's actually
+	# equipped (that default is only meant for the Hotbar's cosmetic
+	# fallback icon) - without this check the gun visual would draw a
+	# pistol regardless, instead of showing empty hands while unarmed.
+	if GameManager.equipped_items.get("weapon") == null:
+		external_gun_sprite.visible = false
+		gun_visual.visible = false
+		return
 	var path := "res://assets/weapons/%s.png" % weapon_icon
 	if not ResourceLoader.exists(path):
 		external_gun_sprite.visible = false
@@ -576,7 +587,7 @@ func _toggle_nightvision() -> void:
 	Sfx.play_nightvision_toggle()
 
 func _handle_regen(delta: float) -> void:
-	var rate := GameManager.get_equipped_bonus("health_regen") + GameManager.get_upgrade_bonus("health_regen") + GameManager.get_hideout_bonus("health_regen")
+	var rate := health_regen_rate
 	if rate <= 0.0 or health >= max_health:
 		regen_accumulator = 0.0
 		return
@@ -619,8 +630,13 @@ func _handle_movement(delta: float) -> void:
 	velocity = velocity.lerp(dir * target_speed, clamp(delta * control_rate, 0.0, 1.0))
 	move_and_slide()
 
+# Reference-counted like set_slowed() below, not a plain toggle - overlapping
+# ice patches (common along a frost bullet's trail) used to end the slide
+# the instant you left ANY one of them, even while still standing on
+# another. Same public API, so IcePatch.gd needs no changes.
 func set_on_ice(value: bool) -> void:
-	is_on_ice = value
+	_ice_sources = max(0, _ice_sources + (1 if value else -1))
+	is_on_ice = _ice_sources > 0
 
 var _flashlight_disabled: bool = false
 
@@ -689,7 +705,11 @@ func _handle_shoot() -> void:
 	if GameManager.active_hotbar_slot == 0:
 		is_aiming_grenade = false
 		trajectory_line.visible = false
-		if lmb_down and can_shoot and not is_reloading:
+		# Nothing here previously checked whether a weapon was actually
+		# equipped - current_mag/can_shoot still worked off the "pistol"
+		# fallback icon used for cosmetic purposes when unarmed, so you
+		# could still fire with no weapon equipped at all.
+		if lmb_down and can_shoot and not is_reloading and GameManager.equipped_items.get("weapon") != null:
 			if current_mag > 0:
 				_shoot()
 		_lmb_was_down = lmb_down

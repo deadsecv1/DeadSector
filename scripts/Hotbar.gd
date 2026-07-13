@@ -9,8 +9,17 @@ extends HBoxContainer
 
 const KEYS := [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5]
 
+# Not every carried_loot mutation (plain pickup/drop/use of a consumable)
+# emits a signal, so a pure signal-driven refresh risks the hotbar going
+# stale. GameManager.equipped_changed/pockets_changed ARE reliably emitted
+# and give an instant refresh on those; this low-frequency poll is just the
+# safety net for everything else, instead of rebuilding all 5 slots every
+# single frame.
+const REFRESH_INTERVAL := 0.15
+
 var selected_index: int = 0
 var _key_states: Array = [false, false, false, false, false]
+var _refresh_elapsed: float = 0.0
 
 @onready var slots: Array = [$Slot1, $Slot2, $Slot3, $Slot4, $Slot5]
 @onready var icons: Array = [$Slot1/Icon1, $Slot2/Icon2, $Slot3/Icon3, $Slot4/Icon4, $Slot5/Icon5]
@@ -19,9 +28,15 @@ func _ready() -> void:
 	GameManager.active_hotbar_slot = 0
 	selected_index = 0
 	_update_highlight()
-
-func _process(_delta: float) -> void:
 	_refresh_slots()
+	GameManager.equipped_changed.connect(_refresh_slots)
+	GameManager.pockets_changed.connect(_refresh_slots)
+
+func _process(delta: float) -> void:
+	_refresh_elapsed += delta
+	if _refresh_elapsed >= REFRESH_INTERVAL:
+		_refresh_elapsed = 0.0
+		_refresh_slots()
 	if _input_blocked():
 		return
 	for i in range(5):

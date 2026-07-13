@@ -43,6 +43,17 @@ var chat_box_open: bool = false
 var cursor_is_default: bool = false
 var _chat_opened_at_ms: int = 0
 
+# Cached instead of re-queried via get_first_node_in_group every _process
+# frame - the player doesn't change mid-raid.
+var _cached_player: Node = null
+
+# Only re-format/re-parse the BBCode currency label when a value actually
+# changed, instead of every frame regardless.
+var _last_rubles: int = -1
+var _last_junk: int = -1
+var _last_artifacts: int = -1
+var _last_alloys: int = -1
+
 func _ready() -> void:
 	message_label.visible = false
 	inventory_panel.visible = false
@@ -175,15 +186,21 @@ func _input(event: InputEvent) -> void:
 			_open_chat_box()
 
 func _process(_delta: float) -> void:
-	loot_label.text = "[color=#d4a5a5]Rubles[/color] [b]%d[/b]    [color=#a5c9d4]Junk[/color] [b]%d[/b]    [color=#c9a5d4]Artifacts[/color] [b]%d[/b]    [color=#a5d4a8]Alloys[/color] [b]%d[/b]" % [GameManager.rubles, GameManager.junk, GameManager.artifacts, GameManager.alloys]
+	if GameManager.rubles != _last_rubles or GameManager.junk != _last_junk or GameManager.artifacts != _last_artifacts or GameManager.alloys != _last_alloys:
+		_last_rubles = GameManager.rubles
+		_last_junk = GameManager.junk
+		_last_artifacts = GameManager.artifacts
+		_last_alloys = GameManager.alloys
+		loot_label.text = "[color=#d4a5a5]Rubles[/color] [b]%d[/b]    [color=#a5c9d4]Junk[/color] [b]%d[/b]    [color=#c9a5d4]Artifacts[/color] [b]%d[/b]    [color=#a5d4a8]Alloys[/color] [b]%d[/b]" % [_last_rubles, _last_junk, _last_artifacts, _last_alloys]
 
 	if reload_prompt.visible:
 		var mouse_pos := get_viewport().get_mouse_position()
 		reload_prompt.position = mouse_pos + Vector2(18, 18)
 
-	var player = get_tree().get_first_node_in_group("player")
-	scope_overlay.visible = player != null and player.get("is_scoped") == true
-	night_vision_overlay.visible = player != null and player.get("nightvision_active") == true
+	if _cached_player == null or not is_instance_valid(_cached_player):
+		_cached_player = get_tree().get_first_node_in_group("player")
+	scope_overlay.visible = _cached_player != null and _cached_player.get("is_scoped") == true
+	night_vision_overlay.visible = _cached_player != null and _cached_player.get("nightvision_active") == true
 
 	# Polled (not event-based) so it behaves the same reliable way as the
 	# player's WASD movement checks.
@@ -215,6 +232,13 @@ func _process(_delta: float) -> void:
 		elif wandering_trader_panel.visible:
 			wandering_trader_panel.visible = false
 			_set_player_locked(false)
+		elif tag_edit_panel.visible:
+			# TagEditPanel already closes itself via its own
+			# _unhandled_input (event-based) on this same Escape press -
+			# this branch just needs to exist so THIS polled check doesn't
+			# fall through to the else below and open the Pause Menu as
+			# an unwanted side effect of that close.
+			pass
 		elif inventory_panel.visible:
 			inventory_panel.visible = false
 			_set_player_locked(false)

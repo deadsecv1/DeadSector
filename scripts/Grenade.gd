@@ -8,6 +8,11 @@ extends Node2D
 @export var radius: float = 95.0
 @export var travel_time: float = 0.45
 
+# Set true by boss throws (Spike/Rattles) so the blast damages the player
+# instead of enemies - same is_enemy_bullet pattern Bullet.gd already
+# uses. Defaults false, matching the player's own frag grenade.
+@export var is_enemy_grenade: bool = false
+
 var target_position: Vector2 = Vector2.ZERO
 
 @onready var body: Polygon2D = $Body
@@ -21,16 +26,20 @@ func _ready() -> void:
 func _explode() -> void:
 	if not is_instance_valid(self):
 		return
-	for enemy in get_tree().get_nodes_in_group("enemy"):
-		if not is_instance_valid(enemy):
-			continue
-		if global_position.distance_to(enemy.global_position) <= radius and enemy.has_method("take_damage"):
-			if enemy.health <= damage:
-				GameManager.notify_event("grenade_kill")
-			enemy.take_damage(damage)
+	var player = get_tree().get_first_node_in_group("player")
+	if is_enemy_grenade:
+		if player != null and global_position.distance_to(player.global_position) <= radius and player.has_method("take_damage"):
+			player.take_damage(damage)
+	else:
+		for enemy in get_tree().get_nodes_in_group("enemy"):
+			if not is_instance_valid(enemy):
+				continue
+			if global_position.distance_to(enemy.global_position) <= radius and enemy.has_method("take_damage"):
+				if enemy.health <= damage:
+					GameManager.notify_event("grenade_kill")
+				enemy.take_damage(damage)
 
 	Sfx.play_explosion()
-	var player = get_tree().get_first_node_in_group("player")
 	if player != null and player.has_node("Camera2D"):
 		player.get_node("Camera2D").shake(10.0)
 

@@ -113,24 +113,10 @@ func _drop_data(pos: Vector2, data) -> void:
 			GameManager.unequip_to_carried_cell(equip_slot, gx, gy)
 	elif data_source == "stash" and source == "backpack_storage":
 		# Moving from the Stash into Backpack Storage.
-		if index < 0 or index >= GameManager.stash_items.size():
-			return
-		var item: Dictionary = GameManager.stash_items[index]
-		GameManager.stash_items.remove_at(index)
-		item["grid_x"] = gx
-		item["grid_y"] = gy
-		GameManager.backpack_storage.append(item)
-		GameManager.save_game()
+		GameManager.move_stash_item_to_backpack_storage_cell(index, gx, gy)
 	elif data_source == "backpack_storage" and source == "stash":
 		# Moving from Backpack Storage back into the Stash.
-		if index < 0 or index >= GameManager.backpack_storage.size():
-			return
-		var item2: Dictionary = GameManager.backpack_storage[index]
-		GameManager.backpack_storage.remove_at(index)
-		item2["grid_x"] = gx
-		item2["grid_y"] = gy
-		GameManager.stash_items.append(item2)
-		GameManager.save_game()
+		GameManager.move_backpack_storage_item_to_stash_cell(index, gx, gy)
 	elif source == "stash":
 		if index < 0 or index >= GameManager.stash_items.size():
 			return

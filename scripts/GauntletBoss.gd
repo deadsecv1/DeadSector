@@ -67,6 +67,9 @@ func _fire_spread() -> void:
 		proj.damage = int(48 * difficulty)
 
 func _die() -> void:
+	if is_dead:
+		return
+	is_dead = true
 	_spawn_death_particles(Color(0.8, 0.25, 0.95, 1))
 	GameManager.mark_enemy_discovered("gauntlet_boss")
 	GameManager.grant_salvaged_beasts_tickets(randi_range(4, 8))

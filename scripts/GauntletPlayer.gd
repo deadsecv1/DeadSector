@@ -79,6 +79,23 @@ func _ready() -> void:
 	attack_zone.body_entered.connect(_on_zone_entered)
 	attack_zone.body_exited.connect(_on_zone_exited)
 
+	# One-time setup only - this used to live inside _apply_gear_tint(),
+	# which re-runs on every single equip/unequip via
+	# gauntlet_equipment_changed. That meant every gear swap mid-run
+	# spawned ANOTHER pet on top of the existing one and added another
+	# duplicate health_changed listener.
+	_spawn_pet()
+	sprite.add_animation("idle", TEX_IDLE, 6)
+	sprite.add_animation("run", TEX_RUN, 6)
+	sprite.add_animation("punch", TEX_PUNCH, 4)
+	sprite.add_animation("death", TEX_DEATH, 6)
+	sprite.frame_rate = 10.0
+	sprite.play("idle")
+
+	hp_bar.max_value = max_health
+	hp_bar.value = health
+	health_changed.connect(func(cur, mx): hp_bar.max_value = mx; hp_bar.value = cur)
+
 # Equipment actually matters mid-run now: stat bonuses apply for real,
 # and the sprite gets a visible tint/glow matching the best-equipped
 # rarity, so gearing up in the Gauntlet doll has a real payoff.
@@ -124,18 +141,6 @@ func _apply_gear_tint() -> void:
 		"exotic": Color(1.25, 0.7, 1.25, 1),
 	}
 	sprite.modulate = tint_colors.get(rarity, Color(1, 1, 1, 1))
-	_spawn_pet()
-
-	sprite.add_animation("idle", TEX_IDLE, 6)
-	sprite.add_animation("run", TEX_RUN, 6)
-	sprite.add_animation("punch", TEX_PUNCH, 4)
-	sprite.add_animation("death", TEX_DEATH, 6)
-	sprite.frame_rate = 10.0
-	sprite.play("idle")
-
-	hp_bar.max_value = max_health
-	hp_bar.value = health
-	health_changed.connect(func(cur, mx): hp_bar.max_value = mx; hp_bar.value = cur)
 
 func _spawn_pet() -> void:
 	if GameManager.equipped_pet == "":

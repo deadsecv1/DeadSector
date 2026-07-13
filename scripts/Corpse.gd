@@ -9,6 +9,14 @@ extends Area2D
 
 @export var search_duration: float = 1.8
 
+# Raids (especially Gauntlet's horde waves) can rack up dozens of kills -
+# without a cap, corpses accumulate as live Area2D + _process() nodes for
+# the rest of the raid. Culls the oldest already-searched (empty) bodies
+# first so players don't lose access to loot they haven't collected yet;
+# only reaches into unsearched ones if still over the cap after that.
+const MAX_CORPSES := 40
+const SEARCHED_LINGER_TIME := 25.0
+
 var loot_items: Array = []
 var currency_drops: Dictionary = {}
 var is_real_player: bool = false
@@ -18,12 +26,14 @@ var searching: bool = false
 var player_in_range: bool = false
 var glow: Polygon2D = null
 var glow_tween: Tween = null
+var spawn_time_msec: int = 0
 
 @onready var body_poly: Polygon2D = $Body
 @onready var tag_mark: Polygon2D = $TagMark
 @onready var prompt: Label = $Prompt
 
 func _ready() -> void:
+	spawn_time_msec = Time.get_ticks_msec()
 	add_to_group("corpse")
 	body_poly.color = Color(0.14, 0.24, 0.16, 1) if is_real_player else Color(0.32, 0.11, 0.11, 1)
 	tag_mark.visible = is_real_player
@@ -33,6 +43,34 @@ func _ready() -> void:
 	_update_prompt()
 	if is_real_player and not loot_items.is_empty():
 		_add_loot_glow()
+	_enforce_corpse_cap()
+	if loot_items.is_empty():
+		# Nothing to search, ever - no reason to keep polling input or
+		# stick around at all.
+		_begin_auto_cleanup()
+
+# Keeps the live corpse count bounded so a long or kill-heavy raid can't
+# accumulate bodies forever.
+func _enforce_corpse_cap() -> void:
+	var corpses := get_tree().get_nodes_in_group("corpse")
+	var over: int = corpses.size() - MAX_CORPSES
+	if over <= 0:
+		return
+	var searched_ones: Array = []
+	var unsearched_ones: Array = []
+	for c in corpses:
+		if c == self:
+			continue
+		if c.searched:
+			searched_ones.append(c)
+		else:
+			unsearched_ones.append(c)
+	searched_ones.sort_custom(func(a, b): return a.spawn_time_msec < b.spawn_time_msec)
+	unsearched_ones.sort_custom(func(a, b): return a.spawn_time_msec < b.spawn_time_msec)
+	var to_free: Array = searched_ones + unsearched_ones
+	for i in range(min(over, to_free.size())):
+		if is_instance_valid(to_free[i]):
+			to_free[i].queue_free()
 
 # A soft pulsing gold glow so a Real Player's body - always worth the
 # stop, given Dog Tags and better gear - actually stands out on the
@@ -125,5 +163,17 @@ func _finish_search() -> void:
 	GameManager.finish_search()
 	prompt.text = "Searched"
 	await get_tree().create_timer(1.2).timeout
+	if not is_instance_valid(self):
+		return
+	prompt.visible = false
+	_begin_auto_cleanup()
+
+# Once a body is fully searched (or never had anything to search), it's
+# an inert Area2D doing nothing useful - stop processing it entirely and
+# free it after a short linger so it doesn't sit around for the rest of
+# the raid.
+func _begin_auto_cleanup() -> void:
+	set_process(false)
+	await get_tree().create_timer(SEARCHED_LINGER_TIME).timeout
 	if is_instance_valid(self):
-		prompt.visible = false
+		queue_free()

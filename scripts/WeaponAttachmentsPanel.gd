@@ -99,7 +99,16 @@ func _make_row(weapon: Dictionary, slot_key: String, installed) -> Control:
 			sub.text = "In %s: %s" % [location, item.get("name", "?")]
 			btn.text = "Install"
 			btn.pressed.connect(func():
-				GameManager.install_attachment_on_item(weapon, _source_array(), found_index, is_carried)
+				# Re-resolve at click time instead of trusting the index
+				# captured when this row was built - the Stash's Sort
+				# button (and others) stay clickable behind this panel,
+				# and a reorder in between could shift which item that
+				# stale index actually pointed at.
+				var live_index := _find_attachment(slot_key)
+				if live_index < 0:
+					refresh()
+					return
+				GameManager.install_attachment_on_item(weapon, _source_array(), live_index, is_carried)
 				refresh()
 			)
 		else:

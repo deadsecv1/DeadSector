@@ -14,6 +14,21 @@ var rect: ColorRect
 # change in the game should go through this file so they all share one lock.
 var _is_transitioning := false
 
+# change_scene_to_file(path) re-reads and re-parses the .tscn from the
+# .pck on every single call - nothing keeps the previous scene's
+# PackedScene resource alive once you navigate away from it, so revisiting
+# a screen (Stash, Traders, ...) pays that disk-load cost again every
+# time, on top of the instantiate+_ready() cost that's unavoidable either
+# way. This autoload never gets freed, so caching PackedScenes here by
+# path keeps them warm for the whole session - a visit after the first
+# skips straight to change_scene_to_packed(), no re-load.
+var _scene_cache: Dictionary = {}
+
+func get_cached_scene(path: String) -> PackedScene:
+	if not _scene_cache.has(path):
+		_scene_cache[path] = load(path)
+	return _scene_cache[path]
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 100
@@ -64,7 +79,7 @@ func change_scene(path: String, fade_out_dur: float = 0.5, fade_in_dur: float = 
 	# the maximum possible headroom going in, on top of the buffer
 	# itself already being sized with real margin.
 	MenuMusic._fill_buffer()
-	get_tree().change_scene_to_file(path)
+	get_tree().change_scene_to_packed(get_cached_scene(path))
 	await get_tree().process_frame
 	await fade_in(fade_in_dur)
 	_is_transitioning = false
@@ -80,6 +95,6 @@ func change_scene_instant(path: String, play_sound: bool = true) -> void:
 	if play_sound:
 		Sfx.play_menu_confirm()
 	MenuMusic._fill_buffer()
-	get_tree().change_scene_to_file(path)
+	get_tree().change_scene_to_packed(get_cached_scene(path))
 	await get_tree().process_frame
 	_is_transitioning = false

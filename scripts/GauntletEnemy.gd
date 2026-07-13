@@ -26,6 +26,12 @@ var contact_timer: float = 0.0
 var player_ref: Node = null
 var difficulty: float = 1.0
 
+# queue_free() only removes the node at end of frame, so without this
+# guard a second take_damage() landing in the same frame (e.g. the
+# player's melee and a pet's own attack both connecting at once) could
+# re-enter _die() and double-grant its loot/ticket/engram rolls.
+var is_dead: bool = false
+
 const LOOT_SCENE := preload("res://scenes/GauntletLoot.tscn")
 
 @onready var sprite: Node = $AnimatedSprite
@@ -88,6 +94,8 @@ func _patrol() -> void:
 	velocity.x = facing * PATROL_SPEED
 
 func take_damage(amount: int) -> void:
+	if is_dead:
+		return
 	health -= amount
 	hp_bar.value = health
 	var flash := create_tween()
@@ -123,6 +131,9 @@ func _spawn_death_particles(color: Color) -> void:
 	)
 
 func _die() -> void:
+	if is_dead:
+		return
+	is_dead = true
 	_spawn_death_particles(Color(1, 0.3, 0.3, 1))
 	GameManager.mark_enemy_discovered("gauntlet_stalker")
 	if randf() < 0.5:

@@ -1577,6 +1577,12 @@ func accept_quest(key: String) -> bool:
 	quest_status[key] = "active"
 	quest_state_changed.emit()
 	quest_toast_requested.emit("Contract accepted: %s" % QUEST_DATA[key].get("title", key))
+	# check_achievements() as a whole only runs from save_game() - without
+	# this, "Full Docket" (hit 3 active contracts at once) could go
+	# unnoticed for up to a minute (until the next autosave) instead of
+	# unlocking the moment it's actually true, and would miss it entirely
+	# if the 3rd contract was turned in/abandoned before that.
+	_maybe_unlock("full_docket", active_quest_count() >= MAX_ACTIVE_QUESTS)
 	return true
 
 # Called from wherever an objective might just have happened. Checks it
@@ -1614,7 +1620,13 @@ func turn_in_quest(key: String) -> bool:
 # forever - it just goes back to "available" so it can be re-accepted
 # later if the player changes their mind.
 func abandon_quest(key: String) -> bool:
-	if quest_status.get(key, "") == "":
+	var current_status: String = quest_status.get(key, "")
+	if current_status == "" or current_status == "done":
+		# Erasing a completed quest would re-lock every later quest that
+		# checks for it via is_quest_locked()/_quest_requires(). Not
+		# reachable through the current UI (Abandon only shows for
+		# active/ready quests), but guarding here regardless in case a
+		# future caller reaches this directly.
 		return false
 	var title: String = QUEST_DATA.get(key, {}).get("title", "that contract")
 	quest_status.erase(key)
@@ -2057,7 +2069,7 @@ const ENEMY_CATALOG := {
 	"skeleton": {"name": "Skeleton", "icon_key": "sword", "desc": "Boneclock's signature undead raider. Faster and tougher than the ones in Overgrowth."},
 	"ghost": {"name": "Ghost", "icon_key": "ghost_icon", "desc": "A translucent, legless horror that moves faster than it has any right to."},
 	"wisp": {"name": "Wisp", "icon_key": "wisp_icon", "desc": "A drifting soul-light that appears during the Spectral Tide's Commune event. Harmless alone, dangerous in numbers."},
-	"bonedog": {"name": "Bonedog", "icon_key": "bonedog_icon", "desc": "A skeletal hound that guards the Bone Clocktower, leashed close to Rattles."},
+	"ghoul": {"name": "Ghoul", "icon_key": "ghoul_icon", "desc": "A rotting, hunched horror that guards the Bone Clocktower, leashed close to Rattles."},
 	"noxious_bat": {"name": "Noxious Bat", "icon_key": "bat_icon", "desc": "A mutated bat that swarms in the dark corners of Overgrowth."},
 	"toxic_waste": {"name": "Goblin", "icon_key": "goblin_icon", "desc": "A sickly green creature born from the Radiation Zone. Often carries a gas mask."},
 	"spike": {"name": "Spike", "icon_key": "warden_icon", "desc": "Overgrowth's boss. A hulking mutant guarding a fortified arena."},
@@ -2192,7 +2204,7 @@ const WEAPON_CATALOG := {
 const KEY_CATALOG := {
 	"house_a_key": {"name": "Ashen House Key", "icon_key": "key", "rarity": "rare", "value": 100, "desc": "Opens the locked Ashen House in Overgrowth. Drops off raiders patrolling nearby - nobody's found a way in without it."},
 	"house_b_key": {"name": "Blackthorn Estate Key", "icon_key": "key", "rarity": "rare", "value": 100, "desc": "Opens the Blackthorn Estate in Overgrowth. A rarer find than the Ashen House Key, guarding a rarer loot room."},
-	"gas_station_key": {"name": "Gas Station Key", "icon_key": "key", "rarity": "rare", "value": 100, "desc": "Opens the locked Gas Station in Boneclock. Skeletons and Bonedogs patrol close enough to the pumps that finding one takes real work."},
+	"gas_station_key": {"name": "Gas Station Key", "icon_key": "key", "rarity": "rare", "value": 100, "desc": "Opens the locked Gas Station in Boneclock. Skeletons and Ghouls patrol close enough to the pumps that finding one takes real work."},
 	"graveyard_key": {"name": "Graveyard Key", "icon_key": "key", "rarity": "legendary", "value": 0, "desc": "A cold iron key Midnight Bones handed you in the dark. Has to be in your Backpack Storage or a Safe Pocket - not just your Stash - to get through the Graveyard's gate."},
 }
 
@@ -3070,7 +3082,7 @@ const ACHIEVEMENTS := {
 	"met_a_real_player": {"name": "Not Actually a Bot", "desc": "Encounter a Real Player enemy.", "icon": "combat"},
 	"met_a_ghost": {"name": "Boo", "desc": "Encounter a Ghost.", "icon": "ghost_kill"},
 	"met_a_wisp": {"name": "Will-o'-the-Wisp", "desc": "Encounter a Wisp.", "icon": "ghost_kill"},
-	"met_a_bonedog": {"name": "Good Boy?", "desc": "Encounter a Bonedog.", "icon": "combat"},
+	"met_a_ghoul": {"name": "Fresh Rot", "desc": "Encounter a Ghoul.", "icon": "combat"},
 	"met_a_noxious_bat": {"name": "Rabies Shot Recommended", "desc": "Encounter a Noxious Bat.", "icon": "combat"},
 	"met_a_toxic_waste": {"name": "Biohazard", "desc": "Encounter Toxic Waste.", "icon": "combat"},
 	"met_a_marauder": {"name": "Scavenger's Scavenger", "desc": "Encounter a Marauder.", "icon": "combat"},
@@ -3217,7 +3229,7 @@ func check_achievements() -> void:
 	_maybe_unlock("jackpot", achievement_flag_multiversal_pull)
 	_maybe_unlock("blueprint_master", stat_blueprints_researched >= 10)
 	_maybe_unlock("level_50", player_level >= 50)
-	_maybe_unlock("well_traveled", discovered_enemies.has("skeleton") and discovered_enemies.has("rift_wraith") and graveyard_kills > 0 and stat_extractions > 0)
+	_maybe_unlock("well_traveled", discovered_enemies.has("raider") and discovered_enemies.has("skeleton") and discovered_enemies.has("rift_wraith") and graveyard_kills > 0)
 	_maybe_unlock("close_call", achievement_flag_close_call)
 	_maybe_unlock("big_score", carried_value >= 5000)
 
@@ -3243,7 +3255,7 @@ func check_achievements() -> void:
 	_maybe_unlock("met_a_real_player", discovered_enemies.has("real_player"))
 	_maybe_unlock("met_a_ghost", discovered_enemies.has("ghost"))
 	_maybe_unlock("met_a_wisp", discovered_enemies.has("wisp"))
-	_maybe_unlock("met_a_bonedog", discovered_enemies.has("bonedog"))
+	_maybe_unlock("met_a_ghoul", discovered_enemies.has("ghoul"))
 	_maybe_unlock("met_a_noxious_bat", discovered_enemies.has("noxious_bat"))
 	_maybe_unlock("met_a_toxic_waste", discovered_enemies.has("toxic_waste"))
 	_maybe_unlock("met_a_marauder", discovered_enemies.has("marauder"))
@@ -3279,16 +3291,22 @@ func check_achievements() -> void:
 	_maybe_unlock("master_engineer", stat_blueprints_researched >= 25)
 	var has_mythic := false
 	var has_exotic := false
-	var all_gear: Array = stash_items.duplicate()
-	for slot in equipped_items:
-		if equipped_items[slot] != null:
-			all_gear.append(equipped_items[slot])
-	for it in all_gear:
+	for it in stash_items:
 		var r: String = it.get("rarity", "")
 		if r == "mythic":
 			has_mythic = true
 		elif r == "exotic":
 			has_exotic = true
+	if not (has_mythic and has_exotic):
+		for slot in equipped_items:
+			var eq_item = equipped_items[slot]
+			if eq_item == null:
+				continue
+			var r2: String = eq_item.get("rarity", "")
+			if r2 == "mythic":
+				has_mythic = true
+			elif r2 == "exotic":
+				has_exotic = true
 	_maybe_unlock("mythic_owner", has_mythic)
 	_maybe_unlock("exotic_owner", has_exotic)
 	_maybe_unlock("skin_collector", owned_skins.size() >= 5)
@@ -3297,8 +3315,9 @@ func check_achievements() -> void:
 	_maybe_unlock("well_armed", weapon_item != null and weapon_item.has("attachments") and not weapon_item["attachments"].is_empty())
 
 	# --- Stash ---
-	_maybe_unlock("stash_worth_10k", get_total_value() >= 10000)
-	_maybe_unlock("stash_worth_100k", get_total_value() >= 100000)
+	var total_value := get_total_value()
+	_maybe_unlock("stash_worth_10k", total_value >= 10000)
+	_maybe_unlock("stash_worth_100k", total_value >= 100000)
 	_maybe_unlock("pack_rat", stash_items.size() >= 50)
 
 	# --- Skills ---
@@ -4741,7 +4760,7 @@ func has_key_in_backpack(key_id: String) -> bool:
 var master_volume: float = 100.0
 var music_volume: float = 100.0
 var sfx_volume: float = 100.0
-var window_mode_setting: String = "windowed"
+var window_mode_setting: String = "windowed_fullscreen"
 var vsync_enabled: bool = true
 var screen_shake_enabled: bool = true
 
@@ -5020,6 +5039,12 @@ const FLEA_MARKET_RARITY_WEIGHTS := {
 	"legendary": 10, "mythic": 6, "exotic": 4,
 }
 
+# Fires whenever _check_flea_market() resolves a listing (sold/expired)
+# in the background - FleaMarketPanel listens for this so a listing
+# that resolves while the panel is open doesn't leave a stale row (live
+# countdown, working-looking Cancel button) for something that's
+# already gone.
+signal flea_market_changed
 var flea_market_listings: Array = []
 var _flea_listing_counter: int = 0
 var _flea_market_timer: float = 0.0
@@ -5122,6 +5147,7 @@ func buy_flea_listing(listing_id: int) -> bool:
 # correctly using real elapsed time, not frames.
 func _check_flea_market() -> void:
 	var now := _flea_now()
+	var changed := false
 	var i := flea_market_listings.size() - 1
 	while i >= 0:
 		var l: Dictionary = flea_market_listings[i]
@@ -5136,6 +5162,7 @@ func _check_flea_market() -> void:
 					"%s bought your %s for %d Rubles. The Rubles have already been added to your balance." % [buyer, item_name, price],
 				)
 				flea_market_listings.remove_at(i)
+				changed = true
 			elif now >= float(l.get("expire_at", 0.0)):
 				var item_name2: String = str(l["item"].get("name", "an item"))
 				send_mail(
@@ -5144,14 +5171,18 @@ func _check_flea_market() -> void:
 					{"item": l["item"]},
 				)
 				flea_market_listings.remove_at(i)
+				changed = true
 		else:
 			# Other players' listings also expire eventually (much slower
 			# than yours) so the browse market actually cycles instead of
 			# permanently freezing at whatever first filled it.
 			if now >= float(l.get("expire_at", 0.0)):
 				flea_market_listings.remove_at(i)
+				changed = true
 		i -= 1
 	_ensure_other_flea_listings()
+	if changed:
+		flea_market_changed.emit()
 
 # Real sellers don't all price rationally - most listings stay within
 # the sane 0.5x-3x band get_flea_market_price_range() computes, but a
@@ -5473,6 +5504,45 @@ func move_backpack_storage_item_to_stash(index: int) -> bool:
 	save_game()
 	return true
 
+# Moves an item from the Stash into Backpack Storage at a specific dropped
+# cell - falls back to the next free cell if that one's already occupied,
+# instead of silently overlapping (and hiding) whatever's already there.
+func move_stash_item_to_backpack_storage_cell(index: int, gx: int, gy: int) -> void:
+	if index < 0 or index >= stash_items.size():
+		return
+	var item: Dictionary = stash_items[index]
+	var fp := get_item_footprint(item)
+	if _footprint_overlaps(backpack_storage, gx, gy, fp.x, fp.y):
+		var cell := _next_free_cell_backpack_storage(fp)
+		if cell.x < 0:
+			toast_requested.emit("Backpack storage is full")
+			return
+		gx = cell.x
+		gy = cell.y
+	stash_items.remove_at(index)
+	item["grid_x"] = gx
+	item["grid_y"] = gy
+	backpack_storage.append(item)
+	save_game()
+
+# Moves an item from Backpack Storage into the Stash at a specific dropped
+# cell - same overlap-safe fallback as above, mirrored for the reverse
+# direction.
+func move_backpack_storage_item_to_stash_cell(index: int, gx: int, gy: int) -> void:
+	if index < 0 or index >= backpack_storage.size():
+		return
+	var item: Dictionary = backpack_storage[index]
+	var fp := get_item_footprint(item)
+	if _footprint_overlaps(stash_items, gx, gy, fp.x, fp.y):
+		var cell := _next_free_cell_in(stash_items, false, fp)
+		gx = cell.x
+		gy = cell.y
+	backpack_storage.remove_at(index)
+	item["grid_x"] = gx
+	item["grid_y"] = gy
+	stash_items.append(item)
+	save_game()
+
 func has_item_in_backpack_storage(predicate_key: String, predicate_value: String) -> bool:
 	return _array_has_item(backpack_storage, predicate_key, predicate_value)
 
@@ -5543,6 +5613,13 @@ var last_newsletter_day: int = -1
 var welcome_mail_sent: bool = false
 signal mail_received
 
+# Without a cap this grows forever over a long-running save (social mail,
+# daily newsletter, flea market notices...), with every mail op doing a
+# linear scan over it. Only ever trims entries that are BOTH claimed and
+# read, so a player who never checks their mail never silently loses
+# unclaimed rewards - it's fine to briefly exceed the cap in that case.
+const MAIL_CAP := 100
+
 func send_mail(subject: String, body: String, rewards: Dictionary = {}) -> void:
 	_mail_counter += 1
 	mail_messages.push_front({
@@ -5554,9 +5631,21 @@ func send_mail(subject: String, body: String, rewards: Dictionary = {}) -> void:
 		"claimed": rewards.is_empty(),
 		"read": false,
 	})
+	_trim_mail_history()
 	toast_requested.emit("New mail: %s" % subject)
 	mail_received.emit()
 	save_game()
+
+func _trim_mail_history() -> void:
+	if mail_messages.size() <= MAIL_CAP:
+		return
+	# push_front means newest is index 0, oldest is at the end.
+	var i := mail_messages.size() - 1
+	while mail_messages.size() > MAIL_CAP and i >= 0:
+		var m: Dictionary = mail_messages[i]
+		if m.get("claimed", true) and m.get("read", false):
+			mail_messages.remove_at(i)
+		i -= 1
 
 func claim_mail(mail_id: int) -> bool:
 	for m in mail_messages:
@@ -5739,6 +5828,9 @@ func save_game() -> void:
 		"feedback_submissions": feedback_submissions,
 		"backpack_storage": backpack_storage,
 		"has_seen_whats_new": has_seen_whats_new,
+		"achievement_flag_multiversal_pull": achievement_flag_multiversal_pull,
+		"achievement_flag_close_call": achievement_flag_close_call,
+		"rose_talked_to": rose_talked_to,
 	}
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f:
@@ -5763,17 +5855,15 @@ func load_game() -> void:
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return
 
-	var save_version: int = int(parsed.get("save_format_version", 0))
-	if save_version < SAVE_FORMAT_VERSION:
-		# This save predates the current data format - too many new
-		# required fields and restructured systems have landed since
-		# (equipment doll, quest NPC groupings, character creation
-		# fields, and more) for a partial load to be safe. Wipe it and
-		# start clean rather than risk a half-correct, buggy carry-over.
-		var dir := DirAccess.open("user://")
-		if dir != null:
-			dir.remove(SAVE_PATH.trim_prefix("user://"))
-		return
+	# NOTE: this used to unconditionally wipe any save with an older
+	# save_format_version before loading anything - but that ran BEFORE
+	# the quest_index/egg_hatching/fullscreen migration blocks further
+	# down in this same function, making them permanently unreachable
+	# dead code. Every field below already loads defensively via
+	# parsed.get(key, current_default), and the migration blocks handle
+	# the specific old field formats they're built for - between the
+	# two, an older save now upgrades gracefully instead of being
+	# deleted outright.
 
 	rubles = int(parsed.get("rubles", rubles))
 	junk = int(parsed.get("junk", junk))
@@ -5962,6 +6052,9 @@ func load_game() -> void:
 	if typeof(loaded_backpack_storage) == TYPE_ARRAY:
 		backpack_storage = loaded_backpack_storage
 	has_seen_whats_new = bool(parsed.get("has_seen_whats_new", false))
+	achievement_flag_multiversal_pull = bool(parsed.get("achievement_flag_multiversal_pull", false))
+	achievement_flag_close_call = bool(parsed.get("achievement_flag_close_call", false))
+	rose_talked_to = bool(parsed.get("rose_talked_to", false))
 	var loaded_keybinds = parsed.get("keybinds", null)
 	if typeof(loaded_keybinds) == TYPE_DICTIONARY:
 		for action in KEYBIND_DEFAULTS.keys():
@@ -6695,8 +6788,11 @@ func _move_item_in(items: Array, index: int, x: int, y: int) -> void:
 			item["grid_y"] = y
 			return
 	# Can't cleanly place or swap here - leave it where a valid spot is
-	# instead of silently overlapping something.
-	var fallback := _next_free_cell_in(items, true, fp, item)
+	# instead of silently overlapping something. _move_item_in is shared
+	# by both stash_items and carried_loot (different grid dimensions) -
+	# this has to match whichever array was actually passed in, not
+	# always assume Backpack.
+	var fallback := _next_free_cell_in(items, items == carried_loot, fp, item)
 	item["grid_x"] = fallback.x
 	item["grid_y"] = fallback.y
 
@@ -6969,6 +7065,7 @@ func end_run(success: bool) -> void:
 	carried_value = 0
 	run_over = false
 	selected_recruit = ""
-	get_tree().change_scene_to_file("res://scenes/RaidRewards.tscn" if success else "res://scenes/MainMenu.tscn")
+	var next_scene_path := "res://scenes/RaidRewards.tscn" if success else "res://scenes/MainMenu.tscn"
+	get_tree().change_scene_to_packed(Transition.get_cached_scene(next_scene_path))
 	await get_tree().process_frame
 	Transition.fade_in(0.6)

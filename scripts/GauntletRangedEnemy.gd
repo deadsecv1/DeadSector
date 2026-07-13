@@ -20,6 +20,11 @@ var shoot_timer: float = 0.0
 var player_ref: Node = null
 var difficulty: float = 1.0
 
+# See GauntletEnemy.gd for why this guard exists - prevents a second
+# take_damage() in the same frame from re-entering _die() and doubling
+# its loot/ticket/engram rolls.
+var is_dead: bool = false
+
 const PROJECTILE_SCENE := preload("res://scenes/GauntletProjectile.tscn")
 const LOOT_SCENE := preload("res://scenes/GauntletLoot.tscn")
 const TEX_IDLE := preload("res://assets/sprites/gauntlet_ranged/idle.png")
@@ -78,6 +83,8 @@ func _shoot(dir: Vector2) -> void:
 	proj.damage = int(30 * difficulty)
 
 func take_damage(amount: int) -> void:
+	if is_dead:
+		return
 	health -= amount
 	hp_bar.value = health
 	var flash := create_tween()
@@ -113,6 +120,9 @@ func _spawn_death_particles(color: Color) -> void:
 	)
 
 func _die() -> void:
+	if is_dead:
+		return
+	is_dead = true
 	_spawn_death_particles(Color(1, 0.55, 0.2, 1))
 	GameManager.mark_enemy_discovered("gauntlet_ranged")
 	if randf() < 0.5:

@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3]
 
-[ext_resource type="Script" path="res://scripts/Bonedog.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/Ghoul.gd" id="1"]
 
 [sub_resource type="CircleShape2D" id="1"]
 radius = 20.0
@@ -18,9 +18,9 @@ content_margin_left = 0.0
 content_margin_top = 0.0
 content_margin_right = 0.0
 content_margin_bottom = 0.0
-[node name="Bonedog" type="CharacterBody2D"]
+[node name="Ghoul" type="CharacterBody2D"]
 z_index = 6
-enemy_type_id = "bonedog"
+enemy_type_id = "ghoul"
 script = ExtResource("1")
 speed = 130.0
 max_health = 105
