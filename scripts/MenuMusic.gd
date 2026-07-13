@@ -1,9 +1,9 @@
 extends AudioStreamPlayer
 
 # Procedurally synthesizes a dark, evolving industrial ambient track for the
-# Main Menu - a low detuned drone, a slow sub-bass "heartbeat" pulse,
-# irregular distant metallic clanks, and sparse high radar-like pings.
-# No external audio files - everything is generated live.
+# Main Menu - a low detuned drone, a slow sub-bass "heartbeat" pulse, and
+# irregular distant metallic clanks. No external audio files - everything
+# is generated live.
 
 const SAMPLE_RATE := 44100.0
 
@@ -27,13 +27,6 @@ var clank_next := 5.0
 var clank_env := 0.0
 var clank_rising := false
 var clank_filter_state := 0.0
-
-# Sparse high "ping", like a radar/sonar blip.
-var ping_timer := 0.0
-var ping_next := 7.0
-var ping_env := 0.0
-var ping_phase := 0.0
-var ping_freq := 1200.0
 
 # Slow melodic arpeggio pad (Destiny-esque heroic/melancholic touch),
 # cycling one soft note at a time over a minor-key sequence.
@@ -65,7 +58,6 @@ func _ready() -> void:
 	play()
 	playback = get_stream_playback()
 	clank_next = rng.randf_range(4.0, 7.0)
-	ping_next = rng.randf_range(5.0, 10.0)
 	_fill_buffer()
 
 # Called when a raid starts/ends - pausing (rather than stop()) keeps the
@@ -109,8 +101,8 @@ func _fill_buffer() -> void:
 		var pulse := sin(TAU * 48.0 * pulse_phase) * pulse_env * 0.32
 
 		# --- distant metallic clank (filtered noise) ---
-		# Unlike the pulse/ping below, this is raw noise rather than a sine
-		# wave, so it has no natural zero-crossing to fade in from - jumping
+		# Unlike the pulse above, this is raw noise rather than a sine wave,
+		# so it has no natural zero-crossing to fade in from - jumping
 		# clank_env straight to 1.0 caused an audible click/static-pop at
 		# the start of every single clank. Rising smoothly instead, and
 		# decaying about 100x slower than before (was tuned as if this ran
@@ -132,18 +124,6 @@ func _fill_buffer() -> void:
 		clank_filter_state += (noise - clank_filter_state) * 0.5
 		var clank := clank_filter_state * clank_env * 0.15
 
-		# --- sparse high radar ping ---
-		ping_timer += dt
-		if ping_timer >= ping_next:
-			ping_timer = 0.0
-			ping_next = rng.randf_range(6.0, 12.0)
-			ping_env = 1.0
-			ping_phase = 0.0
-			ping_freq = rng.randf_range(900.0, 1600.0)
-		ping_env *= 0.997
-		ping_phase += dt
-		var ping := sin(TAU * ping_freq * ping_phase) * ping_env * 0.08
-
 		# --- slow melodic arpeggio pad ---
 		arp_timer += dt
 		if arp_timer >= arp_note_dur:
@@ -155,5 +135,5 @@ func _fill_buffer() -> void:
 		var arp_tone := sin(arp_phase * TAU) + 0.4 * sin(arp_phase * TAU * 2.0)
 		var arp := arp_tone * arp_env * 0.09
 
-		var mixed := tanh((drone + pulse + clank + ping + arp) * 1.3)
+		var mixed := tanh((drone + pulse + clank + arp) * 1.3)
 		playback.push_frame(Vector2(mixed, mixed))
