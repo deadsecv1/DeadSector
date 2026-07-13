@@ -977,7 +977,29 @@ const CHANGELOG_ARCHIVE := [
 # Starts empty - the next real entry logged here should continue the
 # version number from wherever CHANGELOG_ARCHIVE's last entry left off
 # (3.51.0 as of the archive above), not reset to 1.0.
-const CHANGELOG_CURRENT := []
+const CHANGELOG_CURRENT := [
+	{"version": "3.52.0", "title": "Arena Mode, Death Screen, and a Major Ammo Overhaul", "notes": [
+		"Added Arena: a 1v1/2v2 mode on a new close-quarters map called The Grid, with matchmaking, a Current Teams roster, a Find a Team panel, a Leaderboard, Rewards, 6 new ranks with their own icons, and an NPC (Lilly) in the Hideout.",
+		"Replaced the flash \"YOU DIED\" text with a full Death Screen - who killed you, with what weapon, a hit-location mannequin review, and the loot you lost.",
+		"Reworked ammo: it's no longer a Hotbar consumable - it's a stacking Backpack item, and reloading pulls straight from your Backpack ammo stacks.",
+		"Added small safe pocket slots under the pet icon on your character doll, working consistently in both the Stash and in-raid.",
+		"Trying to deploy with no reserve ammo for your equipped weapon now blocks you with a clear popup instead of a toast warning you could ignore and go in defenseless anyway.",
+		"Global Chat and Find a Team's Close button now returns to the Social screen instead of the Main Menu.",
+		"Every button in the game now shares one consistent click sound. Hover sounds on the 15 main menu buttons, Ranked, Alpha Rewards, and Companions were also redone or differentiated, and Leaderboard now has one too.",
+		"Added a Claim All button to Mail, more teams in Find a Team, and a changelog archive tab so this list doesn't grow forever.",
+		"Removed Seasons (not ready yet) and the Backpack Storage scrollbar. Added ammo to the Scavenger's starting loadout.",
+		"Fixed the leaderboard countdown timer not ticking, a stale ammo count briefly showing before switching to the correct type on your first shot, and a phantom click sound after the \"Searching for Players\" screen finished.",
+		"Reverted your character back to the Survivor sprite.",
+		"Left-clicking your equipped pet slot now opens a full collection window of every pet you own, including Plushies.",
+	]},
+	{"version": "3.53.0", "title": "Real Art Pass: Vehicles, Enemies, Props, and Ground Decoration", "notes": [
+		"Vehicles: the extraction pickup car and the many parked wrecks scattered around the maps now use real weathered sprite art instead of a flat colored shape.",
+		"Enemies: added a sprite for the Rift Wraith, which had none before. Also fixed the Goblin and Noxious Bat, which were both quietly broken - the Goblin's art file was an exact duplicate of the Ghost sprite, and the Bat's was a malformed fragment.",
+		"Barrels, crates, and rubble piles scattered around the maps now use real art instead of plain vector shapes.",
+		"Every wall - and every building, since they're all built from the same wall piece - now uses a real brick texture.",
+		"Boneclock's ground is no longer just scattered abstract bone shapes - real bone piles, rocks, dead trees, gravestones, and rare skull piles now dress the map.",
+	]},
+]
 
 # Combined timeline, oldest to newest - for anything that needs "the
 # real latest version" or "the most recent entries" regardless of which
