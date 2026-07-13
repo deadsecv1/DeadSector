@@ -813,26 +813,102 @@ const CONSUMABLE_POOL := [
 ]
 
 # --- Ammo: Light/Medium/Heavy, matching which weapons take which (see
-# WEAPON_AMMO_TYPE below). Used from the Hotbar like a heal item -
-# instantly tops up the matching reserve instead of taking up a
-# permanent inventory slot, so finding some mid-firefight is actually
-# useful right when you need it. Deliberately its own pool, separate
-# from CONSUMABLE_POOL, so ammo drop rates can be tuned on their own
-# without also changing how often heals/grenades show up.
+# WEAPON_AMMO_TYPE below). A real backpack/Stash item like Bandages or
+# Grenades - NOT Hotbar-usable (slot "ammo", not "consumable" - there's
+# nothing to "use", it just sits in your inventory as reserve stock that
+# reload draws from directly). Stacks in one tile up to AMMO_STACK_MAX
+# for its type, same idea as the Grenade stack below. Deliberately its
+# own pool, separate from CONSUMABLE_POOL, so ammo drop rates can be
+# tuned on their own without also changing how often heals/grenades show up.
 const AMMO_POOL := [
-	{"name": "Light Ammo", "value": 15, "slot": "consumable", "icon_key": "ammo_light", "rarity": "common", "consumable_type": "ammo", "ammo_type": "light", "ammo_amount": 50},
-	{"name": "Medium Ammo", "value": 20, "slot": "consumable", "icon_key": "ammo_medium", "rarity": "common", "consumable_type": "ammo", "ammo_type": "medium", "ammo_amount": 40},
-	{"name": "Heavy Ammo", "value": 28, "slot": "consumable", "icon_key": "ammo_heavy", "rarity": "uncommon", "consumable_type": "ammo", "ammo_type": "heavy", "ammo_amount": 28},
+	{"name": "Light Ammo", "value": 15, "slot": "ammo", "icon_key": "ammo_light", "rarity": "common", "consumable_type": "ammo", "ammo_type": "light"},
+	{"name": "Medium Ammo", "value": 20, "slot": "ammo", "icon_key": "ammo_medium", "rarity": "common", "consumable_type": "ammo", "ammo_type": "medium"},
+	{"name": "Heavy Ammo", "value": 28, "slot": "ammo", "icon_key": "ammo_heavy", "rarity": "uncommon", "consumable_type": "ammo", "ammo_type": "heavy"},
 ]
 
-func roll_ammo() -> Dictionary:
-	return AMMO_POOL[randi() % AMMO_POOL.size()].duplicate(true)
+# How many rounds a single pickup grants - randomized per pickup rather
+# than a flat amount, so finding ammo doesn't feel identical every time.
+const AMMO_PICKUP_MIN := 100
+const AMMO_PICKUP_MAX := 150
 
-# Which reserve pool each weapon type draws from - pistols and Thorns
+# How many rounds of a given type can pile up in one backpack/Stash tile
+# before a fresh pickup of that type has to start a new tile instead.
+const AMMO_STACK_MAX := {"light": 2000, "medium": 1000, "heavy": 500}
+
+func roll_ammo() -> Dictionary:
+	var base: Dictionary = AMMO_POOL[randi() % AMMO_POOL.size()].duplicate(true)
+	var amount := randi_range(AMMO_PICKUP_MIN, AMMO_PICKUP_MAX)
+	base["base_name"] = base["name"]
+	base["ammo_amount"] = amount
+	base["name"] = "%s x%d" % [base["base_name"], amount]
+	return base
+
+func _would_merge_ammo(items: Array, item: Dictionary) -> bool:
+	if item.get("consumable_type", "") != "ammo":
+		return false
+	var atype: String = item.get("ammo_type", "light")
+	var cap: int = int(AMMO_STACK_MAX.get(atype, 500))
+	for existing in items:
+		if existing.get("consumable_type", "") == "ammo" and existing.get("ammo_type", "") == atype and int(existing.get("ammo_amount", 0)) < cap:
+			return true
+	return false
+
+func _try_merge_ammo_stack(items: Array, item: Dictionary) -> bool:
+	if item.get("consumable_type", "") != "ammo":
+		return false
+	var atype: String = item.get("ammo_type", "light")
+	var cap: int = int(AMMO_STACK_MAX.get(atype, 500))
+	var incoming: int = int(item.get("ammo_amount", 0))
+	for existing in items:
+		if existing.get("consumable_type", "") == "ammo" and existing.get("ammo_type", "") == atype:
+			var current: int = int(existing.get("ammo_amount", 0))
+			if current >= cap:
+				continue
+			if not existing.has("base_name"):
+				existing["base_name"] = "%s Ammo" % atype.capitalize()
+			var added: int = min(incoming, cap - current)
+			existing["ammo_amount"] = current + added
+			existing["name"] = "%s x%d" % [existing["base_name"], current + added]
+			return true
+	return false
+
+# Total rounds of `ammo_type` currently sitting in the Backpack - this
+# IS the reserve ammo number now, not a separate hidden counter.
+func get_backpack_ammo_amount(ammo_type: String) -> int:
+	var total := 0
+	for item in carried_loot:
+		if item.get("consumable_type", "") == "ammo" and item.get("ammo_type", "") == ammo_type:
+			total += int(item.get("ammo_amount", 0))
+	return total
+
+# Deducts up to `amount` rounds of `ammo_type` from Backpack ammo stacks
+# (used by reload) - removes a stack entirely once it hits 0. Returns
+# how much was actually available/deducted, which may be less than asked.
+func consume_backpack_ammo(ammo_type: String, amount: int) -> int:
+	var remaining := amount
+	var i := 0
+	while i < carried_loot.size() and remaining > 0:
+		var item: Dictionary = carried_loot[i]
+		if item.get("consumable_type", "") == "ammo" and item.get("ammo_type", "") == ammo_type:
+			var have: int = int(item.get("ammo_amount", 0))
+			var taken: int = min(have, remaining)
+			remaining -= taken
+			var left: int = have - taken
+			if left <= 0:
+				carried_loot.remove_at(i)
+				continue
+			item["ammo_amount"] = left
+			item["name"] = "%s x%d" % [item.get("base_name", "%s Ammo" % ammo_type.capitalize()), left]
+		i += 1
+	return amount - remaining
+
+# Which weapon family each weapon type draws from - pistols and Thorns
 # run on the same light rounds, rifles/shotguns share medium, and the
 # heavy hitters (sniper, railgun, flamethrower, Alpha Cannon) all pull
 # from the same heavy reserve. Keeps 3 ammo types meaningful instead of
-# needing one per weapon family.
+# needing one per weapon family. Individual weapon items can still
+# override this with their own "ammo_type" field (see
+# get_ammo_type_for_weapon_item) - this table is just the fallback.
 const WEAPON_AMMO_TYPE := {
 	"pistol": "light", "thorn": "light",
 	"rifle": "medium", "shotgun": "medium",
@@ -841,6 +917,16 @@ const WEAPON_AMMO_TYPE := {
 
 func get_ammo_type_for_weapon(weapon_icon: String) -> String:
 	return WEAPON_AMMO_TYPE.get(weapon_icon, "light")
+
+# Prefers an explicit per-weapon "ammo_type" field (so a specific unique
+# weapon item could one day diverge from its family) and falls back to
+# the family-wide WEAPON_AMMO_TYPE lookup for the vast majority of items
+# that don't set one.
+func get_ammo_type_for_weapon_item(weapon_item) -> String:
+	if weapon_item != null and weapon_item.has("ammo_type"):
+		return weapon_item["ammo_type"]
+	var icon: String = weapon_item.get("icon_key", "pistol") if weapon_item != null else "pistol"
+	return get_ammo_type_for_weapon(icon)
 
 # --- Plushie: a universal drop from any enemy, on any map, no rarity
 # of its own since it's not gear - just a soft, slightly worn stuffed
@@ -6201,6 +6287,9 @@ func add_loot(item: Dictionary) -> bool:
 	if _try_merge_grenade_stack(carried_loot, item):
 		record_loot_collected(int(item.get("value", 0)))
 		return true
+	if _try_merge_ammo_stack(carried_loot, item):
+		record_loot_collected(int(item.get("value", 0)))
+		return true
 	if is_carried_full():
 		toast_requested.emit("Backpack is full")
 		return false
@@ -6296,7 +6385,8 @@ func vicinity_claim_to_cell(index: int, gx: int, gy: int) -> void:
 	var item: Dictionary = vicinity_items[index]
 	var can_merge_currency: bool = _would_merge_currency(carried_loot, item)
 	var can_merge_grenade: bool = item.get("consumable_type", "") == "grenade" and _would_merge_grenade(carried_loot, item)
-	if not can_merge_currency and not can_merge_grenade and is_carried_full():
+	var can_merge_ammo: bool = _would_merge_ammo(carried_loot, item)
+	if not can_merge_currency and not can_merge_grenade and not can_merge_ammo and is_carried_full():
 		toast_requested.emit("Backpack is full")
 		return
 	vicinity_items.remove_at(index)
@@ -6308,6 +6398,10 @@ func vicinity_claim_to_cell(index: int, gx: int, gy: int) -> void:
 		vicinity_changed.emit()
 		return
 	if _try_merge_grenade_stack(carried_loot, item):
+		toast_requested.emit("Stowed %s" % item.get("name", "Item"))
+		vicinity_changed.emit()
+		return
+	if _try_merge_ammo_stack(carried_loot, item):
 		toast_requested.emit("Stowed %s" % item.get("name", "Item"))
 		vicinity_changed.emit()
 		return
@@ -6330,7 +6424,8 @@ func vicinity_claim_to_next_free(index: int) -> void:
 	var item: Dictionary = vicinity_items[index]
 	var can_merge_currency: bool = _would_merge_currency(carried_loot, item)
 	var can_merge_grenade: bool = item.get("consumable_type", "") == "grenade" and _would_merge_grenade(carried_loot, item)
-	if not can_merge_currency and not can_merge_grenade and is_carried_full():
+	var can_merge_ammo: bool = _would_merge_ammo(carried_loot, item)
+	if not can_merge_currency and not can_merge_grenade and not can_merge_ammo and is_carried_full():
 		toast_requested.emit("Backpack is full")
 		return
 	vicinity_items.remove_at(index)
@@ -6342,6 +6437,10 @@ func vicinity_claim_to_next_free(index: int) -> void:
 		vicinity_changed.emit()
 		return
 	if _try_merge_grenade_stack(carried_loot, item):
+		toast_requested.emit("Stowed %s" % item.get("name", "Item"))
+		vicinity_changed.emit()
+		return
+	if _try_merge_ammo_stack(carried_loot, item):
 		toast_requested.emit("Stowed %s" % item.get("name", "Item"))
 		vicinity_changed.emit()
 		return
@@ -6392,7 +6491,8 @@ func vicinity_take_all() -> void:
 		var item: Dictionary = vicinity_items[i]
 		var can_merge_currency: bool = _would_merge_currency(carried_loot, item)
 		var can_merge_grenade: bool = item.get("consumable_type", "") == "grenade" and _would_merge_grenade(carried_loot, item)
-		if not can_merge_currency and not can_merge_grenade and is_carried_full():
+		var can_merge_ammo: bool = _would_merge_ammo(carried_loot, item)
+		if not can_merge_currency and not can_merge_grenade and not can_merge_ammo and is_carried_full():
 			left_behind += 1
 			i += 1
 			continue
@@ -6402,6 +6502,8 @@ func vicinity_take_all() -> void:
 		if merged > 0:
 			carried_value += merged
 		elif _try_merge_grenade_stack(carried_loot, item):
+			pass
+		elif _try_merge_ammo_stack(carried_loot, item):
 			pass
 		else:
 			var cell := _next_free_cell_in(carried_loot)
@@ -6656,6 +6758,8 @@ func _add_to_stash(item: Dictionary) -> void:
 		return
 	if _try_merge_grenade_stack(stash_items, item):
 		return
+	if _try_merge_ammo_stack(stash_items, item):
+		return
 	var footprint := get_item_footprint(item)
 	var cell := _next_free_cell_in(stash_items, false, footprint)
 	item["grid_x"] = cell.x
@@ -6707,6 +6811,7 @@ const FILTER_CATEGORIES := [
 	{"id": "backpack", "label": "Backpacks", "icon_key": "backpack"},
 	{"id": "attachment", "label": "Attachments", "icon_key": "visor"},
 	{"id": "consumable", "label": "Consumables", "icon_key": "medkit"},
+	{"id": "ammo", "label": "Ammo", "icon_key": "ammo_medium"},
 	{"id": "valuable", "label": "Valuables", "icon_key": "gpcoin"},
 	{"id": "key", "label": "Keys", "icon_key": "key"},
 	{"id": "blueprint", "label": "Blueprints", "icon_key": "blueprint"},

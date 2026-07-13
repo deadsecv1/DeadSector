@@ -139,20 +139,18 @@ func _update_ammo_display() -> void:
 	ammo_bar.update_ammo(current_mag, mag_size)
 var mag_size: int = 12
 var current_mag: int = 12
-# Per-type reserve now (was one flat pool) - light/medium/heavy, see
-# GameManager.WEAPON_AMMO_TYPE for which weapons draw from which.
-# Starting amounts are a modest cushion; the real supply comes from
-# Light/Medium/Heavy Ammo pickups found during the raid.
-var reserve_ammo: Dictionary = {"light": 100, "medium": 100, "heavy": 70}
 var is_reloading: bool = false
 var _last_weapon_icon: String = ""
 var _r_was_down: bool = false
 
+# Reserve ammo isn't a hidden counter anymore - it's just however many
+# rounds of the matching type are actually sitting in the Backpack right
+# now, same as any other stacking inventory item.
 func _current_ammo_type() -> String:
-	return GameManager.get_ammo_type_for_weapon(weapon_icon)
+	return GameManager.get_ammo_type_for_weapon_item(GameManager.equipped_items.get("weapon"))
 
 func _current_reserve() -> int:
-	return int(reserve_ammo.get(_current_ammo_type(), 0))
+	return GameManager.get_backpack_ammo_amount(_current_ammo_type())
 
 # --- Sniper scope: hold right-click with a sniper rifle equipped AND a
 # scope attachment installed to zoom in. Movement slows while scoped, like
@@ -301,13 +299,25 @@ func _recompute_stats() -> void:
 		health_changed.emit(health, max_health)
 	health_bar.update_health(health, max_health)
 
-	stats_ready.emit(speed, max_health, damage, shoot_cooldown)
-
 	var weapon_item = GameManager.equipped_items.get("weapon")
 	weapon_icon = weapon_item.get("icon_key", "pistol") if weapon_item != null else "pistol"
+	_apply_ammo_type_tradeoff(weapon_item)
+
+	stats_ready.emit(speed, max_health, damage, shoot_cooldown)
 
 	_recompute_ammo()
 	_update_appearance()
+
+# Heavier ammo hits harder but cycles slower; lighter ammo cycles faster
+# but hits softer; medium is the neutral baseline - a real tradeoff tied
+# to which reserve pool the equipped weapon draws from, not just cosmetic.
+const AMMO_DAMAGE_MULT := {"light": 0.85, "medium": 1.0, "heavy": 1.2}
+const AMMO_COOLDOWN_MULT := {"light": 0.85, "medium": 1.0, "heavy": 1.2}
+
+func _apply_ammo_type_tradeoff(weapon_item) -> void:
+	var ammo_type: String = GameManager.get_ammo_type_for_weapon_item(weapon_item)
+	damage = int(round(damage * float(AMMO_DAMAGE_MULT.get(ammo_type, 1.0))))
+	shoot_cooldown = max(0.08, shoot_cooldown * float(AMMO_COOLDOWN_MULT.get(ammo_type, 1.0)))
 
 # --- Ammo: base capacity depends on weapon type, Extended Mag attachment
 # adds a flat bonus. Swapping to a DIFFERENT weapon tops off a fresh mag
@@ -362,15 +372,22 @@ var _ammo_bonus_applied: bool = false
 func _recompute_ammo() -> void:
 	if not _ammo_bonus_applied:
 		# Pack Mule (Skill Tree) grants +Reserve Ammo, and now some gear
-		# can too - both applied once, at raid start, split evenly
-		# across all 3 types rather than on every equipment change
-		# (this function re-runs on every gear swap via equipped_changed,
-		# so adding it unconditionally would let re-equipping something
-		# farm free ammo).
+		# can too - applied once, at raid start, as real Ammo items
+		# dropped straight into the Backpack (split evenly across all 3
+		# types), since reserve ammo is real inventory now rather than a
+		# hidden counter (this function re-runs on every gear swap via
+		# equipped_changed, so adding it unconditionally would let
+		# re-equipping something farm free ammo).
 		_ammo_bonus_applied = true
 		var bonus: int = int((GameManager.get_upgrade_bonus("ammo_reserve") + GameManager.get_equipped_bonus("ammo_reserve")) / 3.0)
-		for ammo_type in reserve_ammo.keys():
-			reserve_ammo[ammo_type] = int(reserve_ammo[ammo_type]) + bonus
+		if bonus > 0:
+			for ammo_type in ["light", "medium", "heavy"]:
+				GameManager.add_loot({
+					"name": "%s Ammo x%d" % [ammo_type.capitalize(), bonus],
+					"base_name": "%s Ammo" % ammo_type.capitalize(),
+					"value": max(1, bonus / 3), "slot": "ammo", "icon_key": "ammo_%s" % ammo_type,
+					"rarity": "common", "consumable_type": "ammo", "ammo_type": ammo_type, "ammo_amount": bonus,
+				})
 	var base_mag := _base_mag_for(weapon_icon)
 	var mag_bonus := 0
 	var weapon = GameManager.equipped_items.get("weapon")
@@ -769,10 +786,8 @@ func _start_reload() -> void:
 	await get_tree().create_timer(duration).timeout
 	var ammo_type := _current_ammo_type()
 	var needed := mag_size - current_mag
-	var available: int = int(reserve_ammo.get(ammo_type, 0))
-	var taken: int = min(needed, available)
+	var taken: int = GameManager.consume_backpack_ammo(ammo_type, needed)
 	current_mag += taken
-	reserve_ammo[ammo_type] = available - taken
 	_update_ammo_display()
 	is_reloading = false
 	can_shoot = true
@@ -1090,13 +1105,6 @@ func apply_consumable(item: Dictionary) -> void:
 	elif ctype == "grenade":
 		_throw_grenade(item)
 		GameManager.toast_requested.emit("Threw %s" % item.get("name", "Grenade"))
-	elif ctype == "ammo":
-		var ammo_type: String = item.get("ammo_type", "light")
-		var amount: int = int(item.get("ammo_amount", 0))
-		reserve_ammo[ammo_type] = int(reserve_ammo.get(ammo_type, 0)) + amount
-		_update_ammo_display()
-		Sfx.play_reload()
-		GameManager.toast_requested.emit("Used %s (+%d %s Ammo)" % [item.get("name", "Ammo"), amount, ammo_type.capitalize()])
 
 func _throw_grenade(item: Dictionary) -> void:
 	var gtype: String = item.get("grenade_type", "frag")

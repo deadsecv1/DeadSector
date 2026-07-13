@@ -162,8 +162,10 @@ func _process(_delta: float) -> void:
 		elif not sleeping:
 			GameManager.set_crosshair_cursor()
 
-func _on_ammo_changed(current_mag: int, _mag_size: int, reserve_ammo: int, _ammo_type: String = "") -> void:
+func _on_ammo_changed(current_mag: int, _mag_size: int, reserve_ammo: int, ammo_type: String = "") -> void:
 	reload_prompt.visible = current_mag < 5 and reserve_ammo > 0
+	if reload_prompt.visible:
+		reload_prompt.text = "Press R to Reload (%d / %d %s)" % [current_mag, reserve_ammo, ammo_type.capitalize()]
 
 func _any_panel_open() -> bool:
 	return gym_panel.visible or lildirty_panel.visible or workbench_panel.visible or bitcoin_farm_panel.visible or recruit_doll_panel.visible or pet_shop_panel.visible or justin_panel.visible or rose_panel.visible or plushies_panel.visible or plushie_reveal.visible or gamble_panel.visible or pause_overlay.visible or ghost_chat_open

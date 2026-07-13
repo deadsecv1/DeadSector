@@ -53,6 +53,7 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_show_menu()
 
 func _hide_all() -> void:

@@ -26,6 +26,11 @@ func _update_time() -> void:
 	night_time_label.text = "Currently %s" % GameManager.format_hour(GameManager.get_night_display_hour())
 
 func _start_raid(is_night: bool) -> void:
+	var weapon = GameManager.equipped_items.get("weapon")
+	if weapon != null:
+		var ammo_type: String = GameManager.get_ammo_type_for_weapon_item(weapon)
+		if GameManager.get_backpack_ammo_amount(ammo_type) <= 0:
+			GameManager.toast_requested.emit("No reserve %s Ammo in your Backpack - you'll only have what's already in the mag" % ammo_type.capitalize())
 	GameManager.is_night_raid = is_night
 	GameManager.selected_raid_hour = GameManager.get_night_display_hour() if is_night else GameManager.get_day_display_hour()
 	Transition.change_scene_instant("res://scenes/SearchingForPlayers.tscn")

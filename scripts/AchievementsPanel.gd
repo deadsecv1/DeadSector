@@ -29,6 +29,7 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if particles.has_method("_init_particles"):
 		particles._init_particles()
 	refresh()

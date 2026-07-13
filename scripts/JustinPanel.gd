@@ -154,6 +154,7 @@ func _refresh_lore_page() -> void:
 
 func open() -> void:
 	visible = true
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	result_box.visible = false
 	_set_mode("decipher")
 

@@ -115,7 +115,7 @@ func play_heal() -> void:
 func play_explosion() -> void:
 	var p := _get_free_player()
 	p.stream = _explosion
-	p.volume_db = -3.0
+	p.volume_db = -6.0
 	p.play()
 
 func play_reload() -> void:

@@ -111,6 +111,13 @@ static func build(item: Dictionary) -> Control:
 	# rare enough to fire the multi-projectile burst.
 	var item_slot: String = item.get("slot", "")
 	if item_slot == "weapon":
+		var ammo_type_lbl := Label.new()
+		ammo_type_lbl.text = "Ammo Type: %s" % GameManager.get_ammo_type_for_weapon_item(item).capitalize()
+		ammo_type_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		ammo_type_lbl.add_theme_font_size_override("font_size", 12)
+		ammo_type_lbl.add_theme_color_override("font_color", Color(0.85, 0.8, 0.6, 1))
+		vbox.add_child(ammo_type_lbl)
+		content_h += _line_height(12) + 4.0
 		var effect_text: String = GameManager.get_weapon_effect_text(str(item.get("icon_key", "")))
 		if effect_text != "":
 			var effect_lbl := Label.new()

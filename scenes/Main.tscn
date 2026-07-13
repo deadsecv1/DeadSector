@@ -1382,7 +1382,7 @@ body_color = Color(0.15, 0.2, 0.28, 1)
 position = Vector2(1150, 0)
 
 [node name="ExtractionZoneFree2" parent="." instance=ExtResource("5")]
-position = Vector2(1300, 1200)
+position = Vector2(-1300, 1200)
 
 [node name="ExtractionZonePaid" parent="." instance=ExtResource("5")]
 position = Vector2(-1550, -600)

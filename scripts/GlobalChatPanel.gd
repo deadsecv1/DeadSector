@@ -290,6 +290,7 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_chat_pool = GameManager.get_ranked_leaderboard().filter(func(e): return not e.get("is_player", false))
 	for c in message_list.get_children():
 		c.queue_free()
