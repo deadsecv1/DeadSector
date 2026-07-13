@@ -12,8 +12,8 @@ const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
 
 signal closed
 
-@onready var team1_list: VBoxContainer = $VBox/TeamsRow/Team1Col/Team1List
-@onready var team2_list: VBoxContainer = $VBox/TeamsRow/Team2Col/Team2List
+@onready var team1_list: VBoxContainer = $VBox/TeamsRow/Team1Col/Team1Scroll/Team1List
+@onready var team2_list: VBoxContainer = $VBox/TeamsRow/Team2Col/Team2Scroll/Team2List
 @onready var close_button: Button = $VBox/CloseButton
 
 func _unhandled_input(event: InputEvent) -> void:

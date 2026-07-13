@@ -28,6 +28,8 @@ func _ready() -> void:
 
 	var team_size: int = int(GameManager.current_arena_match.get("team_size", 1))
 	_spawn_opponents(team_size)
+	if team_size > 1:
+		_spawn_ally()
 
 	lilly_station.interacted.connect(_open_lilly_panel)
 	lilly_panel.visible = false
@@ -46,7 +48,9 @@ func _ready() -> void:
 	current_teams_panel.closed.connect(func(): current_teams_panel.visible = false)
 
 const ENEMY_SCENE := preload("res://scenes/Enemy.tscn")
+const ALLY_SCRIPT := preload("res://scripts/ArenaAlly.gd")
 const OPPONENT_SPOTS := [Vector2(260, -120), Vector2(340, 80)]
+const ALLY_SPOT := Vector2(-320, -60)
 
 func _spawn_opponents(team_size: int) -> void:
 	_opponents_remaining = team_size
@@ -56,6 +60,16 @@ func _spawn_opponents(team_size: int) -> void:
 		opponent.tree_exited.connect(_on_opponent_defeated)
 		add_child(opponent)
 		opponent.global_position = OPPONENT_SPOTS[i % OPPONENT_SPOTS.size()]
+		opponent.get_node("Visuals").modulate = Color(1.1, 0.75, 0.75, 1)
+
+# The player's 2v2 teammate - reuses Enemy.tscn's visuals with its
+# script swapped to ArenaAlly.gd (set_script() before add_child() so
+# ArenaAlly's own _ready() is what actually fires).
+func _spawn_ally() -> void:
+	var ally = ENEMY_SCENE.instantiate()
+	ally.set_script(ALLY_SCRIPT)
+	add_child(ally)
+	ally.global_position = ALLY_SPOT
 
 func _on_opponent_defeated() -> void:
 	if _match_won or GameManager.run_over:
