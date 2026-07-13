@@ -4780,7 +4780,6 @@ func set_keybind(action: String, keycode: int) -> void:
 
 func _ready() -> void:
 	_setup_audio_buses()
-	apply_settings()
 	_crosshair_texture = _make_crosshair_texture()
 	_menu_cursor_texture = _make_menu_cursor_texture()
 	load_game()
@@ -4792,6 +4791,11 @@ func _ready() -> void:
 	_maybe_send_tech_test_mail()
 	_maybe_send_daily_newsletter()
 	get_tree().set_auto_accept_quit(false)
+	# Wait a frame so the OS window actually exists before switching its
+	# mode - calling window_set_mode() during autoload _ready (before the
+	# window is mapped) glitches visibly and can silently fail to take.
+	await get_tree().process_frame
+	apply_settings()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED:
@@ -6060,7 +6064,6 @@ func load_game() -> void:
 		for action in KEYBIND_DEFAULTS.keys():
 			if loaded_keybinds.has(action):
 				keybinds[action] = int(loaded_keybinds[action])
-	apply_settings()
 	_repair_overlapping_grid_items()
 	_migrate_stash_eggs_to_hatchery()
 
