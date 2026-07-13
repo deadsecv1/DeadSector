@@ -5572,7 +5572,6 @@ func claim_alpha_rewards() -> bool:
 	return true
 
 var feedback_submissions: Array = []
-var has_seen_whats_new: bool = false
 
 func submit_feedback(text: String) -> void:
 	feedback_submissions.append({"text": text, "date": Time.get_date_string_from_system()})
@@ -5963,7 +5962,6 @@ func save_game() -> void:
 		"equipped_chat_background": equipped_chat_background,
 		"feedback_submissions": feedback_submissions,
 		"backpack_storage": backpack_storage,
-		"has_seen_whats_new": has_seen_whats_new,
 		"achievement_flag_multiversal_pull": achievement_flag_multiversal_pull,
 		"achievement_flag_close_call": achievement_flag_close_call,
 		"rose_talked_to": rose_talked_to,
@@ -6188,7 +6186,6 @@ func load_game() -> void:
 	var loaded_backpack_storage = parsed.get("backpack_storage", null)
 	if typeof(loaded_backpack_storage) == TYPE_ARRAY:
 		backpack_storage = loaded_backpack_storage
-	has_seen_whats_new = bool(parsed.get("has_seen_whats_new", false))
 	achievement_flag_multiversal_pull = bool(parsed.get("achievement_flag_multiversal_pull", false))
 	achievement_flag_close_call = bool(parsed.get("achievement_flag_close_call", false))
 	rose_talked_to = bool(parsed.get("rose_talked_to", false))

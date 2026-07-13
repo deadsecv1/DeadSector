@@ -61,7 +61,7 @@ extends Control
 @onready var feedback_button: Button = $FeedbackButton
 @onready var feedback_panel: Panel = $FeedbackPanel
 @onready var whats_new_button: Button = $WhatsNewButton
-@onready var whats_new_panel: Panel = $WhatsNewPanel
+@onready var whats_new_panel: Control = $WhatsNewPanel
 
 # --- Ambient background popups: small, easy-to-miss notifications that
 # make the world feel like it's happening even when you're just sitting
@@ -204,16 +204,13 @@ func _ready() -> void:
 	feedback_button.pressed.connect(func(): _open_panel(feedback_panel))
 	feedback_panel.closed.connect(func(): _close_panel(feedback_panel))
 	whats_new_button.pressed.connect(func(): _open_panel(whats_new_panel))
-	whats_new_panel.closed.connect(func():
-		_close_panel(whats_new_panel)
-		GameManager.has_seen_whats_new = true
-		GameManager.save_game()
+	whats_new_panel.closed.connect(func(): _close_panel(whats_new_panel))
+	# Shows every time the Main Menu loads (not just the first time) -
+	# a deliberate change from the old has_seen_whats_new one-shot gate.
+	get_tree().create_timer(0.5).timeout.connect(func():
+		if is_instance_valid(self):
+			_open_panel(whats_new_panel)
 	)
-	if not GameManager.has_seen_whats_new:
-		get_tree().create_timer(0.5).timeout.connect(func():
-			if is_instance_valid(self):
-				_open_panel(whats_new_panel)
-		)
 	GameManager.mail_received.connect(_refresh_mail_button)
 	_refresh_mail_button()
 
@@ -426,6 +423,7 @@ func _set_main_buttons_visible(vis: bool) -> void:
 	alpha_rewards_button.visible = vis
 	feedback_button.visible = vis
 	whats_new_button.visible = vis
+	arena_button.visible = vis
 
 func _show_random_quote() -> void:
 	var idx := randi() % QUOTES.size()
