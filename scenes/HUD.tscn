@@ -1,0 +1,1027 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://scripts/HUD.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/InGameInventory.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/InventoryGrid.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/EquipSlot.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/CharacterPortrait.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/HudPanel.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/PauseMenu.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/Hotbar.gd" id="8"]
+[ext_resource type="Script" path="res://scripts/ItemIcon.gd" id="9"]
+[ext_resource type="Script" path="res://scripts/ScopeOverlay.gd" id="10"]
+[ext_resource type="Script" path="res://scripts/WeaponAttachmentsPanel.gd" id="11"]
+[ext_resource type="Script" path="res://scripts/VicinityPanel.gd" id="12"]
+[ext_resource type="Script" path="res://scripts/PocketSlot.gd" id="13"]
+[ext_resource type="Script" path="res://scripts/ItemContextMenu.gd" id="14"]
+[ext_resource type="Script" path="res://scripts/InspectPanel.gd" id="15"]
+[ext_resource type="Script" path="res://scripts/SkinsPanel.gd" id="16"]
+[ext_resource type="Script" path="res://scripts/OpenLootBagPanel.gd" id="17"]
+[ext_resource type="Script" path="res://scripts/WanderingTraderPanel.gd" id="18"]
+[ext_resource type="Script" path="res://scripts/PetDollSlot.gd" id="20"]
+[ext_resource type="Script" path="res://scripts/WeaponViewmodel.gd" id="21"]
+[ext_resource type="PackedScene" path="res://scenes/TagEditPanel.tscn" id="22"]
+
+[sub_resource type="StyleBoxFlat" id="DollBackdropStyle"]
+bg_color = Color(0.05, 0.07, 0.06, 0.9)
+border_color = Color(0.3, 0.45, 0.35, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="HUD" type="CanvasLayer"]
+layer = 2
+script = ExtResource("1")
+
+[node name="WeaponViewmodel" type="Control" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -320.0
+offset_top = -320.0
+offset_right = 20.0
+offset_bottom = 20.0
+rotation = 0.15
+mouse_filter = 2
+visible = false
+script = ExtResource("21")
+
+[node name="IconHolder" type="Control" parent="WeaponViewmodel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="HudPanel" type="Control" parent="."]
+offset_left = 14.0
+offset_top = 12.0
+offset_right = 390.0
+offset_bottom = 40.0
+script = ExtResource("6")
+
+[node name="StatsLabel" type="Label" parent="HudPanel"]
+visible = false
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 288.0
+offset_bottom = 30.0
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(1, 0.55, 0.35, 1)
+text = "SPD 220   //   DMG 10   //   RATE 0.25s"
+
+[node name="LootLabel" type="RichTextLabel" parent="HudPanel"]
+offset_left = 12.0
+offset_top = 6.0
+offset_right = 360.0
+offset_bottom = 28.0
+theme_override_font_sizes/normal_font_size = 13
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+text = "Rubles 0    Junk 0    Artifacts 0    Alloys 0"
+
+[node name="MessageLabel" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -80.0
+offset_right = 350.0
+offset_bottom = 80.0
+theme_override_font_sizes/font_size = 34
+horizontal_alignment = 1
+vertical_alignment = 1
+text = ""
+visible = false
+
+[node name="InventoryPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -620.0
+offset_top = -340.0
+offset_right = 620.0
+offset_bottom = 340.0
+visible = false
+script = ExtResource("2")
+
+[node name="Backdrop" type="ColorRect" parent="InventoryPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="InventoryPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 12.0
+offset_right = -14.0
+offset_bottom = -12.0
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="InventoryPanel/VBox"]
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1.0, 0.85, 0.4, 1)
+autowrap_mode = 2
+text = "BACKPACK  (TAB to close - drag items onto your character to equip)"
+
+[node name="Panels" type="HBoxContainer" parent="InventoryPanel/VBox"]
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="BackpackPanel" type="VBoxContainer" parent="InventoryPanel/VBox/Panels"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.6
+theme_override_constants/separation = 6
+
+[node name="TitleRow" type="HBoxContainer" parent="InventoryPanel/VBox/Panels/BackpackPanel"]
+theme_override_constants/separation = 10
+
+[node name="BackpackTitle" type="Label" parent="InventoryPanel/VBox/Panels/BackpackPanel/TitleRow"]
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.6, 0.85, 0.95, 1)
+text = "BACKPACK"
+
+[node name="SortButton" type="Button" parent="InventoryPanel/VBox/Panels/BackpackPanel/TitleRow"]
+custom_minimum_size = Vector2(80, 28)
+theme_override_font_sizes/font_size = 12
+text = "Sort"
+
+[node name="GridScroll" type="ScrollContainer" parent="InventoryPanel/VBox/Panels/BackpackPanel"]
+size_flags_vertical = 3
+
+[node name="BackpackGridArea" type="Control" parent="InventoryPanel/VBox/Panels/BackpackPanel/GridScroll"]
+script = ExtResource("3")
+
+[node name="VicinityPanel" type="VBoxContainer" parent="InventoryPanel/VBox/Panels"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.1
+theme_override_constants/separation = 6
+script = ExtResource("12")
+
+[node name="VicinityTitle" type="Label" parent="InventoryPanel/VBox/Panels/VicinityPanel"]
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.85, 0.75, 0.4, 1)
+text = "VICINITY"
+
+[node name="TakeAllPrompt" type="Label" parent="InventoryPanel/VBox/Panels/VicinityPanel"]
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.55, 0.9, 0.6, 1)
+horizontal_alignment = 1
+autowrap_mode = 2
+visible = false
+text = "Press F: Take All"
+
+[node name="StatusLabel" type="Label" parent="InventoryPanel/VBox/Panels/VicinityPanel"]
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.75)
+text = "Nothing found yet. Search a container or body."
+
+[node name="Scroll" type="ScrollContainer" parent="InventoryPanel/VBox/Panels/VicinityPanel"]
+custom_minimum_size = Vector2(0, 62)
+size_flags_vertical = 0
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="TilesArea" type="Control" parent="InventoryPanel/VBox/Panels/VicinityPanel/Scroll"]
+custom_minimum_size = Vector2(54, 0)
+
+[node name="CharacterPanel" type="VBoxContainer" parent="InventoryPanel/VBox/Panels"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.0
+theme_override_constants/separation = 6
+
+[node name="CharacterTitle" type="Label" parent="InventoryPanel/VBox/Panels/CharacterPanel"]
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.6, 0.9, 0.7, 1)
+text = "CHARACTER"
+
+[node name="PortraitArea" type="Control" parent="InventoryPanel/VBox/Panels/CharacterPanel"]
+custom_minimum_size = Vector2(390, 530)
+
+[node name="DollBackdrop" type="PanelContainer" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_styles/panel = SubResource("DollBackdropStyle")
+
+[node name="Portrait" type="Control" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("5")
+
+[node name="HeadSlot" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 146.0
+offset_top = 10.0
+offset_right = 244.0
+offset_bottom = 101.0
+theme_override_font_sizes/font_size = 15
+text = "Head"
+script = ExtResource("4")
+slot_name = "head"
+
+[node name="BackpackSlot" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 293.0
+offset_top = 114.0
+offset_right = 384.0
+offset_bottom = 199.0
+theme_override_font_sizes/font_size = 14
+text = "Backpack"
+script = ExtResource("4")
+slot_name = "backpack"
+
+[node name="BodySlot" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 117.0
+offset_top = 114.0
+offset_right = 273.0
+offset_bottom = 257.0
+theme_override_font_sizes/font_size = 15
+text = "Body"
+script = ExtResource("4")
+slot_name = "body"
+
+[node name="WeaponSlot" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 7.0
+offset_top = 114.0
+offset_right = 91.0
+offset_bottom = 199.0
+theme_override_font_sizes/font_size = 14
+text = "Weapon"
+script = ExtResource("4")
+slot_name = "weapon"
+
+[node name="PocketLabel" type="Label" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 293.0
+offset_top = 210.0
+offset_right = 384.0
+offset_bottom = 226.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.55, 0.9, 0.6, 1)
+text = "SAFE POCKETS"
+
+[node name="PocketSlot1" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 293.0
+offset_top = 228.0
+offset_right = 384.0
+offset_bottom = 296.0
+theme_override_font_sizes/font_size = 12
+text = "Empty"
+script = ExtResource("13")
+pocket_index = 0
+
+[node name="PocketSlot2" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 293.0
+offset_top = 304.0
+offset_right = 384.0
+offset_bottom = 372.0
+theme_override_font_sizes/font_size = 12
+text = "Empty"
+script = ExtResource("13")
+pocket_index = 1
+
+[node name="PetSlot" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 293.0
+offset_top = 380.0
+offset_right = 384.0
+offset_bottom = 448.0
+theme_override_font_sizes/font_size = 12
+text = "Pet"
+script = ExtResource("20")
+allow_navigate = false
+
+[node name="PocketSlot3" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 304.0
+offset_top = 456.0
+offset_right = 372.0
+offset_bottom = 524.0
+theme_override_font_sizes/font_size = 10
+text = "Empty"
+script = ExtResource("13")
+pocket_index = 2
+
+[node name="AccessorySlot" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 7.0
+offset_top = 212.0
+offset_right = 91.0
+offset_bottom = 296.0
+theme_override_font_sizes/font_size = 14
+text = "Accessory"
+script = ExtResource("4")
+slot_name = "accessory"
+
+[node name="BootsSlot" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 150.0
+offset_top = 309.0
+offset_right = 241.0
+offset_bottom = 387.0
+theme_override_font_sizes/font_size = 14
+text = "Boots"
+script = ExtResource("4")
+slot_name = "boots"
+
+[node name="HelmetAttachmentSlot" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 250.0
+offset_top = 15.0
+offset_right = 334.0
+offset_bottom = 93.0
+theme_override_font_sizes/font_size = 11
+text = "Helmet Attach."
+script = ExtResource("4")
+slot_name = "helmet_attachment"
+
+[node name="Hotbar" type="HBoxContainer" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -164.0
+offset_right = 164.0
+offset_top = -78.0
+offset_bottom = -14.0
+theme_override_constants/separation = 8
+script = ExtResource("8")
+
+[node name="Slot1" type="Panel" parent="Hotbar"]
+custom_minimum_size = Vector2(56, 56)
+
+[node name="Icon1" type="Control" parent="Hotbar/Slot1"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = -6.0
+offset_bottom = -14.0
+mouse_filter = 2
+script = ExtResource("9")
+
+[node name="KeyLabel1" type="Label" parent="Hotbar/Slot1"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+anchor_right = 1.0
+offset_top = -14.0
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.8, 0.8, 0.75, 1)
+horizontal_alignment = 1
+text = "1"
+
+[node name="Slot2" type="Panel" parent="Hotbar"]
+custom_minimum_size = Vector2(56, 56)
+
+[node name="Icon2" type="Control" parent="Hotbar/Slot2"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = -6.0
+offset_bottom = -14.0
+mouse_filter = 2
+script = ExtResource("9")
+
+[node name="KeyLabel2" type="Label" parent="Hotbar/Slot2"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+anchor_right = 1.0
+offset_top = -14.0
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.8, 0.8, 0.75, 1)
+horizontal_alignment = 1
+text = "2"
+
+[node name="Slot3" type="Panel" parent="Hotbar"]
+custom_minimum_size = Vector2(56, 56)
+
+[node name="Icon3" type="Control" parent="Hotbar/Slot3"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = -6.0
+offset_bottom = -14.0
+mouse_filter = 2
+script = ExtResource("9")
+
+[node name="KeyLabel3" type="Label" parent="Hotbar/Slot3"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+anchor_right = 1.0
+offset_top = -14.0
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.8, 0.8, 0.75, 1)
+horizontal_alignment = 1
+text = "3"
+
+[node name="Slot4" type="Panel" parent="Hotbar"]
+custom_minimum_size = Vector2(56, 56)
+
+[node name="Icon4" type="Control" parent="Hotbar/Slot4"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = -6.0
+offset_bottom = -14.0
+mouse_filter = 2
+script = ExtResource("9")
+
+[node name="KeyLabel4" type="Label" parent="Hotbar/Slot4"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+anchor_right = 1.0
+offset_top = -14.0
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.8, 0.8, 0.75, 1)
+horizontal_alignment = 1
+text = "4"
+
+[node name="Slot5" type="Panel" parent="Hotbar"]
+custom_minimum_size = Vector2(56, 56)
+
+[node name="Icon5" type="Control" parent="Hotbar/Slot5"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = -6.0
+offset_bottom = -14.0
+mouse_filter = 2
+script = ExtResource("9")
+
+[node name="KeyLabel5" type="Label" parent="Hotbar/Slot5"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+anchor_right = 1.0
+offset_top = -14.0
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.8, 0.8, 0.75, 1)
+horizontal_alignment = 1
+text = "5"
+
+[node name="TimeLabel" type="Label" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -60.0
+offset_top = 14.0
+offset_right = 60.0
+offset_bottom = 44.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 24
+
+[node name="ChatBox" type="LineEdit" parent="."]
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -20.0
+offset_right = -20.0
+offset_bottom = 20.0
+theme_override_font_sizes/font_size = 15
+placeholder_text = "Press Enter to send..."
+max_length = 100
+visible = false
+
+[node name="QuestPanel" type="Control" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = 210.0
+mouse_filter = 2
+
+[node name="QuestList" type="VBoxContainer" parent="QuestPanel"]
+anchor_right = 1.0
+theme_override_constants/separation = 6
+text = "05:00"
+
+[node name="ReloadPrompt" type="Label" parent="."]
+anchor_left = 0.0
+anchor_right = 0.0
+anchor_top = 0.0
+anchor_bottom = 0.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 130.0
+offset_bottom = 18.0
+horizontal_alignment = 0
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(1, 0.35, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Press R to Reload"
+visible = false
+
+[node name="AmmoLabel" type="Label" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -90.0
+offset_top = -108.0
+offset_right = 90.0
+offset_bottom = -80.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.95, 0.9, 0.75, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "12 / 120"
+
+[node name="ScopeOverlay" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("10")
+
+[node name="NightVisionOverlay" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.1, 1.0, 0.25, 0.22)
+visible = false
+
+[node name="StunFlash" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(1, 1, 1, 0)
+
+[node name="WanderingTraderPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -240.0
+offset_right = 260.0
+offset_bottom = 240.0
+visible = false
+script = ExtResource("18")
+
+[node name="Backdrop" type="ColorRect" parent="WanderingTraderPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.11, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="WanderingTraderPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 14.0
+offset_right = -16.0
+offset_bottom = -14.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="WanderingTraderPanel/VBox"]
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.6, 0.85, 1.0, 1)
+text = "WANDERING TRADER"
+
+[node name="BlossomsLabel" type="Label" parent="WanderingTraderPanel/VBox"]
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.5, 0.75, 1.0, 1)
+text = "Your Blossoms: 0"
+
+[node name="ListScroll" type="ScrollContainer" parent="WanderingTraderPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="ItemList" type="VBoxContainer" parent="WanderingTraderPanel/VBox/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="WanderingTraderPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 15
+text = "Close"
+
+[node name="AttachmentsPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -200.0
+offset_right = 230.0
+offset_bottom = 200.0
+visible = false
+script = ExtResource("11")
+
+[node name="Backdrop" type="ColorRect" parent="AttachmentsPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="AttachmentsPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 16.0
+offset_right = -20.0
+offset_bottom = -16.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="AttachmentsPanel/VBox"]
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.6, 0.9, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "WEAPON ATTACHMENTS"
+
+[node name="WeaponLabel" type="Label" parent="AttachmentsPanel/VBox"]
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.75)
+text = "No weapon equipped."
+
+[node name="SlotList" type="VBoxContainer" parent="AttachmentsPanel/VBox"]
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="AttachmentsPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="ItemContextMenu" type="Panel" parent="."]
+custom_minimum_size = Vector2(150, 276)
+visible = false
+script = ExtResource("14")
+
+[node name="Backdrop" type="ColorRect" parent="ItemContextMenu"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.1, 0.09, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="ItemContextMenu"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = -6.0
+theme_override_constants/separation = 4
+
+[node name="EquipButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Equip"
+
+[node name="InspectButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Info"
+
+[node name="AttachmentsButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Attachments"
+
+[node name="SkinsButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Skins"
+
+[node name="OpenBagButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Open"
+visible = false
+
+[node name="DepositEggButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Deposit to Hatchery"
+visible = false
+
+[node name="RotateButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Rotate"
+visible = false
+
+[node name="TagButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Tag"
+visible = false
+
+[node name="CancelButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 28)
+theme_override_font_sizes/font_size = 12
+text = "Cancel"
+
+[node name="InspectPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -240.0
+offset_right = 180.0
+offset_bottom = 240.0
+visible = false
+script = ExtResource("15")
+
+[node name="Backdrop" type="ColorRect" parent="InspectPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="InspectPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 14.0
+offset_right = -16.0
+offset_bottom = -14.0
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="InspectPanel/VBox"]
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "Item Name"
+
+[node name="RarityLabel" type="Label" parent="InspectPanel/VBox"]
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+text = "Rarity"
+
+[node name="Showcase" type="Panel" parent="InspectPanel/VBox"]
+custom_minimum_size = Vector2(0, 210)
+size_flags_vertical = 3
+
+[node name="DescLabel" type="Label" parent="InspectPanel/VBox"]
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.85)
+text = "Description"
+
+[node name="HintLabel" type="Label" parent="InspectPanel/VBox"]
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.6)
+text = "Drag the item around the showcase."
+
+[node name="CloseButton" type="Button" parent="InspectPanel/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 15
+text = "Close"
+
+[node name="SkinsPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -220.0
+offset_right = 220.0
+offset_bottom = 220.0
+visible = false
+script = ExtResource("16")
+
+[node name="Backdrop" type="ColorRect" parent="SkinsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="SkinsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 14.0
+offset_right = -18.0
+offset_bottom = -14.0
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="SkinsPanel/VBox"]
+theme_override_font_sizes/font_size = 19
+horizontal_alignment = 1
+autowrap_mode = 2
+text = "Skins"
+
+[node name="Scroll" type="ScrollContainer" parent="SkinsPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="SkinsPanel/VBox/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="SkinsPanel/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 15
+text = "Close"
+
+[node name="OpenLootBagPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -220.0
+offset_right = 240.0
+offset_bottom = 220.0
+visible = false
+script = ExtResource("17")
+
+[node name="Backdrop" type="ColorRect" parent="OpenLootBagPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="OpenLootBagPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 14.0
+offset_right = -18.0
+offset_bottom = -14.0
+theme_override_constants/separation = 10
+
+[node name="StatusLabel" type="Label" parent="OpenLootBagPanel/VBox"]
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+autowrap_mode = 2
+text = "A sealed Loot Bag. Open it?"
+
+[node name="BagPreview" type="Control" parent="OpenLootBagPanel/VBox"]
+custom_minimum_size = Vector2(0, 90)
+
+[node name="ResultScroll" type="ScrollContainer" parent="OpenLootBagPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="ResultArea" type="Control" parent="OpenLootBagPanel/VBox/ResultScroll"]
+custom_minimum_size = Vector2(0, 150)
+size_flags_horizontal = 3
+
+[node name="OpenButton" type="Button" parent="OpenLootBagPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Open"
+
+[node name="CloseButton" type="Button" parent="OpenLootBagPanel/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 15
+text = "Close"
+
+[node name="PauseMenu" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -170.0
+offset_right = 170.0
+offset_bottom = 170.0
+visible = false
+script = ExtResource("7")
+
+[node name="Backdrop" type="ColorRect" parent="PauseMenu"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="MainView" type="VBoxContainer" parent="PauseMenu"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="PauseMenu/MainView"]
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text = "PAUSED"
+
+[node name="ResumeButton" type="Button" parent="PauseMenu/MainView"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 18
+text = "Resume"
+
+[node name="SettingsButton" type="Button" parent="PauseMenu/MainView"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 18
+text = "Settings"
+
+[node name="ExitButton" type="Button" parent="PauseMenu/MainView"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 18
+text = "Exit to Main Menu"
+
+[node name="SettingsView" type="VBoxContainer" parent="PauseMenu"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+theme_override_constants/separation = 14
+visible = false
+
+[node name="Title" type="Label" parent="PauseMenu/SettingsView"]
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+text = "SETTINGS"
+
+[node name="MasterRow" type="HBoxContainer" parent="PauseMenu/SettingsView"]
+theme_override_constants/separation = 10
+
+[node name="MasterLabel" type="Label" parent="PauseMenu/SettingsView/MasterRow"]
+custom_minimum_size = Vector2(110, 0)
+theme_override_font_sizes/font_size = 14
+text = "Master"
+
+[node name="MasterSlider" type="HSlider" parent="PauseMenu/SettingsView/MasterRow"]
+custom_minimum_size = Vector2(150, 20)
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="MusicRow" type="HBoxContainer" parent="PauseMenu/SettingsView"]
+theme_override_constants/separation = 10
+
+[node name="MusicLabel" type="Label" parent="PauseMenu/SettingsView/MusicRow"]
+custom_minimum_size = Vector2(110, 0)
+theme_override_font_sizes/font_size = 14
+text = "Music"
+
+[node name="MusicSlider" type="HSlider" parent="PauseMenu/SettingsView/MusicRow"]
+custom_minimum_size = Vector2(150, 20)
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="SfxRow" type="HBoxContainer" parent="PauseMenu/SettingsView"]
+theme_override_constants/separation = 10
+
+[node name="SfxLabel" type="Label" parent="PauseMenu/SettingsView/SfxRow"]
+custom_minimum_size = Vector2(110, 0)
+theme_override_font_sizes/font_size = 14
+text = "SFX"
+
+[node name="SfxSlider" type="HSlider" parent="PauseMenu/SettingsView/SfxRow"]
+custom_minimum_size = Vector2(150, 20)
+min_value = 0.0
+max_value = 100.0
+step = 1.0
+value = 100.0
+
+[node name="FullscreenRow" type="HBoxContainer" parent="PauseMenu/SettingsView"]
+theme_override_constants/separation = 10
+
+[node name="FullscreenLabel" type="Label" parent="PauseMenu/SettingsView/FullscreenRow"]
+custom_minimum_size = Vector2(110, 0)
+theme_override_font_sizes/font_size = 14
+text = "Display Mode"
+
+[node name="FullscreenToggle" type="OptionButton" parent="PauseMenu/SettingsView/FullscreenRow"]
+custom_minimum_size = Vector2(170, 0)
+
+[node name="SettingsBackButton" type="Button" parent="PauseMenu/SettingsView"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 16
+text = "Back"
+
+[node name="HitFlash" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(1, 0, 0, 0)
+z_index = 500
+
+[node name="TagEditPanel" parent="." instance=ExtResource("22")]

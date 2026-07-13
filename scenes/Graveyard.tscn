@@ -1,0 +1,248 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://scripts/Graveyard.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/Wall.tscn" id="3"]
+[ext_resource type="Script" path="res://scripts/Ground.gd" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ExtractionZone.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/Chest.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/HUD.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/PostProcess.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/Ghost.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/Skeleton.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://scenes/RiftWraith.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://scenes/SpectralBowl.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://scenes/StaticMote.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://scenes/SpectralAsh.tscn" id="15"]
+[ext_resource type="Script" path="res://scripts/GraveyardAmbience.gd" id="14"]
+
+[node name="Graveyard" type="Node2D"]
+script = ExtResource("1")
+
+[node name="WorldDarkness" type="CanvasModulate" parent="."]
+color = Color(0.14, 0.15, 0.17, 1)
+
+[node name="Ground" type="Node2D" parent="."]
+script = ExtResource("4")
+ground_size = Vector2(2400, 1600)
+base_color = Color(0.09, 0.11, 0.09, 1)
+
+[node name="WallTop" parent="." instance=ExtResource("3")]
+position = Vector2(0, -800)
+size = Vector2(2400, 40)
+wall_color = Color(0.15, 0.15, 0.16, 1)
+
+[node name="WallBottom" parent="." instance=ExtResource("3")]
+position = Vector2(0, 800)
+size = Vector2(2400, 40)
+wall_color = Color(0.15, 0.15, 0.16, 1)
+
+[node name="WallLeft" parent="." instance=ExtResource("3")]
+position = Vector2(-1200, 0)
+size = Vector2(40, 1600)
+wall_color = Color(0.15, 0.15, 0.16, 1)
+
+[node name="WallRight" parent="." instance=ExtResource("3")]
+position = Vector2(1200, 0)
+size = Vector2(40, 1600)
+wall_color = Color(0.15, 0.15, 0.16, 1)
+
+[node name="EntranceGateLeft" type="Polygon2D" parent="."]
+position = Vector2(-40, -700)
+color = Color(0.1, 0.1, 0.11, 1)
+polygon = PackedVector2Array(-6, -80, 6, -80, 6, 80, -6, 80)
+
+[node name="EntranceGateRight" type="Polygon2D" parent="."]
+position = Vector2(40, -700)
+color = Color(0.1, 0.1, 0.11, 1)
+polygon = PackedVector2Array(-6, -80, 6, -80, 6, 80, -6, 80)
+
+[node name="EntranceGateArch" type="Polygon2D" parent="."]
+position = Vector2(0, -770)
+color = Color(0.1, 0.1, 0.11, 1)
+polygon = PackedVector2Array(-46, -8, 46, -8, 46, 8, -46, 8)
+
+[node name="EntranceLabel" type="Label" parent="."]
+position = Vector2(-110, -660)
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.55, 0.65, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "THE GRAVEYARD"
+
+[node name="AngelStatue1" type="Polygon2D" parent="."]
+position = Vector2(-300, -400)
+color = Color(0.28, 0.28, 0.3, 1)
+polygon = PackedVector2Array(-14, 30, -10, -10, -18, -20, -6, -34, 6, -34, 18, -20, 10, -10, 14, 30)
+
+[node name="AngelStatue2" type="Polygon2D" parent="."]
+position = Vector2(500, 250)
+color = Color(0.24, 0.24, 0.26, 1)
+polygon = PackedVector2Array(-12, 26, -8, -8, -14, -18, -4, -28, 4, -28, 14, -18, 8, -8, 12, 26)
+
+[node name="RustedGate1" type="Polygon2D" parent="."]
+position = Vector2(-750, 100)
+color = Color(0.2, 0.15, 0.1, 1)
+polygon = PackedVector2Array(-30, -40, -24, -40, -24, 40, -30, 40, -30, -40, 30, -40, 24, -40, 24, 40, 30, 40, 30, -40)
+
+[node name="RustedGate2" type="Polygon2D" parent="."]
+position = Vector2(700, -450)
+color = Color(0.2, 0.15, 0.1, 1)
+polygon = PackedVector2Array(-30, -40, -24, -40, -24, 40, -30, 40, -30, -40, 30, -40, 24, -40, 24, 40, 30, 40, 30, -40)
+
+[node name="FogPatch1" type="Polygon2D" parent="."]
+position = Vector2(-200, 0)
+color = Color(0.5, 0.55, 0.5, 0.06)
+polygon = PackedVector2Array(-260, -110, 260, -110, 260, 110, -260, 110)
+
+[node name="FogPatch2" type="Polygon2D" parent="."]
+position = Vector2(450, 500)
+color = Color(0.5, 0.55, 0.5, 0.07)
+polygon = PackedVector2Array(-220, -100, 220, -100, 220, 100, -220, 100)
+
+[node name="FogPatch3" type="Polygon2D" parent="."]
+position = Vector2(-650, -350)
+color = Color(0.5, 0.55, 0.5, 0.06)
+polygon = PackedVector2Array(-200, -90, 200, -90, 200, 90, -200, 90)
+
+[node name="Headstone1" type="Polygon2D" parent="."]
+position = Vector2(-150, -200)
+color = Color(0.35, 0.35, 0.37, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone2" type="Polygon2D" parent="."]
+position = Vector2(-110, -200)
+color = Color(0.32, 0.32, 0.34, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone3" type="Polygon2D" parent="."]
+position = Vector2(-70, -200)
+color = Color(0.36, 0.36, 0.38, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone4" type="Polygon2D" parent="."]
+position = Vector2(200, 100)
+color = Color(0.33, 0.33, 0.35, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone5" type="Polygon2D" parent="."]
+position = Vector2(240, 100)
+color = Color(0.35, 0.35, 0.37, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone6" type="Polygon2D" parent="."]
+position = Vector2(280, 100)
+color = Color(0.31, 0.31, 0.33, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone7" type="Polygon2D" parent="."]
+position = Vector2(-500, 400)
+color = Color(0.34, 0.34, 0.36, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone8" type="Polygon2D" parent="."]
+position = Vector2(-460, 400)
+color = Color(0.36, 0.36, 0.38, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone9" type="Polygon2D" parent="."]
+position = Vector2(850, -100)
+color = Color(0.32, 0.32, 0.34, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone10" type="Polygon2D" parent="."]
+position = Vector2(890, -100)
+color = Color(0.35, 0.35, 0.37, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="SpectralBowl1" parent="." instance=ExtResource("12")]
+position = Vector2(-150, -100)
+pacified_pet_type = "shade_hound"
+
+[node name="SpectralBowl2" parent="." instance=ExtResource("12")]
+position = Vector2(500, 350)
+pacified_pet_type = "wailing_crow"
+
+[node name="GraveyardChest1" parent="." instance=ExtResource("6")]
+position = Vector2(-850, 300)
+item_name = "Corroded Reliquary"
+base_value = 220
+slot = "accessory"
+stat_type = "loot_sense"
+stat_value = 0.02
+icon_key = "ring"
+rarity = "epic"
+
+[node name="GraveyardChest2" parent="." instance=ExtResource("6")]
+position = Vector2(950, -400)
+item_name = "Grave-Warden's Plate"
+base_value = 260
+slot = "body"
+stat_type = "max_health"
+stat_value = 42.0
+icon_key = "chestplate"
+rarity = "epic"
+
+[node name="GraveyardChest3" parent="." instance=ExtResource("6")]
+position = Vector2(0, 600)
+item_name = "Bone Carved Blade"
+base_value = 180
+slot = "weapon"
+stat_type = "damage"
+stat_value = 20.0
+icon_key = "sword"
+rarity = "rare"
+
+[node name="RoamingGhost1" parent="." instance=ExtResource("9")]
+position = Vector2(-400, -100)
+
+[node name="RoamingGhost2" parent="." instance=ExtResource("9")]
+position = Vector2(600, 0)
+
+[node name="RoamingGhost3" parent="." instance=ExtResource("9")]
+position = Vector2(-800, -500)
+
+[node name="RoamingSkeleton1" parent="." instance=ExtResource("10")]
+position = Vector2(-250, 300)
+
+[node name="RoamingSkeleton2" parent="." instance=ExtResource("10")]
+position = Vector2(350, -300)
+
+[node name="RoamingSkeleton3" parent="." instance=ExtResource("10")]
+position = Vector2(900, 400)
+
+[node name="RoamingWraith1" parent="." instance=ExtResource("11")]
+position = Vector2(-950, 0)
+
+[node name="RoamingWraith2" parent="." instance=ExtResource("11")]
+position = Vector2(200, -600)
+
+[node name="StaticMote1" parent="." instance=ExtResource("13")]
+position = Vector2(-500, -250)
+
+[node name="SpectralAsh1" parent="." instance=ExtResource("15")]
+position = Vector2(650, 300)
+
+[node name="ExtractionPad" parent="." instance=ExtResource("5")]
+position = Vector2(950, 650)
+
+[node name="ExtractionZoneFree2" parent="." instance=ExtResource("5")]
+position = Vector2(-950, -650)
+
+[node name="ExtractionLabel" type="Label" parent="."]
+position = Vector2(870, 560)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.55, 0.65, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "THE OLD GROUNDSKEEPER'S GATE"
+
+[node name="Player" parent="." instance=ExtResource("2")]
+position = Vector2(0, -650)
+
+[node name="HUD" parent="." instance=ExtResource("7")]
+
+[node name="PostProcess" parent="." instance=ExtResource("8")]
+
+[node name="GraveyardAmbience" type="AudioStreamPlayer" parent="."]
+script = ExtResource("14")

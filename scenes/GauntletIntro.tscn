@@ -1,0 +1,152 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/GauntletPlayer.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/GauntletEnemy.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/GauntletBoss.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/GauntletExtraction.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/GauntletHUD.tscn" id="5"]
+[ext_resource type="Script" path="res://scripts/GauntletBackground.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/GauntletPlatform.gd" id="7"]
+
+[sub_resource type="RectangleShape2D" id="ground_shape"]
+size = Vector2(3400, 80)
+
+[sub_resource type="RectangleShape2D" id="plat_shape_a"]
+size = Vector2(220, 30)
+
+[sub_resource type="RectangleShape2D" id="plat_shape_b"]
+size = Vector2(160, 30)
+
+[sub_resource type="RectangleShape2D" id="plat_shape_c"]
+size = Vector2(300, 30)
+
+[sub_resource type="RectangleShape2D" id="wall_shape"]
+size = Vector2(60, 900)
+
+[sub_resource type="RectangleShape2D" id="wall_shape_right"]
+size = Vector2(60, 900)
+
+[node name="GauntletLevel1" type="Node2D"]
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="DynamicBackground" type="Control" parent="BackgroundLayer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("6")
+
+[node name="LeftWall" type="StaticBody2D" parent="."]
+position = Vector2(-60, 0)
+
+[node name="LeftWallShape" type="CollisionShape2D" parent="LeftWall"]
+shape = SubResource("wall_shape")
+
+[node name="RightWall" type="StaticBody2D" parent="."]
+position = Vector2(3260, 0)
+
+[node name="RightWallShape" type="CollisionShape2D" parent="RightWall"]
+shape = SubResource("wall_shape_right")
+
+[node name="Ground" type="StaticBody2D" parent="."]
+position = Vector2(1600, 340)
+
+[node name="GroundShape" type="CollisionShape2D" parent="Ground"]
+shape = SubResource("ground_shape")
+
+[node name="GroundVisual" type="Control" parent="Ground"]
+offset_left = -1700.0
+offset_top = -40.0
+offset_right = 1700.0
+offset_bottom = 40.0
+script = ExtResource("7")
+[node name="Platform1" type="StaticBody2D" parent="."]
+position = Vector2(500, 180)
+
+[node name="Platform1Shape" type="CollisionShape2D" parent="Platform1"]
+shape = SubResource("plat_shape_a")
+
+[node name="Platform1Visual" type="Control" parent="Platform1"]
+offset_left = -110.0
+offset_top = -15.0
+offset_right = 110.0
+offset_bottom = 15.0
+script = ExtResource("7")
+[node name="Platform2" type="StaticBody2D" parent="."]
+position = Vector2(900, 60)
+
+[node name="Platform2Shape" type="CollisionShape2D" parent="Platform2"]
+shape = SubResource("plat_shape_b")
+
+[node name="Platform2Visual" type="Control" parent="Platform2"]
+offset_left = -80.0
+offset_top = -15.0
+offset_right = 80.0
+offset_bottom = 15.0
+script = ExtResource("7")
+[node name="Platform3" type="StaticBody2D" parent="."]
+position = Vector2(1400, 220)
+
+[node name="Platform3Shape" type="CollisionShape2D" parent="Platform3"]
+shape = SubResource("plat_shape_c")
+
+[node name="Platform3Visual" type="Control" parent="Platform3"]
+offset_left = -150.0
+offset_top = -15.0
+offset_right = 150.0
+offset_bottom = 15.0
+script = ExtResource("7")
+[node name="Platform4" type="StaticBody2D" parent="."]
+position = Vector2(1900, 100)
+
+[node name="Platform4Shape" type="CollisionShape2D" parent="Platform4"]
+shape = SubResource("plat_shape_a")
+
+[node name="Platform4Visual" type="Control" parent="Platform4"]
+offset_left = -110.0
+offset_top = -15.0
+offset_right = 110.0
+offset_bottom = 15.0
+script = ExtResource("7")
+[node name="Platform5" type="StaticBody2D" parent="."]
+position = Vector2(2400, 200)
+
+[node name="Platform5Shape" type="CollisionShape2D" parent="Platform5"]
+shape = SubResource("plat_shape_c")
+
+[node name="Platform5Visual" type="Control" parent="Platform5"]
+offset_left = -150.0
+offset_top = -15.0
+offset_right = 150.0
+offset_bottom = 15.0
+script = ExtResource("7")
+[node name="Enemy5" parent="." instance=ExtResource("2")]
+position = Vector2(900, 280)
+
+[node name="Enemy6" parent="." instance=ExtResource("2")]
+position = Vector2(1550, 280)
+
+[node name="GauntletPlayer" parent="." instance=ExtResource("1")]
+position = Vector2(50, 200)
+
+[node name="Enemy1" parent="." instance=ExtResource("2")]
+position = Vector2(600, 280)
+
+[node name="Enemy2" parent="." instance=ExtResource("2")]
+position = Vector2(1200, 280)
+
+[node name="Enemy3" parent="." instance=ExtResource("2")]
+position = Vector2(1900, 40)
+patrol_distance = 80.0
+
+[node name="Enemy4" parent="." instance=ExtResource("2")]
+position = Vector2(2100, 280)
+
+[node name="GauntletBoss" parent="." instance=ExtResource("3")]
+position = Vector2(2900, 260)
+
+[node name="GauntletExtraction" parent="." instance=ExtResource("4")]
+position = Vector2(3150, 260)
+level_number = 1
+
+[node name="GauntletHUD" parent="." instance=ExtResource("5")]

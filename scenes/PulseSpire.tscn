@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/PulseSpire.gd" id="1"]
+
+[node name="PulseSpire" type="Node2D"]
+z_index = 3
+script = ExtResource("1")
+
+[node name="Base" type="Polygon2D" parent="."]
+color = Color(0.15, 0.1, 0.2, 1)
+polygon = PackedVector2Array(-14, 10, 14, 10, 10, 16, -10, 16)
+
+[node name="Body" type="Polygon2D" parent="."]
+color = Color(0.2, 0.14, 0.28, 1)
+polygon = PackedVector2Array(-8, 10, 8, 10, 5, -55, -5, -55)
+
+[node name="Core" type="Polygon2D" parent="."]
+color = Color(0.7, 0.4, 0.95, 0.85)
+polygon = PackedVector2Array(-5, -55, 5, -55, 8, -68, 0, -76, -8, -68)

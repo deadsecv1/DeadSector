@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/SmokeGrenade.gd" id="1"]
+
+[node name="SmokeGrenade" type="Node2D"]
+z_index = 9
+script = ExtResource("1")
+
+[node name="Body" type="Polygon2D" parent="."]
+color = Color(0.5, 0.5, 0.45, 1)
+polygon = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+
+[node name="Cloud" type="Polygon2D" parent="."]
+visible = false
+z_index = 3
+color = Color(0.75, 0.75, 0.72, 0.55)
+polygon = PackedVector2Array(0, -90, 63, -63, 90, 0, 63, 63, 0, 90, -63, 63, -90, 0, -63, -63)

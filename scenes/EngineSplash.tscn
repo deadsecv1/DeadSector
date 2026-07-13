@@ -1,0 +1,62 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/EngineSplash.gd" id="1"]
+
+[node name="EngineSplash" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.01, 0.012, 0.02, 1)
+
+[node name="Content" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="MadeWithLabel" type="Label" parent="Content"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -30.0
+offset_right = 300.0
+offset_bottom = 10.0
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.55)
+text = "Made with"
+
+[node name="EngineNameLabel" type="Label" parent="Content"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = 4.0
+offset_right = 300.0
+offset_bottom = 44.0
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.65, 0.75, 0.95, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Godot Engine"
+
+[node name="ContinueLabel" type="Label" parent="Content"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -90.0
+offset_right = 200.0
+offset_bottom = -60.0
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.65, 0.65, 0.65, 1)
+text = "Press any key to continue"

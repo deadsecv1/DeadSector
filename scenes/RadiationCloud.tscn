@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/RadiationCloud.gd" id="1"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_radiationcloud"]
+radius = 90.0
+
+[node name="RadiationCloud" type="Area2D"]
+z_index = 3
+script = ExtResource("1")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_radiationcloud")
+
+[node name="Puff" type="Node2D" parent="."]
+
+[node name="Particles" type="CPUParticles2D" parent="."]
+z_index = 1
+
+[node name="Blob1" type="Polygon2D" parent="Puff"]
+color = Color(0.85, 0.78, 0.15, 0.45)
+polygon = PackedVector2Array(0, -60, 42, -42, 60, 0, 42, 42, 0, 60, -42, 42, -60, 0, -42, -42)
+
+[node name="Blob2" type="Polygon2D" parent="Puff"]
+position = Vector2(-40, -15)
+color = Color(0.9, 0.82, 0.2, 0.4)
+polygon = PackedVector2Array(0, -38, 27, -27, 38, 0, 27, 27, 0, 38, -27, 27, -38, 0, -27, -27)
+
+[node name="Blob3" type="Polygon2D" parent="Puff"]
+position = Vector2(38, -20)
+color = Color(0.9, 0.82, 0.2, 0.4)
+polygon = PackedVector2Array(0, -34, 24, -24, 34, 0, 24, 24, 0, 34, -24, 24, -34, 0, -24, -24)
+
+[node name="Blob4" type="Polygon2D" parent="Puff"]
+position = Vector2(0, 30)
+color = Color(0.82, 0.75, 0.18, 0.4)
+polygon = PackedVector2Array(0, -30, 21, -21, 30, 0, 21, 21, 0, 30, -21, 21, -30, 0, -21, -21)

@@ -1,0 +1,69 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/RankPercentilesPanel.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="2"]
+
+[node name="RankPercentilesPanel" type="Panel"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -300.0
+offset_right = 340.0
+offset_bottom = 300.0
+visible = false
+script = ExtResource("1")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.03, 0.04, 0.06, 0.98)
+
+[node name="DystoBG" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(0.6, 0.7, 1.0, 1)
+script = ExtResource("2")
+
+[node name="Sparkles" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 14.0
+offset_right = -20.0
+offset_bottom = -14.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="VBox"]
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.95, 0.8, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "RANKS"
+
+[node name="Subtitle" type="Label" parent="VBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+modulate = Color(1, 1, 1, 0.65)
+autowrap_mode = 2
+text = "Every rank on the ladder, and roughly how many operatives actually reach each one."
+
+[node name="RankScroll" type="ScrollContainer" parent="VBox"]
+size_flags_vertical = 3
+
+[node name="RankList" type="VBoxContainer" parent="VBox/RankScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Close"

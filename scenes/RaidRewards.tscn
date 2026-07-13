@@ -1,0 +1,159 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/RaidRewards.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="2"]
+
+[sub_resource type="StyleBoxFlat" id="RankCard"]
+bg_color = Color(0.09, 0.1, 0.09, 0.75)
+border_color = Color(1, 1, 1, 0.12)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 14
+content_margin_right = 14
+content_margin_top = 10
+content_margin_bottom = 10
+
+[node name="RaidRewards" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.04, 0.05, 0.04, 1)
+
+[node name="DystoBG" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(0.55, 0.85, 0.6, 1)
+script = ExtResource("2")
+
+[node name="Sparkles" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -330.0
+offset_top = -330.0
+offset_right = 330.0
+offset_bottom = 330.0
+
+[node name="Backdrop" type="ColorRect" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.06, 0.08, 0.06, 0.95)
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 22.0
+offset_top = 18.0
+offset_right = -22.0
+offset_bottom = -18.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Panel/VBox"]
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.55, 0.9, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 5
+text = "EXTRACTION SUCCESSFUL"
+
+[node name="Subtitle" type="Label" parent="Panel/VBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+modulate = Color(1, 1, 1, 0.75)
+text = "Extraction successful."
+
+[node name="Scroll" type="ScrollContainer" parent="Panel/VBox"]
+size_flags_vertical = 3
+
+[node name="RewardsList" type="VBoxContainer" parent="Panel/VBox/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="XpSection" type="PanelContainer" parent="Panel/VBox"]
+theme_override_styles/panel = SubResource("RankCard")
+
+[node name="XpVBox" type="VBoxContainer" parent="Panel/VBox/XpSection"]
+theme_override_constants/separation = 6
+
+[node name="XpHeader" type="HBoxContainer" parent="Panel/VBox/XpSection/XpVBox"]
+theme_override_constants/separation = 12
+
+[node name="XpLevelLabel" type="Label" parent="Panel/VBox/XpSection/XpVBox/XpHeader"]
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(0.6, 0.85, 1.0, 1)
+text = "Level 1"
+
+[node name="LevelUpLabel" type="Label" parent="Panel/VBox/XpSection/XpVBox"]
+visible = false
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.6, 0.9, 1.0, 1)
+text = "LEVEL UP!"
+
+[node name="XpBar" type="ProgressBar" parent="Panel/VBox/XpSection/XpVBox"]
+custom_minimum_size = Vector2(0, 14)
+show_percentage = false
+
+[node name="XpProgressLabel" type="Label" parent="Panel/VBox/XpSection/XpVBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+modulate = Color(1, 1, 1, 0.75)
+text = "0 / 0 XP"
+
+[node name="RankSection" type="PanelContainer" parent="Panel/VBox"]
+visible = false
+theme_override_styles/panel = SubResource("RankCard")
+
+[node name="RankVBox" type="VBoxContainer" parent="Panel/VBox/RankSection"]
+theme_override_constants/separation = 6
+
+[node name="RankHeader" type="HBoxContainer" parent="Panel/VBox/RankSection/RankVBox"]
+theme_override_constants/separation = 12
+
+[node name="RankIconHolder" type="Control" parent="Panel/VBox/RankSection/RankVBox/RankHeader"]
+custom_minimum_size = Vector2(48, 48)
+
+[node name="RankNameLabel" type="Label" parent="Panel/VBox/RankSection/RankVBox/RankHeader"]
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 20
+text = "Stray 3"
+
+[node name="RankUpLabel" type="Label" parent="Panel/VBox/RankSection/RankVBox"]
+visible = false
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1.0, 0.85, 0.35, 1)
+text = "RANK UP!"
+
+[node name="RankBar" type="ProgressBar" parent="Panel/VBox/RankSection/RankVBox"]
+custom_minimum_size = Vector2(0, 16)
+show_percentage = false
+
+[node name="RankProgressLabel" type="Label" parent="Panel/VBox/RankSection/RankVBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+modulate = Color(1, 1, 1, 0.75)
+text = "0 / 0 to next rank"
+
+[node name="ContinueButton" type="Button" parent="Panel/VBox"]
+custom_minimum_size = Vector2(0, 48)
+theme_override_font_sizes/font_size = 18
+text = "Continue"

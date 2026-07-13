@@ -1,0 +1,1402 @@
+[gd_scene load_steps=37 format=3]
+
+[ext_resource type="Script" path="res://scripts/Main.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/Enemy.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/Loot.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ExtractionZone.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/Wall.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/HUD.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/Bush.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/Door.tscn" id="9"]
+[ext_resource type="Script" path="res://scripts/RoofFade.gd" id="11"]
+[ext_resource type="Script" path="res://scripts/Ground.gd" id="12"]
+[ext_resource type="Script" path="res://scripts/Atmosphere.gd" id="13"]
+[ext_resource type="PackedScene" path="res://scenes/Chest.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://scenes/Crate.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://scenes/Spike.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://scenes/Barrel.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://scenes/NoxiousBat.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://scenes/PowerSwitch.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://scenes/Car.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://scenes/DiscoveryZone.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://scenes/PostProcess.tscn" id="22"]
+[ext_resource type="PackedScene" path="res://scenes/RadiationZone.tscn" id="23"]
+[ext_resource type="PackedScene" path="res://scenes/ToxicWaste.tscn" id="24"]
+[ext_resource type="PackedScene" path="res://scenes/FlareBeacon.tscn" id="25"]
+[ext_resource type="PackedScene" path="res://scenes/DebrisStash.tscn" id="26"]
+[ext_resource type="PackedScene" path="res://scenes/SupplyDropManager.tscn" id="27"]
+[ext_resource type="PackedScene" path="res://scenes/CarAlarm.tscn" id="28"]
+[ext_resource type="PackedScene" path="res://scenes/RadiationCloud.tscn" id="29"]
+[ext_resource type="PackedScene" path="res://scenes/Boat.tscn" id="30"]
+[ext_resource type="PackedScene" path="res://scenes/FloatingBarrel.tscn" id="31"]
+[ext_resource type="PackedScene" path="res://scenes/BlossomPlant.tscn" id="32"]
+[ext_resource type="PackedScene" path="res://scenes/StaticMote.tscn" id="33"]
+[ext_resource type="PackedScene" path="res://scenes/WeatherOverlay.tscn" id="34"]
+[ext_resource type="Script" path="res://scripts/RaidAmbience.gd" id="35"]
+[ext_resource type="Script" path="res://scripts/MovingCar.gd" id="36"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_housea"]
+size = Vector2(462.5, 212.5)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_houseb"]
+size = Vector2(462.5, 212.5)
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1")
+
+[node name="WorldDarkness" type="CanvasModulate" parent="."]
+color = Color(0.24, 0.24, 0.3, 1)
+
+[node name="Background" type="Node2D" parent="."]
+script = ExtResource("12")
+ground_size = Vector2(4600, 3200)
+base_color = Color(0.11, 0.16, 0.11, 1)
+
+[node name="Atmosphere" type="Node2D" parent="."]
+z_index = 7
+script = ExtResource("13")
+area_size = Vector2(4600, 3200)
+
+[node name="WallTop" parent="." instance=ExtResource("6")]
+position = Vector2(0, -1580)
+size = Vector2(4560, 40)
+
+[node name="WallBottom" parent="." instance=ExtResource("6")]
+position = Vector2(0, 1580)
+size = Vector2(4560, 40)
+
+[node name="WallLeft" parent="." instance=ExtResource("6")]
+position = Vector2(-2280, 0)
+size = Vector2(40, 3200)
+
+[node name="WallRight" parent="." instance=ExtResource("6")]
+position = Vector2(2280, 0)
+size = Vector2(40, 3200)
+
+[node name="PathSpawnToHouseA" type="Polygon2D" parent="."]
+position = Vector2(-833.8, -181.2)
+rotation = -0.5204
+z_index = -3
+color = Color(0.42, 0.36, 0.24, 0.55)
+polygon = PackedVector2Array(-364.5, -23, 364.5, -23, 364.5, 23, -364.5, 23)
+
+[node name="PathHouseBToExtraction" type="Polygon2D" parent="."]
+position = Vector2(916.2, 293.8)
+rotation = -0.8987
+z_index = -3
+color = Color(0.42, 0.36, 0.24, 0.55)
+polygon = PackedVector2Array(-375.4, -23, 375.4, -23, 375.4, 23, -375.4, 23)
+
+[node name="PathHouseAToHouseB" type="Polygon2D" parent="."]
+position = Vector2(170, -25)
+rotation = 0.7854
+z_index = -3
+color = Color(0.42, 0.36, 0.24, 0.45)
+polygon = PackedVector2Array(-459.6, -20, 459.6, -20, 459.6, 20, -459.6, 20)
+
+[node name="Obstacle1" parent="." instance=ExtResource("6")]
+position = Vector2(-300, 0)
+size = Vector2(100, 300)
+
+[node name="Obstacle2" parent="." instance=ExtResource("6")]
+position = Vector2(200, -150)
+size = Vector2(200, 80)
+
+[node name="Obstacle3" parent="." instance=ExtResource("6")]
+position = Vector2(500, 50)
+size = Vector2(80, 200)
+
+[node name="Obstacle4" parent="." instance=ExtResource("6")]
+position = Vector2(-100, -450)
+size = Vector2(300, 80)
+
+[node name="Obstacle5" parent="." instance=ExtResource("6")]
+position = Vector2(900, 650)
+size = Vector2(150, 80)
+
+[node name="Obstacle6" parent="." instance=ExtResource("6")]
+position = Vector2(-900, -300)
+size = Vector2(80, 250)
+
+[node name="Bush1" parent="." instance=ExtResource("8")]
+position = Vector2(-350, 150)
+
+[node name="Bush2" parent="." instance=ExtResource("8")]
+position = Vector2(100, 450)
+
+[node name="Bush3" parent="." instance=ExtResource("8")]
+position = Vector2(600, -200)
+
+[node name="Bush4" parent="." instance=ExtResource("8")]
+position = Vector2(-800, -100)
+
+[node name="Bush5" parent="." instance=ExtResource("8")]
+position = Vector2(300, 600)
+
+[node name="Bush6" parent="." instance=ExtResource("8")]
+position = Vector2(-150, 700)
+
+[node name="Bush7" parent="." instance=ExtResource("8")]
+position = Vector2(1000, 0)
+
+[node name="Bush8" parent="." instance=ExtResource("8")]
+position = Vector2(-1000, 400)
+
+[node name="Bush9" parent="." instance=ExtResource("8")]
+position = Vector2(-1600, -900)
+scale = Vector2(1.6, 1.6)
+
+[node name="Bush10" parent="." instance=ExtResource("8")]
+position = Vector2(1600, 900)
+scale = Vector2(1.5, 1.5)
+
+[node name="Bush11" parent="." instance=ExtResource("8")]
+position = Vector2(-1650, 800)
+scale = Vector2(1.7, 1.7)
+
+[node name="Bush12" parent="." instance=ExtResource("8")]
+position = Vector2(1650, -800)
+scale = Vector2(1.4, 1.4)
+
+[node name="Bush13" parent="." instance=ExtResource("8")]
+position = Vector2(0, -1100)
+scale = Vector2(1.5, 1.5)
+
+[node name="Bush14" parent="." instance=ExtResource("8")]
+position = Vector2(500, 1100)
+scale = Vector2(1.6, 1.6)
+
+[node name="Bush15" parent="." instance=ExtResource("8")]
+position = Vector2(-1400, 0)
+scale = Vector2(1.3, 1.3)
+
+[node name="Bush16" parent="." instance=ExtResource("8")]
+position = Vector2(1400, 0)
+scale = Vector2(1.3, 1.3)
+
+[node name="HouseA_TopWall" parent="." instance=ExtResource("6")]
+position = Vector2(-517.5, -637.5)
+size = Vector2(350, 25)
+
+[node name="HouseA_LeftWall" parent="." instance=ExtResource("6")]
+position = Vector2(-692.5, -500)
+size = Vector2(25, 275)
+
+[node name="HouseA_BottomLeft" parent="." instance=ExtResource("6")]
+position = Vector2(-642.5, -362.5)
+size = Vector2(100, 25)
+
+[node name="HouseA_BottomRight" parent="." instance=ExtResource("6")]
+position = Vector2(-392.5, -362.5)
+size = Vector2(100, 25)
+
+[node name="HouseA_FrontDoor" parent="." instance=ExtResource("9")]
+position = Vector2(-517.5, -362.5)
+size = Vector2(150, 25)
+door_color = Color(0.35, 0.22, 0.12, 1)
+
+[node name="HouseA_InnerWallTop" parent="." instance=ExtResource("6")]
+position = Vector2(-342.5, -578.12)
+size = Vector2(25, 118.75)
+
+[node name="HouseA_InnerWallBottom" parent="." instance=ExtResource("6")]
+position = Vector2(-342.5, -403.12)
+size = Vector2(25, 81.25)
+
+[node name="HouseA_LockedDoor" parent="." instance=ExtResource("9")]
+position = Vector2(-342.5, -481.25)
+size = Vector2(25, 75)
+door_color = Color(0.5, 0.35, 0.1, 1)
+locked = true
+key_id = "house_a_key"
+
+[node name="HouseA_VaultTop" parent="." instance=ExtResource("6")]
+position = Vector2(-255, -637.5)
+size = Vector2(175, 25)
+
+[node name="HouseA_VaultBottom" parent="." instance=ExtResource("6")]
+position = Vector2(-255, -362.5)
+size = Vector2(175, 25)
+
+[node name="HouseA_VaultRight" parent="." instance=ExtResource("6")]
+position = Vector2(-167.5, -500)
+size = Vector2(25, 275)
+
+[node name="HouseA_Furniture1" parent="." instance=ExtResource("15")]
+position = Vector2(-642.5, -437.5)
+box_size = 37.5
+rotation = 0.2
+
+[node name="HouseA_Furniture2" parent="." instance=ExtResource("15")]
+position = Vector2(-630, -400)
+box_size = 27.5
+
+[node name="AshenHousePowerSwitch" parent="." instance=ExtResource("19")]
+position = Vector2(-600, -400)
+
+[node name="AshenHouseLamp1" type="Polygon2D" parent="."]
+visible = false
+z_index = 4
+color = Color(1, 0.85, 0.5, 0.75)
+polygon = PackedVector2Array(-14, 0, -10, -10, 0, -14, 10, -10, 14, 0, 10, 10, 0, 14, -10, 10)
+position = Vector2(-600, -520)
+
+[node name="AshenHouseLamp2" type="Polygon2D" parent="."]
+visible = false
+z_index = 4
+color = Color(1, 0.85, 0.5, 0.75)
+polygon = PackedVector2Array(-14, 0, -10, -10, 0, -14, 10, -10, 14, 0, 10, 10, 0, 14, -10, 10)
+position = Vector2(-450, -590)
+
+[node name="AshenHouseLamp3" type="Polygon2D" parent="."]
+visible = false
+z_index = 4
+color = Color(1, 0.85, 0.5, 0.75)
+polygon = PackedVector2Array(-14, 0, -10, -10, 0, -14, 10, -10, 14, 0, 10, 10, 0, 14, -10, 10)
+position = Vector2(-390, -420)
+
+[node name="HouseA" type="Node2D" parent="."]
+
+[node name="Roof" type="Polygon2D" parent="HouseA"]
+z_index = 5
+color = Color(0.18, 0.13, 0.1, 1)
+polygon = PackedVector2Array(-705, -650, -155, -650, -155, -350, -705, -350)
+
+[node name="NameTag" type="Label" parent="HouseA"]
+z_index = 6
+position = Vector2(-592.5, -693.75)
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.95, 0.85, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 5
+text = "Ashen House"
+
+[node name="InteriorZone" type="Area2D" parent="HouseA"]
+script = ExtResource("11")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HouseA/InteriorZone"]
+shape = SubResource("RectangleShape2D_housea")
+position = Vector2(-430, -500)
+
+[node name="HouseA_BackyardFenceNorth" parent="." instance=ExtResource("6")]
+position = Vector2(-430, -900)
+size = Vector2(560, 10)
+wall_color = Color(0.42, 0.28, 0.15, 1)
+
+[node name="HouseA_BackyardFenceEast" parent="." instance=ExtResource("6")]
+position = Vector2(-155, -780)
+size = Vector2(10, 240)
+wall_color = Color(0.42, 0.28, 0.15, 1)
+
+[node name="HouseA_BackyardLootbox" parent="." instance=ExtResource("14")]
+position = Vector2(-430, -700)
+item_name = "Salvaged Rifle Case"
+base_value = 90
+slot = "weapon"
+stat_type = "damage"
+base_stat_value = 10.0
+icon_key = "pistol"
+rarity = "uncommon"
+
+[node name="HouseA_BackyardCrate1" parent="." instance=ExtResource("15")]
+position = Vector2(-550, -820)
+box_size = 26.0
+
+[node name="HouseA_BackyardCrate2" parent="." instance=ExtResource("15")]
+position = Vector2(-320, -850)
+box_size = 22.0
+rotation = 0.3
+
+[node name="HouseA_BackyardBush1" parent="." instance=ExtResource("8")]
+position = Vector2(-620, -750)
+
+[node name="HouseA_BackyardBush2" parent="." instance=ExtResource("8")]
+position = Vector2(-250, -770)
+
+[node name="HouseB_TopWall" parent="." instance=ExtResource("6")]
+position = Vector2(682.5, 312.5)
+size = Vector2(350, 25)
+
+[node name="HouseB_LeftWall" parent="." instance=ExtResource("6")]
+position = Vector2(507.5, 450)
+size = Vector2(25, 275)
+
+[node name="HouseB_BottomLeft" parent="." instance=ExtResource("6")]
+position = Vector2(557.5, 587.5)
+size = Vector2(100, 25)
+
+[node name="HouseB_BottomRight" parent="." instance=ExtResource("6")]
+position = Vector2(807.5, 587.5)
+size = Vector2(100, 25)
+
+[node name="HouseB_FrontDoor" parent="." instance=ExtResource("9")]
+position = Vector2(682.5, 587.5)
+size = Vector2(150, 25)
+door_color = Color(0.35, 0.22, 0.12, 1)
+
+[node name="HouseB_InnerWallTop" parent="." instance=ExtResource("6")]
+position = Vector2(857.5, 371.88)
+size = Vector2(25, 118.75)
+
+[node name="HouseB_InnerWallBottom" parent="." instance=ExtResource("6")]
+position = Vector2(857.5, 546.88)
+size = Vector2(25, 81.25)
+
+[node name="HouseB_LockedDoor" parent="." instance=ExtResource("9")]
+position = Vector2(857.5, 468.75)
+size = Vector2(25, 75)
+door_color = Color(0.5, 0.35, 0.1, 1)
+locked = true
+key_id = "house_b_key"
+
+[node name="HouseB_VaultTop" parent="." instance=ExtResource("6")]
+position = Vector2(945, 312.5)
+size = Vector2(175, 25)
+
+[node name="HouseB_VaultBottom" parent="." instance=ExtResource("6")]
+position = Vector2(945, 587.5)
+size = Vector2(175, 25)
+
+[node name="HouseB_VaultRight" parent="." instance=ExtResource("6")]
+position = Vector2(1032.5, 450)
+size = Vector2(25, 275)
+
+[node name="HouseB_Furniture1" parent="." instance=ExtResource("15")]
+position = Vector2(570, 387.5)
+box_size = 37.5
+rotation = -0.15
+
+[node name="HouseB_Furniture2" parent="." instance=ExtResource("15")]
+position = Vector2(557.5, 425)
+box_size = 27.5
+
+[node name="HouseB" type="Node2D" parent="."]
+
+[node name="Roof" type="Polygon2D" parent="HouseB"]
+z_index = 5
+color = Color(0.18, 0.13, 0.1, 1)
+polygon = PackedVector2Array(495, 300, 1045, 300, 1045, 600, 495, 600)
+
+[node name="NameTag" type="Label" parent="HouseB"]
+z_index = 6
+position = Vector2(620, 256.25)
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.95, 0.85, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 5
+text = "Blackthorn Estate"
+
+[node name="InteriorZone" type="Area2D" parent="HouseB"]
+script = ExtResource("11")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HouseB/InteriorZone"]
+shape = SubResource("RectangleShape2D_houseb")
+position = Vector2(770, 450)
+
+[node name="HouseB_BackyardFenceNorth" parent="." instance=ExtResource("6")]
+position = Vector2(770, 150)
+size = Vector2(560, 10)
+wall_color = Color(0.42, 0.28, 0.15, 1)
+
+[node name="HouseB_BackyardFenceEast" parent="." instance=ExtResource("6")]
+position = Vector2(1045, 220)
+size = Vector2(10, 140)
+wall_color = Color(0.42, 0.28, 0.15, 1)
+
+[node name="HouseB_BackyardLootbox" parent="." instance=ExtResource("14")]
+position = Vector2(770, 220)
+item_name = "Sealed Supply Crate"
+base_value = 100
+slot = "backpack"
+stat_type = "max_health"
+base_stat_value = 20.0
+icon_key = "backpack"
+rarity = "uncommon"
+
+[node name="HouseB_BackyardCrate1" parent="." instance=ExtResource("15")]
+position = Vector2(650, 180)
+box_size = 26.0
+
+[node name="HouseB_BackyardCrate2" parent="." instance=ExtResource("15")]
+position = Vector2(900, 200)
+box_size = 22.0
+rotation = -0.25
+
+[node name="HouseB_BackyardBush1" parent="." instance=ExtResource("8")]
+position = Vector2(560, 250)
+
+[node name="HouseB_BackyardBush2" parent="." instance=ExtResource("8")]
+position = Vector2(980, 260)
+
+[node name="BossArenaFloor" type="Polygon2D" parent="."]
+position = Vector2(-200, 1000)
+z_index = -2
+color = Color(0.22, 0.07, 0.07, 0.55)
+polygon = PackedVector2Array(-250, -180, 250, -180, 250, 180, -250, 180)
+
+[node name="BossArenaFenceWest" parent="." instance=ExtResource("6")]
+position = Vector2(-450, 1000)
+size = Vector2(10, 360)
+wall_color = Color(0.22, 0.22, 0.25, 1)
+
+[node name="BossArenaFenceEast" parent="." instance=ExtResource("6")]
+position = Vector2(50, 1000)
+size = Vector2(10, 360)
+wall_color = Color(0.22, 0.22, 0.25, 1)
+
+[node name="BossArenaFenceSouth" parent="." instance=ExtResource("6")]
+position = Vector2(-200, 1180)
+size = Vector2(500, 10)
+wall_color = Color(0.22, 0.22, 0.25, 1)
+
+[node name="BossArenaLabel" type="Label" parent="."]
+position = Vector2(-280, 780)
+custom_minimum_size = Vector2(160, 24)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.9, 0.15, 0.15, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 5
+text = "!! DANGER ZONE !!"
+
+[node name="BossArenaBarrel1" parent="." instance=ExtResource("17")]
+position = Vector2(-380, 880)
+
+[node name="BossArenaBarrel2" parent="." instance=ExtResource("17")]
+position = Vector2(-360, 920)
+
+[node name="BossArenaBarrel3" parent="." instance=ExtResource("17")]
+position = Vector2(-30, 900)
+
+[node name="BossArenaBarrel4" parent="." instance=ExtResource("17")]
+position = Vector2(-10, 1100)
+
+[node name="BossArenaBarrel5" parent="." instance=ExtResource("17")]
+position = Vector2(-400, 1120)
+
+[node name="BossArenaBarrel6" parent="." instance=ExtResource("17")]
+position = Vector2(-250, 1140)
+
+[node name="Spike" parent="." instance=ExtResource("16")]
+position = Vector2(-200, 1000)
+
+[node name="NoxiousBat1" parent="." instance=ExtResource("18")]
+position = Vector2(300, -700)
+
+[node name="NoxiousBat2" parent="." instance=ExtResource("18")]
+position = Vector2(-900, 700)
+
+[node name="DecorCar1" parent="." instance=ExtResource("20")]
+position = Vector2(-900, -120)
+rotation = 0.2
+static_decor = true
+
+[node name="CarAlarm" parent="DecorCar1" instance=ExtResource("28")]
+
+[node name="DecorCar2" parent="." instance=ExtResource("20")]
+position = Vector2(760, 680)
+rotation = -0.3
+static_decor = true
+
+[node name="CarAlarm" parent="DecorCar2" instance=ExtResource("28")]
+
+[node name="DecorCar3" parent="." instance=ExtResource("20")]
+position = Vector2(-300, -1050)
+rotation = 1.6
+static_decor = true
+
+[node name="CarAlarm" parent="DecorCar3" instance=ExtResource("28")]
+
+[node name="BlossomPlant1" parent="." instance=ExtResource("32")]
+position = Vector2(300, -1200)
+
+[node name="BlossomPlant2" parent="." instance=ExtResource("32")]
+position = Vector2(-1300, -500)
+
+[node name="BlossomPlant3" parent="." instance=ExtResource("32")]
+position = Vector2(1200, 900)
+
+[node name="BlossomPlant4" parent="." instance=ExtResource("32")]
+position = Vector2(-600, 1300)
+
+[node name="BlossomPlant5" parent="." instance=ExtResource("32")]
+position = Vector2(1600, -900)
+
+[node name="BlossomPlant6" parent="." instance=ExtResource("32")]
+position = Vector2(-1700, 600)
+
+[node name="StaticMote1" parent="." instance=ExtResource("33")]
+position = Vector2(900, -300)
+
+[node name="StaticMote2" parent="." instance=ExtResource("33")]
+position = Vector2(-1100, 1000)
+
+[node name="StaticMote3" parent="." instance=ExtResource("33")]
+position = Vector2(500, 1400)
+
+[node name="BushCluster1A" parent="." instance=ExtResource("8")]
+position = Vector2(1000, -600)
+
+[node name="BushCluster1B" parent="." instance=ExtResource("8")]
+position = Vector2(1040, -580)
+scale = Vector2(0.85, 0.85)
+
+[node name="BushCluster1C" parent="." instance=ExtResource("8")]
+position = Vector2(980, -560)
+scale = Vector2(1.2, 1.2)
+
+[node name="BushCluster2A" parent="." instance=ExtResource("8")]
+position = Vector2(-1100, 300)
+
+[node name="BushCluster2B" parent="." instance=ExtResource("8")]
+position = Vector2(-1060, 320)
+scale = Vector2(0.9, 0.9)
+
+[node name="BushCluster3A" parent="." instance=ExtResource("8")]
+position = Vector2(350, 950)
+
+[node name="BushCluster3B" parent="." instance=ExtResource("8")]
+position = Vector2(390, 970)
+scale = Vector2(1.1, 1.1)
+
+[node name="BushCluster3C" parent="." instance=ExtResource("8")]
+position = Vector2(320, 990)
+scale = Vector2(0.8, 0.8)
+
+[node name="BushCluster4A" parent="." instance=ExtResource("8")]
+position = Vector2(-1700, -300)
+
+[node name="BushCluster4B" parent="." instance=ExtResource("8")]
+position = Vector2(-1660, -280)
+scale = Vector2(1.3, 1.3)
+
+[node name="BushCluster5A" parent="." instance=ExtResource("8")]
+position = Vector2(1650, 300)
+
+[node name="BushCluster5B" parent="." instance=ExtResource("8")]
+position = Vector2(1610, 330)
+scale = Vector2(0.95, 0.95)
+
+[node name="BushCluster5C" parent="." instance=ExtResource("8")]
+position = Vector2(1690, 340)
+scale = Vector2(1.15, 1.15)
+
+[node name="PathToPaidExtraction" type="Polygon2D" parent="."]
+position = Vector2(-1350, -300)
+rotation = -0.28
+z_index = -3
+color = Color(0.42, 0.36, 0.24, 0.5)
+polygon = PackedVector2Array(-310, -20, 310, -20, 310, 20, -310, 20)
+
+[node name="PathToBossArena" type="Polygon2D" parent="."]
+position = Vector2(-675, 390)
+rotation = 0.6874
+z_index = -3
+color = Color(0.35, 0.22, 0.2, 0.45)
+polygon = PackedVector2Array(-614.6, -23, 614.6, -23, 614.6, 23, -614.6, 23)
+
+[node name="RoadToMechanicShop" type="Polygon2D" parent="."]
+position = Vector2(1575, -650)
+rotation = -0.9917
+z_index = -3
+color = Color(0.3, 0.3, 0.32, 0.6)
+polygon = PackedVector2Array(-776.6, -22, 776.6, -22, 776.6, 22, -776.6, 22)
+
+[node name="RoadToLake" type="Polygon2D" parent="."]
+position = Vector2(1525, 650)
+rotation = 1.0475
+z_index = -3
+color = Color(0.3, 0.3, 0.32, 0.6)
+polygon = PackedVector2Array(-750.4, -22, 750.4, -22, 750.4, 22, -750.4, 22)
+
+[node name="MechanicShopFloor" type="Polygon2D" parent="."]
+position = Vector2(2000, -1300)
+z_index = -2
+color = Color(0.3, 0.22, 0.14, 0.55)
+polygon = PackedVector2Array(-220, -160, 220, -160, 220, 160, -220, 160)
+
+[node name="MechanicShopWallBack" parent="." instance=ExtResource("6")]
+position = Vector2(2000, -1460)
+size = Vector2(460, 20)
+wall_color = Color(0.35, 0.32, 0.3, 1)
+
+[node name="MechanicShopWallLeft" parent="." instance=ExtResource("6")]
+position = Vector2(1780, -1300)
+size = Vector2(20, 320)
+wall_color = Color(0.35, 0.32, 0.3, 1)
+
+[node name="MechanicShopWallRight" parent="." instance=ExtResource("6")]
+position = Vector2(2220, -1300)
+size = Vector2(20, 320)
+wall_color = Color(0.35, 0.32, 0.3, 1)
+
+[node name="MechanicShopLabel" type="Label" parent="."]
+position = Vector2(1920, -1500)
+custom_minimum_size = Vector2(160, 24)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.85, 0.7, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 5
+text = "MECHANIC SHOP"
+
+[node name="MechanicShopBarrel1" parent="." instance=ExtResource("17")]
+position = Vector2(1870, -1180)
+
+[node name="MechanicShopBarrel2" parent="." instance=ExtResource("17")]
+position = Vector2(1900, -1150)
+
+[node name="MechanicShopCar" parent="." instance=ExtResource("20")]
+position = Vector2(2100, -1180)
+rotation = 0.15
+static_decor = true
+
+[node name="MechanicShopScrewsChest" parent="." instance=ExtResource("14")]
+position = Vector2(2000, -1370)
+item_name = "Screws"
+base_value = 10
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "screws"
+rarity = "common"
+quest_trigger = "find_screws_mechanic"
+
+[node name="LakeWater" type="Polygon2D" parent="."]
+position = Vector2(1900, 1300)
+z_index = -2
+color = Color(0.15, 0.35, 0.5, 0.75)
+polygon = PackedVector2Array(-320, -180, -180, -230, 60, -220, 260, -140, 320, 0, 260, 150, 60, 220, -180, 190, -300, 60)
+
+[node name="LakeDock" type="Polygon2D" parent="."]
+position = Vector2(1900, 1120)
+z_index = -1
+color = Color(0.42, 0.3, 0.18, 1)
+polygon = PackedVector2Array(-30, -60, 30, -60, 30, 90, -30, 90)
+
+[node name="LakeDockLabel" type="Label" parent="."]
+position = Vector2(1820, 1000)
+custom_minimum_size = Vector2(160, 24)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.6, 0.85, 0.95, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 5
+text = "THE LAKE"
+
+[node name="LakeDiscoveryZone" parent="." instance=ExtResource("21")]
+position = Vector2(1900, 1300)
+quest_trigger = "find_lake"
+
+[node name="LakeExtractionZone" parent="." instance=ExtResource("5")]
+position = Vector2(1900, 1150)
+pickup_type = "helicopter"
+
+[node name="LakeDockFlare" parent="." instance=ExtResource("25")]
+position = Vector2(1935, 1100)
+
+[node name="Container1" parent="." instance=ExtResource("14")]
+position = Vector2(-1500, 900)
+item_name = "Field Rations"
+base_value = 30
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "canned_food"
+rarity = "common"
+
+[node name="Container2" parent="." instance=ExtResource("14")]
+position = Vector2(1300, -400)
+item_name = "Storage Crate"
+base_value = 55
+slot = "body"
+stat_type = "max_health"
+base_stat_value = 15.0
+icon_key = "chestplate"
+rarity = "uncommon"
+
+[node name="Container3" parent="." instance=ExtResource("14")]
+position = Vector2(-2000, -1000)
+item_name = "Ammo Crate"
+base_value = 60
+slot = "weapon"
+stat_type = "damage"
+base_stat_value = 8.0
+icon_key = "pistol"
+rarity = "uncommon"
+
+[node name="Container4" parent="." instance=ExtResource("14")]
+position = Vector2(700, 1200)
+item_name = "Supply Cache"
+base_value = 45
+slot = "boots"
+stat_type = "speed"
+base_stat_value = 12.0
+icon_key = "boots"
+rarity = "common"
+
+[node name="Container5" parent="." instance=ExtResource("14")]
+position = Vector2(-700, -1100)
+item_name = "Locker"
+base_value = 65
+slot = "head"
+stat_type = "max_health"
+base_stat_value = 16.0
+icon_key = "helmet"
+rarity = "uncommon"
+
+[node name="Container6" parent="." instance=ExtResource("14")]
+position = Vector2(2100, 700)
+item_name = "Toolbox"
+base_value = 25
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "duct_tape"
+rarity = "common"
+
+[node name="BushCluster6A" parent="." instance=ExtResource("8")]
+position = Vector2(-1850, 1200)
+
+[node name="BushCluster6B" parent="." instance=ExtResource("8")]
+position = Vector2(-1810, 1220)
+scale = Vector2(0.9, 0.9)
+
+[node name="BushCluster6C" parent="." instance=ExtResource("8")]
+position = Vector2(-1870, 1250)
+scale = Vector2(1.1, 1.1)
+
+[node name="BushCluster6D" parent="." instance=ExtResource("8")]
+position = Vector2(-1820, 1270)
+scale = Vector2(0.8, 0.8)
+
+[node name="BushCluster6E" parent="." instance=ExtResource("8")]
+position = Vector2(-1780, 1210)
+
+[node name="BushCluster7A" parent="." instance=ExtResource("8")]
+position = Vector2(2150, -300)
+
+[node name="BushCluster7B" parent="." instance=ExtResource("8")]
+position = Vector2(2110, -280)
+scale = Vector2(1.15, 1.15)
+
+[node name="BushCluster7C" parent="." instance=ExtResource("8")]
+position = Vector2(2170, -260)
+scale = Vector2(0.85, 0.85)
+
+[node name="BushCluster8A" parent="." instance=ExtResource("8")]
+position = Vector2(-400, 1350)
+
+[node name="BushCluster8B" parent="." instance=ExtResource("8")]
+position = Vector2(-360, 1370)
+
+[node name="BushCluster8C" parent="." instance=ExtResource("8")]
+position = Vector2(-420, 1390)
+scale = Vector2(1.2, 1.2)
+
+[node name="BushCluster8D" parent="." instance=ExtResource("8")]
+position = Vector2(-370, 1330)
+scale = Vector2(0.9, 0.9)
+
+[node name="BushCluster8E" parent="." instance=ExtResource("8")]
+position = Vector2(-440, 1340)
+
+[node name="BushCluster8F" parent="." instance=ExtResource("8")]
+position = Vector2(-390, 1410)
+scale = Vector2(1.1, 1.1)
+
+[node name="BushCluster8G" parent="." instance=ExtResource("8")]
+position = Vector2(-340, 1360)
+scale = Vector2(0.95, 0.95)
+
+[node name="RadiationZone" parent="." instance=ExtResource("23")]
+position = Vector2(-800, 1100)
+
+[node name="Cloud1" parent="RadiationZone" instance=ExtResource("29")]
+position = Vector2(0, 0)
+
+[node name="Cloud2" parent="RadiationZone" instance=ExtResource("29")]
+position = Vector2(150, -100)
+cloud_radius = 145.0
+
+[node name="Cloud3" parent="RadiationZone" instance=ExtResource("29")]
+position = Vector2(-160, 80)
+cloud_radius = 155.0
+
+[node name="Cloud4" parent="RadiationZone" instance=ExtResource("29")]
+position = Vector2(100, 150)
+cloud_radius = 135.0
+
+[node name="Cloud5" parent="RadiationZone" instance=ExtResource("29")]
+position = Vector2(-140, -120)
+cloud_radius = 150.0
+
+[node name="RadiationLabel" type="Label" parent="."]
+position = Vector2(-880, 760)
+custom_minimum_size = Vector2(160, 24)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.55, 0.9, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 5
+text = "!! RADIATION !!"
+
+[node name="RuinWallBack" parent="." instance=ExtResource("6")]
+position = Vector2(-800, 980)
+size = Vector2(220, 18)
+wall_color = Color(0.3, 0.28, 0.24, 1)
+
+[node name="RuinWallLeft" parent="." instance=ExtResource("6")]
+position = Vector2(-900, 1080)
+size = Vector2(18, 200)
+wall_color = Color(0.3, 0.28, 0.24, 1)
+
+[node name="RuinWallRight" parent="." instance=ExtResource("6")]
+position = Vector2(-700, 1080)
+size = Vector2(18, 200)
+wall_color = Color(0.3, 0.28, 0.24, 1)
+
+[node name="RuinChest1" parent="." instance=ExtResource("14")]
+position = Vector2(-850, 1150)
+item_name = "Sealed Container"
+base_value = 140
+slot = "body"
+stat_type = "max_health"
+base_stat_value = 25.0
+icon_key = "chestplate"
+rarity = "rare"
+
+[node name="RuinChest2" parent="." instance=ExtResource("14")]
+position = Vector2(-750, 1170)
+item_name = "Hazmat Locker"
+base_value = 100
+slot = "weapon"
+stat_type = "damage"
+base_stat_value = 15.0
+icon_key = "rifle"
+rarity = "rare"
+
+[node name="ToxicWaste1" parent="." instance=ExtResource("24")]
+position = Vector2(-800, 750)
+
+[node name="ToxicWaste2" parent="." instance=ExtResource("24")]
+position = Vector2(-1150, 1100)
+
+[node name="Bridge1" type="Polygon2D" parent="."]
+position = Vector2(1575, -650)
+rotation = -0.9917
+z_index = -2
+color = Color(0.38, 0.26, 0.14, 1)
+polygon = PackedVector2Array(-70, -28, 70, -28, 70, 28, -70, 28)
+
+[node name="Bridge1RailA" type="Line2D" parent="."]
+position = Vector2(1575, -650)
+rotation = -0.9917
+z_index = -1
+points = PackedVector2Array(-70, -28, 70, -28)
+width = 4.0
+default_color = Color(0.25, 0.16, 0.08, 1)
+
+[node name="Bridge1RailB" type="Line2D" parent="."]
+position = Vector2(1575, -650)
+rotation = -0.9917
+z_index = -1
+points = PackedVector2Array(-70, 28, 70, 28)
+width = 4.0
+default_color = Color(0.25, 0.16, 0.08, 1)
+
+[node name="Bridge2" type="Polygon2D" parent="."]
+position = Vector2(1525, 650)
+rotation = 1.0475
+z_index = -2
+color = Color(0.38, 0.26, 0.14, 1)
+polygon = PackedVector2Array(-70, -28, 70, -28, 70, 28, -70, 28)
+
+[node name="Bridge2RailA" type="Line2D" parent="."]
+position = Vector2(1525, 650)
+rotation = 1.0475
+z_index = -1
+points = PackedVector2Array(-70, -28, 70, -28)
+width = 4.0
+default_color = Color(0.25, 0.16, 0.08, 1)
+
+[node name="Bridge2RailB" type="Line2D" parent="."]
+position = Vector2(1525, 650)
+rotation = 1.0475
+z_index = -1
+points = PackedVector2Array(-70, 28, 70, 28)
+width = 4.0
+default_color = Color(0.25, 0.16, 0.08, 1)
+
+[node name="StreetLight1" parent="." instance=ExtResource("25")]
+position = Vector2(1350, -350)
+flare_color = Color(0.95, 0.85, 0.5, 1)
+
+[node name="StreetLight2" parent="." instance=ExtResource("25")]
+position = Vector2(1750, -1000)
+flare_color = Color(0.95, 0.85, 0.5, 1)
+
+[node name="StreetLight3" parent="." instance=ExtResource("25")]
+position = Vector2(1300, 350)
+flare_color = Color(0.95, 0.85, 0.5, 1)
+
+[node name="StreetLight4" parent="." instance=ExtResource("25")]
+position = Vector2(1700, 950)
+flare_color = Color(0.95, 0.85, 0.5, 1)
+
+[node name="StreetLight5" parent="." instance=ExtResource("25")]
+position = Vector2(-1150, -300)
+flare_color = Color(0.95, 0.85, 0.5, 1)
+
+[node name="Safe1" parent="." instance=ExtResource("14")]
+position = Vector2(-2100, 1400)
+item_name = "Locked Safe"
+base_value = 260
+slot = "weapon"
+stat_type = "damage"
+base_stat_value = 20.0
+icon_key = "sniper"
+rarity = "epic"
+search_duration = 5.0
+
+[node name="Safe2" parent="." instance=ExtResource("14")]
+position = Vector2(2150, -1450)
+item_name = "Locked Safe"
+base_value = 300
+slot = "body"
+stat_type = "max_health"
+base_stat_value = 35.0
+icon_key = "chestplate"
+rarity = "epic"
+search_duration = 5.0
+
+[node name="Safe3" parent="." instance=ExtResource("14")]
+position = Vector2(-2150, -100)
+item_name = "Locked Safe"
+base_value = 220
+slot = "head"
+stat_type = "max_health"
+base_stat_value = 30.0
+icon_key = "helmet"
+rarity = "rare"
+search_duration = 5.0
+
+[node name="TrashPile1" parent="." instance=ExtResource("14")]
+position = Vector2(300, -700)
+item_name = "Trash Pile"
+base_value = 15
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "cloth"
+rarity = "common"
+search_duration = 1.0
+chest_size = Vector2(30, 24)
+
+[node name="TrashPile2" parent="." instance=ExtResource("14")]
+position = Vector2(-300, 500)
+item_name = "Trash Pile"
+base_value = 18
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "screws"
+rarity = "common"
+search_duration = 1.0
+chest_size = Vector2(30, 24)
+
+[node name="TrashPile3" parent="." instance=ExtResource("14")]
+position = Vector2(1000, 1000)
+item_name = "Trash Pile"
+base_value = 20
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "duct_tape"
+rarity = "common"
+search_duration = 1.0
+chest_size = Vector2(30, 24)
+
+[node name="TrashPile4" parent="." instance=ExtResource("14")]
+position = Vector2(-1400, -600)
+item_name = "Trash Pile"
+base_value = 16
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "canned_food"
+rarity = "common"
+search_duration = 1.0
+chest_size = Vector2(30, 24)
+
+[node name="DebrisStash1" parent="." instance=ExtResource("26")]
+position = Vector2(-600, -400)
+item_name = "Buried Cache"
+base_value = 90
+icon_key = "hard_plate"
+rarity = "uncommon"
+
+[node name="DebrisStash2" parent="." instance=ExtResource("26")]
+position = Vector2(1500, -100)
+item_name = "Buried Cache"
+base_value = 100
+icon_key = "antiseptic"
+rarity = "uncommon"
+
+[node name="DebrisStash3" parent="." instance=ExtResource("26")]
+position = Vector2(-1700, 800)
+item_name = "Buried Cache"
+base_value = 85
+icon_key = "batteries"
+rarity = "uncommon"
+
+[node name="Container7" parent="." instance=ExtResource("14")]
+position = Vector2(900, -1000)
+item_name = "Weapon Case"
+base_value = 95
+slot = "weapon"
+stat_type = "damage"
+base_stat_value = 11.0
+icon_key = "rifle"
+rarity = "uncommon"
+
+[node name="Container8" parent="." instance=ExtResource("14")]
+position = Vector2(-1600, 400)
+item_name = "Gear Bag"
+base_value = 50
+slot = "accessory"
+stat_type = "speed"
+base_stat_value = 14.0
+icon_key = "watch"
+rarity = "common"
+
+[node name="Container9" parent="." instance=ExtResource("14")]
+position = Vector2(400, 1450)
+item_name = "Duffel Bag"
+base_value = 40
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "paracord"
+rarity = "common"
+
+[node name="Container10" parent="." instance=ExtResource("14")]
+position = Vector2(1600, -600)
+item_name = "Reinforced Case"
+base_value = 70
+slot = "boots"
+stat_type = "speed"
+base_stat_value = 18.0
+icon_key = "boots"
+rarity = "uncommon"
+
+[node name="Player" parent="." instance=ExtResource("2")]
+position = Vector2(-1150, 0)
+
+[node name="Enemy1" parent="." instance=ExtResource("3")]
+position = Vector2(-200, -200)
+is_real_player = true
+enemy_type_id = "real_player"
+
+[node name="Enemy2" parent="." instance=ExtResource("3")]
+position = Vector2(0, 300)
+
+[node name="Enemy3" parent="." instance=ExtResource("3")]
+position = Vector2(400, -350)
+is_real_player = true
+enemy_type_id = "real_player"
+
+[node name="Enemy4" parent="." instance=ExtResource("3")]
+position = Vector2(1150, 150)
+is_real_player = true
+enemy_type_id = "real_player"
+
+[node name="Enemy5" parent="." instance=ExtResource("3")]
+position = Vector2(-700, 300)
+
+[node name="Enemy6" parent="." instance=ExtResource("3")]
+position = Vector2(900, -400)
+is_real_player = true
+enemy_type_id = "real_player"
+
+[node name="EnemyKeyA" parent="." instance=ExtResource("3")]
+position = Vector2(-500, -250)
+drop_key_id = "house_a_key"
+drop_key_label = "Ashen House Key"
+
+[node name="EnemyKeyB" parent="." instance=ExtResource("3")]
+position = Vector2(620, 700)
+drop_key_id = "house_b_key"
+drop_key_label = "Blackthorn Estate Key"
+
+[node name="Chest1_VaultA" parent="." instance=ExtResource("14")]
+position = Vector2(-292.5, -550)
+item_name = "Prototype Rifle"
+base_value = 200
+slot = "weapon"
+stat_type = "damage"
+base_stat_value = 20.0
+icon_key = "rifle"
+rarity = "legendary"
+grants_artifacts = 5
+
+[node name="Chest2_VaultA" parent="." instance=ExtResource("14")]
+position = Vector2(-217.5, -450)
+item_name = "Nano-Weave Vest"
+base_value = 250
+slot = "body"
+stat_type = "max_health"
+base_stat_value = 50.0
+icon_key = "chestplate"
+rarity = "mythic"
+grants_artifacts = 8
+
+[node name="Chest1_VaultB" parent="." instance=ExtResource("14")]
+position = Vector2(907.5, 400)
+item_name = "War Crown"
+base_value = 220
+slot = "head"
+stat_type = "max_health"
+base_stat_value = 40.0
+icon_key = "helmet"
+rarity = "legendary"
+grants_artifacts = 5
+
+[node name="Chest2_VaultB" parent="." instance=ExtResource("14")]
+position = Vector2(982.5, 500)
+item_name = "Heart of the Sector"
+base_value = 280
+slot = "accessory"
+stat_type = "speed"
+base_stat_value = 35.0
+icon_key = "ring"
+rarity = "mythic"
+grants_artifacts = 8
+
+[node name="RoadToPaidExtraction" type="Polygon2D" parent="."]
+position = Vector2(-1420, -600)
+z_index = -3
+color = Color(0.3, 0.3, 0.32, 0.6)
+polygon = PackedVector2Array(-140, -22, 140, -22, 140, 22, -140, 22)
+
+[node name="RoadSpur1" type="Polygon2D" parent="."]
+position = Vector2(-400, 1250)
+rotation = 0.35
+z_index = -3
+color = Color(0.3, 0.3, 0.32, 0.6)
+polygon = PackedVector2Array(-180, -20, 180, -20, 180, 20, -180, 20)
+
+[node name="LivelyBush1" parent="." instance=ExtResource("8")]
+position = Vector2(-420, 220)
+
+[node name="LivelyBush2" parent="." instance=ExtResource("8")]
+position = Vector2(230, 510)
+scale = Vector2(1.1, 1.1)
+
+[node name="LivelyBush3" parent="." instance=ExtResource("8")]
+position = Vector2(1100, -660)
+
+[node name="LivelyBush4" parent="." instance=ExtResource("8")]
+position = Vector2(940, -510)
+scale = Vector2(0.9, 0.9)
+
+[node name="LivelyBush5" parent="." instance=ExtResource("8")]
+position = Vector2(-1600, -540)
+
+[node name="LivelyBush6" parent="." instance=ExtResource("8")]
+position = Vector2(-1490, -680)
+scale = Vector2(1.15, 1.15)
+
+[node name="LivelyBush7" parent="." instance=ExtResource("8")]
+position = Vector2(-250, 1420)
+
+[node name="LivelyBush8" parent="." instance=ExtResource("8")]
+position = Vector2(1650, -720)
+scale = Vector2(1.05, 1.05)
+
+[node name="LivelyCar1" parent="." instance=ExtResource("20")]
+position = Vector2(-980, -220)
+rotation = -0.15
+static_decor = true
+
+[node name="CarAlarm" parent="LivelyCar1" instance=ExtResource("28")]
+
+[node name="LivelyCar2" parent="." instance=ExtResource("20")]
+position = Vector2(870, 610)
+rotation = 0.5
+static_decor = true
+
+[node name="CarAlarm" parent="LivelyCar2" instance=ExtResource("28")]
+
+[node name="LivelyCar3" parent="." instance=ExtResource("20")]
+position = Vector2(-1470, -540)
+rotation = 1.1
+static_decor = true
+
+[node name="CarAlarm" parent="LivelyCar3" instance=ExtResource("28")]
+
+[node name="LivelyCar4" parent="." instance=ExtResource("20")]
+position = Vector2(1720, -780)
+rotation = -0.8
+static_decor = true
+
+[node name="CarAlarm" parent="LivelyCar4" instance=ExtResource("28")]
+
+[node name="LivelyChest1" parent="." instance=ExtResource("14")]
+position = Vector2(1150, -700)
+
+[node name="LivelyChest2" parent="." instance=ExtResource("14")]
+position = Vector2(-1550, -450)
+
+[node name="LivelyDebrisStash1" parent="." instance=ExtResource("26")]
+position = Vector2(-300, 1300)
+
+[node name="RoadStone1" type="Polygon2D" parent="."]
+position = Vector2(1020, -710)
+color = Color(0.35, 0.34, 0.33, 1)
+polygon = PackedVector2Array(-6, 4, -3, -3, 2, -5, 6, 0, 4, 5, -2, 6)
+
+[node name="RoadStone2" type="Polygon2D" parent="."]
+position = Vector2(2080, -570)
+rotation = 0.6
+color = Color(0.32, 0.31, 0.3, 1)
+polygon = PackedVector2Array(-5, 3, -2, -4, 3, -4, 5, 1, 1, 5)
+
+[node name="RoadStone3" type="Polygon2D" parent="."]
+position = Vector2(960, 590)
+color = Color(0.35, 0.34, 0.33, 1)
+polygon = PackedVector2Array(-6, 4, -3, -3, 2, -5, 6, 0, 4, 5, -2, 6)
+
+[node name="RoadStone4" type="Polygon2D" parent="."]
+position = Vector2(2040, 710)
+rotation = -0.4
+color = Color(0.32, 0.31, 0.3, 1)
+polygon = PackedVector2Array(-5, 3, -2, -4, 3, -4, 5, 1, 1, 5)
+
+[node name="RoadStone5" type="Polygon2D" parent="."]
+position = Vector2(-1560, -640)
+color = Color(0.35, 0.34, 0.33, 1)
+polygon = PackedVector2Array(-6, 4, -3, -3, 2, -5, 6, 0, 4, 5, -2, 6)
+
+[node name="RoadStone6" type="Polygon2D" parent="."]
+position = Vector2(-1290, -570)
+rotation = 0.3
+color = Color(0.32, 0.31, 0.3, 1)
+polygon = PackedVector2Array(-5, 3, -2, -4, 3, -4, 5, 1, 1, 5)
+
+[node name="RoadStone7" type="Polygon2D" parent="."]
+position = Vector2(-560, 1210)
+color = Color(0.35, 0.34, 0.33, 1)
+polygon = PackedVector2Array(-6, 4, -3, -3, 2, -5, 6, 0, 4, 5, -2, 6)
+
+[node name="RoadStone8" type="Polygon2D" parent="."]
+position = Vector2(-270, 1310)
+rotation = -0.5
+color = Color(0.32, 0.31, 0.3, 1)
+polygon = PackedVector2Array(-5, 3, -2, -4, 3, -4, 5, 1, 1, 5)
+
+[node name="StreetLightOld1" type="Node2D" parent="."]
+position = Vector2(1300, -690)
+
+[node name="Pole" type="Polygon2D" parent="StreetLightOld1"]
+color = Color(0.08, 0.08, 0.09, 1)
+polygon = PackedVector2Array(-2, 0, 2, 0, 2, -46, -2, -46)
+
+[node name="LampHead" type="Polygon2D" parent="StreetLightOld1"]
+position = Vector2(0, -46)
+color = Color(0.1, 0.1, 0.11, 1)
+polygon = PackedVector2Array(-7, 0, 7, 0, 5, -6, -5, -6)
+
+[node name="Glow" type="Polygon2D" parent="StreetLightOld1"]
+position = Vector2(0, -44)
+color = Color(0.95, 0.85, 0.5, 0.22)
+polygon = PackedVector2Array(-24, 22, 24, 22, 14, -14, -14, -14)
+
+[node name="StreetLightOld2" type="Node2D" parent="."]
+position = Vector2(1850, -610)
+
+[node name="Pole" type="Polygon2D" parent="StreetLightOld2"]
+color = Color(0.08, 0.08, 0.09, 1)
+polygon = PackedVector2Array(-2, 0, 2, 0, 2, -46, -2, -46)
+
+[node name="LampHead" type="Polygon2D" parent="StreetLightOld2"]
+position = Vector2(0, -46)
+color = Color(0.1, 0.1, 0.11, 1)
+polygon = PackedVector2Array(-7, 0, 7, 0, 5, -6, -5, -6)
+
+[node name="Glow" type="Polygon2D" parent="StreetLightOld2"]
+position = Vector2(0, -44)
+color = Color(0.95, 0.85, 0.5, 0.22)
+polygon = PackedVector2Array(-24, 22, 24, 22, 14, -14, -14, -14)
+
+[node name="StreetLightOld3" type="Node2D" parent="."]
+position = Vector2(1250, 690)
+
+[node name="Pole" type="Polygon2D" parent="StreetLightOld3"]
+color = Color(0.08, 0.08, 0.09, 1)
+polygon = PackedVector2Array(-2, 0, 2, 0, 2, -46, -2, -46)
+
+[node name="LampHead" type="Polygon2D" parent="StreetLightOld3"]
+position = Vector2(0, -46)
+color = Color(0.1, 0.1, 0.11, 1)
+polygon = PackedVector2Array(-7, 0, 7, 0, 5, -6, -5, -6)
+
+[node name="Glow" type="Polygon2D" parent="StreetLightOld3"]
+position = Vector2(0, -44)
+color = Color(0.95, 0.85, 0.5, 0.22)
+polygon = PackedVector2Array(-24, 22, 24, 22, 14, -14, -14, -14)
+
+[node name="StreetLightOld4" type="Node2D" parent="."]
+position = Vector2(1800, 610)
+
+[node name="Pole" type="Polygon2D" parent="StreetLightOld4"]
+color = Color(0.08, 0.08, 0.09, 1)
+polygon = PackedVector2Array(-2, 0, 2, 0, 2, -46, -2, -46)
+
+[node name="LampHead" type="Polygon2D" parent="StreetLightOld4"]
+position = Vector2(0, -46)
+color = Color(0.1, 0.1, 0.11, 1)
+polygon = PackedVector2Array(-7, 0, 7, 0, 5, -6, -5, -6)
+
+[node name="Glow" type="Polygon2D" parent="StreetLightOld4"]
+position = Vector2(0, -44)
+color = Color(0.95, 0.85, 0.5, 0.22)
+polygon = PackedVector2Array(-24, 22, 24, 22, 14, -14, -14, -14)
+
+[node name="MovingCar1" type="Node2D" parent="RoadToMechanicShop"]
+position = Vector2(-300, 0)
+script = ExtResource("36")
+travel_distance = 1400.0
+speed = 60.0
+body_color = Color(0.3, 0.15, 0.12, 1)
+
+[node name="MovingCar2" type="Node2D" parent="RoadToLake"]
+position = Vector2(-300, 0)
+script = ExtResource("36")
+travel_distance = 1350.0
+speed = 48.0
+body_color = Color(0.15, 0.2, 0.28, 1)
+
+[node name="ExtractionZone" parent="." instance=ExtResource("5")]
+position = Vector2(1150, 0)
+
+[node name="ExtractionZoneFree2" parent="." instance=ExtResource("5")]
+position = Vector2(1300, 1200)
+
+[node name="ExtractionZonePaid" parent="." instance=ExtResource("5")]
+position = Vector2(-1550, -600)
+is_paid = true
+unlock_cost = 2000
+pickup_type = "car"
+
+[node name="HUD" parent="." instance=ExtResource("7")]
+
+[node name="SupplyDropManager" parent="." instance=ExtResource("27")]
+
+[node name="WeatherOverlay" parent="." instance=ExtResource("34")]
+
+[node name="RaidAmbience" type="AudioStreamPlayer" parent="."]
+script = ExtResource("35")
+
+[node name="PostProcess" parent="." instance=ExtResource("22")]

@@ -1,0 +1,55 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Collectible.gd" id="1"]
+
+[sub_resource type="CircleShape2D" id="1"]
+radius = 50.0
+
+[node name="BlossomPlant" type="Area2D"]
+z_index = 2
+script = ExtResource("1")
+collectible_id = "blossom"
+currency_type = "blossoms"
+amount = 3
+particle_color = Color(0.35, 0.55, 0.95, 0.6)
+
+[node name="Glow" type="Polygon2D" parent="."]
+color = Color(0.3, 0.5, 0.95, 0.4)
+polygon = PackedVector2Array(0, -22, 15, -15, 22, 0, 15, 15, 0, 22, -15, 15, -22, 0, -15, -15)
+
+[node name="Petals" type="Polygon2D" parent="."]
+color = Color(0.35, 0.55, 0.98, 1)
+polygon = PackedVector2Array(0, -10, 4, -6, 4, 2, 8, 6, 3, 8, 0, 12, -3, 8, -8, 6, -4, 2, -4, -6)
+
+[node name="PetalCore" type="Polygon2D" parent="."]
+position = Vector2(0, 0)
+color = Color(0.75, 0.85, 1.0, 1)
+polygon = PackedVector2Array(-3, -3, 3, -3, 3, 3, -3, 3)
+
+[node name="ParticleLayer" type="Control" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -40.0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+
+[node name="InteractZone" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractZone"]
+shape = SubResource("1")
+
+[node name="Prompt" type="Label" parent="."]
+offset_left = -70.0
+offset_top = -45.0
+offset_right = 70.0
+offset_bottom = -25.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.65, 0.85, 1.0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 4
+text = "Press F to collect"

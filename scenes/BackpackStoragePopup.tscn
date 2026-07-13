@@ -1,0 +1,45 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/BackpackStoragePopup.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/InventoryGrid.gd" id="2"]
+
+[node name="BackpackStoragePopup" type="Panel"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -200.0
+offset_right = 160.0
+offset_bottom = 200.0
+visible = false
+z_index = 150
+script = ExtResource("1")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.07, 0.06, 0.09, 0.98)
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 10.0
+offset_right = -12.0
+offset_bottom = -10.0
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="VBox"]
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.6, 0.95, 1)
+text = "BACKPACK STORAGE"
+
+[node name="GridArea" type="Control" parent="VBox"]
+script = ExtResource("2")
+
+[node name="CloseButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 38)
+theme_override_font_sizes/font_size = 13
+text = "Close"

@@ -1,0 +1,1251 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://scripts/Hideout.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/Wall.tscn" id="3"]
+[ext_resource type="Script" path="res://scripts/Ground.gd" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/HideoutStation.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/TrainingDummy.tscn" id="6"]
+[ext_resource type="Script" path="res://scripts/GymPanel.gd" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/Crate.tscn" id="8"]
+[ext_resource type="Script" path="res://scripts/LilDirtyPanel.gd" id="9"]
+[ext_resource type="Script" path="res://scripts/WorkbenchPanel.gd" id="10"]
+[ext_resource type="Script" path="res://scripts/BitcoinFarmPanel.gd" id="11"]
+[ext_resource type="PackedScene" path="res://scenes/RecruitDollPanel.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://scenes/RecruitChatter.tscn" id="13"]
+[ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="14"]
+[ext_resource type="Script" path="res://scripts/PetShopPanel.gd" id="15"]
+[ext_resource type="Script" path="res://scripts/JustinPanel.gd" id="16"]
+[ext_resource type="Script" path="res://scripts/HideoutGhost.gd" id="17"]
+[ext_resource type="PackedScene" path="res://scenes/GamblePanel.tscn" id="18"]
+[ext_resource type="Script" path="res://scripts/RosePanel.gd" id="19"]
+[ext_resource type="PackedScene" path="res://scenes/RoseSprite.tscn" id="20"]
+[ext_resource type="Script" path="res://scripts/ItemIcon.gd" id="21"]
+[ext_resource type="PackedScene" path="res://scenes/PlushiePetReveal.tscn" id="22"]
+[ext_resource type="PackedScene" path="res://scenes/PlushiesPanel.tscn" id="23"]
+
+[node name="Hideout" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Ground" type="Node2D" parent="."]
+script = ExtResource("4")
+ground_size = Vector2(1900, 1400)
+base_color = Color(0.16, 0.14, 0.12, 1)
+
+[node name="WallTop" parent="." instance=ExtResource("3")]
+position = Vector2(0, -700)
+size = Vector2(1900, 25)
+
+[node name="WallBottom" parent="." instance=ExtResource("3")]
+position = Vector2(0, 700)
+size = Vector2(1900, 25)
+
+[node name="WallLeft" parent="." instance=ExtResource("3")]
+position = Vector2(-950, 0)
+size = Vector2(25, 1400)
+
+[node name="WallRight" parent="." instance=ExtResource("3")]
+position = Vector2(950, 0)
+size = Vector2(25, 1400)
+
+[node name="Player" parent="." instance=ExtResource("2")]
+position = Vector2(0, 50)
+
+[node name="GymCrate1" parent="." instance=ExtResource("8")]
+position = Vector2(-337.5, -237.5)
+box_size = 34.0
+
+[node name="GymCrate2" parent="." instance=ExtResource("8")]
+position = Vector2(-275, -212.5)
+box_size = 26.0
+
+[node name="GymStation" parent="." instance=ExtResource("5")]
+position = Vector2(-312.5, -175)
+zone_size = Vector2(150, 125)
+prompt_text = "Press F: Train at the Gym (Alloys)"
+
+[node name="Bed" type="Polygon2D" parent="."]
+position = Vector2(312.5, -225)
+color = Color(0.3, 0.16, 0.16, 1)
+polygon = PackedVector2Array(-40, -60, 40, -60, 40, 60, -40, 60)
+
+[node name="Pillow" type="Polygon2D" parent="."]
+position = Vector2(312.5, -281.2)
+color = Color(0.85, 0.85, 0.8, 1)
+polygon = PackedVector2Array(-30, -12, 30, -12, 30, 12, -30, 12)
+
+[node name="BedroomStation" parent="." instance=ExtResource("5")]
+position = Vector2(312.5, -187.5)
+zone_size = Vector2(150, 162.5)
+prompt_text = "Press F: Sleep"
+
+[node name="RangeDummy1" parent="." instance=ExtResource("6")]
+position = Vector2(-125, 275)
+
+[node name="RangeDummy2" parent="." instance=ExtResource("6")]
+position = Vector2(0, 275)
+
+[node name="RangeDummy3" parent="." instance=ExtResource("6")]
+position = Vector2(125, 275)
+
+[node name="LilDirtyTable" parent="." instance=ExtResource("8")]
+position = Vector2(0, -262.5)
+box_size = 40.0
+
+[node name="LilDirtyBody" type="Polygon2D" parent="."]
+position = Vector2(0, -312.5)
+color = Color(0.18, 0.32, 0.15, 1)
+polygon = PackedVector2Array(-12, 0, 12, 0, 10.39, 7, 6, 12.12, 0, 14, -6, 12.12, -10.39, 7)
+
+[node name="LilDirtyHead" type="Polygon2D" parent="."]
+position = Vector2(0, -340)
+color = Color(0.6, 0.45, 0.35, 1)
+polygon = PackedVector2Array(8, 0, 6.47, 4.7, 2.47, 7.61, -2.47, 7.61, -6.47, 4.7, -8, 0, -6.47, -4.7, -2.47, -7.61, 2.47, -7.61, 6.47, -4.7)
+
+[node name="LilDirtyVest" type="Polygon2D" parent="."]
+position = Vector2(0, -312.5)
+color = Color(0.16, 0.16, 0.18, 1)
+polygon = PackedVector2Array(-9, -3, 9, -3, 8, 6, 0, 10, -8, 6)
+
+[node name="LilDirtyVestStrap" type="Polygon2D" parent="."]
+position = Vector2(0, -312.5)
+color = Color(0.28, 0.24, 0.1, 1)
+polygon = PackedVector2Array(-2, -4, 2, -4, 2, 9, -2, 9)
+
+[node name="LilDirtyHat" type="Polygon2D" parent="."]
+position = Vector2(0, -346)
+color = Color(0.12, 0.22, 0.1, 1)
+polygon = PackedVector2Array(-8, -1, 8, -1, 9, 2, 10, 4, -10, 4, -9, 2)
+
+[node name="LilDirtyGun" type="Polygon2D" parent="."]
+position = Vector2(11, -310)
+rotation = 0.3
+color = Color(0.12, 0.12, 0.13, 1)
+polygon = PackedVector2Array(-3, -2, 9, -2, 9, 1, -3, 1, -3, 5, -5, 5, -5, -2)
+
+[node name="LilDirtyName" type="Label" parent="."]
+position = Vector2(-50, -375)
+custom_minimum_size = Vector2(80, 16)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.9, 0.75, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Lil Dirty"
+
+[node name="LilDirtyStation" parent="." instance=ExtResource("5")]
+position = Vector2(0, -287.5)
+zone_size = Vector2(150, 137.5)
+prompt_text = "Press F: Talk to Lil Dirty"
+
+[node name="WorkbenchTable1" parent="." instance=ExtResource("8")]
+position = Vector2(-360, 130)
+box_size = 42.0
+
+[node name="WorkbenchTable2" parent="." instance=ExtResource("8")]
+position = Vector2(-320, 145)
+box_size = 26.0
+rotation = 0.25
+
+[node name="WorkbenchLabel" type="Label" parent="."]
+position = Vector2(-400, 60)
+custom_minimum_size = Vector2(80, 16)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.55, 0.75, 0.95, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Workbench"
+
+[node name="WorkbenchStation" parent="." instance=ExtResource("5")]
+position = Vector2(-350, 110)
+zone_size = Vector2(140, 130)
+prompt_text = "Press F: Use Workbench"
+
+[node name="BitcoinFarmDesk" parent="." instance=ExtResource("8")]
+position = Vector2(300, 150)
+box_size = 46.0
+
+[node name="BitcoinFarmMonitor" type="Polygon2D" parent="."]
+position = Vector2(300, 130)
+color = Color(0.1, 0.55, 0.35, 1)
+polygon = PackedVector2Array(-14, -10, 14, -10, 14, 10, -14, 10)
+
+[node name="BitcoinFarmCoin1" type="Polygon2D" parent="."]
+position = Vector2(260, 190)
+color = Color(0.9, 0.7, 0.15, 1)
+polygon = PackedVector2Array(0, -8, 7, -4, 7, 4, 0, 8, -7, 4, -7, -4)
+
+[node name="BitcoinFarmCoin2" type="Polygon2D" parent="."]
+position = Vector2(340, 195)
+color = Color(0.9, 0.7, 0.15, 1)
+polygon = PackedVector2Array(0, -7, 6, -3, 6, 3, 0, 7, -6, 3, -6, -3)
+
+[node name="BitcoinFarmCoin3" type="Polygon2D" parent="."]
+position = Vector2(300, 210)
+color = Color(0.95, 0.78, 0.2, 1)
+polygon = PackedVector2Array(0, -6, 5, -3, 5, 3, 0, 6, -5, 3, -5, -3)
+
+[node name="BitcoinFarmLabel" type="Label" parent="."]
+position = Vector2(220, 90)
+custom_minimum_size = Vector2(160, 16)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.95, 0.78, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Mining Rig"
+
+[node name="BitcoinFarmStation" parent="." instance=ExtResource("5")]
+position = Vector2(300, 150)
+zone_size = Vector2(130, 120)
+prompt_text = "Press F: Use Mining Rig"
+
+[node name="PetShopStation" parent="." instance=ExtResource("5")]
+position = Vector2(-550, 250)
+zone_size = Vector2(120, 110)
+prompt_text = "Press F: Visit Pet Shop"
+
+[node name="PetShopStall" type="Polygon2D" parent="."]
+position = Vector2(-550, 250)
+color = Color(0.4, 0.28, 0.15, 1)
+polygon = PackedVector2Array(-55, -45, 55, -45, 55, 40, -55, 40)
+
+[node name="PetShopLabel" type="Label" parent="."]
+position = Vector2(-620, 200)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.95, 0.85, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Pet Shop"
+
+[node name="JustinStation" parent="." instance=ExtResource("5")]
+position = Vector2(600, 300)
+zone_size = Vector2(140, 130)
+prompt_text = "Press F: Talk to Justin"
+
+[node name="GhostStation" parent="." instance=ExtResource("5")]
+position = Vector2(150, 450)
+zone_size = Vector2(100, 100)
+prompt_text = "Press F: Talk to the Ghost"
+
+[node name="RoseSprite" parent="." instance=ExtResource("20")]
+position = Vector2(-850, 550)
+
+[node name="RoseStation" parent="." instance=ExtResource("5")]
+position = Vector2(-850, 550)
+zone_size = Vector2(90, 130)
+prompt_text = "Press F: Talk to Rose"
+
+[node name="HideoutGhost" type="Node2D" parent="."]
+position = Vector2(150, 440)
+z_index = 5
+script = ExtResource("17")
+
+[node name="UndertowStation" parent="." instance=ExtResource("5")]
+position = Vector2(-550, -50)
+zone_size = Vector2(130, 120)
+prompt_text = "Press F: Gamble with the Undertow"
+
+[node name="MysteryBox" type="Polygon2D" parent="."]
+position = Vector2(-600, -10)
+color = Color(0.4, 0.26, 0.12, 1)
+polygon = PackedVector2Array(-24, -20, 24, -20, 24, 20, -24, 20)
+
+[node name="MysteryBoxLid" type="Polygon2D" parent="."]
+position = Vector2(-600, -22)
+color = Color(0.5, 0.34, 0.15, 1)
+polygon = PackedVector2Array(-26, -6, 26, -6, 26, 4, -26, 4)
+
+[node name="MysteryBoxMark" type="Label" parent="."]
+position = Vector2(-612, -30)
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.95, 0.8, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "?"
+
+[node name="Undertow" type="Node2D" parent="."]
+position = Vector2(-540, -85)
+scale = Vector2(1.4, 1.4)
+
+[node name="UndertowCloak" type="Polygon2D" parent="Undertow"]
+color = Color(0.1, 0.08, 0.12, 1)
+polygon = PackedVector2Array(-16, -14, 16, -14, 26, 22, 16, 34, -16, 34, -26, 22)
+
+[node name="UndertowHood" type="Polygon2D" parent="Undertow"]
+position = Vector2(0, -18)
+color = Color(0.07, 0.06, 0.09, 1)
+polygon = PackedVector2Array(-12, -10, 12, -10, 14, 8, -14, 8)
+
+[node name="UndertowEyeLeft" type="Polygon2D" parent="Undertow"]
+position = Vector2(-4, -18)
+color = Color(0.85, 0.15, 0.2, 1)
+polygon = PackedVector2Array(-1.5, -1.5, 1.5, -1.5, 1.5, 1.5, -1.5, 1.5)
+
+[node name="UndertowEyeRight" type="Polygon2D" parent="Undertow"]
+position = Vector2(4, -18)
+color = Color(0.85, 0.15, 0.2, 1)
+polygon = PackedVector2Array(-1.5, -1.5, 1.5, -1.5, 1.5, 1.5, -1.5, 1.5)
+
+[node name="UndertowTrim" type="Polygon2D" parent="Undertow"]
+position = Vector2(0, 10)
+color = Color(0.75, 0.55, 0.15, 1)
+polygon = PackedVector2Array(-14, -4, 14, -4, 14, 2, -14, 2)
+
+[node name="UndertowLabel" type="Label" parent="."]
+position = Vector2(-640, -160)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.85, 0.2, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "The Undertow's Table"
+
+[node name="JustinAnvil" type="Polygon2D" parent="."]
+position = Vector2(600, 355)
+color = Color(0.2, 0.2, 0.22, 1)
+polygon = PackedVector2Array(-30, -8, 30, -8, 34, 0, 34, 6, -34, 6, -34, 0)
+
+[node name="JustinAnvilStand" type="Polygon2D" parent="."]
+position = Vector2(600, 365)
+color = Color(0.15, 0.15, 0.17, 1)
+polygon = PackedVector2Array(-10, 0, 10, 0, 8, 14, -8, 14)
+
+[node name="JustinClutter1" type="Polygon2D" parent="."]
+position = Vector2(660, 350)
+color = Color(0.4, 0.32, 0.15, 1)
+polygon = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+
+[node name="JustinClutter2" type="Polygon2D" parent="."]
+position = Vector2(540, 355)
+color = Color(0.55, 0.5, 0.15, 1)
+polygon = PackedVector2Array(0, -10, 8, 6, -8, 6)
+
+[node name="Justin" type="Node2D" parent="."]
+position = Vector2(600, 260)
+scale = Vector2(2.4, 2.4)
+
+[node name="JustinBody" type="Polygon2D" parent="Justin"]
+color = Color(0.55, 0.35, 0.15, 1)
+polygon = PackedVector2Array(-16, -10, 16, -10, 24, 20, 14, 32, -14, 32, -24, 20)
+
+[node name="JustinHead" type="Polygon2D" parent="Justin"]
+position = Vector2(0, -20)
+color = Color(0.75, 0.55, 0.4, 1)
+polygon = PackedVector2Array(-11, -9, 11, -9, 13, 9, -13, 9)
+
+[node name="JustinApron" type="Polygon2D" parent="Justin"]
+position = Vector2(0, 6)
+color = Color(0.3, 0.22, 0.1, 1)
+polygon = PackedVector2Array(-10, -6, 10, -6, 12, 20, -12, 20)
+
+[node name="JustinLabel" type="Label" parent="."]
+position = Vector2(500, 195)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.85, 0.6, 0.95, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Justin's Decompilation Rig"
+
+[node name="RecruitTable" type="Polygon2D" parent="."]
+position = Vector2(580, -320)
+color = Color(0.35, 0.24, 0.14, 1)
+polygon = PackedVector2Array(-55, -32, 55, -32, 55, 32, -55, 32)
+
+[node name="RecruitMug1" type="Polygon2D" parent="."]
+position = Vector2(555, -335)
+color = Color(0.75, 0.5, 0.15, 1)
+polygon = PackedVector2Array(-5, -6, 5, -6, 5, 6, -5, 6)
+
+[node name="RecruitMug2" type="Polygon2D" parent="."]
+position = Vector2(605, -335)
+color = Color(0.75, 0.5, 0.15, 1)
+polygon = PackedVector2Array(-5, -6, 5, -6, 5, 6, -5, 6)
+
+[node name="RecruitMug3" type="Polygon2D" parent="."]
+position = Vector2(555, -300)
+color = Color(0.75, 0.5, 0.15, 1)
+polygon = PackedVector2Array(-5, -6, 5, -6, 5, 6, -5, 6)
+
+[node name="RecruitMug4" type="Polygon2D" parent="."]
+position = Vector2(605, -300)
+color = Color(0.75, 0.5, 0.15, 1)
+polygon = PackedVector2Array(-5, -6, 5, -6, 5, 6, -5, 6)
+
+[node name="ClarityLegs" type="Polygon2D" parent="."]
+position = Vector2(520, -338)
+color = Color(0.3, 0.28, 0.32, 1)
+polygon = PackedVector2Array(-7, 0, 7, 0, 5, 20, -5, 20)
+
+[node name="ClarityBody" type="Polygon2D" parent="."]
+position = Vector2(520, -350)
+color = Color(0.55, 0.25, 0.6, 1)
+polygon = PackedVector2Array(-11, 0, 11, 0, 9.5, 6.4, 5.5, 11, 0, 12.8, -5.5, 11, -9.5, 6.4)
+
+[node name="ClarityHead" type="Polygon2D" parent="."]
+position = Vector2(520, -372)
+color = Color(0.8, 0.65, 0.55, 1)
+polygon = PackedVector2Array(7, 0, 5.7, 4.1, 2.2, 6.7, -2.2, 6.7, -5.7, 4.1, -7, 0, -5.7, -4.1, -2.2, -6.7, 2.2, -6.7, 5.7, -4.1)
+
+[node name="ClarityHat" type="Polygon2D" parent="."]
+position = Vector2(520, -379)
+color = Color(0.35, 0.15, 0.4, 1)
+polygon = PackedVector2Array(-7, 0, 7, 0, 6, -5, -6, -5)
+
+[node name="ClarityLabel" type="Label" parent="."]
+position = Vector2(485, -400)
+custom_minimum_size = Vector2(70, 16)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.75, 0.5, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Clarity"
+
+[node name="ClarityChatter" parent="." instance=ExtResource("13")]
+position = Vector2(520, -370)
+lines = PackedStringArray("Stay sharp out there.", "You'll do fine. You always do.", "Come find me when you're ready to go.", "I'm not worried about you. Much.")
+
+[node name="SorrowLegs" type="Polygon2D" parent="."]
+position = Vector2(640, -338)
+color = Color(0.16, 0.18, 0.22, 1)
+polygon = PackedVector2Array(-7, 0, 7, 0, 5, 20, -5, 20)
+
+[node name="SorrowBody" type="Polygon2D" parent="."]
+position = Vector2(640, -350)
+color = Color(0.22, 0.26, 0.35, 1)
+polygon = PackedVector2Array(-11, 0, 11, 0, 9.5, 6.4, 5.5, 11, 0, 12.8, -5.5, 11, -9.5, 6.4)
+
+[node name="SorrowHead" type="Polygon2D" parent="."]
+position = Vector2(640, -372)
+color = Color(0.68, 0.55, 0.48, 1)
+polygon = PackedVector2Array(7, 0, 5.7, 4.1, 2.2, 6.7, -2.2, 6.7, -5.7, 4.1, -7, 0, -5.7, -4.1, -2.2, -6.7, 2.2, -6.7, 5.7, -4.1)
+
+[node name="SorrowHat" type="Polygon2D" parent="."]
+position = Vector2(640, -380)
+color = Color(0.12, 0.13, 0.16, 1)
+polygon = PackedVector2Array(-9, 0, 9, 0, 7, -3, -7, -3, -5, -6, 5, -6)
+
+[node name="SorrowLabel" type="Label" parent="."]
+position = Vector2(605, -400)
+custom_minimum_size = Vector2(70, 16)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.55, 0.6, 0.72, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Sorrow"
+
+[node name="SorrowChatter" parent="." instance=ExtResource("13")]
+position = Vector2(640, -370)
+lines = PackedStringArray("...I'll come if you need me.", "Doesn't matter where we go. It's all the same out there.", "Try not to die. It's a hassle for me too.", "I've seen worse than this sector. Barely.")
+
+[node name="GlennLegs" type="Polygon2D" parent="."]
+position = Vector2(520, -248)
+color = Color(0.22, 0.24, 0.16, 1)
+polygon = PackedVector2Array(-7, 0, 7, 0, 5, 20, -5, 20)
+
+[node name="GlennBody" type="Polygon2D" parent="."]
+position = Vector2(520, -260)
+color = Color(0.3, 0.42, 0.2, 1)
+polygon = PackedVector2Array(-11, 0, 11, 0, 9.5, 6.4, 5.5, 11, 0, 12.8, -5.5, 11, -9.5, 6.4)
+
+[node name="GlennHead" type="Polygon2D" parent="."]
+position = Vector2(520, -282)
+color = Color(0.72, 0.56, 0.44, 1)
+polygon = PackedVector2Array(7, 0, 5.7, 4.1, 2.2, 6.7, -2.2, 6.7, -5.7, 4.1, -7, 0, -5.7, -4.1, -2.2, -6.7, 2.2, -6.7, 5.7, -4.1)
+
+[node name="GlennHat" type="Polygon2D" parent="."]
+position = Vector2(520, -288)
+color = Color(0.42, 0.35, 0.18, 1)
+polygon = PackedVector2Array(-10, 2, 10, 2, 8, -2, -8, -2, -5, -6, 5, -6)
+
+[node name="GlennLabel" type="Label" parent="."]
+position = Vector2(485, -310)
+custom_minimum_size = Vector2(70, 16)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.6, 0.8, 0.5, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Glenn"
+
+[node name="GlennChatter" parent="." instance=ExtResource("13")]
+position = Vector2(520, -280)
+lines = PackedStringArray("Point me at somethin' and watch.", "Been itchin' for a fight all week.", "You bringin' me along or what?", "I clean my gun for fun. That normal?")
+
+[node name="BigCraxLegs" type="Polygon2D" parent="."]
+position = Vector2(650, -227)
+scale = Vector2(1.9, 1.9)
+color = Color(0.28, 0.18, 0.05, 1)
+polygon = PackedVector2Array(-7, 0, 7, 0, 5, 20, -5, 20)
+
+[node name="BigCraxBody" type="Polygon2D" parent="."]
+position = Vector2(650, -255)
+scale = Vector2(1.9, 1.9)
+color = Color(0.55, 0.32, 0.1, 1)
+polygon = PackedVector2Array(-11, 0, 11, 0, 9.5, 6.4, 5.5, 11, 0, 12.8, -5.5, 11, -9.5, 6.4)
+
+[node name="BigCraxHead" type="Polygon2D" parent="."]
+position = Vector2(650, -300)
+scale = Vector2(1.9, 1.9)
+color = Color(0.65, 0.48, 0.38, 1)
+polygon = PackedVector2Array(7, 0, 5.7, 4.1, 2.2, 6.7, -2.2, 6.7, -5.7, 4.1, -7, 0, -5.7, -4.1, -2.2, -6.7, 2.2, -6.7, 5.7, -4.1)
+
+[node name="BigCraxHat" type="Polygon2D" parent="."]
+position = Vector2(650, -312)
+scale = Vector2(1.9, 1.9)
+color = Color(0.4, 0.12, 0.1, 1)
+polygon = PackedVector2Array(-8, 2, 8, 2, 7, -3, -7, -3, 0, -9)
+
+[node name="BigCraxLabel" type="Label" parent="."]
+position = Vector2(600, -365)
+custom_minimum_size = Vector2(100, 16)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.9, 0.6, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Big Crax"
+
+[node name="BigCraxChatter" parent="." instance=ExtResource("13")]
+position = Vector2(650, -280)
+lines = PackedStringArray("Crax ready. Crax always ready.", "Crax smash things good.", "You bring Crax? Crax happy!", "Crax hungry. Crax also hungry for battle.")
+
+[node name="ClarityStation" parent="." instance=ExtResource("5")]
+position = Vector2(520, -350)
+zone_size = Vector2(80, 90)
+prompt_text = "Press F: Talk to Clarity"
+
+[node name="SorrowStation" parent="." instance=ExtResource("5")]
+position = Vector2(640, -350)
+zone_size = Vector2(80, 90)
+prompt_text = "Press F: Talk to Sorrow"
+
+[node name="GlennStation" parent="." instance=ExtResource("5")]
+position = Vector2(520, -260)
+zone_size = Vector2(80, 90)
+prompt_text = "Press F: Talk to Glenn"
+
+[node name="BigCraxStation" parent="." instance=ExtResource("5")]
+position = Vector2(650, -260)
+zone_size = Vector2(110, 110)
+prompt_text = "Press F: Talk to Big Crax"
+
+[node name="HideoutUI" type="CanvasLayer" parent="."]
+
+[node name="ReloadPrompt" type="Label" parent="HideoutUI"]
+anchor_left = 0.0
+anchor_right = 0.0
+anchor_top = 0.0
+anchor_bottom = 0.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 130.0
+offset_bottom = 18.0
+horizontal_alignment = 0
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(1, 0.35, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Press R to Reload"
+visible = false
+
+[node name="PauseOverlay" type="Panel" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -140.0
+offset_top = -100.0
+offset_right = 140.0
+offset_bottom = 100.0
+visible = false
+
+[node name="Backdrop" type="ColorRect" parent="HideoutUI/PauseOverlay"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.06, 0.06, 0.05, 0.95)
+
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/PauseOverlay"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="HideoutUI/PauseOverlay/VBox"]
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "PAUSED"
+
+[node name="ResumeButton" type="Button" parent="HideoutUI/PauseOverlay/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 15
+text = "Resume"
+
+[node name="MainMenuButton" type="Button" parent="HideoutUI/PauseOverlay/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 15
+text = "Main Menu"
+
+[node name="CurrencyLabel" type="Label" parent="HideoutUI"]
+offset_left = 20.0
+offset_top = 16.0
+offset_right = 700.0
+offset_bottom = 46.0
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(1, 0.55, 0.35, 1)
+text = "Rubles 0   //   Junk 0   //   Artifacts 0   //   Alloys 0"
+
+[node name="SleepingLabel" type="Label" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -20.0
+offset_right = 150.0
+offset_bottom = 20.0
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text = "Resting..."
+visible = false
+
+[node name="SleepConfirmPanel" type="Panel" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -90.0
+offset_right = 160.0
+offset_bottom = 90.0
+visible = false
+
+[node name="Backdrop" type="ColorRect" parent="HideoutUI/SleepConfirmPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/SleepConfirmPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+theme_override_constants/separation = 14
+
+[node name="Question" type="Label" parent="HideoutUI/SleepConfirmPanel/VBox"]
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+autowrap_mode = 2
+text = "Return to the Main Menu?"
+
+[node name="YesButton" type="Button" parent="HideoutUI/SleepConfirmPanel/VBox"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 16
+text = "Yes, return to Main Menu"
+
+[node name="NoButton" type="Button" parent="HideoutUI/SleepConfirmPanel/VBox"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 16
+text = "No, stay in the Hideout"
+
+[node name="GymPanel" type="Panel" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -220.0
+offset_right = 230.0
+offset_bottom = 220.0
+visible = false
+script = ExtResource("7")
+
+[node name="Backdrop" type="ColorRect" parent="HideoutUI/GymPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+
+[node name="DystoBG" type="Control" parent="HideoutUI/GymPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("14")
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/GymPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 16.0
+offset_right = -20.0
+offset_bottom = -16.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="HideoutUI/GymPanel/VBox"]
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.95, 0.4, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "GYM"
+
+[node name="AlloysLabel" type="Label" parent="HideoutUI/GymPanel/VBox"]
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+text = "Alloys: 0"
+
+[node name="ListScroll" type="ScrollContainer" parent="HideoutUI/GymPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="UpgradeList" type="VBoxContainer" parent="HideoutUI/GymPanel/VBox/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="CloseButton" type="Button" parent="HideoutUI/GymPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="LilDirtyPanel" type="Panel" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -220.0
+offset_right = 260.0
+offset_bottom = 220.0
+visible = false
+script = ExtResource("9")
+
+[node name="Backdrop" type="ColorRect" parent="HideoutUI/LilDirtyPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+
+[node name="DystoBG" type="Control" parent="HideoutUI/LilDirtyPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("14")
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/LilDirtyPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 22.0
+offset_top = 18.0
+offset_right = -22.0
+offset_bottom = -18.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="HideoutUI/LilDirtyPanel/VBox"]
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.6, 0.9, 0.5, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "LIL DIRTY"
+
+[node name="Subtitle" type="Label" parent="HideoutUI/LilDirtyPanel/VBox"]
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.7)
+text = "Bring me a blueprint - I'll turn it into something Mythic."
+
+[node name="MenuRow" type="HBoxContainer" parent="HideoutUI/LilDirtyPanel/VBox"]
+theme_override_constants/separation = 12
+
+[node name="ResearchButton" type="Button" parent="HideoutUI/LilDirtyPanel/VBox/MenuRow"]
+custom_minimum_size = Vector2(0, 52)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "Research Blueprints"
+
+[node name="LoreButton" type="Button" parent="HideoutUI/LilDirtyPanel/VBox/MenuRow"]
+custom_minimum_size = Vector2(0, 52)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "Talk about Dirty Lore"
+
+[node name="LoreTopicHeader" type="Label" parent="HideoutUI/LilDirtyPanel/VBox"]
+horizontal_alignment = 1
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.6, 0.9, 0.5, 1)
+visible = false
+text = "Which lore would you like to know about Dirty?"
+
+[node name="LoreTopicScroll" type="ScrollContainer" parent="HideoutUI/LilDirtyPanel/VBox"]
+size_flags_vertical = 3
+visible = false
+
+[node name="LoreTopicList" type="VBoxContainer" parent="HideoutUI/LilDirtyPanel/VBox/LoreTopicScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="LoreLabel" type="Label" parent="HideoutUI/LilDirtyPanel/VBox"]
+size_flags_vertical = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 15
+visible = false
+text = ""
+
+[node name="LoreDetailBackButton" type="Button" parent="HideoutUI/LilDirtyPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 14
+visible = false
+text = "Back to Topics"
+
+[node name="BackButton" type="Button" parent="HideoutUI/LilDirtyPanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+theme_override_font_sizes/font_size = 13
+visible = false
+text = "Back"
+
+[node name="EmptyLabel" type="Label" parent="HideoutUI/LilDirtyPanel/VBox"]
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.55)
+text = "No blueprints in your Stash yet - find them on enemies or in containers."
+
+[node name="ListScroll" type="ScrollContainer" parent="HideoutUI/LilDirtyPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="BlueprintList" type="VBoxContainer" parent="HideoutUI/LilDirtyPanel/VBox/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="CloseButton" type="Button" parent="HideoutUI/LilDirtyPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="WorkbenchPanel" type="Panel" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -230.0
+offset_right = 260.0
+offset_bottom = 230.0
+visible = false
+script = ExtResource("10")
+
+[node name="Backdrop" type="ColorRect" parent="HideoutUI/WorkbenchPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+
+[node name="DystoBG" type="Control" parent="HideoutUI/WorkbenchPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("14")
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/WorkbenchPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 22.0
+offset_top = 18.0
+offset_right = -22.0
+offset_bottom = -18.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="HideoutUI/WorkbenchPanel/VBox"]
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.7, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "WORKBENCH"
+
+[node name="Subtitle" type="Label" parent="HideoutUI/WorkbenchPanel/VBox"]
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.7)
+text = "Craft gear and utility items from Valuables in your Stash."
+
+[node name="ListScroll" type="ScrollContainer" parent="HideoutUI/WorkbenchPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="RecipeList" type="VBoxContainer" parent="HideoutUI/WorkbenchPanel/VBox/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="CloseButton" type="Button" parent="HideoutUI/WorkbenchPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="BitcoinFarmPanel" type="Panel" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -240.0
+offset_right = 260.0
+offset_bottom = 240.0
+visible = false
+script = ExtResource("11")
+
+[node name="Backdrop" type="ColorRect" parent="HideoutUI/BitcoinFarmPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+
+[node name="DystoBG" type="Control" parent="HideoutUI/BitcoinFarmPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("14")
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/BitcoinFarmPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 22.0
+offset_top = 18.0
+offset_right = -22.0
+offset_bottom = -18.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="HideoutUI/BitcoinFarmPanel/VBox"]
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.95, 0.65, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "MINING RIG"
+
+[node name="Subtitle" type="Label" parent="HideoutUI/BitcoinFarmPanel/VBox"]
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.7)
+text = "Insert Graphics Cards to mine. Each takes 2 real hours - keep the game closed, it still counts."
+
+[node name="GpuCountLabel" type="Label" parent="HideoutUI/BitcoinFarmPanel/VBox"]
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+text = "Graphics Cards in Stash: 0"
+
+[node name="ListScroll" type="ScrollContainer" parent="HideoutUI/BitcoinFarmPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="SlotList" type="VBoxContainer" parent="HideoutUI/BitcoinFarmPanel/VBox/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="CloseButton" type="Button" parent="HideoutUI/BitcoinFarmPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="RecruitDollPanel" parent="HideoutUI" instance=ExtResource("12")]
+
+[node name="PetShopPanel" type="Panel" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -240.0
+offset_right = 260.0
+offset_bottom = 240.0
+visible = false
+script = ExtResource("15")
+
+[node name="Backdrop" type="ColorRect" parent="HideoutUI/PetShopPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.07, 0.05, 0.97)
+
+[node name="DystoBG" type="Control" parent="HideoutUI/PetShopPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(0.6, 1.0, 0.6, 1)
+script = ExtResource("14")
+
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/PetShopPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 14.0
+offset_right = -16.0
+offset_bottom = -14.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="HideoutUI/PetShopPanel/VBox"]
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.95, 0.85, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "PET SHOP"
+
+[node name="Subtitle" type="Label" parent="HideoutUI/PetShopPanel/VBox"]
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.6)
+text = "Companions bred and trained right here in the Hideout - each one fights alongside you in every raid."
+
+[node name="ListScroll" type="ScrollContainer" parent="HideoutUI/PetShopPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="PetList" type="VBoxContainer" parent="HideoutUI/PetShopPanel/VBox/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="HideoutUI/PetShopPanel/VBox"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="GamblePanel" parent="HideoutUI" instance=ExtResource("18")]
+
+[node name="JustinPanel" type="Panel" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -270.0
+offset_top = -260.0
+offset_right = 270.0
+offset_bottom = 260.0
+visible = false
+script = ExtResource("16")
+
+[node name="Backdrop" type="ColorRect" parent="HideoutUI/JustinPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.05, 0.1, 0.97)
+
+[node name="DystoBG" type="Control" parent="HideoutUI/JustinPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(0.85, 0.6, 0.95, 1)
+script = ExtResource("14")
+
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/JustinPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 14.0
+offset_right = -16.0
+offset_bottom = -14.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="HideoutUI/JustinPanel/VBox"]
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.6, 0.95, 1)
+text = "JUSTIN'S DECOMPILATION RIG"
+
+[node name="Subtitle" type="Label" parent="HideoutUI/JustinPanel/VBox"]
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.6)
+text = "Bring him Engrams from the Bloodline Gauntlet and he'll decipher them."
+
+[node name="ListScroll" type="ScrollContainer" parent="HideoutUI/JustinPanel/VBox"]
+custom_minimum_size = Vector2(0, 200)
+size_flags_vertical = 3
+
+[node name="EngramList" type="VBoxContainer" parent="HideoutUI/JustinPanel/VBox/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="ResultBox" type="PanelContainer" parent="HideoutUI/JustinPanel/VBox"]
+custom_minimum_size = Vector2(0, 150)
+visible = false
+
+[node name="ResultParticles" type="Control" parent="HideoutUI/JustinPanel/VBox/ResultBox"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/JustinPanel/VBox/ResultBox"]
+theme_override_constants/separation = 4
+
+[node name="IconSlot" type="Control" parent="HideoutUI/JustinPanel/VBox/ResultBox/VBox"]
+custom_minimum_size = Vector2(80, 80)
+size_flags_horizontal = 4
+clip_contents = true
+
+[node name="ResultName" type="Label" parent="HideoutUI/JustinPanel/VBox/ResultBox/VBox"]
+theme_override_font_sizes/font_size = 17
+horizontal_alignment = 1
+text = "Item Name"
+
+[node name="ResultRarity" type="Label" parent="HideoutUI/JustinPanel/VBox/ResultBox/VBox"]
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+text = "RARITY"
+
+[node name="CloseButton" type="Button" parent="HideoutUI/JustinPanel/VBox"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="RosePanel" type="Panel" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -260.0
+offset_right = 230.0
+offset_bottom = 260.0
+visible = false
+script = ExtResource("19")
+
+[node name="Backdrop" type="ColorRect" parent="HideoutUI/RosePanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.13, 0.06, 0.1, 0.97)
+
+[node name="DystoBG" type="Control" parent="HideoutUI/RosePanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(0.95, 0.6, 0.75, 1)
+script = ExtResource("14")
+
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/RosePanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 14.0
+offset_right = -16.0
+offset_bottom = -14.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="HideoutUI/RosePanel/VBox"]
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.95, 0.6, 0.75, 1)
+text = "ROSE"
+
+[node name="IconSlot" type="Control" parent="HideoutUI/RosePanel/VBox"]
+custom_minimum_size = Vector2(0, 84)
+size_flags_horizontal = 4
+
+[node name="Icon" type="Control" parent="HideoutUI/RosePanel/VBox/IconSlot"]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -42.0
+offset_right = 42.0
+offset_bottom = 84.0
+script = ExtResource("21")
+icon_key = "rose_icon"
+icon_color = Color(1, 1, 1, 1)
+
+[node name="GreetingLabel" type="Label" parent="HideoutUI/RosePanel/VBox"]
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+text = "..."
+
+[node name="MenuRow" type="HBoxContainer" parent="HideoutUI/RosePanel/VBox"]
+theme_override_constants/separation = 10
+
+[node name="GivePlushieButton" type="Button" parent="HideoutUI/RosePanel/VBox/MenuRow"]
+custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "Plushies"
+
+[node name="LoreButton" type="Button" parent="HideoutUI/RosePanel/VBox/MenuRow"]
+custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "Lore"
+
+[node name="LoreTopicScroll" type="ScrollContainer" parent="HideoutUI/RosePanel/VBox"]
+custom_minimum_size = Vector2(0, 300)
+size_flags_vertical = 3
+visible = false
+
+[node name="LoreTopicList" type="VBoxContainer" parent="HideoutUI/RosePanel/VBox/LoreTopicScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="LoreDetailScroll" type="ScrollContainer" parent="HideoutUI/RosePanel/VBox"]
+custom_minimum_size = Vector2(0, 300)
+size_flags_vertical = 3
+visible = false
+
+[node name="LoreDetailVBox" type="VBoxContainer" parent="HideoutUI/RosePanel/VBox/LoreDetailScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="LoreDetailIcon" type="Control" parent="HideoutUI/RosePanel/VBox/LoreDetailScroll/LoreDetailVBox"]
+custom_minimum_size = Vector2(64, 64)
+size_flags_horizontal = 4
+script = ExtResource("21")
+icon_key = "rose_icon"
+icon_color = Color(1, 1, 1, 1)
+
+[node name="LoreLabel" type="Label" parent="HideoutUI/RosePanel/VBox/LoreDetailScroll/LoreDetailVBox"]
+theme_override_font_sizes/font_size = 13
+autowrap_mode = 2
+text = "..."
+
+[node name="LoreBackButton" type="Button" parent="HideoutUI/RosePanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+theme_override_font_sizes/font_size = 14
+text = "Back to Topics"
+visible = false
+
+[node name="BackButton" type="Button" parent="HideoutUI/RosePanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+theme_override_font_sizes/font_size = 14
+text = "Back"
+visible = false
+
+[node name="CloseButton" type="Button" parent="HideoutUI/RosePanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+theme_override_font_sizes/font_size = 14
+text = "Close"
+
+[node name="PlushiePetReveal" parent="HideoutUI" instance=ExtResource("22")]
+
+[node name="PlushiesPanel" parent="HideoutUI" instance=ExtResource("23")]

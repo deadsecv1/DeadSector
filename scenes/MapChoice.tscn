@@ -1,0 +1,154 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/MapChoice.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="2"]
+
+[node name="MapChoice" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.06, 0.07, 0.09, 1)
+
+
+[node name="DystoBG" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("2")
+[node name="VBox" type="VBoxContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -470.0
+offset_top = -220.0
+offset_right = 470.0
+offset_bottom = 220.0
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="VBox"]
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.3, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "SELECT SECTOR"
+
+[node name="Subtitle" type="Label" parent="VBox"]
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.6)
+text = "Three very different places to not come back from."
+
+[node name="MapRow" type="HBoxContainer" parent="VBox"]
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="OvergrowthCard" type="Button" parent="VBox/MapRow"]
+custom_minimum_size = Vector2(280, 260)
+size_flags_horizontal = 3
+
+[node name="OvergrowthVBox" type="VBoxContainer" parent="VBox/MapRow/OvergrowthCard"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="OvergrowthTitle" type="Label" parent="VBox/MapRow/OvergrowthCard/OvergrowthVBox"]
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.55, 0.85, 0.4, 1)
+text = "OVERGROWTH"
+
+[node name="OvergrowthDesc" type="Label" parent="VBox/MapRow/OvergrowthCard/OvergrowthVBox"]
+horizontal_alignment = 1
+autowrap_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 13
+text = "Sprawling overgrown houses, a lake, a mechanic shop, and a boss lurking out in the open field. The original sector."
+
+[node name="BoneclockCard" type="Button" parent="VBox/MapRow"]
+custom_minimum_size = Vector2(280, 260)
+size_flags_horizontal = 3
+
+[node name="BoneclockVBox" type="VBoxContainer" parent="VBox/MapRow/BoneclockCard"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="BoneclockTitleRow" type="HBoxContainer" parent="VBox/MapRow/BoneclockCard/BoneclockVBox"]
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="BoneclockSkull" type="Control" parent="VBox/MapRow/BoneclockCard/BoneclockVBox/BoneclockTitleRow"]
+custom_minimum_size = Vector2(26, 26)
+
+[node name="BoneclockTitle" type="Label" parent="VBox/MapRow/BoneclockCard/BoneclockVBox/BoneclockTitleRow"]
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.8, 0.65, 1)
+text = "BONECLOCK"
+
+[node name="BoneclockDesc" type="Label" parent="VBox/MapRow/BoneclockCard/BoneclockVBox"]
+horizontal_alignment = 1
+autowrap_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 13
+text = "A dead town of pavement and concrete. Bones litter the streets. The raiders here don't have a pulse anymore."
+
+[node name="BoneclockLockLabel" type="Label" parent="VBox/MapRow/BoneclockCard/BoneclockVBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1, 0.55, 0.3, 1)
+text = "Unlocks at Level 10"
+
+[node name="VoidTrenchCard" type="Button" parent="VBox/MapRow"]
+custom_minimum_size = Vector2(280, 260)
+size_flags_horizontal = 3
+
+[node name="VoidTrenchVBox" type="VBoxContainer" parent="VBox/MapRow/VoidTrenchCard"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="VoidTrenchTitle" type="Label" parent="VBox/MapRow/VoidTrenchCard/VoidTrenchVBox"]
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.75, 0.45, 1.0, 1)
+text = "VOID TRENCH"
+
+[node name="VoidTrenchDesc" type="Label" parent="VBox/MapRow/VoidTrenchCard/VoidTrenchVBox"]
+horizontal_alignment = 1
+autowrap_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 13
+text = "A fractured purple rift zone split by a deep central trench. Irradiated puddles, Rift Wraiths, and real cosmic-tier loot for anyone who can survive it."
+
+[node name="VoidTrenchLockLabel" type="Label" parent="VBox/MapRow/VoidTrenchCard/VoidTrenchVBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1, 0.55, 0.3, 1)
+text = "Unlocks at Level 20"
+
+[node name="BackButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 16
+text = "Back"

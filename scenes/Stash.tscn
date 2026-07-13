@@ -1,0 +1,680 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/Stash.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/InventoryGrid.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/EquipSlot.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/CharacterPortrait.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/ItemContextMenu.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/WeaponAttachmentsPanel.gd" id="10"]
+[ext_resource type="Script" path="res://scripts/InspectPanel.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/SkinsPanel.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/OpenLootBagPanel.gd" id="8"]
+[ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="9"]
+[ext_resource type="Script" path="res://scripts/PetDollSlot.gd" id="11"]
+[ext_resource type="Script" path="res://scripts/PetCasePanel.gd" id="12"]
+[ext_resource type="PackedScene" path="res://scenes/BackpackStoragePopup.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://scenes/TagEditPanel.tscn" id="14"]
+
+[sub_resource type="StyleBoxFlat" id="DollBackdropStyle"]
+bg_color = Color(0.05, 0.07, 0.06, 0.9)
+border_color = Color(0.3, 0.45, 0.35, 0.6)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="Stash" type="Control"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.06, 0.07, 0.09, 1)
+
+
+[node name="DystoBG" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("9")
+[node name="VBox" type="VBoxContainer" parent="."]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 14.0
+offset_right = -16.0
+offset_bottom = -14.0
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="VBox"]
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1.0, 0.85, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "STASH"
+
+[node name="ValueLabel" type="Label" parent="VBox"]
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 1, 1, 0.65)
+text = "Total Cost of Stash: 0 Rubles"
+
+[node name="Panels" type="HBoxContainer" parent="VBox"]
+size_flags_vertical = 3
+theme_override_constants/separation = 30
+
+[node name="InventoryPanel" type="VBoxContainer" parent="VBox/Panels"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.8
+theme_override_constants/separation = 10
+
+[node name="FilterRow" type="HBoxContainer" parent="VBox/Panels/InventoryPanel"]
+theme_override_constants/separation = 8
+
+[node name="FilterButton" type="Button" parent="VBox/Panels/InventoryPanel/FilterRow"]
+custom_minimum_size = Vector2(80, 28)
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.6, 0.85, 0.95, 1)
+text = "Filter"
+
+[node name="TitleRow" type="HBoxContainer" parent="VBox/Panels/InventoryPanel"]
+theme_override_constants/separation = 12
+
+[node name="InventoryTitle" type="Label" parent="VBox/Panels/InventoryPanel/TitleRow"]
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.6, 0.85, 0.95, 1)
+autowrap_mode = 2
+text = "INVENTORY  (drag tiles around, or drop onto a slot to equip)"
+
+[node name="SortButton" type="Button" parent="VBox/Panels/InventoryPanel/TitleRow"]
+custom_minimum_size = Vector2(90, 34)
+theme_override_font_sizes/font_size = 14
+text = "Sort"
+
+[node name="QuickSellButton" type="Button" parent="VBox/Panels/InventoryPanel/TitleRow"]
+custom_minimum_size = Vector2(110, 34)
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.95, 0.85, 0.4, 1)
+text = "Quick Sell"
+
+[node name="QuickSellBar" type="PanelContainer" parent="VBox/Panels/InventoryPanel"]
+visible = false
+custom_minimum_size = Vector2(0, 40)
+
+[node name="QuickSellBarBox" type="HBoxContainer" parent="VBox/Panels/InventoryPanel/QuickSellBar"]
+theme_override_constants/separation = 10
+
+[node name="QuickSellStatus" type="Label" parent="VBox/Panels/InventoryPanel/QuickSellBar/QuickSellBarBox"]
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.85, 0.4, 1)
+text = "Click items to select them for selling. Selected: 0 (0 Rubles)"
+
+[node name="QuickSellConfirm" type="Button" parent="VBox/Panels/InventoryPanel/QuickSellBar/QuickSellBarBox"]
+custom_minimum_size = Vector2(140, 0)
+theme_override_font_sizes/font_size = 14
+text = "Sell Selected"
+
+[node name="QuickSellCancel" type="Button" parent="VBox/Panels/InventoryPanel/QuickSellBar/QuickSellBarBox"]
+custom_minimum_size = Vector2(90, 0)
+theme_override_font_sizes/font_size = 14
+text = "Cancel"
+
+[node name="GridScroll" type="ScrollContainer" parent="VBox/Panels/InventoryPanel"]
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="InventoryGridArea" type="Control" parent="VBox/Panels/InventoryPanel/GridScroll"]
+script = ExtResource("2")
+
+[node name="BackpackStoragePanel" type="VBoxContainer" parent="VBox/Panels"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.0
+theme_override_constants/separation = 10
+
+[node name="BackpackStorageTitle" type="Label" parent="VBox/Panels/BackpackStoragePanel"]
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.85, 0.6, 0.95, 1)
+autowrap_mode = 2
+text = "BACKPACK STORAGE"
+
+[node name="BackpackStorageSubtitle" type="Label" parent="VBox/Panels/BackpackStoragePanel"]
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.6)
+text = "Whatever's in here comes with you into a raid, unlike the rest of your Stash."
+
+[node name="BackpackStorageScroll" type="ScrollContainer" parent="VBox/Panels/BackpackStoragePanel"]
+size_flags_vertical = 3
+
+[node name="BackpackStorageGridArea" type="Control" parent="VBox/Panels/BackpackStoragePanel/BackpackStorageScroll"]
+script = ExtResource("2")
+
+[node name="CharacterPanel" type="VBoxContainer" parent="VBox/Panels"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.0
+theme_override_constants/separation = 10
+
+[node name="CharacterTitle" type="Label" parent="VBox/Panels/CharacterPanel"]
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.6, 0.9, 0.7, 1)
+text = "CHARACTER"
+
+[node name="PortraitArea" type="Control" parent="VBox/Panels/CharacterPanel"]
+custom_minimum_size = Vector2(390, 400)
+
+[node name="DollBackdrop" type="PanelContainer" parent="VBox/Panels/CharacterPanel/PortraitArea"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_styles/panel = SubResource("DollBackdropStyle")
+
+[node name="Portrait" type="Control" parent="VBox/Panels/CharacterPanel/PortraitArea"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("4")
+
+[node name="HeadSlot" type="Button" parent="VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 146.0
+offset_top = 10.0
+offset_right = 244.0
+offset_bottom = 101.0
+theme_override_font_sizes/font_size = 15
+text = "Head"
+script = ExtResource("3")
+slot_name = "head"
+
+[node name="BackpackSlot" type="Button" parent="VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 293.0
+offset_top = 114.0
+offset_right = 384.0
+offset_bottom = 199.0
+theme_override_font_sizes/font_size = 14
+text = "Backpack"
+script = ExtResource("3")
+slot_name = "backpack"
+
+[node name="BodySlot" type="Button" parent="VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 117.0
+offset_top = 114.0
+offset_right = 273.0
+offset_bottom = 257.0
+theme_override_font_sizes/font_size = 15
+text = "Body"
+script = ExtResource("3")
+slot_name = "body"
+
+[node name="WeaponSlot" type="Button" parent="VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 7.0
+offset_top = 114.0
+offset_right = 91.0
+offset_bottom = 199.0
+theme_override_font_sizes/font_size = 14
+text = "Weapon"
+script = ExtResource("3")
+slot_name = "weapon"
+
+[node name="AccessorySlot" type="Button" parent="VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 7.0
+offset_top = 212.0
+offset_right = 91.0
+offset_bottom = 296.0
+theme_override_font_sizes/font_size = 14
+text = "Accessory"
+script = ExtResource("3")
+slot_name = "accessory"
+
+[node name="PetSlot" type="Button" parent="VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 293.0
+offset_top = 212.0
+offset_right = 384.0
+offset_bottom = 296.0
+theme_override_font_sizes/font_size = 14
+text = "Pet"
+script = ExtResource("11")
+
+[node name="BootsSlot" type="Button" parent="VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 150.0
+offset_top = 309.0
+offset_right = 241.0
+offset_bottom = 387.0
+theme_override_font_sizes/font_size = 14
+text = "Boots"
+script = ExtResource("3")
+slot_name = "boots"
+
+[node name="HelmetAttachmentSlot" type="Button" parent="VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 250.0
+offset_top = 15.0
+offset_right = 334.0
+offset_bottom = 93.0
+theme_override_font_sizes/font_size = 11
+text = "Helmet Attach."
+script = ExtResource("3")
+slot_name = "helmet_attachment"
+
+[node name="BackButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(200, 50)
+theme_override_font_sizes/font_size = 20
+text = "Back"
+
+[node name="AttachmentsPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -200.0
+offset_right = 230.0
+offset_bottom = 200.0
+visible = false
+script = ExtResource("10")
+
+[node name="Backdrop" type="ColorRect" parent="AttachmentsPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="DystoBG" type="Control" parent="AttachmentsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(0.6, 1.0, 0.65, 1)
+script = ExtResource("9")
+
+[node name="VBox" type="VBoxContainer" parent="AttachmentsPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 16.0
+offset_right = -20.0
+offset_bottom = -16.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="AttachmentsPanel/VBox"]
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.6, 0.9, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "WEAPON ATTACHMENTS"
+
+[node name="WeaponLabel" type="Label" parent="AttachmentsPanel/VBox"]
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.75)
+text = "No weapon selected."
+
+[node name="SlotList" type="VBoxContainer" parent="AttachmentsPanel/VBox"]
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="AttachmentsPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="ItemContextMenu" type="Panel" parent="."]
+custom_minimum_size = Vector2(150, 246)
+visible = false
+script = ExtResource("5")
+show_attachments_option = false
+
+[node name="Backdrop" type="ColorRect" parent="ItemContextMenu"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.1, 0.09, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="ItemContextMenu"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = -6.0
+theme_override_constants/separation = 4
+
+[node name="EquipButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Equip"
+
+[node name="InspectButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Info"
+
+[node name="AttachmentsButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Attachments"
+visible = false
+
+[node name="SkinsButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Skins"
+
+[node name="OpenBagButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Open"
+visible = false
+
+[node name="DepositEggButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Deposit to Hatchery"
+visible = false
+
+[node name="RotateButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Rotate"
+visible = false
+
+[node name="TagButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Tag"
+visible = false
+
+[node name="CancelButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 28)
+theme_override_font_sizes/font_size = 12
+text = "Cancel"
+
+[node name="InspectPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -240.0
+offset_right = 180.0
+offset_bottom = 240.0
+visible = false
+script = ExtResource("6")
+
+[node name="Backdrop" type="ColorRect" parent="InspectPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="DystoBG" type="Control" parent="InspectPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(0.7, 0.85, 1.0, 1)
+script = ExtResource("9")
+
+[node name="VBox" type="VBoxContainer" parent="InspectPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 14.0
+offset_right = -16.0
+offset_bottom = -14.0
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="InspectPanel/VBox"]
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "Item Name"
+
+[node name="RarityLabel" type="Label" parent="InspectPanel/VBox"]
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+text = "Rarity"
+
+[node name="Showcase" type="Panel" parent="InspectPanel/VBox"]
+custom_minimum_size = Vector2(0, 210)
+size_flags_vertical = 3
+
+[node name="DescLabel" type="Label" parent="InspectPanel/VBox"]
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.85)
+text = "Description"
+
+[node name="HintLabel" type="Label" parent="InspectPanel/VBox"]
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.6)
+text = "Drag the item around the showcase."
+
+[node name="CloseButton" type="Button" parent="InspectPanel/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 15
+text = "Close"
+
+[node name="SkinsPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -220.0
+offset_right = 220.0
+offset_bottom = 220.0
+visible = false
+script = ExtResource("7")
+
+[node name="Backdrop" type="ColorRect" parent="SkinsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="DystoBG" type="Control" parent="SkinsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(1.0, 0.8, 0.5, 1)
+script = ExtResource("9")
+
+[node name="VBox" type="VBoxContainer" parent="SkinsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 14.0
+offset_right = -18.0
+offset_bottom = -14.0
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="SkinsPanel/VBox"]
+theme_override_font_sizes/font_size = 19
+horizontal_alignment = 1
+autowrap_mode = 2
+text = "Skins"
+
+[node name="Scroll" type="ScrollContainer" parent="SkinsPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="SkinsPanel/VBox/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="SkinsPanel/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 15
+text = "Close"
+
+[node name="OpenLootBagPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -220.0
+offset_right = 240.0
+offset_bottom = 220.0
+visible = false
+script = ExtResource("8")
+
+[node name="PetCasePanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -220.0
+offset_right = 260.0
+offset_bottom = 220.0
+visible = false
+script = ExtResource("12")
+
+[node name="Backdrop" type="ColorRect" parent="PetCasePanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.06, 0.06, 0.08, 0.97)
+
+[node name="DystoBG" type="Control" parent="PetCasePanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(1.0, 0.7, 0.35, 1)
+script = ExtResource("9")
+
+[node name="VBox" type="VBoxContainer" parent="PetCasePanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 12.0
+offset_right = -14.0
+offset_bottom = -12.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="PetCasePanel/VBox"]
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1.0, 0.65, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "PET CASE"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PetCasePanel/VBox"]
+size_flags_vertical = 3
+
+[node name="Grid" type="GridContainer" parent="PetCasePanel/VBox/ScrollContainer"]
+size_flags_horizontal = 3
+columns = 7
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[node name="CloseButton" type="Button" parent="PetCasePanel/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 15
+text = "Close"
+
+[node name="Backdrop" type="ColorRect" parent="OpenLootBagPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="OpenLootBagPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 14.0
+offset_right = -18.0
+offset_bottom = -14.0
+theme_override_constants/separation = 10
+
+[node name="StatusLabel" type="Label" parent="OpenLootBagPanel/VBox"]
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+autowrap_mode = 2
+text = "A sealed Loot Bag. Open it?"
+
+[node name="BagPreview" type="Control" parent="OpenLootBagPanel/VBox"]
+custom_minimum_size = Vector2(0, 90)
+
+[node name="ResultScroll" type="ScrollContainer" parent="OpenLootBagPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="ResultArea" type="Control" parent="OpenLootBagPanel/VBox/ResultScroll"]
+custom_minimum_size = Vector2(0, 150)
+size_flags_horizontal = 3
+
+[node name="OpenButton" type="Button" parent="OpenLootBagPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Open"
+
+[node name="CloseButton" type="Button" parent="OpenLootBagPanel/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 15
+text = "Close"
+
+[node name="BackpackStoragePopup" parent="." instance=ExtResource("13")]
+
+[node name="FilterPopup" type="Panel" parent="."]
+visible = false
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -170.0
+offset_right = 200.0
+offset_bottom = 170.0
+z_index = 100
+
+[node name="Backdrop" type="ColorRect" parent="FilterPopup"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.07, 0.08, 0.09, 0.98)
+
+[node name="VBox" type="VBoxContainer" parent="FilterPopup"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 12.0
+offset_right = -14.0
+offset_bottom = -12.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="FilterPopup/VBox"]
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.6, 0.85, 0.95, 1)
+text = "Filter Stash By..."
+
+[node name="Grid" type="GridContainer" parent="FilterPopup/VBox"]
+size_flags_vertical = 3
+columns = 4
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="CancelButton" type="Button" parent="FilterPopup/VBox"]
+custom_minimum_size = Vector2(0, 38)
+theme_override_font_sizes/font_size = 13
+text = "Cancel"
+
+[node name="TagEditPanel" parent="." instance=ExtResource("14")]

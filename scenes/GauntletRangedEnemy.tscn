@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/GauntletRangedEnemy.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/StripAnimatedSprite.gd" id="2"]
+
+[sub_resource type="RectangleShape2D" id="1"]
+size = Vector2(26, 40)
+
+[node name="GauntletRangedEnemy" type="CharacterBody2D"]
+z_index = 5
+script = ExtResource("1")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("1")
+
+[node name="AnimatedSprite" type="Sprite2D" parent="."]
+position = Vector2(0, -2)
+scale = Vector2(5, 5)
+script = ExtResource("2")
+
+[node name="HpBar" type="ProgressBar" parent="."]
+offset_left = -18.0
+offset_top = -40.0
+offset_right = 18.0
+offset_bottom = -34.0
+modulate = Color(1.0, 0.4, 0.35, 1)
+show_percentage = false
+value = 30.0
+
+[node name="Muzzle" type="Marker2D" parent="."]
+position = Vector2(16, -10)

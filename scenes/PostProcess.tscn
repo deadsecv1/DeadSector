@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://shaders/PostProcess.gdshader" id="1"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_postprocess"]
+shader = ExtResource("1")
+shader_parameter/grain_amount = 0.05
+shader_parameter/vignette_strength = 0.6
+
+[node name="PostProcess" type="CanvasLayer"]
+layer = 90
+
+[node name="Overlay" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_postprocess")
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)

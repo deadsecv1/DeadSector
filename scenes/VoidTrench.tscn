@@ -1,0 +1,317 @@
+[gd_scene load_steps=20 format=3]
+
+[ext_resource type="Script" path="res://scripts/VoidTrench.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/Wall.tscn" id="3"]
+[ext_resource type="Script" path="res://scripts/Ground.gd" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ExtractionZone.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/Chest.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/HUD.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/PostProcess.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/RiftWraith.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/Marauder.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://scenes/IrradiatedPuddle.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://scenes/VoidShard.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://scenes/StaticMote.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://scenes/DebrisStash.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://scenes/PulseSpire.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://scenes/SporeCloudPlant.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://scenes/UnstableRift.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://scenes/Sentinel.tscn" id="18"]
+[ext_resource type="Script" path="res://scripts/RaidAmbience.gd" id="19"]
+
+[node name="VoidTrench" type="Node2D"]
+script = ExtResource("1")
+
+[node name="WorldDarkness" type="CanvasModulate" parent="."]
+color = Color(0.3, 0.22, 0.42, 1)
+
+[node name="Ground" type="Node2D" parent="."]
+script = ExtResource("4")
+ground_size = Vector2(2600, 1700)
+base_color = Color(0.16, 0.1, 0.22, 1)
+
+[node name="WallTop" parent="." instance=ExtResource("3")]
+position = Vector2(0, -850)
+size = Vector2(2600, 40)
+wall_color = Color(0.28, 0.16, 0.38, 1)
+
+[node name="WallBottom" parent="." instance=ExtResource("3")]
+position = Vector2(0, 850)
+size = Vector2(2600, 40)
+wall_color = Color(0.28, 0.16, 0.38, 1)
+
+[node name="WallLeft" parent="." instance=ExtResource("3")]
+position = Vector2(-1300, 0)
+size = Vector2(40, 1700)
+wall_color = Color(0.28, 0.16, 0.38, 1)
+
+[node name="WallRight" parent="." instance=ExtResource("3")]
+position = Vector2(1300, 0)
+size = Vector2(40, 1700)
+wall_color = Color(0.28, 0.16, 0.38, 1)
+
+[node name="TrenchBody" type="Polygon2D" parent="."]
+color = Color(0.06, 0.03, 0.1, 1)
+polygon = PackedVector2Array(-1280, -90, 1280, -90, 1280, 90, -1280, 90)
+
+[node name="TrenchGlowLine1" type="Line2D" parent="."]
+points = PackedVector2Array(-1280, -90, 1280, -90)
+width = 4.0
+default_color = Color(0.6, 0.25, 0.9, 0.5)
+
+[node name="TrenchGlowLine2" type="Line2D" parent="."]
+points = PackedVector2Array(-1280, 90, 1280, 90)
+width = 4.0
+default_color = Color(0.6, 0.25, 0.9, 0.5)
+
+[node name="TrenchWallTop" parent="." instance=ExtResource("3")]
+position = Vector2(-400, -95)
+size = Vector2(700, 16)
+wall_color = Color(0.22, 0.12, 0.32, 1)
+
+[node name="TrenchWallBottom" parent="." instance=ExtResource("3")]
+position = Vector2(400, 95)
+size = Vector2(700, 16)
+wall_color = Color(0.22, 0.12, 0.32, 1)
+
+[node name="NeonPlazaFloor" type="Polygon2D" parent="."]
+position = Vector2(-800, -450)
+color = Color(0.2, 0.1, 0.28, 1)
+polygon = PackedVector2Array(-260, -180, 260, -180, 260, 180, -260, 180)
+
+[node name="NeonPlazaLabel" type="Label" parent="."]
+position = Vector2(-900, -600)
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.85, 0.5, 1.0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "THE NEON PLAZA"
+
+[node name="NeonPlazaChest1" parent="." instance=ExtResource("6")]
+position = Vector2(-900, -500)
+item_name = "Rift-Forged Blade"
+base_value = 260
+slot = "weapon"
+stat_type = "damage"
+stat_value = 22.0
+icon_key = "rifle"
+rarity = "epic"
+
+[node name="NeonPlazaChest2" parent="." instance=ExtResource("6")]
+position = Vector2(-700, -400)
+item_name = "Prism Vest"
+base_value = 240
+slot = "body"
+stat_type = "max_health"
+stat_value = 40.0
+icon_key = "chestplate"
+rarity = "epic"
+
+[node name="NeonPlazaChest3" parent="." instance=ExtResource("6")]
+position = Vector2(-850, -380)
+item_name = "Void Cache"
+base_value = 150
+slot = "accessory"
+stat_type = "loot_sense"
+stat_value = 0.02
+icon_key = "ring"
+rarity = "rare"
+
+[node name="BioDomeFloor" type="Polygon2D" parent="."]
+position = Vector2(800, 450)
+color = Color(0.12, 0.22, 0.14, 1)
+polygon = PackedVector2Array(-240, -170, 240, -170, 240, 170, -240, 170)
+
+[node name="BioDomeWallTop" parent="." instance=ExtResource("3")]
+position = Vector2(800, 280)
+size = Vector2(500, 20)
+wall_color = Color(0.18, 0.3, 0.2, 1)
+
+[node name="BioDomeWallBottom" parent="." instance=ExtResource("3")]
+position = Vector2(800, 620)
+size = Vector2(500, 20)
+wall_color = Color(0.18, 0.3, 0.2, 1)
+
+[node name="BioDomeWallLeft" parent="." instance=ExtResource("3")]
+position = Vector2(560, 450)
+size = Vector2(20, 360)
+wall_color = Color(0.18, 0.3, 0.2, 1)
+
+[node name="BioDomeLabel" type="Label" parent="."]
+position = Vector2(700, 250)
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.6, 1.0, 0.65, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "RESEARCH BIO-DOME"
+
+[node name="BioDomeChest1" parent="." instance=ExtResource("6")]
+position = Vector2(750, 480)
+item_name = "Mutant Spore Sac"
+base_value = 300
+slot = "head"
+stat_type = "max_health"
+stat_value = 45.0
+icon_key = "helmet"
+rarity = "legendary"
+
+[node name="BioDomeChest2" parent="." instance=ExtResource("6")]
+position = Vector2(880, 550)
+item_name = "Overgrown Carapace"
+base_value = 220
+slot = "body"
+stat_type = "max_health"
+stat_value = 38.0
+icon_key = "chestplate"
+rarity = "epic"
+
+[node name="BioDomeWraith" parent="." instance=ExtResource("9")]
+position = Vector2(820, 500)
+
+[node name="ExtractionPad" parent="." instance=ExtResource("5")]
+position = Vector2(1050, -650)
+
+[node name="ExtractionZoneFree2" parent="." instance=ExtResource("5")]
+position = Vector2(-1100, 700)
+
+[node name="ExtractionLabel" type="Label" parent="."]
+position = Vector2(970, -740)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.85, 0.5, 1.0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "THE EXTRACTION PAD"
+
+[node name="Puddle1" parent="." instance=ExtResource("11")]
+position = Vector2(-300, -300)
+puddle_radius = 55.0
+
+[node name="Puddle2" parent="." instance=ExtResource("11")]
+position = Vector2(300, 250)
+puddle_radius = 60.0
+
+[node name="Puddle3" parent="." instance=ExtResource("11")]
+position = Vector2(-950, 550)
+puddle_radius = 48.0
+
+[node name="Puddle4" parent="." instance=ExtResource("11")]
+position = Vector2(1000, 400)
+puddle_radius = 50.0
+
+[node name="SmugglingBayFloor" type="Polygon2D" parent="."]
+position = Vector2(-950, 550)
+color = Color(0.1, 0.06, 0.18, 1)
+polygon = PackedVector2Array(-200, -140, 200, -140, 200, 140, -200, 140)
+
+[node name="SmugglingBayLabel" type="Label" parent="."]
+position = Vector2(-1050, 420)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.75, 0.55, 1.0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "THE SMUGGLING BAY"
+
+[node name="SmugglingBayDebris1" parent="." instance=ExtResource("14")]
+position = Vector2(-1000, 500)
+
+[node name="SmugglingBayDebris2" parent="." instance=ExtResource("14")]
+position = Vector2(-900, 600)
+
+[node name="SmugglingWraith" parent="." instance=ExtResource("9")]
+position = Vector2(-950, 580)
+
+[node name="TrenchMarauder1" parent="." instance=ExtResource("10")]
+position = Vector2(-200, 0)
+is_real_player = true
+enemy_type_id = "real_player"
+
+[node name="TrenchMarauder2" parent="." instance=ExtResource("10")]
+position = Vector2(200, 0)
+
+[node name="RoamingWraith1" parent="." instance=ExtResource("9")]
+position = Vector2(0, -500)
+
+[node name="RoamingWraith2" parent="." instance=ExtResource("9")]
+position = Vector2(-400, 650)
+
+[node name="VoidShard1" parent="." instance=ExtResource("12")]
+position = Vector2(100, -600)
+
+[node name="VoidShard2" parent="." instance=ExtResource("12")]
+position = Vector2(-600, 300)
+
+[node name="StaticMote1" parent="." instance=ExtResource("13")]
+position = Vector2(500, -200)
+
+[node name="StaticMote2" parent="." instance=ExtResource("13")]
+position = Vector2(-300, 700)
+
+[node name="PulseSpire1" parent="." instance=ExtResource("15")]
+position = Vector2(-450, 0)
+
+[node name="PulseSpire2" parent="." instance=ExtResource("15")]
+position = Vector2(550, 150)
+
+[node name="PulseSpire3" parent="." instance=ExtResource("15")]
+position = Vector2(0, -700)
+
+[node name="SporePlant1" parent="." instance=ExtResource("16")]
+position = Vector2(720, 420)
+
+[node name="SporePlant2" parent="." instance=ExtResource("16")]
+position = Vector2(900, 490)
+
+[node name="SporePlant3" parent="." instance=ExtResource("16")]
+position = Vector2(830, 610)
+
+[node name="SporePlant4" parent="." instance=ExtResource("16")]
+position = Vector2(670, 550)
+
+[node name="UnstableRift1" parent="." instance=ExtResource("17")]
+position = Vector2(0, 0)
+
+[node name="UnstableRift2" parent="." instance=ExtResource("17")]
+position = Vector2(-750, -580)
+
+[node name="ExtractionSentinel1" parent="." instance=ExtResource("18")]
+position = Vector2(950, -600)
+
+[node name="ExtractionSentinel2" parent="." instance=ExtResource("18")]
+position = Vector2(1130, -680)
+
+[node name="RoamingWraith3" parent="." instance=ExtResource("9")]
+position = Vector2(-500, -650)
+
+[node name="RoamingMarauder3" parent="." instance=ExtResource("10")]
+position = Vector2(600, -300)
+
+[node name="OpenFieldChest1" parent="." instance=ExtResource("6")]
+position = Vector2(-100, -450)
+item_name = "Fractured Plating"
+base_value = 140
+slot = "body"
+stat_type = "max_health"
+stat_value = 26.0
+icon_key = "chestplate"
+rarity = "rare"
+
+[node name="OpenFieldChest2" parent="." instance=ExtResource("6")]
+position = Vector2(300, 600)
+item_name = "Rift-Touched Boots"
+base_value = 130
+slot = "boots"
+stat_type = "speed"
+stat_value = 25.0
+icon_key = "boots"
+rarity = "rare"
+
+[node name="Player" parent="." instance=ExtResource("2")]
+position = Vector2(0, -650)
+
+[node name="HUD" parent="." instance=ExtResource("7")]
+
+[node name="PostProcess" parent="." instance=ExtResource("8")]
+
+[node name="RaidAmbience" type="AudioStreamPlayer" parent="."]
+script = ExtResource("19")

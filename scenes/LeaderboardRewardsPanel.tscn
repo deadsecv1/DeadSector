@@ -1,0 +1,69 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/LeaderboardRewardsPanel.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="2"]
+
+[node name="LeaderboardRewardsPanel" type="Panel"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -300.0
+offset_right = 340.0
+offset_bottom = 300.0
+visible = false
+script = ExtResource("1")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.06, 0.05, 0.02, 0.98)
+
+[node name="DystoBG" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(1.0, 0.85, 0.5, 1)
+script = ExtResource("2")
+
+[node name="Sparkles" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 14.0
+offset_right = -20.0
+offset_bottom = -14.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="VBox"]
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.9, 0.75, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "SEASON REWARDS"
+
+[node name="Subtitle" type="Label" parent="VBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+modulate = Color(1, 1, 1, 0.65)
+autowrap_mode = 2
+text = "What each rank band earns when the Leaderboard season ends."
+
+[node name="TierScroll" type="ScrollContainer" parent="VBox"]
+size_flags_vertical = 3
+
+[node name="TierList" type="VBoxContainer" parent="VBox/TierScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="CloseButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Close"

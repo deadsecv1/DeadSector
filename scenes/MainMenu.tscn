@@ -1,0 +1,1929 @@
+[gd_scene load_steps=40 format=3]
+
+[ext_resource type="Script" path="res://scripts/MainMenu.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/MainMenuBackground.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/TitleLogo.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/QuestGiversScreen.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/RoadmapPanel.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/StatsPanel.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/ChangelogPanel.gd" id="8"]
+[ext_resource type="Script" path="res://scripts/EventButton.gd" id="9"]
+[ext_resource type="Script" path="res://scripts/BattlePassPanel.gd" id="10"]
+[ext_resource type="Script" path="res://scripts/SoulMistBackground.gd" id="11"]
+[ext_resource type="Script" path="res://scripts/StoreButton.gd" id="12"]
+[ext_resource type="Script" path="res://scripts/StorePanel.gd" id="13"]
+[ext_resource type="Script" path="res://scripts/StoreGoldBackground.gd" id="14"]
+[ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="15"]
+[ext_resource type="Script" path="res://scripts/DystopianHoverButton.gd" id="16"]
+[ext_resource type="Script" path="res://scripts/PlayButtonGlow.gd" id="40"]
+[ext_resource type="PackedScene" path="res://scenes/FleaMarketPanel.tscn" id="41"]
+[ext_resource type="PackedScene" path="res://scenes/MailPanel.tscn" id="42"]
+[ext_resource type="Script" path="res://scripts/VersionLabel.gd" id="43"]
+[ext_resource type="PackedScene" path="res://scenes/AlphaRewardsPanel.tscn" id="44"]
+[ext_resource type="PackedScene" path="res://scenes/FeedbackPanel.tscn" id="45"]
+[ext_resource type="Script" path="res://scripts/AlphaRewardsButtonGlow.gd" id="46"]
+[ext_resource type="Script" path="res://scripts/AlphaRewardsButton.gd" id="49"]
+[ext_resource type="PackedScene" path="res://scenes/WhatsNewPanel.tscn" id="48"]
+[ext_resource type="PackedScene" path="res://scenes/LeaderboardRewardsPanel.tscn" id="60"]
+[ext_resource type="PackedScene" path="res://scenes/RankPercentilesPanel.tscn" id="62"]
+[ext_resource type="PackedScene" path="res://scenes/GlobalChatPanel.tscn" id="63"]
+[ext_resource type="PackedScene" path="res://scenes/FindTeamPanel.tscn" id="64"]
+[ext_resource type="Script" path="res://scripts/MenuCinematicRotator.gd" id="65"]
+[ext_resource type="Script" path="res://scripts/OvergrowthFogVignette.gd" id="66"]
+[ext_resource type="Script" path="res://scripts/ExtractionChopperVignette.gd" id="67"]
+[ext_resource type="Script" path="res://scripts/RankedButton.gd" id="61"]
+[ext_resource type="Script" path="res://scripts/GamblePanel.gd" id="17"]
+[ext_resource type="Script" path="res://scripts/SocialPanel.gd" id="18"]
+[ext_resource type="Script" path="res://scripts/DataPanel.gd" id="19"]
+[ext_resource type="Script" path="res://scripts/BloodlineButton.gd" id="20"]
+[ext_resource type="Script" path="res://scripts/BloodlinePanel.gd" id="21"]
+[ext_resource type="Script" path="res://scripts/BloodParticles.gd" id="22"]
+[ext_resource type="Script" path="res://scripts/LeaderboardPanel.gd" id="23"]
+[ext_resource type="Script" path="res://scripts/SalvagedBeastsButton.gd" id="24"]
+[ext_resource type="Script" path="res://scripts/SalvagedBeastsPanel.gd" id="25"]
+[ext_resource type="Script" path="res://scripts/SalvagedBeastsParticles.gd" id="26"]
+[ext_resource type="Script" path="res://scripts/OneDotOhBadge.gd" id="27"]
+[ext_resource type="Script" path="res://scripts/MyPetsPanel.gd" id="28"]
+[ext_resource type="FontFile" path="res://assets/fonts/BlackOpsOne-Regular.ttf" id="29"]
+[ext_resource type="FontFile" path="res://assets/fonts/GaliverSans-Regular.ttf" id="47"]
+[ext_resource type="FontFile" path="res://assets/fonts/Wallpoet-Regular.ttf" id="30"]
+[ext_resource type="FontFile" path="res://assets/fonts/Rajdhani-Bold.ttf" id="31"]
+[ext_resource type="FontFile" path="res://assets/fonts/Rajdhani-SemiBold.ttf" id="32"]
+[ext_resource type="FontFile" path="res://assets/fonts/Rajdhani-Regular.ttf" id="33"]
+[ext_resource type="Script" path="res://scripts/SocialIconButton.gd" id="34"]
+[ext_resource type="Script" path="res://scripts/AchievementsPanel.gd" id="35"]
+
+[sub_resource type="StyleBoxFlat" id="MailBadgeStyle"]
+bg_color = Color(0.85, 0.15, 0.15, 1)
+border_color = Color(0.15, 0.03, 0.03, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="CrateBoxStyle"]
+bg_color = Color(0.4, 0.26, 0.12, 1)
+border_color = Color(0.22, 0.14, 0.06, 1)
+border_width_left = 4
+border_width_right = 4
+border_width_top = 4
+border_width_bottom = 4
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_left = 4
+corner_radius_bottom_right = 4
+
+[node name="MainMenu" type="Control"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Background" type="Control" parent="."]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("65")
+
+[node name="SkylineVignette" type="Control" parent="Background"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("3")
+
+[node name="FogVignette" type="Control" parent="Background"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("66")
+
+[node name="ChopperVignette" type="Control" parent="Background"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("67")
+
+[node name="RoadmapButton" type="Button" parent="."]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 130.0
+offset_bottom = 46.0
+theme_override_font_sizes/font_size = 13
+text = "Roadmap"
+
+[node name="FeedbackButton" type="Button" parent="."]
+offset_left = 16.0
+offset_top = 52.0
+offset_right = 130.0
+offset_bottom = 82.0
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.7, 0.85, 0.95, 1)
+text = "Feedback"
+
+[node name="WhatsNewButton" type="Button" parent="."]
+offset_left = 16.0
+offset_top = 88.0
+offset_right = 130.0
+offset_bottom = 118.0
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.7, 0.95, 0.8, 1)
+text = "What's New?"
+
+[node name="VersionLabel" type="Label" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -170.0
+offset_top = 2.0
+offset_right = -16.0
+offset_bottom = 14.0
+horizontal_alignment = 2
+theme_override_font_sizes/font_size = 9
+modulate = Color(1, 1, 1, 0.4)
+text = "Release v0.0 - ALPHA"
+script = ExtResource("43")
+
+[node name="ChangelogButton" type="Button" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -130.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 46.0
+theme_override_font_sizes/font_size = 13
+text = "Changelog"
+
+[node name="SocialButton" type="Button" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -93.0
+offset_top = 60.0
+offset_right = -53.0
+offset_bottom = 100.0
+mouse_default_cursor_shape = 2
+script = ExtResource("34")
+
+[node name="AchievementsButton" type="Button" parent="."]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -86.0
+offset_right = 130.0
+offset_bottom = -56.0
+theme_override_font_sizes/font_size = 13
+text = "Achievements"
+
+[node name="StatsButton" type="Button" parent="."]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -46.0
+offset_right = 130.0
+offset_bottom = -16.0
+theme_override_font_sizes/font_size = 13
+text = "Character"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -350.0
+offset_right = 170.0
+offset_bottom = 350.0
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 96)
+mouse_filter = 2
+script = ExtResource("4")
+
+[node name="Tagline" type="Label" parent="VBoxContainer"]
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.6, 0.65, 0.68, 1)
+horizontal_alignment = 1
+text = "T H E   S E C T O R   D O E S   N O T   F O R G I V E"
+
+[node name="Spacer" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 8)
+
+[node name="PlayButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(300, 44)
+theme_override_fonts/font = ExtResource("47")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_outline_color = Color(0.02, 0.02, 0.02, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_colors/font_hover_color = Color(1, 0.42, 0.24, 1)
+text = "Play"
+script = ExtResource("40")
+
+[node name="RankedButton" type="Button" parent="VBoxContainer/PlayButton"]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -76.0
+offset_top = -12.0
+offset_right = 4.0
+offset_bottom = 16.0
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.95, 0.8, 0.3, 1)
+theme_override_colors/font_hover_color = Color(1.0, 0.9, 0.5, 1)
+text = "Ranked"
+script = ExtResource("61")
+
+[node name="Glow" type="ColorRect" parent="VBoxContainer/PlayButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.02, 0.02, 0.02, 0)
+[node name="QuestsButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(300, 44)
+theme_override_fonts/font = ExtResource("47")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_outline_color = Color(0.02, 0.02, 0.02, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_colors/font_hover_color = Color(1, 0.42, 0.24, 1)
+text = "Quests"
+script = ExtResource("16")
+
+[node name="Glow" type="ColorRect" parent="VBoxContainer/QuestsButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.02, 0.02, 0.02, 0)
+[node name="TradersButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(300, 44)
+theme_override_fonts/font = ExtResource("47")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_outline_color = Color(0.02, 0.02, 0.02, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_colors/font_hover_color = Color(1, 0.42, 0.24, 1)
+text = "Traders"
+script = ExtResource("16")
+
+[node name="Glow" type="ColorRect" parent="VBoxContainer/TradersButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.02, 0.02, 0.02, 0)
+[node name="SkillTreeButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(300, 44)
+theme_override_fonts/font = ExtResource("47")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_outline_color = Color(0.02, 0.02, 0.02, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_colors/font_hover_color = Color(1, 0.42, 0.24, 1)
+text = "Skill Tree"
+script = ExtResource("16")
+
+[node name="Glow" type="ColorRect" parent="VBoxContainer/SkillTreeButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.02, 0.02, 0.02, 0)
+[node name="StashButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(300, 44)
+theme_override_fonts/font = ExtResource("47")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_outline_color = Color(0.02, 0.02, 0.02, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_colors/font_hover_color = Color(1, 0.42, 0.24, 1)
+text = "Stash"
+script = ExtResource("16")
+
+[node name="Glow" type="ColorRect" parent="VBoxContainer/StashButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.02, 0.02, 0.02, 0)
+
+[node name="FleaMarketButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(300, 44)
+theme_override_fonts/font = ExtResource("47")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_outline_color = Color(0.02, 0.02, 0.02, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_colors/font_hover_color = Color(1, 0.42, 0.24, 1)
+text = "Flea Market"
+script = ExtResource("16")
+
+[node name="Glow" type="ColorRect" parent="VBoxContainer/FleaMarketButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.02, 0.02, 0.02, 0)
+[node name="HideoutButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(300, 44)
+theme_override_fonts/font = ExtResource("47")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_outline_color = Color(0.02, 0.02, 0.02, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_colors/font_hover_color = Color(1, 0.42, 0.24, 1)
+text = "Hideout"
+script = ExtResource("16")
+
+[node name="Glow" type="ColorRect" parent="VBoxContainer/HideoutButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.02, 0.02, 0.02, 0)
+[node name="SettingsButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(300, 44)
+theme_override_fonts/font = ExtResource("47")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_outline_color = Color(0.02, 0.02, 0.02, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_colors/font_hover_color = Color(1, 0.42, 0.24, 1)
+text = "Settings"
+script = ExtResource("16")
+
+[node name="Glow" type="ColorRect" parent="VBoxContainer/SettingsButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.02, 0.02, 0.02, 0)
+[node name="ExitButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(300, 44)
+theme_override_fonts/font = ExtResource("47")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_outline_color = Color(0.02, 0.02, 0.02, 0.9)
+theme_override_constants/outline_size = 5
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 2
+theme_override_colors/font_hover_color = Color(1, 0.42, 0.24, 1)
+text = "Exit"
+script = ExtResource("16")
+
+[node name="Glow" type="ColorRect" parent="VBoxContainer/ExitButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.02, 0.02, 0.02, 0)
+[node name="WipeButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(56, 18)
+modulate = Color(1, 1, 1, 0.5)
+theme_override_font_sizes/font_size = 9
+text = "Wipe"
+
+[node name="OneDotOhBadge" type="Label" parent="."]
+custom_minimum_size = Vector2(150, 22)
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.55, 0.95, 0.75, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.7)
+theme_override_constants/outline_size = 2
+text = "1.0 RELEASED"
+script = ExtResource("27")
+
+[node name="QuestPanel" type="Control" parent="."]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+script = ExtResource("5")
+
+[node name="Backdrop" type="ColorRect" parent="QuestPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.04, 0.03, 0.06, 0.98)
+
+[node name="DystoBG" type="Control" parent="QuestPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(0.8, 0.6, 1.0, 1)
+script = ExtResource("15")
+
+[node name="VBox" type="VBoxContainer" parent="QuestPanel"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -420.0
+offset_top = -220.0
+offset_right = 420.0
+offset_bottom = 220.0
+theme_override_constants/separation = 20
+
+[node name="TopRow" type="HBoxContainer" parent="QuestPanel/VBox"]
+
+[node name="HeaderLabel" type="Label" parent="QuestPanel/VBox/TopRow"]
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+text = "CONTRACTS"
+
+[node name="CloseButton" type="Button" parent="QuestPanel/VBox/TopRow"]
+custom_minimum_size = Vector2(90, 40)
+theme_override_font_sizes/font_size = 14
+text = "Close"
+
+[node name="Subtitle" type="Label" parent="QuestPanel/VBox"]
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.6)
+text = "Five contacts have carved out a place in the Sector, each running their own line of work. Do the jobs they hand you and they'll keep opening doors - better contracts, better pay, and eventually the parts of their story they don't tell just anyone."
+
+[node name="ActiveCountLabel" type="Label" parent="QuestPanel/VBox"]
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+text = "Active Contracts: 0 / 3"
+
+[node name="PortraitRow" type="HBoxContainer" parent="QuestPanel/VBox"]
+alignment = 1
+size_flags_vertical = 3
+theme_override_constants/separation = 40
+
+[node name="DetailBackdrop" type="ColorRect" parent="QuestPanel"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.6)
+
+[node name="DetailPopup" type="PanelContainer" parent="QuestPanel"]
+visible = false
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -260.0
+offset_right = 280.0
+offset_bottom = 260.0
+
+[node name="Margin" type="MarginContainer" parent="QuestPanel/DetailPopup"]
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="QuestPanel/DetailPopup/Margin"]
+theme_override_constants/separation = 8
+
+[node name="NPCTitle" type="Label" parent="QuestPanel/DetailPopup/Margin/VBox"]
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "Echo - The Guide"
+
+[node name="NPCBlurb" type="Label" parent="QuestPanel/DetailPopup/Margin/VBox"]
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.65)
+text = "..."
+
+[node name="Scroll" type="ScrollContainer" parent="QuestPanel/DetailPopup/Margin/VBox"]
+custom_minimum_size = Vector2(0, 340)
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="QuestPanel/DetailPopup/Margin/VBox/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="DetailCloseButton" type="Button" parent="QuestPanel/DetailPopup/Margin/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 14
+text = "Back"
+
+[node name="RoadmapPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -290.0
+offset_right = 340.0
+offset_bottom = 290.0
+visible = false
+script = ExtResource("6")
+
+[node name="Backdrop" type="ColorRect" parent="RoadmapPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+
+[node name="DystoBG" type="Control" parent="RoadmapPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("15")
+[node name="Margin" type="MarginContainer" parent="RoadmapPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="RoadmapPanel/Margin"]
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="RoadmapPanel/Margin/VBox"]
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.55, 0.9, 0.65, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "ROADMAP"
+
+[node name="Subtitle" type="Label" parent="RoadmapPanel/Margin/VBox"]
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.6)
+text = "What's coming to the Sector"
+
+[node name="Scroll" type="ScrollContainer" parent="RoadmapPanel/Margin/VBox"]
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="RoadmapPanel/Margin/VBox/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="CloseButton" type="Button" parent="RoadmapPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 15
+text = "Close"
+
+[node name="ChangelogPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -330.0
+offset_top = -345.0
+offset_right = 330.0
+offset_bottom = 345.0
+visible = false
+script = ExtResource("8")
+
+[node name="Backdrop" type="ColorRect" parent="ChangelogPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+
+[node name="DystoBG" type="Control" parent="ChangelogPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("15")
+[node name="Margin" type="MarginContainer" parent="ChangelogPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="ChangelogPanel/Margin"]
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="ChangelogPanel/Margin/VBox"]
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.6, 0.8, 1.0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "CHANGELOG"
+
+[node name="Subtitle" type="Label" parent="ChangelogPanel/Margin/VBox"]
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.6)
+text = "Everything added to Dead Sector so far"
+
+[node name="Scroll" type="ScrollContainer" parent="ChangelogPanel/Margin/VBox"]
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="ChangelogPanel/Margin/VBox/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="CloseButton" type="Button" parent="ChangelogPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 15
+text = "Close"
+
+[node name="AchievementsPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -310.0
+offset_right = 300.0
+offset_bottom = 310.0
+visible = false
+script = ExtResource("35")
+
+[node name="Backdrop" type="ColorRect" parent="AchievementsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.06, 0.05, 0.02, 0.97)
+
+[node name="Particles" type="Control" parent="AchievementsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="AchievementsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 18.0
+offset_right = -20.0
+offset_bottom = -18.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="AchievementsPanel/VBox"]
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1.0, 0.85, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "ACHIEVEMENTS"
+
+[node name="ProgressLabel" type="Label" parent="AchievementsPanel/VBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+modulate = Color(1, 1, 1, 0.7)
+text = "0 / 0 unlocked"
+
+[node name="Scroll" type="ScrollContainer" parent="AchievementsPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="AchievementsPanel/VBox/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="AchievementsPanel/VBox"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="StatsPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -290.0
+offset_right = 280.0
+offset_bottom = 290.0
+visible = false
+script = ExtResource("7")
+
+[node name="Backdrop" type="ColorRect" parent="StatsPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+
+[node name="DystoBG" type="Control" parent="StatsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("15")
+[node name="Margin" type="MarginContainer" parent="StatsPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="StatsPanel/Margin"]
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="StatsPanel/Margin/VBox"]
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1.0, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "CHARACTER"
+
+[node name="Header" type="VBoxContainer" parent="StatsPanel/Margin/VBox"]
+theme_override_constants/separation = 8
+
+[node name="Scroll" type="ScrollContainer" parent="StatsPanel/Margin/VBox"]
+size_flags_vertical = 3
+
+[node name="Content" type="VBoxContainer" parent="StatsPanel/Margin/VBox/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="DeleteCharacterButton" type="Button" parent="StatsPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 40)
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(1, 0.4, 0.35, 1)
+text = "Delete Character and Start Over"
+
+[node name="CloseButton" type="Button" parent="StatsPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 15
+text = "Close"
+
+[node name="DeleteConfirmPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -110.0
+offset_right = 220.0
+offset_bottom = 110.0
+visible = false
+
+[node name="Backdrop" type="ColorRect" parent="DeleteConfirmPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1, 0.03, 0.03, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="DeleteConfirmPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 16.0
+offset_right = -20.0
+offset_bottom = -16.0
+theme_override_constants/separation = 12
+
+[node name="WarningLabel" type="Label" parent="DeleteConfirmPanel/VBox"]
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+autowrap_mode = 2
+text = "Delete this character permanently? All loot, currency, levels, and progress will be lost. This cannot be undone."
+
+[node name="ButtonRow" type="HBoxContainer" parent="DeleteConfirmPanel/VBox"]
+theme_override_constants/separation = 12
+
+[node name="ConfirmButton" type="Button" parent="DeleteConfirmPanel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1, 0.4, 0.35, 1)
+text = "Delete Everything"
+
+[node name="CancelButton" type="Button" parent="DeleteConfirmPanel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "Cancel"
+
+[node name="WipeConfirmPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -120.0
+offset_right = 220.0
+offset_bottom = 120.0
+visible = false
+
+[node name="Backdrop" type="ColorRect" parent="WipeConfirmPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1, 0.03, 0.03, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="WipeConfirmPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 16.0
+offset_right = -20.0
+offset_bottom = -16.0
+theme_override_constants/separation = 12
+
+[node name="WarningLabel" type="Label" parent="WipeConfirmPanel/VBox"]
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+autowrap_mode = 2
+text = "Wipe EVERYTHING and start completely fresh? All progress, currency, and gear are gone for good. The game will restart itself automatically, right back to the very first cutscene - Character Creation, Echo's lore intro, all of it, exactly like a brand new install. The Welcome mail, Tech Test mail, and Alpha Rewards all become claimable again too. This cannot be undone."
+
+[node name="ButtonRow" type="HBoxContainer" parent="WipeConfirmPanel/VBox"]
+theme_override_constants/separation = 12
+
+[node name="ConfirmButton" type="Button" parent="WipeConfirmPanel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1, 0.4, 0.35, 1)
+text = "Wipe Everything"
+
+[node name="CancelButton" type="Button" parent="WipeConfirmPanel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "Cancel"
+
+[node name="BloodlineButton" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+offset_left = -345.0
+offset_top = -202.0
+offset_right = -185.0
+offset_bottom = -154.0
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.95, 0.2, 0.25, 1)
+theme_override_colors/font_hover_color = Color(1.0, 0.35, 0.4, 1)
+text = "Dead Sector's Side Scroller"
+script = ExtResource("20")
+
+[node name="Glow" type="ColorRect" parent="BloodlineButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+offset_bottom = 5.0
+color = Color(0.9, 0.1, 0.15, 0)
+
+[node name="AlphaRewardsButton" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+offset_left = -345.0
+offset_top = -150.0
+offset_right = -185.0
+offset_bottom = -114.0
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(1.0, 1.0, 1.0, 0)
+theme_override_colors/font_hover_color = Color(1.0, 1.0, 1.0, 0)
+text = "Alpha Rewards"
+script = ExtResource("49")
+
+[node name="Glow" type="ColorRect" parent="AlphaRewardsButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="EventButton" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+offset_left = 185.0
+offset_top = -202.0
+offset_right = 345.0
+offset_bottom = -154.0
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.7, 1.0, 0.85, 1)
+theme_override_colors/font_hover_color = Color(0.8, 1.0, 0.9, 1)
+text = "Spectral Tide"
+script = ExtResource("9")
+
+[node name="Glow" type="ColorRect" parent="EventButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+offset_bottom = 5.0
+color = Color(0.35, 0.75, 1.0, 0)
+
+[node name="StoreButton" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+offset_left = 185.0
+offset_top = -150.0
+offset_right = 345.0
+offset_bottom = -110.0
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1.0, 0.85, 0.45, 1)
+theme_override_colors/font_hover_color = Color(1.0, 0.9, 0.55, 1)
+text = "Store"
+script = ExtResource("12")
+
+[node name="Glow" type="ColorRect" parent="StoreButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 10.0
+offset_bottom = 10.0
+color = Color(0.9, 0.75, 0.3, 0)
+
+[node name="DataButton" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+offset_left = 185.0
+offset_top = -102.0
+offset_right = 345.0
+offset_bottom = -66.0
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.6, 0.85, 0.95, 1)
+theme_override_colors/font_hover_color = Color(0.75, 0.92, 1.0, 1)
+text = "Data"
+script = ExtResource("16")
+
+[node name="Glow" type="ColorRect" parent="DataButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 10.0
+offset_bottom = 10.0
+color = Color(0.02, 0.02, 0.02, 0)
+
+[node name="SalvagedBeastsButton" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+offset_left = 185.0
+offset_top = -58.0
+offset_right = 345.0
+offset_bottom = -22.0
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(1.0, 0.65, 0.25, 1)
+theme_override_colors/font_hover_color = Color(1.0, 0.75, 0.4, 1)
+text = "Companions Are Here!"
+script = ExtResource("24")
+
+[node name="Glow" type="ColorRect" parent="SalvagedBeastsButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+offset_bottom = 5.0
+color = Color(0.95, 0.55, 0.1, 0)
+
+[node name="BattlePassPanel" type="Panel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+script = ExtResource("10")
+
+[node name="MistBackground" type="Control" parent="BattlePassPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("11")
+
+[node name="VBox" type="VBoxContainer" parent="BattlePassPanel"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -320.0
+offset_top = -290.0
+offset_right = 320.0
+offset_bottom = 290.0
+theme_override_constants/separation = 10
+
+[node name="EventTitle" type="Label" parent="BattlePassPanel/VBox"]
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.55, 0.95, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.1, 0.1, 1)
+theme_override_constants/outline_size = 4
+text = "SPECTRAL TIDE"
+
+[node name="TopRow" type="HBoxContainer" parent="BattlePassPanel/VBox"]
+alignment = 1
+theme_override_constants/separation = 20
+
+[node name="SoulsLabel" type="Label" parent="BattlePassPanel/VBox/TopRow"]
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.6, 0.95, 0.85, 1)
+text = "Souls: 0"
+
+[node name="TierRow" type="HBoxContainer" parent="BattlePassPanel/VBox"]
+theme_override_constants/separation = 12
+
+[node name="TierLabel" type="Label" parent="BattlePassPanel/VBox/TierRow"]
+custom_minimum_size = Vector2(110, 0)
+theme_override_font_sizes/font_size = 14
+text = "Tier 0 / 100"
+
+[node name="ProgressBar" type="ProgressBar" parent="BattlePassPanel/VBox/TierRow"]
+custom_minimum_size = Vector2(0, 22)
+size_flags_horizontal = 3
+show_percentage = false
+
+[node name="ButtonRow" type="HBoxContainer" parent="BattlePassPanel/VBox"]
+theme_override_constants/separation = 12
+
+[node name="CommuneButton" type="Button" parent="BattlePassPanel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(0, 50)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(0.6, 0.95, 0.85, 1)
+text = "Commune"
+
+[node name="SkipButton" type="Button" parent="BattlePassPanel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(0, 50)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "Skip Tier (5,000 Rubles)"
+
+[node name="SkipSoulsButton" type="Button" parent="BattlePassPanel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(0, 50)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.6, 0.95, 0.85, 1)
+text = "Skip Tier (100 Souls)"
+
+[node name="ListScroll" type="ScrollContainer" parent="BattlePassPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="TierList" type="VBoxContainer" parent="BattlePassPanel/VBox/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="CloseButton" type="Button" parent="BattlePassPanel/VBox"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="StorePanel" type="Panel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+script = ExtResource("13")
+
+[node name="GoldBackground" type="Control" parent="StorePanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("14")
+
+[node name="VBox" type="VBoxContainer" parent="StorePanel"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -330.0
+offset_right = 400.0
+offset_bottom = 330.0
+theme_override_constants/separation = 8
+
+[node name="StoreTitle" type="Label" parent="StorePanel/VBox"]
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1.0, 0.85, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.08, 0.02, 1)
+theme_override_constants/outline_size = 4
+text = "STORE"
+
+[node name="StoreSubtitle" type="Label" parent="StorePanel/VBox"]
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.6)
+text = "This is a test build - every purchase here is free."
+
+[node name="MainScroll" type="ScrollContainer" parent="StorePanel/VBox"]
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="ContentVBox" type="VBoxContainer" parent="StorePanel/VBox/MainScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="StarterPackContainer" type="Control" parent="StorePanel/VBox/MainScroll/ContentVBox"]
+custom_minimum_size = Vector2(0, 110)
+
+[node name="PackRow" type="GridContainer" parent="StorePanel/VBox/MainScroll/ContentVBox"]
+columns = 3
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 12
+
+[node name="SkillPointLabel" type="Label" parent="StorePanel/VBox/MainScroll/ContentVBox"]
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.55, 0.78, 1.0, 1)
+text = "Skill Point Packs"
+
+[node name="SkillPointPackRow" type="GridContainer" parent="StorePanel/VBox/MainScroll/ContentVBox"]
+columns = 3
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 12
+
+[node name="PermRow" type="GridContainer" parent="StorePanel/VBox/MainScroll/ContentVBox"]
+columns = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 12
+
+[node name="MonthlyButton" type="Button" parent="StorePanel/VBox/MainScroll/ContentVBox/PermRow"]
+custom_minimum_size = Vector2(0, 80)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+autowrap_text = true
+text = "Monthly Pass"
+
+[node name="DoubleXpButton" type="Button" parent="StorePanel/VBox/MainScroll/ContentVBox/PermRow"]
+custom_minimum_size = Vector2(0, 80)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+autowrap_text = true
+text = "Permanent Double XP"
+
+[node name="PremiumPetButton" type="Button" parent="StorePanel/VBox/MainScroll/ContentVBox/PermRow"]
+custom_minimum_size = Vector2(0, 80)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.75, 0.7, 0.95, 1)
+autowrap_text = true
+text = "Onyx (Premium Pet)"
+
+[node name="FastHatchingButton" type="Button" parent="StorePanel/VBox/MainScroll/ContentVBox/PermRow"]
+custom_minimum_size = Vector2(0, 80)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.5, 0.9, 0.6, 1)
+autowrap_text = true
+text = "Fast Hatching"
+
+[node name="PetPackLabel" type="Label" parent="StorePanel/VBox/MainScroll/ContentVBox"]
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.5, 0.9, 0.6, 1)
+text = "Pet Eggs"
+
+[node name="PetPackRow" type="GridContainer" parent="StorePanel/VBox/MainScroll/ContentVBox"]
+columns = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="SkinLabel" type="Label" parent="StorePanel/VBox/MainScroll/ContentVBox"]
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1.0, 0.85, 0.4, 1)
+text = "Weapon Skins"
+
+[node name="SkinRotationLabel" type="Label" parent="StorePanel/VBox/MainScroll/ContentVBox"]
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.7, 0.85, 1.0, 1)
+text = "Featured skins refresh in 10:00"
+
+[node name="SkinRow" type="GridContainer" parent="StorePanel/VBox/MainScroll/ContentVBox"]
+columns = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="CloseButton" type="Button" parent="StorePanel/VBox"]
+custom_minimum_size = Vector2(0, 50)
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(1, 0.9, 0.6, 1)
+text = "Back"
+
+[node name="SocialPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -335.0
+offset_right = 300.0
+offset_bottom = 335.0
+visible = false
+script = ExtResource("18")
+
+[node name="Backdrop" type="ColorRect" parent="SocialPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.08, 0.05, 0.97)
+
+[node name="DystoBG" type="Control" parent="SocialPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("15")
+
+[node name="Margin" type="MarginContainer" parent="SocialPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="SocialPanel/Margin"]
+theme_override_constants/separation = 10
+
+[node name="TitleRow" type="HBoxContainer" parent="SocialPanel/Margin/VBox"]
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="SocialPanel/Margin/VBox/TitleRow"]
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.95, 0.55, 0.75, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "SOCIAL"
+
+[node name="GlobalChatButton" type="Button" parent="SocialPanel/Margin/VBox/TitleRow"]
+custom_minimum_size = Vector2(110, 36)
+theme_override_font_sizes/font_size = 13
+text = "Global Chat"
+
+[node name="FindTeamButton" type="Button" parent="SocialPanel/Margin/VBox/TitleRow"]
+custom_minimum_size = Vector2(110, 36)
+theme_override_font_sizes/font_size = 13
+text = "Find a Team"
+
+[node name="ChatBgButton" type="Button" parent="SocialPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 34)
+theme_override_font_sizes/font_size = 12
+text = "Chat Background: Off"
+
+[node name="Subtitle" type="Label" parent="SocialPanel/Margin/VBox"]
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.6)
+text = "Your operative profile"
+
+[node name="Scroll" type="ScrollContainer" parent="SocialPanel/Margin/VBox"]
+size_flags_vertical = 3
+
+[node name="ProfileBox" type="VBoxContainer" parent="SocialPanel/Margin/VBox/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="SocialPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 15
+text = "Close"
+
+[node name="DataPanel" type="Panel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+script = ExtResource("19")
+
+[node name="Backdrop" type="ColorRect" parent="DataPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.07, 0.08, 0.97)
+
+[node name="DystoBG" type="Control" parent="DataPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("15")
+
+[node name="VBox" type="VBoxContainer" parent="DataPanel"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -320.0
+offset_top = -300.0
+offset_right = 320.0
+offset_bottom = 300.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="DataPanel/VBox"]
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.6, 0.85, 0.95, 1)
+text = "DATA"
+
+[node name="TabRow" type="HBoxContainer" parent="DataPanel/VBox"]
+theme_override_constants/separation = 10
+
+[node name="EnemiesTab" type="Button" parent="DataPanel/VBox/TabRow"]
+custom_minimum_size = Vector2(0, 38)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "Enemies"
+
+[node name="CollectiblesTab" type="Button" parent="DataPanel/VBox/TabRow"]
+custom_minimum_size = Vector2(0, 38)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "Collectibles"
+
+[node name="MapsTab" type="Button" parent="DataPanel/VBox/TabRow"]
+custom_minimum_size = Vector2(0, 38)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "Maps"
+
+[node name="PetsTab" type="Button" parent="DataPanel/VBox/TabRow"]
+custom_minimum_size = Vector2(0, 38)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "Pets"
+
+[node name="ContractsTab" type="Button" parent="DataPanel/VBox/TabRow"]
+custom_minimum_size = Vector2(0, 38)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "Contracts"
+
+[node name="TradersTab" type="Button" parent="DataPanel/VBox/TabRow"]
+custom_minimum_size = Vector2(0, 38)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "Traders"
+
+[node name="WeaponsTab" type="Button" parent="DataPanel/VBox/TabRow"]
+custom_minimum_size = Vector2(0, 38)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "Weapons"
+
+[node name="KeysTab" type="Button" parent="DataPanel/VBox/TabRow"]
+custom_minimum_size = Vector2(0, 38)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "Keys"
+
+[node name="ListScroll" type="ScrollContainer" parent="DataPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="DataPanel/VBox/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="DataPanel/VBox"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 16
+text = "Back"
+
+[node name="BloodlinePanel" type="Panel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+script = ExtResource("21")
+
+[node name="BloodBG" type="Control" parent="BloodlinePanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("22")
+
+[node name="VBox" type="VBoxContainer" parent="BloodlinePanel"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -260.0
+offset_right = 300.0
+offset_bottom = 260.0
+theme_override_constants/separation = 10
+
+[node name="TierLabel" type="Label" parent="BloodlinePanel/VBox"]
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.9, 0.15, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0, 0, 0.9)
+theme_override_constants/outline_size = 4
+text = "BLOODLINE - Tier 0 / 30"
+
+[node name="ShardsLabel" type="Label" parent="BloodlinePanel/VBox"]
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.3, 0.3, 1)
+text = "Blood Shards: 0"
+
+[node name="ProgressBar" type="ProgressBar" parent="BloodlinePanel/VBox"]
+custom_minimum_size = Vector2(0, 16)
+show_percentage = false
+
+[node name="ProgressLabel" type="Label" parent="BloodlinePanel/VBox"]
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.7)
+text = "0 / 100 Blood Shards to next tier"
+
+[node name="RewardScroll" type="ScrollContainer" parent="BloodlinePanel/VBox"]
+custom_minimum_size = Vector2(0, 100)
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="RewardRow" type="HBoxContainer" parent="BloodlinePanel/VBox/RewardScroll"]
+theme_override_constants/separation = 10
+
+[node name="SkipButton" type="Button" parent="BloodlinePanel/VBox"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 15
+text = "Skip Tier (50 Blood Shards)"
+
+[node name="LevelLabel" type="Label" parent="BloodlinePanel/VBox"]
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.5, 0.5, 1)
+text = "Gauntlet progress: Level 0 / 5 cleared"
+
+[node name="GauntletButton" type="Button" parent="BloodlinePanel/VBox"]
+custom_minimum_size = Vector2(0, 60)
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(1.0, 0.3, 0.3, 1)
+text = "ENTER THE GAUNTLET"
+
+[node name="CloseButton" type="Button" parent="BloodlinePanel/VBox"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 16
+text = "Back"
+
+[node name="MailButton" type="Button" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -170.0
+offset_top = -104.0
+offset_right = -20.0
+offset_bottom = -68.0
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.75, 0.8, 0.95, 1)
+theme_override_colors/font_hover_color = Color(0.9, 0.9, 1.0, 1)
+text = "Mail"
+script = ExtResource("16")
+
+[node name="Glow" type="ColorRect" parent="MailButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.02, 0.02, 0.02, 0)
+
+[node name="Badge" type="PanelContainer" parent="MailButton"]
+visible = false
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -14.0
+offset_top = -10.0
+offset_right = 10.0
+offset_bottom = 14.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("MailBadgeStyle")
+
+[node name="BadgeLabel" type="Label" parent="MailButton/Badge"]
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+mouse_filter = 2
+text = "1"
+
+[node name="LeaderboardButton" type="Button" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -170.0
+offset_top = -60.0
+offset_right = -20.0
+offset_bottom = -20.0
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.9, 0.75, 0.3, 1)
+theme_override_colors/font_hover_color = Color(1.0, 0.85, 0.45, 1)
+text = "Prove You're #1"
+idle_text = "Prove You're #1"
+hover_text = "Leaderboard"
+script = ExtResource("16")
+idle_text = "Leaderboard"
+hover_text = "Prove You're #1"
+
+[node name="Glow" type="ColorRect" parent="LeaderboardButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 10.0
+offset_bottom = 10.0
+color = Color(0.02, 0.02, 0.02, 0)
+
+[node name="FleaMarketPanel" parent="." instance=ExtResource("41")]
+
+[node name="MailPanel" parent="." instance=ExtResource("42")]
+
+[node name="AlphaRewardsPanel" parent="." instance=ExtResource("44")]
+
+[node name="FeedbackPanel" parent="." instance=ExtResource("45")]
+
+[node name="WhatsNewPanel" parent="." instance=ExtResource("48")]
+
+[node name="LeaderboardPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -390.0
+offset_top = -320.0
+offset_right = 390.0
+offset_bottom = 320.0
+visible = false
+script = ExtResource("23")
+
+[node name="Backdrop" type="ColorRect" parent="LeaderboardPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.07, 0.06, 0.03, 0.97)
+
+[node name="DystoBG" type="Control" parent="LeaderboardPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("15")
+
+[node name="VBox" type="VBoxContainer" parent="LeaderboardPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 14.0
+offset_right = -16.0
+offset_bottom = -14.0
+theme_override_constants/separation = 8
+
+[node name="TitleRow" type="HBoxContainer" parent="LeaderboardPanel/VBox"]
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="LeaderboardPanel/VBox/TitleRow"]
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.9, 0.75, 0.3, 1)
+text = "LEADERBOARD"
+
+[node name="RewardsButton" type="Button" parent="LeaderboardPanel/VBox/TitleRow"]
+custom_minimum_size = Vector2(100, 36)
+theme_override_font_sizes/font_size = 13
+text = "Rewards"
+
+[node name="RanksButton" type="Button" parent="LeaderboardPanel/VBox/TitleRow"]
+custom_minimum_size = Vector2(90, 36)
+theme_override_font_sizes/font_size = 13
+text = "Ranks"
+
+[node name="TimerLabel" type="Label" parent="LeaderboardPanel/VBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+modulate = Color(1, 1, 1, 0.65)
+text = "Season resets in 7 days"
+
+[node name="TabRow" type="HBoxContainer" parent="LeaderboardPanel/VBox"]
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="ListScroll" type="ScrollContainer" parent="LeaderboardPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="LeaderboardPanel/VBox/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="CloseButton" type="Button" parent="LeaderboardPanel/VBox"]
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="LeaderboardRewardsPanel" parent="." instance=ExtResource("60")]
+
+[node name="RankPercentilesPanel" parent="." instance=ExtResource("62")]
+
+[node name="GlobalChatPanel" parent="." instance=ExtResource("63")]
+
+[node name="FindTeamPanel" parent="." instance=ExtResource("64")]
+
+
+[node name="SalvagedBeastsPanel" type="Panel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+script = ExtResource("25")
+
+[node name="BeastsBG" type="Control" parent="SalvagedBeastsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("26")
+
+[node name="VBox" type="VBoxContainer" parent="SalvagedBeastsPanel"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -430.0
+offset_top = -290.0
+offset_right = 430.0
+offset_bottom = 290.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="SalvagedBeastsPanel/VBox"]
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1.0, 0.65, 0.25, 1)
+text = "SALVAGED BEASTS"
+
+[node name="HBox" type="HBoxContainer" parent="SalvagedBeastsPanel/VBox"]
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="LeftCol" type="VBoxContainer" parent="SalvagedBeastsPanel/VBox/HBox"]
+custom_minimum_size = Vector2(240, 0)
+theme_override_constants/separation = 6
+
+[node name="TicketsLabel" type="Label" parent="SalvagedBeastsPanel/VBox/HBox/LeftCol"]
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(1.0, 0.65, 0.25, 1)
+text = "Tickets: 0"
+
+[node name="TierLabel" type="Label" parent="SalvagedBeastsPanel/VBox/HBox/LeftCol"]
+theme_override_font_sizes/font_size = 13
+text = "Tier 0 / 200"
+
+[node name="ProgressBar" type="ProgressBar" parent="SalvagedBeastsPanel/VBox/HBox/LeftCol"]
+custom_minimum_size = Vector2(0, 14)
+show_percentage = false
+
+[node name="SkipButton" type="Button" parent="SalvagedBeastsPanel/VBox/HBox/LeftCol"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 11
+text = "Skip Tier (40 Tickets)"
+
+[node name="TierScroll" type="ScrollContainer" parent="SalvagedBeastsPanel/VBox/HBox/LeftCol"]
+size_flags_vertical = 3
+
+[node name="TierList" type="VBoxContainer" parent="SalvagedBeastsPanel/VBox/HBox/LeftCol/TierScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="MiddleCol" type="VBoxContainer" parent="SalvagedBeastsPanel/VBox/HBox"]
+custom_minimum_size = Vector2(300, 0)
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="MiddleLabel" type="Label" parent="SalvagedBeastsPanel/VBox/HBox/MiddleCol"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+modulate = Color(1, 1, 1, 0.7)
+text = "Hatching (up to 5 at once)"
+
+[node name="MyPetsButton" type="Button" parent="SalvagedBeastsPanel/VBox/HBox/MiddleCol"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "My Pets"
+
+[node name="HatchParticles" type="Control" parent="SalvagedBeastsPanel/VBox/HBox/MiddleCol"]
+custom_minimum_size = Vector2(0, 30)
+mouse_filter = 2
+
+[node name="EggSlotsRow" type="HBoxContainer" parent="SalvagedBeastsPanel/VBox/HBox/MiddleCol"]
+size_flags_vertical = 3
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="RightCol" type="VBoxContainer" parent="SalvagedBeastsPanel/VBox/HBox"]
+custom_minimum_size = Vector2(240, 0)
+theme_override_constants/separation = 8
+
+[node name="GraveyardButton" type="Button" parent="SalvagedBeastsPanel/VBox/HBox/RightCol"]
+custom_minimum_size = Vector2(0, 36)
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.55, 0.65, 0.55, 1)
+text = "Enter the Graveyard"
+
+[node name="HatcheryLabel" type="Label" parent="SalvagedBeastsPanel/VBox/HBox/RightCol"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(1.0, 0.65, 0.25, 1)
+text = "Hatchery"
+
+[node name="ListScroll" type="ScrollContainer" parent="SalvagedBeastsPanel/VBox/HBox/RightCol"]
+size_flags_vertical = 3
+
+[node name="RightList" type="VBoxContainer" parent="SalvagedBeastsPanel/VBox/HBox/RightCol/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="CloseButton" type="Button" parent="SalvagedBeastsPanel/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="MyPetsPanel" type="Panel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+script = ExtResource("28")
+
+[node name="PetsBG" type="Control" parent="MyPetsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("26")
+
+[node name="VBox" type="VBoxContainer" parent="MyPetsPanel"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -270.0
+offset_right = 340.0
+offset_bottom = 270.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="MyPetsPanel/VBox"]
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1.0, 0.65, 0.25, 1)
+text = "MY PETS"
+
+[node name="Hint" type="Label" parent="MyPetsPanel/VBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+modulate = Color(1, 1, 1, 0.6)
+text = "Left-click for info  •  Right-click to equip"
+
+[node name="Scroll" type="ScrollContainer" parent="MyPetsPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="Grid" type="GridContainer" parent="MyPetsPanel/VBox/Scroll"]
+size_flags_horizontal = 3
+columns = 6
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="CloseButton" type="Button" parent="MyPetsPanel/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="InfoPopup" type="Panel" parent="MyPetsPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+
+[node name="Backdrop" type="ColorRect" parent="MyPetsPanel/InfoPopup"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.02, 0.02, 0.75)
+
+[node name="PopupBG" type="ColorRect" parent="MyPetsPanel/InfoPopup"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -140.0
+offset_top = -160.0
+offset_right = 140.0
+offset_bottom = 160.0
+color = Color(0.1, 0.07, 0.03, 0.95)
+
+[node name="VBox" type="VBoxContainer" parent="MyPetsPanel/InfoPopup"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -128.0
+offset_top = -150.0
+offset_right = 128.0
+offset_bottom = 150.0
+theme_override_constants/separation = 6
+
+[node name="IconSlot" type="Control" parent="MyPetsPanel/InfoPopup/VBox"]
+custom_minimum_size = Vector2(0, 80)
+clip_contents = true
+
+[node name="NameLabel" type="Label" parent="MyPetsPanel/InfoPopup/VBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+text = "?"
+
+[node name="RarityLabel" type="Label" parent="MyPetsPanel/InfoPopup/VBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+text = "Common"
+
+[node name="LevelLabel" type="Label" parent="MyPetsPanel/InfoPopup/VBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+modulate = Color(1, 1, 1, 0.8)
+text = "Level 1"
+
+[node name="DateLabel" type="Label" parent="MyPetsPanel/InfoPopup/VBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+modulate = Color(1, 1, 1, 0.6)
+autowrap_mode = 2
+text = "Hatched ? in ?"
+
+[node name="TraitBox" type="VBoxContainer" parent="MyPetsPanel/InfoPopup/VBox"]
+theme_override_constants/separation = 2
+
+[node name="TraitName" type="Label" parent="MyPetsPanel/InfoPopup/VBox/TraitBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+text = "No trait"
+
+[node name="TraitDesc" type="Label" parent="MyPetsPanel/InfoPopup/VBox/TraitBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 10
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.75)
+text = ""
+
+[node name="EquipButton" type="Button" parent="MyPetsPanel/InfoPopup/VBox"]
+custom_minimum_size = Vector2(0, 38)
+theme_override_font_sizes/font_size = 14
+text = "Equip"
+
+[node name="InfoCloseButton" type="Button" parent="MyPetsPanel/InfoPopup/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 12
+text = "Close"
