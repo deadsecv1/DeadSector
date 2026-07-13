@@ -25,6 +25,7 @@ var pulse_phase := 0.0
 var clank_timer := 0.0
 var clank_next := 5.0
 var clank_env := 0.0
+var clank_rising := false
 var clank_filter_state := 0.0
 
 # Sparse high "ping", like a radar/sonar blip.
@@ -108,12 +109,25 @@ func _fill_buffer() -> void:
 		var pulse := sin(TAU * 48.0 * pulse_phase) * pulse_env * 0.32
 
 		# --- distant metallic clank (filtered noise) ---
+		# Unlike the pulse/ping below, this is raw noise rather than a sine
+		# wave, so it has no natural zero-crossing to fade in from - jumping
+		# clank_env straight to 1.0 caused an audible click/static-pop at
+		# the start of every single clank. Rising smoothly instead, and
+		# decaying about 100x slower than before (was tuned as if this ran
+		# once per video frame, not once per audio sample), so it actually
+		# reads as a soft distant clank instead of a millisecond of static.
 		clank_timer += dt
 		if clank_timer >= clank_next:
 			clank_timer = 0.0
 			clank_next = rng.randf_range(4.0, 8.0)
-			clank_env = 1.0
-		clank_env *= 0.985
+			clank_rising = true
+		if clank_rising:
+			clank_env += (1.0 - clank_env) * 0.02
+			if clank_env > 0.995:
+				clank_env = 1.0
+				clank_rising = false
+		else:
+			clank_env *= 0.99988
 		var noise := rng.randf_range(-1.0, 1.0)
 		clank_filter_state += (noise - clank_filter_state) * 0.5
 		var clank := clank_filter_state * clank_env * 0.15
