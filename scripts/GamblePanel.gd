@@ -156,7 +156,6 @@ func _refresh_lore_page() -> void:
 
 func open() -> void:
 	visible = true
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	opening = false
 	result_box.visible = false
 	crate_area.visible = true

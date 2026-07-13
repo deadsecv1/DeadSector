@@ -31,7 +31,6 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_build_ranks()
 
 func _build_ranks() -> void:

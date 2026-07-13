@@ -40,7 +40,6 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_clear_all()
 	_next_spawn_delay = randf_range(1.0, 2.5)
 	_spawn_timer = 0.0

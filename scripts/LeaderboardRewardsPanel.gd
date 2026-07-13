@@ -35,7 +35,6 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 func _build_tiers() -> void:
 	for c in tier_list.get_children():

@@ -143,4 +143,3 @@ func _make_row(entry: Dictionary) -> Control:
 
 func open() -> void:
 	visible = true
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
