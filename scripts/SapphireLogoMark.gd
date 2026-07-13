@@ -8,6 +8,7 @@ extends Control
 # not a fixed guessed delay).
 
 signal shattered
+signal signal_revealed
 
 enum Phase { FALLING, IMPACT, BROKEN, SETTLED }
 
@@ -68,6 +69,7 @@ func _process(delta: float) -> void:
 				phase = Phase.SETTLED
 				phase_time = 0.0
 				shards.clear()
+				signal_revealed.emit()
 		Phase.SETTLED:
 			_ring_timer += delta
 			if _ring_timer >= RING_INTERVAL:

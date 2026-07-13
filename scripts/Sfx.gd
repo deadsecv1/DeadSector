@@ -43,6 +43,7 @@ var _crystal_chime: AudioStreamWAV
 var _soft_whoosh: AudioStreamWAV
 var _ranked_hover: AudioStreamWAV
 var _eerie_hover: AudioStreamWAV
+var _signal_beam: AudioStreamWAV
 
 var _pool: Array = []
 const POOL_SIZE := 10
@@ -79,6 +80,7 @@ func _ready() -> void:
 	_soft_whoosh = _make_soft_whoosh()
 	_ranked_hover = _make_ranked_hover()
 	_eerie_hover = _make_eerie_hover()
+	_signal_beam = _make_signal_beam()
 	for i in range(POOL_SIZE):
 		var p := AudioStreamPlayer.new()
 		p.bus = "SFX"
@@ -230,6 +232,16 @@ func play_crystal_chime() -> void:
 	var p := _get_free_player()
 	p.stream = _crystal_chime
 	p.volume_db = -16.0
+	p.play()
+
+# A rising radio/radar-style sweep with a fainter echoed repeat and a
+# ringing tail - used once the Sapphire Signal Studio crystal's shell
+# has fully fallen away and the bare signal light stands exposed, like
+# the signal is actually reaching out.
+func play_signal_beam() -> void:
+	var p := _get_free_player()
+	p.stream = _signal_beam
+	p.volume_db = -15.0
 	p.play()
 
 # A very soft rising whoosh - used as a gentle "arrival" cue on the
@@ -653,6 +665,40 @@ func _make_crystal_chime() -> AudioStreamWAV:
 		var s: float = 0.0
 		for p in pitches:
 			s += sin(TAU * p * t) * exp(-t * 5.5) * 0.18
+		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
+		data.encode_s16(i * 2, s16)
+	return _to_wav(data)
+
+# A rising sweep (the signal launching outward) with a fainter delayed
+# echo of the same sweep (like it's reaching further out and bouncing
+# back) and a ringing tail underneath, instead of just another chime -
+# meant to read as an actual transmission rather than a musical note.
+func _make_signal_beam() -> AudioStreamWAV:
+	var dur := 1.1
+	var n := int(SAMPLE_RATE * dur)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	var sweep_dur := 0.32
+	var echo_delay := 0.16
+	for i in range(n):
+		var t := float(i) / SAMPLE_RATE
+		var s: float = 0.0
+		if t < sweep_dur:
+			var st: float = t / sweep_dur
+			var freq: float = lerp(650.0, 2100.0, st * st)
+			var env: float = sin(PI * st)
+			s += sin(TAU * freq * t) * env * 0.5
+			s += sin(TAU * freq * 1.5 * t) * env * 0.15
+		var et := t - echo_delay
+		if et >= 0.0 and et < sweep_dur:
+			var est: float = et / sweep_dur
+			var efreq: float = lerp(650.0, 2100.0, est * est)
+			s += sin(TAU * efreq * et) * sin(PI * est) * 0.22
+		if t >= sweep_dur:
+			var tt := t - sweep_dur
+			var tail_env: float = exp(-tt * 3.2)
+			s += sin(TAU * 2100.0 * t) * tail_env * 0.22
+			s += sin(TAU * 1400.0 * t) * tail_env * 0.12
 		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
 		data.encode_s16(i * 2, s16)
 	return _to_wav(data)

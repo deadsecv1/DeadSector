@@ -41,6 +41,7 @@ func _ready() -> void:
 	# newly-attached script itself. Has to be called again from out here.
 	logo_mark.set_process(true)
 	logo_mark.shattered.connect(_on_shattered)
+	logo_mark.signal_revealed.connect(func(): Sfx.play_signal_beam())
 	_build_name_letters()
 	_play_sequence()
 
