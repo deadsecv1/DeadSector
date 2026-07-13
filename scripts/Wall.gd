@@ -34,6 +34,7 @@ func _try_load_external_texture() -> bool:
 		return false
 	var sprite := Sprite2D.new()
 	sprite.texture = tex
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sprite.centered = true
 	sprite.region_enabled = true
 	sprite.region_rect = Rect2(0, 0, size.x, size.y)

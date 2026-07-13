@@ -19,12 +19,33 @@ var player_in_range: bool = false
 
 @onready var debris_poly: Polygon2D = $Debris
 @onready var prompt: Label = $Prompt
+@onready var debris_visual: CanvasItem = $Debris
 
 func _ready() -> void:
 	prompt.visible = false
 	body_entered.connect(_on_entered)
 	body_exited.connect(_on_exited)
 	_update_prompt()
+	_try_load_external_sprite()
+
+# --- Optional external art: if res://assets/props/debris.png exists, use
+# it in place of the vector rubble pile. debris_visual is repointed to
+# whichever node is actually on screen so _clear_debris() fades the
+# right one.
+func _try_load_external_sprite() -> void:
+	var path := "res://assets/props/debris.png"
+	if not ResourceLoader.exists(path):
+		return
+	var tex: Texture2D = load(path)
+	if tex == null:
+		return
+	var sprite := Sprite2D.new()
+	sprite.texture = tex
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sprite.scale = Vector2(2.5, 2.5)
+	add_child(sprite)
+	debris_poly.visible = false
+	debris_visual = sprite
 
 func _update_prompt() -> void:
 	if searched:
@@ -56,8 +77,8 @@ func _process(_delta: float) -> void:
 
 func _clear_debris() -> void:
 	cleared = true
-	var tw := debris_poly.create_tween()
-	tw.tween_property(debris_poly, "modulate:a", 0.0, 0.6)
+	var tw := debris_visual.create_tween()
+	tw.tween_property(debris_visual, "modulate:a", 0.0, 0.6)
 	Sfx.play_door()
 	_update_prompt()
 
