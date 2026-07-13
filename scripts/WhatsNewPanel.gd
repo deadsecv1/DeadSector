@@ -35,7 +35,7 @@ func _ready() -> void:
 		highlights_list.remove_child(c)
 		c.queue_free()
 	var shown := 0
-	var entries: Array = ChangelogScript.CHANGELOG.duplicate()
+	var entries: Array = ChangelogScript.get_all_entries().duplicate()
 	entries.reverse()
 	for entry in entries:
 		if shown >= MAX_HIGHLIGHTS:
@@ -53,3 +53,13 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	# Same runtime anchor-collapse bug as Flea Market/Mail - force the
+	# designed centered layout back explicitly.
+	anchor_left = 0.5
+	anchor_top = 0.5
+	anchor_right = 0.5
+	anchor_bottom = 0.5
+	offset_left = -260.0
+	offset_top = -240.0
+	offset_right = 260.0
+	offset_bottom = 240.0

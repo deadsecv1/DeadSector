@@ -441,6 +441,8 @@ func _shoot() -> void:
 		bullet.is_enemy_bullet = true
 		bullet.damage = attack_damage
 		bullet.is_operator_bullet = is_real_player
+		bullet.source_name = get_display_name()
+		bullet.source_weapon = "Gunfire"
 		get_tree().current_scene.add_child(bullet)
 		bullet.global_position = muzzle.global_position
 	recoil = -5.0

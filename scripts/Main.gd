@@ -20,6 +20,12 @@ func _ready() -> void:
 	_maybe_spawn_wandering_trader()
 	player.stats_ready.connect(hud.update_stats)
 	player.ammo_changed.connect(hud.update_ammo)
+	# Player's own _ready() already fired one ammo_changed before this
+	# scene's _ready() (which runs after all its children, Player
+	# included, are already ready) got a chance to connect - without
+	# this, the HUD sits on its static placeholder text until the first
+	# shot/reload actually changes something.
+	player._update_ammo_display()
 	player.stunned.connect(hud.flash_stun)
 	player.health_changed.connect(hud._on_player_health_changed)
 	power_switch.activated.connect(_on_power_activated)

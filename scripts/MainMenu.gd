@@ -54,12 +54,14 @@ extends Control
 @onready var mail_panel: Panel = $MailPanel
 @onready var alpha_rewards_button: Button = $AlphaRewardsButton
 @onready var alpha_rewards_panel: Panel = $AlphaRewardsPanel
+@onready var arena_button: Button = $ArenaButton
+@onready var arena_panel: Panel = $ArenaPanel
+@onready var arena_find_team_panel: Panel = $ArenaFindTeamPanel
+@onready var arena_rewards_panel: Panel = $ArenaRewardsPanel
 @onready var feedback_button: Button = $FeedbackButton
 @onready var feedback_panel: Panel = $FeedbackPanel
 @onready var whats_new_button: Button = $WhatsNewButton
 @onready var whats_new_panel: Panel = $WhatsNewPanel
-
-var hover_sfx: AudioStreamPlayer
 
 # --- Ambient background popups: small, easy-to-miss notifications that
 # make the world feel like it's happening even when you're just sitting
@@ -126,12 +128,18 @@ func _ready() -> void:
 		_close_panel(social_panel)
 		_open_panel(global_chat_panel)
 	)
-	global_chat_panel.closed.connect(func(): _close_panel(global_chat_panel))
+	global_chat_panel.closed.connect(func():
+		global_chat_panel.visible = false
+		_open_panel(social_panel)
+	)
 	social_panel.find_team_requested.connect(func():
 		_close_panel(social_panel)
 		_open_panel(find_team_panel)
 	)
-	find_team_panel.closed.connect(func(): _close_panel(find_team_panel))
+	find_team_panel.closed.connect(func():
+		find_team_panel.visible = false
+		_open_panel(social_panel)
+	)
 	data_button.pressed.connect(func(): _open_panel(data_panel))
 	data_panel.closed.connect(func(): _close_panel(data_panel))
 	leaderboard_button.pressed.connect(func(): _open_panel(leaderboard_panel))
@@ -160,13 +168,7 @@ func _ready() -> void:
 	settings_button.pressed.connect(_on_settings)
 	exit_button.pressed.connect(_on_exit)
 
-	hover_sfx = AudioStreamPlayer.new()
-	hover_sfx.stream = _make_hover_blip()
-	hover_sfx.bus = "SFX"
-	hover_sfx.volume_db = -18.0
-	add_child(hover_sfx)
-
-	for btn in [play_button, quests_button, traders_button, skill_tree_button, hideout_button, stash_button, settings_button, exit_button, roadmap_button, stats_button, changelog_button, social_button, achievements_button, flea_market_button, mail_button, feedback_button, whats_new_button]:
+	for btn in [play_button, quests_button, traders_button, skill_tree_button, hideout_button, stash_button, settings_button, exit_button, roadmap_button, stats_button, changelog_button, social_button, achievements_button, flea_market_button, mail_button, feedback_button, whats_new_button, leaderboard_button, arena_button]:
 		btn.mouse_entered.connect(_play_hover)
 
 	flea_market_button.pressed.connect(func(): _open_panel(flea_market_panel))
@@ -178,6 +180,27 @@ func _ready() -> void:
 	)
 	alpha_rewards_button.pressed.connect(func(): _open_panel(alpha_rewards_panel))
 	alpha_rewards_panel.closed.connect(func(): _close_panel(alpha_rewards_panel))
+	arena_button.pressed.connect(func(): _open_panel(arena_panel))
+	arena_panel.closed.connect(func(): _close_panel(arena_panel))
+	arena_panel.matchmake_requested.connect(func():
+		_close_panel(arena_panel)
+		Transition.change_scene("res://scenes/ArenaMatchmaking.tscn")
+	)
+	arena_panel.find_team_requested.connect(func():
+		_close_panel(arena_panel)
+		_open_panel(arena_find_team_panel)
+	)
+	arena_find_team_panel.closed.connect(func(): _close_panel(arena_find_team_panel))
+	arena_panel.leaderboard_requested.connect(func():
+		_close_panel(arena_panel)
+		_open_panel(leaderboard_panel)
+		leaderboard_panel._switch_category("arena")
+	)
+	arena_panel.rewards_requested.connect(func():
+		_close_panel(arena_panel)
+		_open_panel(arena_rewards_panel)
+	)
+	arena_rewards_panel.closed.connect(func(): _close_panel(arena_rewards_panel))
 	feedback_button.pressed.connect(func(): _open_panel(feedback_panel))
 	feedback_panel.closed.connect(func(): _close_panel(feedback_panel))
 	whats_new_button.pressed.connect(func(): _open_panel(whats_new_panel))
@@ -425,34 +448,7 @@ func _letter_spaced(s: String) -> String:
 	return out.strip_edges()
 
 func _play_hover() -> void:
-	hover_sfx.stop()
-	hover_sfx.play()
-
-func _make_hover_blip() -> AudioStreamWAV:
-	# A low, gritty mechanical click/static burst - swapped out from the
-	# original clean sci-fi sweep, which read as too polished/futuristic
-	# for a grim extraction-shooter tone.
-	var sample_rate := 44100
-	var duration := 0.09
-	var frame_count := int(sample_rate * duration)
-	var data := PackedByteArray()
-	data.resize(frame_count * 2)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 77
-	for i in range(frame_count):
-		var t := float(i) / sample_rate
-		var envelope: float = exp(-t * 42.0)
-		var noise := rng.randf_range(-1.0, 1.0)
-		var thud := sin(TAU * 85.0 * t) * exp(-t * 55.0)
-		var sample: float = (noise * 0.2 + thud * 0.8) * envelope
-		var s16 := int(clamp(sample, -1.0, 1.0) * 32767.0)
-		data.encode_s16(i * 2, s16)
-	var stream := AudioStreamWAV.new()
-	stream.format = AudioStreamWAV.FORMAT_16_BITS
-	stream.mix_rate = sample_rate
-	stream.stereo = false
-	stream.data = data
-	return stream
+	Sfx.play_item_hover()
 
 func _on_play() -> void:
 	GameManager.is_ranked_match = false

@@ -24,6 +24,8 @@
 [ext_resource type="PackedScene" path="res://scenes/PlushiePetReveal.tscn" id="22"]
 [ext_resource type="PackedScene" path="res://scenes/PlushiesPanel.tscn" id="23"]
 [ext_resource type="PackedScene" path="res://scenes/WanderingPlushie.tscn" id="24"]
+[ext_resource type="Texture2D" path="res://assets/npcs/lildirty.png" id="25"]
+[ext_resource type="Texture2D" path="res://assets/npcs/justin.png" id="26"]
 
 [node name="Hideout" type="Node2D"]
 script = ExtResource("1")
@@ -93,30 +95,15 @@ position = Vector2(125, 275)
 position = Vector2(0, -262.5)
 box_size = 40.0
 
-[node name="LilDirtyBody" type="Polygon2D" parent="."]
-position = Vector2(0, -312.5)
-color = Color(0.18, 0.32, 0.15, 1)
-polygon = PackedVector2Array(-12, 0, 12, 0, 10.39, 7, 6, 12.12, 0, 14, -6, 12.12, -10.39, 7)
+[node name="LilDirtySprite" type="Sprite2D" parent="."]
+position = Vector2(0, -325)
+scale = Vector2(1.4, 1.4)
+texture = ExtResource("25")
 
-[node name="LilDirtyHead" type="Polygon2D" parent="."]
-position = Vector2(0, -340)
-color = Color(0.6, 0.45, 0.35, 1)
-polygon = PackedVector2Array(8, 0, 6.47, 4.7, 2.47, 7.61, -2.47, 7.61, -6.47, 4.7, -8, 0, -6.47, -4.7, -2.47, -7.61, 2.47, -7.61, 6.47, -4.7)
-
-[node name="LilDirtyVest" type="Polygon2D" parent="."]
-position = Vector2(0, -312.5)
-color = Color(0.16, 0.16, 0.18, 1)
-polygon = PackedVector2Array(-9, -3, 9, -3, 8, 6, 0, 10, -8, 6)
-
-[node name="LilDirtyVestStrap" type="Polygon2D" parent="."]
-position = Vector2(0, -312.5)
-color = Color(0.28, 0.24, 0.1, 1)
-polygon = PackedVector2Array(-2, -4, 2, -4, 2, 9, -2, 9)
-
-[node name="LilDirtyHat" type="Polygon2D" parent="."]
-position = Vector2(0, -346)
-color = Color(0.12, 0.22, 0.1, 1)
-polygon = PackedVector2Array(-8, -1, 8, -1, 9, 2, 10, 4, -10, 4, -9, 2)
+[node name="LilDirtyShadow" type="Polygon2D" parent="."]
+position = Vector2(0, -298)
+color = Color(0, 0, 0, 0.25)
+polygon = PackedVector2Array(-10, 0, 10, 0, 8, 6, -8, 6)
 
 [node name="LilDirtyGun" type="Polygon2D" parent="."]
 position = Vector2(11, -310)
@@ -344,21 +331,15 @@ polygon = PackedVector2Array(0, -10, 8, 6, -8, 6)
 
 [node name="Justin" type="Node2D" parent="."]
 position = Vector2(600, 260)
-scale = Vector2(2.4, 2.4)
+scale = Vector2(1.4, 1.4)
 
-[node name="JustinBody" type="Polygon2D" parent="Justin"]
-color = Color(0.55, 0.35, 0.15, 1)
-polygon = PackedVector2Array(-16, -10, 16, -10, 24, 20, 14, 32, -14, 32, -24, 20)
+[node name="JustinShadow" type="Polygon2D" parent="Justin"]
+position = Vector2(0, 26)
+color = Color(0, 0, 0, 0.25)
+polygon = PackedVector2Array(-14, 0, 14, 0, 11, 8, -11, 8)
 
-[node name="JustinHead" type="Polygon2D" parent="Justin"]
-position = Vector2(0, -20)
-color = Color(0.75, 0.55, 0.4, 1)
-polygon = PackedVector2Array(-11, -9, 11, -9, 13, 9, -13, 9)
-
-[node name="JustinApron" type="Polygon2D" parent="Justin"]
-position = Vector2(0, 6)
-color = Color(0.3, 0.22, 0.1, 1)
-polygon = PackedVector2Array(-10, -6, 10, -6, 12, 20, -12, 20)
+[node name="JustinSprite" type="Sprite2D" parent="Justin"]
+texture = ExtResource("26")
 
 [node name="JustinLabel" type="Label" parent="."]
 position = Vector2(500, 195)

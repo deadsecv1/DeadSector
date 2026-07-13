@@ -72,7 +72,7 @@ func _check_bone_damage(delta: float) -> void:
 	if bone_hit_cooldown > 0.0:
 		return
 	if global_position.distance_to(player.global_position) <= bone_radius + 16.0:
-		player.take_damage(bone_damage)
+		player.take_damage(bone_damage, "RATTLES", "Bone Crown")
 		bone_hit_cooldown = 0.6
 
 func _handle_throw(delta: float) -> void:

@@ -30,7 +30,43 @@ func _start_raid(is_night: bool) -> void:
 	if weapon != null:
 		var ammo_type: String = GameManager.get_ammo_type_for_weapon_item(weapon)
 		if GameManager.get_backpack_ammo_amount(ammo_type) <= 0:
-			GameManager.toast_requested.emit("No reserve %s Ammo in your Backpack - you'll only have what's already in the mag" % ammo_type.capitalize())
+			_show_no_ammo_popup(ammo_type)
+			return
 	GameManager.is_night_raid = is_night
 	GameManager.selected_raid_hour = GameManager.get_night_display_hour() if is_night else GameManager.get_day_display_hour()
 	Transition.change_scene_instant("res://scenes/SearchingForPlayers.tscn")
+
+# A real blocking popup instead of a toast - deploying with zero reserve
+# ammo for your equipped weapon isn't just a warning anymore, it stops
+# you from queuing at all until you've actually gone and equipped some.
+func _show_no_ammo_popup(ammo_type: String) -> void:
+	var popup := PopupPanel.new()
+	add_child(popup)
+	var vbox := VBoxContainer.new()
+	vbox.custom_minimum_size = Vector2(320, 0)
+	vbox.add_theme_constant_override("separation", 12)
+	popup.add_child(vbox)
+
+	var title_lbl := Label.new()
+	title_lbl.text = "No Ammo"
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_font_size_override("font_size", 18)
+	title_lbl.add_theme_color_override("font_color", Color(0.95, 0.35, 0.3, 1))
+	vbox.add_child(title_lbl)
+
+	var msg_lbl := Label.new()
+	msg_lbl.text = "You have no ammo for your weapon - go back to the Stash and equip some ammo in your Backpack."
+	msg_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
+	msg_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(msg_lbl)
+
+	var close_btn := Button.new()
+	close_btn.text = "OK"
+	close_btn.custom_minimum_size = Vector2(0, 36)
+	close_btn.pressed.connect(func():
+		popup.hide()
+		popup.queue_free()
+	)
+	vbox.add_child(close_btn)
+
+	popup.popup_centered()

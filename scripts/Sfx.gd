@@ -37,6 +37,12 @@ var _sword_swing: AudioStreamWAV
 var _energy_shot: AudioStreamWAV
 var _item_hover: AudioStreamWAV
 var _menu_confirm: AudioStreamWAV
+var _letter_land: AudioStreamWAV
+var _impact_thud: AudioStreamWAV
+var _crystal_chime: AudioStreamWAV
+var _soft_whoosh: AudioStreamWAV
+var _ranked_hover: AudioStreamWAV
+var _eerie_hover: AudioStreamWAV
 
 var _pool: Array = []
 const POOL_SIZE := 10
@@ -67,11 +73,31 @@ func _ready() -> void:
 	_energy_shot = _make_energy_shot()
 	_item_hover = _make_item_hover()
 	_menu_confirm = _make_menu_confirm()
+	_letter_land = _make_letter_land()
+	_impact_thud = _make_impact_thud()
+	_crystal_chime = _make_crystal_chime()
+	_soft_whoosh = _make_soft_whoosh()
+	_ranked_hover = _make_ranked_hover()
+	_eerie_hover = _make_eerie_hover()
 	for i in range(POOL_SIZE):
 		var p := AudioStreamPlayer.new()
 		p.bus = "SFX"
 		add_child(p)
 		_pool.append(p)
+	_wire_global_click_sfx()
+
+# Every Button (or other BaseButton - CheckBox, OptionButton, etc.) in
+# the game plays this same click the instant it's pressed, with no
+# individual script needing to wire it up by hand - connects to every
+# BaseButton as it's added to the tree, present or future. This is an
+# autoload, so it's already ready before the very first scene's nodes
+# exist, meaning nothing gets missed.
+func _wire_global_click_sfx() -> void:
+	get_tree().node_added.connect(_on_node_added_for_click_sfx)
+
+func _on_node_added_for_click_sfx(node: Node) -> void:
+	if node is BaseButton:
+		node.pressed.connect(play_menu_confirm)
 
 func _get_free_player() -> AudioStreamPlayer:
 	for p in _pool:
@@ -139,7 +165,7 @@ func play_soul_hover() -> void:
 func play_pet_hover() -> void:
 	var p := _get_free_player()
 	p.stream = _pet_hover
-	p.volume_db = -5.0
+	p.volume_db = -12.0
 	p.play()
 
 func play_nightvision_toggle() -> void:
@@ -178,6 +204,63 @@ func play_menu_confirm() -> void:
 	p.volume_db = -15.0
 	p.play()
 
+# A tiny, soft tick - used once per letter as it lands during a splash
+# screen's letter-drop animation (see ClarityPartnerSplash.gd). Several
+# of these can land within the same second as different letters settle
+# at their own staggered pace, so it's deliberately quiet and short -
+# a whisper of a sound, not a typewriter clack.
+func play_letter_land() -> void:
+	var p := _get_free_player()
+	p.stream = _letter_land
+	p.volume_db = -26.0
+	p.pitch_scale = randf_range(0.9, 1.15)
+	p.play()
+
+# A soft, muffled thump - used for the Steelcrest partner splash's
+# "slam" impact beat. Quiet enough to read as a felt thud, not a bang.
+func play_impact_thud() -> void:
+	var p := _get_free_player()
+	p.stream = _impact_thud
+	p.volume_db = -14.0
+	p.play()
+
+# A quiet glassy chime - used for the Sapphire Signal Studio crystal's
+# shatter moment.
+func play_crystal_chime() -> void:
+	var p := _get_free_player()
+	p.stream = _crystal_chime
+	p.volume_db = -16.0
+	p.play()
+
+# A very soft rising whoosh - used as a gentle "arrival" cue on the
+# plainer text-only splash screens (Engine credit, Legal) as their
+# content fades in, so the whole boot sequence isn't silent underneath
+# the music.
+func play_soft_whoosh() -> void:
+	var p := _get_free_player()
+	p.stream = _soft_whoosh
+	p.volume_db = -20.0
+	p.play()
+
+# A quiet electronic "readying" blip - the Ranked button's hover sound.
+# Distinct from the plain menu-button hover (this is the door into PvP,
+# it should feel a little charged) but quiet, not the aggressive sword-
+# swing sting it used to be.
+func play_ranked_hover() -> void:
+	var p := _get_free_player()
+	p.stream = _ranked_hover
+	p.volume_db = -19.0
+	p.play()
+
+# A low, dissonant, faintly unsettling tone - the Alpha Rewards button's
+# hover sound. Quiet, but meant to read as a little eerie rather than
+# the bright coin-chime it used to be.
+func play_eerie_hover() -> void:
+	var p := _get_free_player()
+	p.stream = _eerie_hover
+	p.volume_db = -21.0
+	p.play()
+
 func play_search() -> void:
 	var p := _get_free_player()
 	p.stream = _search
@@ -212,7 +295,7 @@ func play_chest_open() -> void:
 func play_reveal() -> void:
 	var p := _get_free_player()
 	p.stream = _reveal
-	p.volume_db = -6.0
+	p.volume_db = -11.0
 	p.play()
 
 func play_blood_hover() -> void:
@@ -530,6 +613,95 @@ func _make_menu_confirm() -> AudioStreamWAV:
 		data.encode_s16(i * 2, s16)
 	return _to_wav(data)
 
+func _make_letter_land() -> AudioStreamWAV:
+	var dur := 0.05
+	var n := int(SAMPLE_RATE * dur)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	for i in range(n):
+		var t := float(i) / SAMPLE_RATE
+		var env: float = exp(-t * 95.0)
+		var s: float = sin(TAU * 950.0 * t) * env
+		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
+		data.encode_s16(i * 2, s16)
+	return _to_wav(data)
+
+func _make_impact_thud() -> AudioStreamWAV:
+	var dur := 0.3
+	var n := int(SAMPLE_RATE * dur)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	for i in range(n):
+		var t := float(i) / SAMPLE_RATE
+		var env: float = exp(-t * 14.0)
+		var pitch_sweep: float = lerp(85.0, 45.0, clamp(t / 0.2, 0.0, 1.0))
+		var s: float = sin(TAU * pitch_sweep * t) * env * 0.8
+		var noise_env: float = exp(-t * 60.0)
+		s += randf_range(-1.0, 1.0) * noise_env * 0.15
+		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
+		data.encode_s16(i * 2, s16)
+	return _to_wav(data)
+
+func _make_crystal_chime() -> AudioStreamWAV:
+	var dur := 0.6
+	var n := int(SAMPLE_RATE * dur)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	var pitches := [1568.0, 1976.0, 2349.0]
+	for i in range(n):
+		var t := float(i) / SAMPLE_RATE
+		var s: float = 0.0
+		for p in pitches:
+			s += sin(TAU * p * t) * exp(-t * 5.5) * 0.18
+		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
+		data.encode_s16(i * 2, s16)
+	return _to_wav(data)
+
+func _make_soft_whoosh() -> AudioStreamWAV:
+	var dur := 0.7
+	var n := int(SAMPLE_RATE * dur)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	var lp := 0.0
+	for i in range(n):
+		var t := float(i) / SAMPLE_RATE
+		var env: float = sin(PI * clamp(t / dur, 0.0, 1.0)) * 0.5
+		var noise: float = randf_range(-1.0, 1.0)
+		lp = lerp(lp, noise, 0.06)
+		var s: float = lp * env
+		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
+		data.encode_s16(i * 2, s16)
+	return _to_wav(data)
+
+func _make_ranked_hover() -> AudioStreamWAV:
+	var dur := 0.14
+	var n := int(SAMPLE_RATE * dur)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	for i in range(n):
+		var t := float(i) / SAMPLE_RATE
+		var env: float = exp(-t * 18.0)
+		var pitch: float = lerp(500.0, 900.0, clamp(t / 0.1, 0.0, 1.0))
+		var s: float = sin(TAU * pitch * t) * env * 0.5
+		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
+		data.encode_s16(i * 2, s16)
+	return _to_wav(data)
+
+func _make_eerie_hover() -> AudioStreamWAV:
+	var dur := 0.5
+	var n := int(SAMPLE_RATE * dur)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	for i in range(n):
+		var t := float(i) / SAMPLE_RATE
+		var env: float = sin(PI * clamp(t / dur, 0.0, 1.0))
+		var base: float = sin(TAU * 130.0 * t)
+		var detune: float = sin(TAU * 138.0 * t)
+		var s: float = (base * 0.5 + detune * 0.4) * env * 0.5
+		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
+		data.encode_s16(i * 2, s16)
+	return _to_wav(data)
+
 func _make_search() -> AudioStreamWAV:
 	# Someone rummaging through a bag - a handful of irregular, filtered
 	# noise rustles rather than one continuous sound, so it reads as
@@ -656,6 +828,11 @@ func _make_reveal() -> AudioStreamWAV:
 	var arp_pitches := [523.0, 659.0, 784.0, 1046.0]
 	var arp_starts := [0.0, 0.07, 0.14, 0.21]
 	var chord_pitches := [784.0, 988.0, 1175.0]
+	# Amplitudes tuned so the arpeggio + chord summing together can't
+	# exceed the [-1, 1] range even in the worst-case in-phase moment -
+	# they used to be loud enough on their own that a coincidental peak
+	# would hit the clamp() below and hard-clip, which reads as a burst
+	# of static rather than a clean tone.
 	for i in range(n):
 		var t := float(i) / SAMPLE_RATE
 		var s: float = 0.0
@@ -663,10 +840,10 @@ func _make_reveal() -> AudioStreamWAV:
 			var local_t: float = t - arp_starts[k]
 			if local_t >= 0.0 and local_t < 0.18:
 				var decay: float = exp(-local_t * 10.0)
-				s += sin(TAU * arp_pitches[k] * local_t) * decay * 0.3
+				s += sin(TAU * arp_pitches[k] * local_t) * decay * 0.2
 		if t > 0.24:
 			var chord_t: float = t - 0.24
-			var chord_env: float = exp(-chord_t * 3.2) * 0.28
+			var chord_env: float = exp(-chord_t * 3.2) * 0.16
 			for p in chord_pitches:
 				s += sin(TAU * p * chord_t) * chord_env
 		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)

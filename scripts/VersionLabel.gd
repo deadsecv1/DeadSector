@@ -8,7 +8,7 @@ extends Label
 const ChangelogScript := preload("res://scripts/ChangelogPanel.gd")
 
 func _ready() -> void:
-	var changelog: Array = ChangelogScript.CHANGELOG
+	var changelog: Array = ChangelogScript.get_all_entries()
 	var current: String = "?"
 	if not changelog.is_empty():
 		current = str(changelog[changelog.size() - 1].get("version", "?"))

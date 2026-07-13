@@ -1,13 +1,17 @@
 extends Button
 
-# The Pet slot on the doll. Left-click jumps to Salvaged Beasts to pick
-# a pet to equip. Right-click shows an Info popup - description, when
-# and where it was found, and a rename field for hatched pets.
+# The Pet slot on the doll. Left-click opens the full My Pets collection
+# (every pet you own, including plushie-derived ones, with equip built
+# right in) - works the same in the Stash and mid-raid, no navigating
+# away needed. Right-click shows a quick Info popup for whichever pet
+# is currently equipped - description, when/where it was found, and a
+# rename field for hatched pets.
 
 const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
 const PlushieAuraFXScript := preload("res://scripts/PlushieAuraFX.gd")
+const MyPetsPanelScene := preload("res://scenes/MyPetsPanel.tscn")
 
-@export var allow_navigate: bool = true
+var _pets_panel: Panel = null
 
 func _ready() -> void:
 	text = "Pet"
@@ -26,10 +30,16 @@ func _on_gui_input(event: InputEvent) -> void:
 		_show_info_popup()
 
 func _on_left_click() -> void:
-	if allow_navigate:
-		GameManager.toast_requested.emit("Open Salvaged Beasts from the Main Menu to equip a Pet")
-	else:
-		_show_info_popup()
+	if _pets_panel != null and is_instance_valid(_pets_panel):
+		return
+	_pets_panel = MyPetsPanelScene.instantiate()
+	get_tree().current_scene.add_child(_pets_panel)
+	_pets_panel.closed.connect(func():
+		_pets_panel.queue_free()
+		_pets_panel = null
+		refresh()
+	)
+	_pets_panel.open()
 
 func refresh() -> void:
 	for child in get_children():

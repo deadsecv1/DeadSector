@@ -98,6 +98,7 @@ func _play_sequence() -> void:
 
 	# Title bounces in with a scale overshoot, plus a quick jitter for impact.
 	title_logo.visible = true
+	Sfx.play_crystal_chime()
 	var title_tw := create_tween()
 	title_tw.tween_property(title_logo, "scale", Vector2(1.08, 1.08), 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	title_tw.parallel().tween_property(title_logo, "modulate:a", 1.0, 0.3)
@@ -327,6 +328,6 @@ func _finish() -> void:
 	tw.tween_property(self, "modulate:a", 0.0, 0.6)
 	await tw.finished
 	if GameManager.character_created:
-		Transition.change_scene("res://scenes/MainMenu.tscn", 0.0, 0.5, false)
+		Transition.change_scene("res://scenes/MainMenu.tscn", 0.0, 0.5)
 	else:
-		Transition.change_scene("res://scenes/LoreIntro.tscn", 0.0, 0.5, false)
+		Transition.change_scene("res://scenes/LoreIntro.tscn", 0.0, 0.5)

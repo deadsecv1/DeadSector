@@ -30,7 +30,7 @@ func _ready() -> void:
 
 	_exe_dir = OS.get_executable_path().get_base_dir()
 
-	var changelog: Array = ChangelogScript.CHANGELOG
+	var changelog: Array = ChangelogScript.get_all_entries()
 	if not changelog.is_empty():
 		_local_version = str(changelog[changelog.size() - 1].get("version", ""))
 

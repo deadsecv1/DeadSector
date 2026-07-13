@@ -35,6 +35,16 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	# Same runtime anchor-collapse bug as Flea Market/Mail - force the
+	# designed centered layout back explicitly.
+	anchor_left = 0.5
+	anchor_top = 0.5
+	anchor_right = 0.5
+	anchor_bottom = 0.5
+	offset_left = -340.0
+	offset_top = -300.0
+	offset_right = 340.0
+	offset_bottom = 300.0
 
 func _build_tiers() -> void:
 	for c in tier_list.get_children():

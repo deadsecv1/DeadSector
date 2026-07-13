@@ -31,6 +31,12 @@
 [ext_resource type="Script" path="res://scripts/MenuCinematicRotator.gd" id="65"]
 [ext_resource type="Script" path="res://scripts/OvergrowthFogVignette.gd" id="66"]
 [ext_resource type="Script" path="res://scripts/ExtractionChopperVignette.gd" id="67"]
+[ext_resource type="Script" path="res://scripts/RosePlushieShelfVignette.gd" id="68"]
+[ext_resource type="PackedScene" path="res://scenes/MyPetsPanel.tscn" id="69"]
+[ext_resource type="Script" path="res://scripts/ArenaButton.gd" id="70"]
+[ext_resource type="PackedScene" path="res://scenes/ArenaPanel.tscn" id="71"]
+[ext_resource type="PackedScene" path="res://scenes/ArenaFindTeamPanel.tscn" id="72"]
+[ext_resource type="PackedScene" path="res://scenes/ArenaRewardsPanel.tscn" id="73"]
 [ext_resource type="Script" path="res://scripts/RankedButton.gd" id="61"]
 [ext_resource type="Script" path="res://scripts/GamblePanel.gd" id="17"]
 [ext_resource type="Script" path="res://scripts/SocialPanel.gd" id="18"]
@@ -109,6 +115,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 script = ExtResource("67")
+
+[node name="RosePlushieShelfVignette" type="Control" parent="Background"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("68")
 
 [node name="RoadmapButton" type="Button" parent="."]
 offset_left = 16.0
@@ -670,6 +682,10 @@ horizontal_alignment = 1
 modulate = Color(1, 1, 1, 0.6)
 text = "Everything added to Dead Sector so far"
 
+[node name="TabRow" type="HBoxContainer" parent="ChangelogPanel/Margin/VBox"]
+alignment = 1
+theme_override_constants/separation = 8
+
 [node name="Scroll" type="ScrollContainer" parent="ChangelogPanel/Margin/VBox"]
 size_flags_vertical = 3
 
@@ -944,6 +960,29 @@ offset_left = -8.0
 offset_top = -8.0
 offset_right = 8.0
 offset_bottom = 8.0
+
+[node name="ArenaButton" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+offset_left = -345.0
+offset_top = -106.0
+offset_right = -185.0
+offset_bottom = -70.0
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.8, 0.5, 1.0, 1)
+theme_override_colors/font_hover_color = Color(0.9, 0.65, 1.0, 1)
+text = "Arena"
+script = ExtResource("70")
+
+[node name="Glow" type="ColorRect" parent="ArenaButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 10.0
+offset_bottom = 10.0
+color = Color(0.35, 0.1, 0.45, 0)
 
 [node name="EventButton" type="Button" parent="."]
 anchor_left = 0.5
@@ -1593,6 +1632,12 @@ color = Color(0.02, 0.02, 0.02, 0)
 
 [node name="AlphaRewardsPanel" parent="." instance=ExtResource("44")]
 
+[node name="ArenaPanel" parent="." instance=ExtResource("71")]
+
+[node name="ArenaFindTeamPanel" parent="." instance=ExtResource("72")]
+
+[node name="ArenaRewardsPanel" parent="." instance=ExtResource("73")]
+
 [node name="FeedbackPanel" parent="." instance=ExtResource("45")]
 
 [node name="WhatsNewPanel" parent="." instance=ExtResource("48")]
@@ -1648,12 +1693,6 @@ text = "Rewards"
 custom_minimum_size = Vector2(90, 36)
 theme_override_font_sizes/font_size = 13
 text = "Ranks"
-
-[node name="TimerLabel" type="Label" parent="LeaderboardPanel/VBox"]
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 12
-modulate = Color(1, 1, 1, 0.65)
-text = "Season resets in 7 days"
 
 [node name="TabRow" type="HBoxContainer" parent="LeaderboardPanel/VBox"]
 alignment = 1
@@ -1795,135 +1834,4 @@ custom_minimum_size = Vector2(0, 42)
 theme_override_font_sizes/font_size = 16
 text = "Close"
 
-[node name="MyPetsPanel" type="Panel" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-visible = false
-script = ExtResource("28")
-
-[node name="PetsBG" type="Control" parent="MyPetsPanel"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-script = ExtResource("26")
-
-[node name="VBox" type="VBoxContainer" parent="MyPetsPanel"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -340.0
-offset_top = -270.0
-offset_right = 340.0
-offset_bottom = 270.0
-theme_override_constants/separation = 10
-
-[node name="Title" type="Label" parent="MyPetsPanel/VBox"]
-theme_override_font_sizes/font_size = 22
-horizontal_alignment = 1
-theme_override_colors/font_color = Color(1.0, 0.65, 0.25, 1)
-text = "MY PETS"
-
-[node name="Hint" type="Label" parent="MyPetsPanel/VBox"]
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
-modulate = Color(1, 1, 1, 0.6)
-text = "Left-click for info  •  Right-click to equip"
-
-[node name="Scroll" type="ScrollContainer" parent="MyPetsPanel/VBox"]
-size_flags_vertical = 3
-
-[node name="Grid" type="GridContainer" parent="MyPetsPanel/VBox/Scroll"]
-size_flags_horizontal = 3
-columns = 6
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-
-[node name="CloseButton" type="Button" parent="MyPetsPanel/VBox"]
-custom_minimum_size = Vector2(0, 42)
-theme_override_font_sizes/font_size = 16
-text = "Close"
-
-[node name="InfoPopup" type="Panel" parent="MyPetsPanel"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-visible = false
-
-[node name="Backdrop" type="ColorRect" parent="MyPetsPanel/InfoPopup"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color(0.02, 0.02, 0.02, 0.75)
-
-[node name="PopupBG" type="ColorRect" parent="MyPetsPanel/InfoPopup"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -140.0
-offset_top = -160.0
-offset_right = 140.0
-offset_bottom = 160.0
-color = Color(0.1, 0.07, 0.03, 0.95)
-
-[node name="VBox" type="VBoxContainer" parent="MyPetsPanel/InfoPopup"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -128.0
-offset_top = -150.0
-offset_right = 128.0
-offset_bottom = 150.0
-theme_override_constants/separation = 6
-
-[node name="IconSlot" type="Control" parent="MyPetsPanel/InfoPopup/VBox"]
-custom_minimum_size = Vector2(0, 80)
-clip_contents = true
-
-[node name="NameLabel" type="Label" parent="MyPetsPanel/InfoPopup/VBox"]
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
-text = "?"
-
-[node name="RarityLabel" type="Label" parent="MyPetsPanel/InfoPopup/VBox"]
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 13
-text = "Common"
-
-[node name="LevelLabel" type="Label" parent="MyPetsPanel/InfoPopup/VBox"]
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 12
-modulate = Color(1, 1, 1, 0.8)
-text = "Level 1"
-
-[node name="DateLabel" type="Label" parent="MyPetsPanel/InfoPopup/VBox"]
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
-modulate = Color(1, 1, 1, 0.6)
-autowrap_mode = 2
-text = "Hatched ? in ?"
-
-[node name="TraitBox" type="VBoxContainer" parent="MyPetsPanel/InfoPopup/VBox"]
-theme_override_constants/separation = 2
-
-[node name="TraitName" type="Label" parent="MyPetsPanel/InfoPopup/VBox/TraitBox"]
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 13
-text = "No trait"
-
-[node name="TraitDesc" type="Label" parent="MyPetsPanel/InfoPopup/VBox/TraitBox"]
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 10
-autowrap_mode = 2
-modulate = Color(1, 1, 1, 0.75)
-text = ""
-
-[node name="EquipButton" type="Button" parent="MyPetsPanel/InfoPopup/VBox"]
-custom_minimum_size = Vector2(0, 38)
-theme_override_font_sizes/font_size = 14
-text = "Equip"
-
-[node name="InfoCloseButton" type="Button" parent="MyPetsPanel/InfoPopup/VBox"]
-custom_minimum_size = Vector2(0, 32)
-theme_override_font_sizes/font_size = 12
-text = "Close"
+[node name="MyPetsPanel" parent="." instance=ExtResource("69")]

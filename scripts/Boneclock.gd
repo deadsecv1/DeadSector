@@ -17,6 +17,7 @@ func _ready() -> void:
 	_spawn_pet()
 	player.stats_ready.connect(hud.update_stats)
 	player.ammo_changed.connect(hud.update_ammo)
+	player._update_ammo_display()
 	player.stunned.connect(hud.flash_stun)
 	player.health_changed.connect(hud._on_player_health_changed)
 	var darkness: float = GameManager.get_darkness_factor_for_hour(GameManager.selected_raid_hour, GameManager.is_night_raid)

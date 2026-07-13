@@ -1980,6 +1980,17 @@ func start_scav_run() -> void:
 	_saved_pmc_equipped = equipped_items.duplicate(true)
 	for slot in scav_loadout:
 		equipped_items[slot] = scav_loadout[slot].duplicate(true)
+	# A Scav's real Backpack (carried_loot) might have none of whatever
+	# ammo type this run's random weapon actually takes, so hand them a
+	# modest starting supply of all three types - same as any other
+	# backpack loot, it's kept on a successful extract and lost on
+	# death, just like the rest of what they're carrying.
+	for ammo_type in ["light", "medium", "heavy"]:
+		add_loot({
+			"name": "%s Ammo" % ammo_type.capitalize(), "value": 15, "slot": "ammo",
+			"icon_key": "ammo_%s" % ammo_type, "rarity": "common",
+			"consumable_type": "ammo", "ammo_type": ammo_type, "ammo_amount": 60,
+		})
 	equipped_changed.emit()
 
 func start_pmc_run() -> void:
@@ -2815,7 +2826,7 @@ func _generate_leaderboard_names() -> Array:
 		result.append(candidate)
 	_generated_leaderboard_names = result
 	return result
-const LEADERBOARD_CATEGORIES := ["score", "kills", "pets", "stash_worth", "extractions", "level"]
+const LEADERBOARD_CATEGORIES := ["score", "kills", "pets", "stash_worth", "extractions", "level", "arena"]
 var leaderboard_seeds: Dictionary = {}
 
 func _ensure_leaderboard_seeds() -> void:
@@ -2860,6 +2871,7 @@ func _ensure_leaderboard_seeds() -> void:
 			"level": rng.randi_range(3, 120),
 			"deaths": rng.randi_range(5, 200),
 			"rank_points": rng.randi_range(11000, 19000) if rng.randf() < 0.12 else rng.randi_range(0, 11000),
+			"arena": rng.randi_range(0, 2600),
 			"portrait": RIVAL_PORTRAITS[rng.randi() % RIVAL_PORTRAITS.size()],
 			"title": title,
 			"badges": badges,
@@ -2867,51 +2879,12 @@ func _ensure_leaderboard_seeds() -> void:
 			"is_tech_test_veteran": is_tech_test_veteran,
 		}
 
-# --- Leaderboard season: resets every real week (Rubles/Kills/Stash
-# Worth/Extractions are tracked as "this season's" progress via a
-# baseline snapshot taken at reset time - Pets and Level are shown as
-# raw current values, since "you didn't lose your level" when a season
-# rolls over). Rivals get an entirely fresh random roll too, so
-# everyone actually starts back at/near 0 together.
-const LEADERBOARD_SEASON_SECONDS := 604800.0 # 7 real days
+# --- Leaderboard: no season/reset concept yet - categories just show
+# real lifetime stats. (leaderboard_player_baseline/leaderboard_season_start
+# still exist as inert saved fields for old saves; nothing reads or
+# writes them anymore.)
 var leaderboard_season_start: float = 0.0
 var leaderboard_player_baseline: Dictionary = {}
-
-func _ensure_leaderboard_season() -> void:
-	if leaderboard_season_start <= 0.0:
-		leaderboard_season_start = _flea_now()
-		_reset_leaderboard_player_baseline()
-	if _flea_now() - leaderboard_season_start >= LEADERBOARD_SEASON_SECONDS:
-		_check_season_end_badges()
-		leaderboard_season_start = _flea_now()
-		leaderboard_seeds.clear()
-		_reset_leaderboard_player_baseline()
-		save_game()
-
-# The Top 1/2/3 badges were defined a while back but never actually
-# handed out - there was no real "a season just ended" moment to grant
-# them at. There is now: this runs right before the season's rivals get
-# wiped and rerolled, so it's checking your real final standing in the
-# Score category for the season that's ending, not a live one.
-func _check_season_end_badges() -> void:
-	var entries := get_leaderboard("score")
-	for i in range(min(3, entries.size())):
-		if bool(entries[i].get("is_player", false)):
-			match i:
-				0: grant_badge("rank_1_champion")
-				1: grant_badge("rank_2_elite")
-				2: grant_badge("rank_3_podium")
-			break
-
-func _reset_leaderboard_player_baseline() -> void:
-	leaderboard_player_baseline = {
-		"score": player_score, "kills": stat_enemies_killed,
-		"stash_worth": get_total_value(), "extractions": stat_extractions,
-	}
-
-func get_leaderboard_seconds_left() -> float:
-	_ensure_leaderboard_season()
-	return max(0.0, LEADERBOARD_SEASON_SECONDS - (_flea_now() - leaderboard_season_start))
 
 # --- Ranked: picking Ranked flags the next run as ranked (shown on the
 # Searching screen) and shows the rank ladder before you deploy.
@@ -2983,6 +2956,75 @@ func get_rank_progress(full_idx: int = -1) -> Vector2i:
 	var next_floor := get_rank_points_for_index(idx + 1)
 	return Vector2i(rank_points - current_floor, next_floor - current_floor)
 
+# --- Arena rank ladder: a separate, simpler 6-step progression (no
+# sub-numbers, unlike the main Rank ladder) just for Arena's 1v1/2v2
+# matches - won by Matchmake wins, not raid extractions.
+var arena_rank_points: int = 0
+const ARENA_RANK_TIERS := [
+	{"id": "arena_initiate", "label": "Initiate", "icon": "arena_initiate", "color": Color(0.75, 0.7, 0.8, 1), "desc": "Everyone starts here. Show up, take a hit, take a win."},
+	{"id": "arena_rival", "label": "Rival", "icon": "arena_rival", "color": Color(0.55, 0.6, 0.9, 1), "desc": "You've got someone's number now - and they've got yours."},
+	{"id": "arena_duelist", "label": "Duelist", "icon": "arena_duelist", "color": Color(0.65, 0.45, 0.9, 1), "desc": "Two blades, no wasted movement. You've made a habit of winning."},
+	{"id": "arena_gladiator", "label": "Gladiator", "icon": "arena_gladiator", "color": Color(0.8, 0.3, 0.85, 1), "desc": "The Grid knows your name. Most people would rather not queue against you."},
+	{"id": "arena_champion", "label": "Champion", "icon": "arena_champion", "color": Color(0.85, 0.55, 0.3, 1), "desc": "Genuinely one of the best 1v1/2v2 records on the board."},
+	{"id": "arena_grandmaster", "label": "Grandmaster", "icon": "arena_grandmaster", "color": Color(1.0, 0.85, 0.3, 1), "desc": "The very top of the Arena ladder. Almost nobody gets here."},
+]
+const ARENA_RANK_POINT_THRESHOLDS := [0, 150, 450, 900, 1600, 2600]
+
+func get_arena_rank_index_for_points(points: int) -> int:
+	var idx := 0
+	for i in range(ARENA_RANK_POINT_THRESHOLDS.size()):
+		if points >= ARENA_RANK_POINT_THRESHOLDS[i]:
+			idx = i
+	return idx
+
+func get_arena_rank_index() -> int:
+	return get_arena_rank_index_for_points(arena_rank_points)
+
+func get_arena_rank_tier(index: int = -1) -> Dictionary:
+	var idx: int = index if index >= 0 else get_arena_rank_index()
+	return ARENA_RANK_TIERS[clampi(idx, 0, ARENA_RANK_TIERS.size() - 1)]
+
+func get_arena_rank_display_name(index: int = -1) -> String:
+	return str(get_arena_rank_tier(index).get("label", "?"))
+
+func is_max_arena_rank(index: int) -> bool:
+	return index >= ARENA_RANK_POINT_THRESHOLDS.size() - 1
+
+# The current Arena match's two simulated rosters - rolled fresh by
+# Matchmake (see ArenaMatchmaking.gd) right before heading into The
+# Grid, and read by ArenaCurrentTeamsPanel via Lilly. Team 1 is always
+# the player's own team (blue); Team 2 is the opposing team (red).
+var current_arena_match: Dictionary = {}
+
+func generate_arena_match(team_size: int) -> void:
+	var pool: Array = get_leaderboard("arena").filter(func(e): return not e.get("is_player", false))
+	pool.shuffle()
+	var team1 := [{
+		"name": player_name if player_name != "" else "You", "portrait": player_portrait_id if player_portrait_id != "" else "portrait_1",
+		"is_player": true, "level": player_level, "gear": equipped_items, "title": equipped_title, "badges": owned_badges,
+		"arena_rank": get_arena_rank_display_name(), "arena_color": get_arena_rank_tier().get("color", Color.WHITE),
+	}]
+	var team2 := []
+	var idx := 0
+	for i in range(team_size - 1):
+		if idx < pool.size():
+			team1.append(_arena_roster_entry(pool[idx]))
+			idx += 1
+	for i in range(team_size):
+		if idx < pool.size():
+			team2.append(_arena_roster_entry(pool[idx]))
+			idx += 1
+	current_arena_match = {"team_size": team_size, "team1": team1, "team2": team2}
+
+func _arena_roster_entry(entry: Dictionary) -> Dictionary:
+	var arena_idx: int = get_arena_rank_index_for_points(int(entry.get("value", 0)))
+	var tier: Dictionary = get_arena_rank_tier(arena_idx)
+	return {
+		"name": entry.get("name", "?"), "portrait": entry.get("portrait", "portrait_1"), "is_player": false,
+		"level": entry.get("level", 1), "gear": entry.get("gear", {}), "title": entry.get("title", ""), "badges": entry.get("badges", []),
+		"arena_rank": str(tier.get("label", "?")), "arena_color": tier.get("color", Color.WHITE),
+	}
+
 # Rough illustrative share of players actually sitting in each of the 18
 # ranks (index-aligned with RANK_POINT_THRESHOLDS) - a steep drop-off
 # toward the top, same spirit as any ranked ladder: most people sit in
@@ -3004,6 +3046,7 @@ func get_rank_population_percent(full_idx: int) -> float:
 # deploying so a fresh raid never shows a previous raid's completions.
 var raid_quests_completed: Array = []
 var last_raid_rewards: Dictionary = {}
+var last_death_info: Dictionary = {}
 
 func begin_raid_session() -> void:
 	raid_quests_completed.clear()
@@ -3043,7 +3086,6 @@ func _leaderboard_should_tick() -> bool:
 	return true
 
 func get_leaderboard(category: String = "score") -> Array:
-	_ensure_leaderboard_season()
 	_ensure_leaderboard_seeds()
 	var should_tick: bool = _leaderboard_should_tick()
 	var entries: Array = []
@@ -3059,6 +3101,8 @@ func get_leaderboard(category: String = "score") -> Array:
 				stats["extractions"] = int(stats["extractions"]) + 1
 			if randf() < 0.005:
 				stats["level"] = min(MAX_LEVEL, int(stats["level"]) + 1)
+			if randf() < 0.02:
+				stats["arena"] = max(0, int(stats.get("arena", 0)) + randi_range(-20, 40))
 		entries.append({
 			"name": rival_name, "value": int(stats.get(category, 0)), "is_player": false,
 			"portrait": stats.get("portrait", "portrait_1"), "title": stats.get("title", ""),
@@ -3066,21 +3110,22 @@ func get_leaderboard(category: String = "score") -> Array:
 			"level": int(stats.get("level", 1)), "kills": int(stats.get("kills", 0)),
 			"deaths": int(stats.get("deaths", 1)), "pets": int(stats.get("pets", 0)),
 		})
-	var baseline: Dictionary = leaderboard_player_baseline
 	var player_value: int
 	match category:
 		"kills":
-			player_value = max(0, stat_enemies_killed - int(baseline.get("kills", 0)))
+			player_value = stat_enemies_killed
 		"pets":
 			player_value = owned_pet_instances.size()
 		"stash_worth":
-			player_value = max(0, get_total_value() - int(baseline.get("stash_worth", 0)))
+			player_value = get_total_value()
 		"extractions":
-			player_value = max(0, stat_extractions - int(baseline.get("extractions", 0)))
+			player_value = stat_extractions
 		"level":
 			player_value = player_level
+		"arena":
+			player_value = arena_rank_points
 		_:
-			player_value = max(0, player_score - int(baseline.get("score", 0)))
+			player_value = player_score
 	entries.append({
 		"name": player_name if player_name != "" else "You", "value": player_value, "is_player": true,
 		"portrait": player_portrait_id if player_portrait_id != "" else "portrait_1", "title": "",
@@ -5843,6 +5888,7 @@ func save_game() -> void:
 		"save_format_version": SAVE_FORMAT_VERSION,
 		"rubles": rubles, "junk": junk, "artifacts": artifacts, "alloys": alloys, "souls": souls, "blossoms": blossoms, "skill_points": skill_points,
 		"rank_points": rank_points,
+		"arena_rank_points": arena_rank_points,
 		"last_starter_pack_claim": _last_starter_pack_claim,
 		"leaderboard_season_start": leaderboard_season_start,
 		"leaderboard_player_baseline": leaderboard_player_baseline,
@@ -5961,6 +6007,7 @@ func load_game() -> void:
 	alloys = int(parsed.get("alloys", alloys))
 	skill_points = int(parsed.get("skill_points", skill_points))
 	rank_points = int(parsed.get("rank_points", rank_points))
+	arena_rank_points = int(parsed.get("arena_rank_points", arena_rank_points))
 	_last_starter_pack_claim = float(parsed.get("last_starter_pack_claim", _last_starter_pack_claim))
 	leaderboard_season_start = float(parsed.get("leaderboard_season_start", 0.0))
 	var loaded_baseline = parsed.get("leaderboard_player_baseline", null)
@@ -7122,6 +7169,13 @@ func end_run(success: bool) -> void:
 	else:
 		stat_deaths += 1
 		grant_xp(8)
+		var dying_player = get_tree().get_first_node_in_group("player")
+		last_death_info = {
+			"attacker_name": str(dying_player.get("last_attacker_name")) if dying_player != null and dying_player.get("last_attacker_name") != null else "",
+			"attacker_weapon": str(dying_player.get("last_attacker_weapon")) if dying_player != null and dying_player.get("last_attacker_weapon") != null else "",
+			"loot_value": carried_value,
+			"timed_out": run_timed_out,
+		}
 		# A death means you lose whatever you had equipped, full stop -
 		# except Character Bound items (the Alpha/Tech Test exclusives),
 		# which stay on you no matter what. Everything else still only
@@ -7154,13 +7208,9 @@ func end_run(success: bool) -> void:
 	run_ended.emit(success, carried_value)
 	save_game()
 	get_tree().paused = true
-	if success:
-		# No more "SUCCESSFULLY EXTRACTED" message to sit on now that the
-		# dedicated Rewards screen covers this - just a clean fade.
-		await Transition.fade_out(0.6)
-	else:
-		await get_tree().create_timer(2.2).timeout
-		await Transition.fade_out(0.6)
+	# No lingering on-screen message before the fade for either outcome -
+	# the dedicated Rewards/Death screens cover the summary now.
+	await Transition.fade_out(0.6)
 	get_tree().paused = false
 	carried_loot.clear()
 	vicinity_items.clear()
@@ -7173,7 +7223,7 @@ func end_run(success: bool) -> void:
 	carried_value = 0
 	run_over = false
 	selected_recruit = ""
-	var next_scene_path := "res://scenes/RaidRewards.tscn" if success else "res://scenes/MainMenu.tscn"
+	var next_scene_path := "res://scenes/RaidRewards.tscn" if success else "res://scenes/DeathScreen.tscn"
 	get_tree().change_scene_to_packed(Transition.get_cached_scene(next_scene_path))
 	await get_tree().process_frame
 	Transition.fade_in(0.6)

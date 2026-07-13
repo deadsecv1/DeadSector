@@ -270,33 +270,13 @@ slot_name = "weapon"
 
 [node name="PocketLabel" type="Label" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
 offset_left = 293.0
-offset_top = 210.0
+offset_top = 450.0
 offset_right = 384.0
-offset_bottom = 226.0
+offset_bottom = 462.0
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 8
 theme_override_colors/font_color = Color(0.55, 0.9, 0.6, 1)
 text = "SAFE POCKETS"
-
-[node name="PocketSlot1" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
-offset_left = 293.0
-offset_top = 228.0
-offset_right = 384.0
-offset_bottom = 296.0
-theme_override_font_sizes/font_size = 12
-text = "Empty"
-script = ExtResource("13")
-pocket_index = 0
-
-[node name="PocketSlot2" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
-offset_left = 293.0
-offset_top = 304.0
-offset_right = 384.0
-offset_bottom = 372.0
-theme_override_font_sizes/font_size = 12
-text = "Empty"
-script = ExtResource("13")
-pocket_index = 1
 
 [node name="PetSlot" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
 offset_left = 293.0
@@ -306,14 +286,33 @@ offset_bottom = 448.0
 theme_override_font_sizes/font_size = 12
 text = "Pet"
 script = ExtResource("20")
-allow_navigate = false
+
+[node name="PocketSlot1" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 293.0
+offset_top = 464.0
+offset_right = 320.0
+offset_bottom = 491.0
+theme_override_font_sizes/font_size = 8
+text = "Empty"
+script = ExtResource("13")
+pocket_index = 0
+
+[node name="PocketSlot2" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
+offset_left = 323.0
+offset_top = 464.0
+offset_right = 350.0
+offset_bottom = 491.0
+theme_override_font_sizes/font_size = 8
+text = "Empty"
+script = ExtResource("13")
+pocket_index = 1
 
 [node name="PocketSlot3" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
-offset_left = 304.0
-offset_top = 456.0
-offset_right = 372.0
-offset_bottom = 524.0
-theme_override_font_sizes/font_size = 10
+offset_left = 353.0
+offset_top = 464.0
+offset_right = 380.0
+offset_bottom = 491.0
+theme_override_font_sizes/font_size = 8
 text = "Empty"
 script = ExtResource("13")
 pocket_index = 2

@@ -77,6 +77,7 @@ func _animate_drop() -> void:
 		var tw := create_tween()
 		tw.tween_interval(delay)
 		tw.tween_property(lbl, "position:y", target_y + 16.0, fall_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tw.tween_callback(Sfx.play_letter_land)
 		tw.tween_property(lbl, "position:y", target_y, 0.2).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
 func _input(event: InputEvent) -> void:
@@ -126,4 +127,4 @@ func _advance() -> void:
 	if _advanced:
 		return
 	_advanced = true
-	Transition.change_scene("res://scenes/SteelcrestPartnerSplash.tscn", 0.4, 0.4, false)
+	Transition.change_scene("res://scenes/SteelcrestPartnerSplash.tscn", 0.4, 0.4)

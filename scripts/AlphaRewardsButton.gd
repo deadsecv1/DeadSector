@@ -51,7 +51,7 @@ func _make_sparkle() -> Dictionary:
 func _on_hover_start() -> void:
 	hovering = true
 	text = "Already Claimed" if GameManager.alpha_rewards_claimed else "Claim Now!"
-	Sfx.play_coin_hover()
+	Sfx.play_eerie_hover()
 	var tw := create_tween()
 	tw.tween_property(self, "scale", Vector2(1.18, 1.18), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	var gtw := create_tween()

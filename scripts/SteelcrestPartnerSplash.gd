@@ -57,6 +57,7 @@ func _play_sequence() -> void:
 	await get_tree().create_timer(0.22).timeout
 
 	flash.color.a = 0.55
+	Sfx.play_impact_thud()
 	var flash_tw := create_tween()
 	flash_tw.tween_property(flash, "color:a", 0.0, 0.35)
 	_shake_content()
@@ -103,4 +104,4 @@ func _advance() -> void:
 	if _advanced:
 		return
 	_advanced = true
-	Transition.change_scene("res://scenes/EngineSplash.tscn", 0.4, 0.4, false)
+	Transition.change_scene("res://scenes/EngineSplash.tscn", 0.4, 0.4)

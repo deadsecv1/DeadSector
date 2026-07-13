@@ -97,6 +97,7 @@ func _play_sequence() -> void:
 	await get_tree().create_timer(logo_mark.FALL_DURATION).timeout
 	await get_tree().create_timer(CRYSTAL_HOLD_DURATION).timeout
 	logo_mark.trigger_impact()
+	Sfx.play_crystal_chime()
 
 	# Letters finish staggering in at roughly FALL_DURATION + (26 letters
 	# * 0.045s stagger) + the 0.5s fade each one runs - hold well past
@@ -147,4 +148,4 @@ func _advance() -> void:
 	if _advanced:
 		return
 	_advanced = true
-	Transition.change_scene("res://scenes/ClarityPartnerSplash.tscn", 0.5, 0.4, false)
+	Transition.change_scene("res://scenes/ClarityPartnerSplash.tscn", 0.5, 0.4)

@@ -46,10 +46,10 @@ func _update_lock_state() -> void:
 	tooltip_text = ("Ranked unlocks at Level %d" % REQUIRED_LEVEL) if locked else ""
 
 func _on_hover_start() -> void:
-	# A sword-swing sting instead of the standard coin-chime hover sound -
-	# this button is the door into PvP, so it should sound like a fight is
-	# about to start, not like every other menu button.
-	Sfx.play_sword_swing()
+	# A quiet, distinct "readying" blip - not the same generic hover blip
+	# every other menu button uses, but not the aggressive sword-swing
+	# sting it used to be either.
+	Sfx.play_ranked_hover()
 	var tw := create_tween()
 	tw.tween_property(self, "scale", Vector2(1.08, 1.08), 0.12).set_trans(Tween.TRANS_QUAD)
 

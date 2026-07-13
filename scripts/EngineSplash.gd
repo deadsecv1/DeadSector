@@ -27,6 +27,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _play_sequence() -> void:
+	Sfx.play_soft_whoosh()
 	var in_tw := create_tween()
 	in_tw.tween_property(content, "modulate:a", 1.0, 0.6)
 	await in_tw.finished
@@ -57,4 +58,4 @@ func _advance() -> void:
 	if _advanced:
 		return
 	_advanced = true
-	Transition.change_scene("res://scenes/LegalSplash.tscn", 0.4, 0.4, false)
+	Transition.change_scene("res://scenes/LegalSplash.tscn", 0.4, 0.4)

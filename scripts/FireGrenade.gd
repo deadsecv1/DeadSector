@@ -60,7 +60,7 @@ func _deal_damage() -> void:
 	var player = get_tree().get_first_node_in_group("player")
 	if player != null and is_instance_valid(player) and player.alive:
 		if global_position.distance_to(player.global_position) <= radius:
-			player.take_damage(damage_per_tick)
+			player.take_damage(damage_per_tick, "An Enemy", "Molotov")
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if is_instance_valid(enemy) and global_position.distance_to(enemy.global_position) <= radius:
 			if enemy.has_method("take_damage"):

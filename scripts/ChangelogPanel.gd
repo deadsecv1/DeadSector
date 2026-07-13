@@ -10,8 +10,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # Each version lists what changed, in the style of a real changelog -
 # Added/Changed/Fixed prefixes so it reads as an actual dev log rather
-# than a single marketing line per version.
-const CHANGELOG := [
+# than a single marketing line per version. The list had grown long
+# enough to be unwieldy, so everything up through 3.51.0 got moved into
+# CHANGELOG_ARCHIVE (behind its own tab) and CHANGELOG_CURRENT starts
+# fresh from here - version numbers keep counting up from where the
+# archive left off, this is just about keeping the visible list short.
+const CHANGELOG_ARCHIVE := [
 	{"version": "0.1", "title": "First Prototype", "notes": [
 		"Added the core extraction loop: raid a sector, loot houses, fight raiders, extract.",
 	]},
@@ -970,19 +974,66 @@ const CHANGELOG := [
 	]},
 ]
 
+# Starts empty - the next real entry logged here should continue the
+# version number from wherever CHANGELOG_ARCHIVE's last entry left off
+# (3.51.0 as of the archive above), not reset to 1.0.
+const CHANGELOG_CURRENT := []
+
+# Combined timeline, oldest to newest - for anything that needs "the
+# real latest version" or "the most recent entries" regardless of which
+# of the two lists (archive vs. current) it actually lives in right now.
+static func get_all_entries() -> Array:
+	return CHANGELOG_ARCHIVE + CHANGELOG_CURRENT
+
 @onready var list: VBoxContainer = $Margin/VBox/Scroll/List
 @onready var close_button: Button = $Margin/VBox/CloseButton
+@onready var tab_row: HBoxContainer = $Margin/VBox/TabRow
+
+var _showing_archive: bool = false
+var _tab_buttons: Dictionary = {}
 
 func _ready() -> void:
 	visible = false
 	DraggablePanelScript.apply(self)
 	close_button.pressed.connect(func(): closed.emit())
+	var current_btn := Button.new()
+	current_btn.text = "Current"
+	current_btn.custom_minimum_size = Vector2(110, 32)
+	current_btn.toggle_mode = true
+	current_btn.add_theme_font_size_override("font_size", 12)
+	current_btn.pressed.connect(func(): _switch_view(false))
+	tab_row.add_child(current_btn)
+	_tab_buttons[false] = current_btn
+
+	var archive_btn := Button.new()
+	archive_btn.text = "July 8 - 13"
+	archive_btn.custom_minimum_size = Vector2(110, 32)
+	archive_btn.toggle_mode = true
+	archive_btn.add_theme_font_size_override("font_size", 12)
+	archive_btn.pressed.connect(func(): _switch_view(true))
+	tab_row.add_child(archive_btn)
+	_tab_buttons[true] = archive_btn
+
+	_switch_view(false)
+
+func _switch_view(show_archive: bool) -> void:
+	_showing_archive = show_archive
+	for is_archive in _tab_buttons:
+		_tab_buttons[is_archive].button_pressed = (is_archive == show_archive)
 	_build_list()
 
 func _build_list() -> void:
 	for c in list.get_children():
 		c.queue_free()
-	for entry in CHANGELOG:
+	var source: Array = CHANGELOG_ARCHIVE if _showing_archive else CHANGELOG_CURRENT
+	if source.is_empty():
+		var lbl := Label.new()
+		lbl.text = "Nothing logged here yet - check back soon."
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl.modulate = Color(1, 1, 1, 0.6)
+		list.add_child(lbl)
+		return
+	for entry in source:
 		list.add_child(_make_row(entry))
 
 func _make_row(entry: Dictionary) -> Control:

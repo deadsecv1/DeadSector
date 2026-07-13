@@ -1,0 +1,95 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/DeathScreen.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="2"]
+
+[node name="DeathScreen" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.03, 0.03, 1)
+
+[node name="DystoBG" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(0.85, 0.35, 0.3, 1)
+script = ExtResource("2")
+
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -260.0
+offset_right = 280.0
+offset_bottom = 260.0
+
+[node name="Backdrop" type="ColorRect" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.05, 0.05, 0.95)
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 22.0
+offset_top = 18.0
+offset_right = -22.0
+offset_bottom = -18.0
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Panel/VBox"]
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.9, 0.25, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "YOU DIED"
+
+[node name="KilledByRow" type="HBoxContainer" parent="Panel/VBox"]
+alignment = 1
+
+[node name="KilledByButton" type="Button" parent="Panel/VBox/KilledByRow"]
+custom_minimum_size = Vector2(0, 34)
+theme_override_font_sizes/font_size = 13
+text = "Killed by ?"
+
+[node name="LootLabel" type="Label" parent="Panel/VBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+modulate = Color(1, 1, 1, 0.75)
+text = "Lost 0 loot."
+
+[node name="MannequinRow" type="HBoxContainer" parent="Panel/VBox"]
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="MannequinHolder" type="Control" parent="Panel/VBox/MannequinRow"]
+custom_minimum_size = Vector2(200, 0)
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Mannequin" type="Control" parent="Panel/VBox/MannequinRow/MannequinHolder"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="HitList" type="VBoxContainer" parent="Panel/VBox/MannequinRow"]
+custom_minimum_size = Vector2(150, 0)
+theme_override_constants/separation = 4
+
+[node name="ContinueButton" type="Button" parent="Panel/VBox"]
+custom_minimum_size = Vector2(0, 42)
+theme_override_font_sizes/font_size = 16
+text = "Return to Main Menu"
+
+[node name="ContextMenuHost" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2

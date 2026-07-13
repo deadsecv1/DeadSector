@@ -14,7 +14,7 @@ const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
 
 signal closed
 
-const MAX_VISIBLE_GROUPS := 7
+const MAX_VISIBLE_GROUPS := 14
 const TICK_SECONDS := 1.0
 const GROUP_SIZE_WEIGHTS := [2, 2, 3, 4, 4]  # more small squads than big ones, weighted by repetition
 
@@ -40,11 +40,21 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	# Same runtime anchor-collapse bug as Flea Market/Mail - force the
+	# designed centered layout back explicitly.
+	anchor_left = 0.5
+	anchor_top = 0.5
+	anchor_right = 0.5
+	anchor_bottom = 0.5
+	offset_left = -320.0
+	offset_top = -260.0
+	offset_right = 320.0
+	offset_bottom = 260.0
 	_clear_all()
 	_next_spawn_delay = randf_range(1.0, 2.5)
 	_spawn_timer = 0.0
 	_tick_accum = 0.0
-	for i in range(randi_range(3, 5)):
+	for i in range(randi_range(7, 10)):
 		_spawn_group()
 	set_process(true)
 

@@ -1051,9 +1051,19 @@ func _animate(delta: float) -> void:
 
 var _second_wind_used: bool = false
 
-func take_damage(amount: int) -> void:
+# Whoever/whatever last actually landed a hit - read by GameManager right
+# as a death is processed, so the Death Screen can say who got you and
+# with what. Only overwritten when the caller actually names a source,
+# so a later unattributed hit can't erase a real one.
+var last_attacker_name: String = ""
+var last_attacker_weapon: String = ""
+
+func take_damage(amount: int, attacker_name: String = "", weapon_name: String = "") -> void:
 	if not alive:
 		return
+	if attacker_name != "":
+		last_attacker_name = attacker_name
+		last_attacker_weapon = weapon_name
 	# Armor: a new gear stat - flat percentage damage reduction, capped
 	# well short of 100% so gear can meaningfully soften hits without
 	# ever making the player fully immune to damage.

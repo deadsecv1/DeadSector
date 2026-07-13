@@ -81,7 +81,7 @@ func _check_spike_damage(delta: float) -> void:
 	if spike_hit_cooldown > 0.0:
 		return
 	if global_position.distance_to(player.global_position) <= spike_radius + 16.0:
-		player.take_damage(spike_damage)
+		player.take_damage(spike_damage, "SPIKE", "Spike Aura")
 		spike_hit_cooldown = 0.6
 
 func _handle_grenade(delta: float) -> void:

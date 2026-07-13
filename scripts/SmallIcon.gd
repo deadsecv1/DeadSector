@@ -130,6 +130,35 @@ func _draw() -> void:
 				var ang: float = TAU * float(i) / 6.0
 				var pos: Vector2 = c + Vector2(cos(ang), sin(ang)) * r * 0.55
 				draw_rect(Rect2(pos - Vector2(r * 0.06, r * 0.12), Vector2(r * 0.12, r * 0.24)), Color(0.85, 0.82, 0.72, 1))
+		# --- Arena rank icons (6 total) - a simple visual progression:
+		# a single mark, then crossed blades that get more ornate, ending
+		# in a crown, echoing the same "climbing tiers" shape language as
+		# the normal Rank ladder's icons above.
+		"arena_initiate":
+			draw_circle(c, r * 0.22, Color(0.75, 0.7, 0.8, 1))
+		"arena_rival":
+			draw_line(c + Vector2(-r * 0.4, -r * 0.4), c + Vector2(r * 0.4, r * 0.4), Color(0.55, 0.6, 0.9, 1), max(2.0, r * 0.16))
+		"arena_duelist":
+			draw_line(c + Vector2(-r * 0.4, -r * 0.4), c + Vector2(r * 0.4, r * 0.4), Color(0.65, 0.45, 0.9, 1), max(2.0, r * 0.16))
+			draw_line(c + Vector2(r * 0.4, -r * 0.4), c + Vector2(-r * 0.4, r * 0.4), Color(0.65, 0.45, 0.9, 1), max(2.0, r * 0.16))
+		"arena_gladiator":
+			draw_line(c + Vector2(-r * 0.42, -r * 0.42), c + Vector2(r * 0.42, r * 0.42), Color(0.8, 0.3, 0.85, 1), max(2.0, r * 0.16))
+			draw_line(c + Vector2(r * 0.42, -r * 0.42), c + Vector2(-r * 0.42, r * 0.42), Color(0.8, 0.3, 0.85, 1), max(2.0, r * 0.16))
+			draw_circle(c, r * 0.16, Color(0.9, 0.55, 0.95, 1))
+		"arena_champion":
+			draw_line(c + Vector2(-r * 0.42, -r * 0.42), c + Vector2(r * 0.42, r * 0.42), Color(0.85, 0.55, 0.3, 1), max(2.0, r * 0.16))
+			draw_line(c + Vector2(r * 0.42, -r * 0.42), c + Vector2(-r * 0.42, r * 0.42), Color(0.85, 0.55, 0.3, 1), max(2.0, r * 0.16))
+			for i in range(5):
+				var star_ang2: float = -PI / 2.0 + TAU * float(i) / 5.0
+				draw_circle(c + Vector2(cos(star_ang2), sin(star_ang2)) * r * 0.55, r * 0.06, Color(0.95, 0.8, 0.4, 1))
+		"arena_grandmaster":
+			# A small ornate crown, prismatic-tier top rank.
+			draw_colored_polygon(PackedVector2Array([
+				c + Vector2(-r * 0.42, r * 0.32), c + Vector2(-r * 0.42, r * 0.05), c + Vector2(-r * 0.2, r * 0.28),
+				c + Vector2(0, -r * 0.15), c + Vector2(r * 0.2, r * 0.28), c + Vector2(r * 0.42, r * 0.05),
+				c + Vector2(r * 0.42, r * 0.32),
+			]), Color(1.0, 0.85, 0.3, 1))
+			draw_circle(c + Vector2(0, -r * 0.15), r * 0.08, Color(0.9, 0.4, 0.9, 1))
 		_:
 			var pts := PackedVector2Array()
 			for i in range(5):

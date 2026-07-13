@@ -57,20 +57,16 @@ func fade_in(duration: float = 0.6) -> void:
 # a button handler even though that button's whole scene gets freed partway
 # through. Calling get_tree() on the scene that triggered this would break
 # once that scene is gone; get_tree() here never does.
-func change_scene(path: String, fade_out_dur: float = 0.5, fade_in_dur: float = 0.5, play_sound: bool = true) -> void:
+func change_scene(path: String, fade_out_dur: float = 0.5, fade_in_dur: float = 0.5) -> void:
 	if _is_transitioning:
 		return
 	_is_transitioning = true
-	# Playing this here, guarded by the same lock that blocks a second
-	# change_scene() call, means spam-clicking Play or mashing a skip
-	# key can never trigger it more than once for the same transition -
-	# every extra press just hits the early return above instead.
-	# Callers that already played it themselves right at the moment of
-	# input (skip screens do this - see StudioSplash.gd - since waiting
-	# until their own fade-out finishes first would make the sound feel
-	# noticeably delayed) pass play_sound=false to avoid a double play.
-	if play_sound:
-		Sfx.play_menu_confirm()
+	# No sound played here anymore - every Button in the game plays its
+	# own click sound the instant it's pressed (see Sfx._wire_global_
+	# click_sfx), so a button-triggered transition already got its sound
+	# at the moment of the click. Playing one here too, on a timer/auto-
+	# triggered transition with no click at all (e.g. SearchingForPlayers
+	# routing onward), used to fire a "click" sound out of nowhere.
 	await fade_out(fade_out_dur)
 	# Top off the music buffer to full right before the load - change_
 	# scene_to_file() blocks the main thread while the new scene
@@ -88,12 +84,10 @@ func change_scene(path: String, fade_out_dur: float = 0.5, fade_in_dur: float = 
 # navigation (Traders, Settings, Back buttons, etc.) that swaps instantly.
 # If a scene change is already in progress, extra clicks are simply
 # ignored instead of being allowed to race each other.
-func change_scene_instant(path: String, play_sound: bool = true) -> void:
+func change_scene_instant(path: String) -> void:
 	if _is_transitioning:
 		return
 	_is_transitioning = true
-	if play_sound:
-		Sfx.play_menu_confirm()
 	MenuMusic._fill_buffer()
 	get_tree().change_scene_to_packed(get_cached_scene(path))
 	await get_tree().process_frame

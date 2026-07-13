@@ -29,7 +29,7 @@ func _explode() -> void:
 	var player = get_tree().get_first_node_in_group("player")
 	if is_enemy_grenade:
 		if player != null and global_position.distance_to(player.global_position) <= radius and player.has_method("take_damage"):
-			player.take_damage(damage)
+			player.take_damage(damage, "An Enemy", "Grenade")
 	else:
 		for enemy in get_tree().get_nodes_in_group("enemy"):
 			if not is_instance_valid(enemy):

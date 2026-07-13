@@ -5,7 +5,7 @@ signal closed
 signal rewards_requested
 signal ranks_requested
 
-const CATEGORY_LABELS := {"score": "Score (Season)", "kills": "Kills (Season)", "pets": "Pets Owned", "stash_worth": "Stash Worth (Season)", "extractions": "Extractions (Season)", "level": "Level"}
+const CATEGORY_LABELS := {"score": "Score", "kills": "Kills", "pets": "Pets Owned", "stash_worth": "Stash Worth", "extractions": "Extractions", "level": "Level", "arena": "Arena"}
 const PortraitScene := preload("res://scenes/TraderPortrait.tscn")
 const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
 const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
@@ -13,7 +13,6 @@ const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
 @onready var list: VBoxContainer = $VBox/ListScroll/List
 @onready var list_scroll: ScrollContainer = $VBox/ListScroll
 @onready var tab_row: HBoxContainer = $VBox/TabRow
-@onready var timer_label: Label = $VBox/TimerLabel
 @onready var rewards_button: Button = $VBox/TitleRow/RewardsButton
 @onready var ranks_button: Button = $VBox/TitleRow/RanksButton
 @onready var close_button: Button = $VBox/CloseButton
@@ -56,15 +55,6 @@ func _ready() -> void:
 func open() -> void:
 	visible = true
 	_switch_category("score")
-
-func _process(_delta: float) -> void:
-	if not visible:
-		return
-	var secs := int(GameManager.get_leaderboard_seconds_left())
-	var days := int(secs / 86400.0)
-	var hours := int(secs / 3600.0) % 24
-	var mins := int(secs / 60.0) % 60
-	timer_label.text = "Season resets in %d days, %d hours, %d minutes - everyone (including you) goes back to 0 when it does" % [days, hours, mins]
 
 func _switch_category(category: String) -> void:
 	current_category = category

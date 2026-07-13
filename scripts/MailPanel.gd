@@ -13,6 +13,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 @onready var list: VBoxContainer = $VBox/Scroll/List
 @onready var close_button: Button = $VBox/CloseButton
+@onready var claim_all_button: Button = $VBox/ClaimAllButton
 @onready var main_vbox: VBoxContainer = $VBox
 @onready var detail_overlay: Panel = $DetailOverlay
 @onready var detail_subject: Label = $DetailOverlay/DetailVBox/DetailSubject
@@ -38,6 +39,7 @@ func _ready() -> void:
 	DraggablePanelScript.apply(self)
 	detail_overlay.visible = false
 	close_button.pressed.connect(func(): closed.emit())
+	claim_all_button.pressed.connect(_on_claim_all)
 	detail_back_button.pressed.connect(_show_list)
 	detail_claim_button.pressed.connect(func():
 		GameManager.claim_mail(current_mail_id)
@@ -53,6 +55,19 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	# Same runtime anchor-collapse bug as Flea Market - anchors read back
+	# as 0,0,0,0 instead of the centered 0.5,0.5,0.5,0.5 set in the
+	# .tscn, which (with the offsets unchanged) renders the panel mostly
+	# off-screen to the upper-left instead of centered. Force the exact
+	# designed layout back explicitly, regardless of the underlying cause.
+	anchor_left = 0.5
+	anchor_top = 0.5
+	anchor_right = 0.5
+	anchor_bottom = 0.5
+	offset_left = -280.0
+	offset_top = -300.0
+	offset_right = 280.0
+	offset_bottom = 300.0
 	_show_list()
 
 func _show_list() -> void:
@@ -64,6 +79,7 @@ func refresh() -> void:
 	for c in list.get_children():
 		list.remove_child(c)
 		c.queue_free()
+	claim_all_button.visible = _has_unclaimed_reward()
 	if GameManager.mail_messages.is_empty():
 		var lbl := Label.new()
 		lbl.text = "No mail yet."
@@ -72,6 +88,26 @@ func refresh() -> void:
 		return
 	for m in GameManager.mail_messages:
 		list.add_child(_make_mail_row(m))
+
+func _has_unclaimed_reward() -> bool:
+	for m in GameManager.mail_messages:
+		if not m.get("rewards", {}).is_empty() and not m.get("claimed", true):
+			return true
+	return false
+
+# Claims every mail's reward in one go instead of opening each message
+# one at a time - GameManager.claim_mail already no-ops safely on mail
+# with no reward or an already-claimed one, so it's safe to just sweep
+# the whole list.
+func _on_claim_all() -> void:
+	var claimed_any := false
+	for m in GameManager.mail_messages:
+		if not m.get("rewards", {}).is_empty() and not m.get("claimed", true):
+			GameManager.claim_mail(int(m.get("id", -1)))
+			claimed_any = true
+	if claimed_any:
+		Sfx.play_reveal()
+		refresh()
 
 func _make_mail_row(m: Dictionary) -> Control:
 	var is_read: bool = m.get("read", false)

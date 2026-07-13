@@ -15,6 +15,8 @@ var poison_duration: float = 3.0
 var is_electric: bool = false
 var is_frost: bool = false
 var is_burning: bool = false
+var source_name: String = ""
+var source_weapon: String = ""
 
 @onready var pistol_visual: Node2D = $PistolVisual
 @onready var rifle_visual: Node2D = $RifleVisual
@@ -181,7 +183,7 @@ func _on_body_entered(body: Node) -> void:
 		return
 	if is_enemy_bullet and body.is_in_group("player"):
 		if body.has_method("take_damage"):
-			body.take_damage(damage)
+			body.take_damage(damage, source_name, source_weapon)
 		_spawn_blood()
 		if body.has_node("Camera2D"):
 			body.get_node("Camera2D").shake(6.0)

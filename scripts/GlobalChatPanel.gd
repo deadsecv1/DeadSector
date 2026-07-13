@@ -290,6 +290,16 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	# Same runtime anchor-collapse bug as Flea Market/Mail - force the
+	# designed centered layout back explicitly.
+	anchor_left = 0.5
+	anchor_top = 0.5
+	anchor_right = 0.5
+	anchor_bottom = 0.5
+	offset_left = -300.0
+	offset_top = -320.0
+	offset_right = 300.0
+	offset_bottom = 320.0
 	_chat_pool = GameManager.get_ranked_leaderboard().filter(func(e): return not e.get("is_player", false))
 	for c in message_list.get_children():
 		c.queue_free()

@@ -375,13 +375,7 @@ func _flash_hit_vignette() -> void:
 func update_stats(_speed: float, _max_health: int, _damage: int, _shoot_cooldown: float) -> void:
 	pass  # Top-left HUD now shows only currencies - stats label is hidden.
 
-func _on_run_ended(success: bool, loot_value: int) -> void:
-	if success:
-		# No message here anymore - the RaidRewards screen (loaded right
-		# after this) is the real summary now.
-		return
-	message_label.visible = true
-	if GameManager.run_timed_out:
-		message_label.text = "TIME EXPIRED\nLost %d loot." % loot_value
-	else:
-		message_label.text = "YOU DIED\nLost %d loot." % loot_value
+func _on_run_ended(_success: bool, _loot_value: int) -> void:
+	# No message here anymore - the RaidRewards/Death screens (loaded
+	# right after this) are the real summary now, for either outcome.
+	pass

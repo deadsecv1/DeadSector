@@ -17,6 +17,7 @@ func _ready() -> void:
 	_spawn_pet()
 	player.stats_ready.connect(hud.update_stats)
 	player.ammo_changed.connect(hud.update_ammo)
+	player._update_ammo_display()
 	player.stunned.connect(hud.flash_stun)
 	player.health_changed.connect(hud._on_player_health_changed)
 	# Always midnight in the Graveyard, fog-dim regardless of the
