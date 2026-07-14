@@ -44,6 +44,7 @@ var _soft_whoosh: AudioStreamWAV
 var _ranked_hover: AudioStreamWAV
 var _eerie_hover: AudioStreamWAV
 var _signal_beam: AudioStreamWAV
+var _arena_hover: AudioStreamWAV
 
 var _pool: Array = []
 const POOL_SIZE := 10
@@ -81,6 +82,7 @@ func _ready() -> void:
 	_ranked_hover = _make_ranked_hover()
 	_eerie_hover = _make_eerie_hover()
 	_signal_beam = _make_signal_beam()
+	_arena_hover = _make_arena_hover()
 	for i in range(POOL_SIZE):
 		var p := AudioStreamPlayer.new()
 		p.bus = "SFX"
@@ -279,6 +281,15 @@ func play_eerie_hover() -> void:
 	var p := _get_free_player()
 	p.stream = _eerie_hover
 	p.volume_db = -21.0
+	p.play()
+
+# A soft two-tone "ready bell" - the Arena button's own hover cue,
+# distinct from Ranked's single rising blip: a quick low-high ping
+# pair, like a tournament bell tapped once, quietly.
+func play_arena_hover() -> void:
+	var p := _get_free_player()
+	p.stream = _arena_hover
+	p.volume_db = -20.0
 	p.play()
 
 func play_search() -> void:
@@ -737,6 +748,23 @@ func _make_ranked_hover() -> AudioStreamWAV:
 		var env: float = exp(-t * 18.0)
 		var pitch: float = lerp(500.0, 900.0, clamp(t / 0.1, 0.0, 1.0))
 		var s: float = sin(TAU * pitch * t) * env * 0.5
+		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
+		data.encode_s16(i * 2, s16)
+	return _to_wav(data)
+
+func _make_arena_hover() -> AudioStreamWAV:
+	# Two quick decaying pings, low then high - a tiny "bell" rather than
+	# Ranked's rising sweep, so the two PvP entry points don't sound
+	# like the same cue with the volume changed.
+	var dur := 0.22
+	var n := int(SAMPLE_RATE * dur)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	for i in range(n):
+		var t := float(i) / SAMPLE_RATE
+		var env1: float = exp(-t * 22.0)
+		var env2: float = exp(-max(t - 0.09, 0.0) * 22.0) if t >= 0.09 else 0.0
+		var s: float = sin(TAU * 620.0 * t) * env1 * 0.35 + sin(TAU * 780.0 * t) * env2 * 0.3
 		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
 		data.encode_s16(i * 2, s16)
 	return _to_wav(data)

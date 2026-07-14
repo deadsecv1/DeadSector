@@ -4,12 +4,20 @@ extends Button
 # orbiting sparkles) as the other plain Main Menu buttons (Data, etc.),
 # plus a ring of purple twinkling stars around its border, the same
 # technique RankedButton.gd uses, since this is also a PvP entry point.
+# Also always has a faint idle purple glow + a permanent purple border,
+# intensifying further on hover - matches the Salvaged Beasts/Alpha
+# Rewards/Bloodline treatment instead of staying invisible until
+# hovered (#51).
 
 const TwinkleStarBorderScript := preload("res://scripts/TwinkleStarBorder.gd")
 
 var hovering: bool = false
 var sparkles: Array = []
 const SPARKLE_COUNT := 14
+const IDLE_GLOW_ALPHA := 0.18
+const HOVER_GLOW_ALPHA := 0.55
+const IDLE_SPARKLE_MULT := 0.35
+const HOVER_SPARKLE_MULT := 1.0
 
 @onready var glow: ColorRect = $Glow
 
@@ -17,10 +25,20 @@ func _ready() -> void:
 	pivot_offset = size / 2.0
 	mouse_entered.connect(_on_hover_start)
 	mouse_exited.connect(_on_hover_end)
-	glow.color = Color(0.35, 0.1, 0.45, 0.0)
+	glow.color = Color(0.35, 0.1, 0.45, IDLE_GLOW_ALPHA)
 	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for i in range(SPARKLE_COUNT):
 		sparkles.append(_make_sparkle())
+
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0, 0, 0, 0)
+	sb.border_color = Color(0.75, 0.4, 0.95, 0.85)
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(4)
+	add_theme_stylebox_override("normal", sb)
+	add_theme_stylebox_override("hover", sb)
+	add_theme_stylebox_override("pressed", sb)
+	add_theme_stylebox_override("focus", sb)
 
 	var stars := Control.new()
 	stars.anchor_right = 1.0
@@ -41,31 +59,33 @@ func _make_sparkle() -> Dictionary:
 
 func _on_hover_start() -> void:
 	hovering = true
+	Sfx.play_arena_hover()
 	var tw := create_tween()
 	tw.tween_property(self, "scale", Vector2(1.18, 1.18), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	var gtw := create_tween()
-	gtw.tween_property(glow, "color:a", 0.55, 0.25)
+	gtw.tween_property(glow, "color:a", HOVER_GLOW_ALPHA, 0.25)
 
 func _on_hover_end() -> void:
 	hovering = false
 	var tw := create_tween()
 	tw.tween_property(self, "scale", Vector2(1.0, 1.0), 0.18).set_trans(Tween.TRANS_QUAD)
 	var gtw := create_tween()
-	gtw.tween_property(glow, "color:a", 0.0, 0.3)
+	gtw.tween_property(glow, "color:a", IDLE_GLOW_ALPHA, 0.3)
 
 func _process(_delta: float) -> void:
-	if hovering:
-		queue_redraw()
+	queue_redraw()
 
 func _draw() -> void:
-	if not hovering:
-		return
 	var t := Time.get_ticks_msec() * 0.001
 	var center := size / 2.0
 	var radius: float = size.x * 0.5
-	for sp in sparkles:
+	var mult: float = HOVER_SPARKLE_MULT if hovering else IDLE_SPARKLE_MULT
+	for i in range(sparkles.size()):
+		if not hovering and i % 2 == 1:
+			continue
+		var sp = sparkles[i]
 		var ang: float = sp["ang"] + t * sp["speed"]
 		var d: float = radius * sp["dist"]
 		var pos: Vector2 = center + Vector2(cos(ang), sin(ang)) * d
 		var flicker: float = 0.4 + 0.6 * sin(t * 3.0 + sp["phase"])
-		draw_circle(pos, sp["r"] * flicker, Color(0.75, 0.4, 0.95, 0.6 * flicker))
+		draw_circle(pos, sp["r"] * flicker * (0.75 if not hovering else 1.0), Color(0.75, 0.4, 0.95, 0.6 * flicker * mult))

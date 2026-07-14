@@ -188,7 +188,7 @@ func _ready() -> void:
 	exit_cancel_button.pressed.connect(func(): exit_confirm_panel.visible = false)
 	exit_confirm_button.pressed.connect(_on_exit)
 
-	for btn in [play_button, quests_button, traders_button, skill_tree_button, hideout_button, stash_button, settings_button, exit_button, roadmap_button, stats_button, changelog_button, social_button, achievements_button, flea_market_button, mail_button, feedback_button, whats_new_button, leaderboard_button, arena_button]:
+	for btn in [play_button, quests_button, traders_button, skill_tree_button, hideout_button, stash_button, settings_button, exit_button, roadmap_button, stats_button, changelog_button, social_button, achievements_button, flea_market_button, mail_button, feedback_button, whats_new_button, leaderboard_button]:
 		btn.mouse_entered.connect(_play_hover)
 
 	flea_market_button.pressed.connect(func(): _open_panel(flea_market_panel))
