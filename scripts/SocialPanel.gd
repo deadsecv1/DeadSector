@@ -203,6 +203,27 @@ func _stat_chip(label_text: String, value_text: String) -> PanelContainer:
 
 	return chip
 
+# --- Prestige: only ever built when GameManager.can_prestige() is true
+# (Level MAX_LEVEL reached). Two-click confirm inline, rather than a
+# whole separate popup, since this is far less severe/permanent-feeling
+# than Delete Character - only level/XP reset, everything else is kept.
+
+func _build_prestige_button() -> Button:
+	var btn := Button.new()
+	btn.text = "Prestige (reset Level, keep everything else)"
+	btn.custom_minimum_size = Vector2(0, 32)
+	btn.add_theme_font_size_override("font_size", 11)
+	var confirming := false
+	btn.pressed.connect(func():
+		if not confirming:
+			confirming = true
+			btn.text = "Really Prestige? Click again to confirm"
+			return
+		GameManager.prestige()
+		refresh()
+	)
+	return btn
+
 # --- Operative ID card: portrait, build preview, name, level/XP, stats --
 
 func _build_id_card() -> PanelContainer:
@@ -305,6 +326,8 @@ func _build_id_card() -> PanelContainer:
 
 	var level_label := Label.new()
 	level_label.text = "Level %d / %d" % [GameManager.player_level, GameManager.MAX_LEVEL]
+	if GameManager.prestige_level > 0:
+		level_label.text += "   ·   Prestige %d" % GameManager.prestige_level
 	level_label.add_theme_font_size_override("font_size", 15)
 	level_label.add_theme_color_override("font_color", ACCENT)
 	info.add_child(level_label)
@@ -330,6 +353,9 @@ func _build_id_card() -> PanelContainer:
 	xp_label.add_theme_font_size_override("font_size", 11)
 	xp_label.modulate = MUTED
 	info.add_child(xp_label)
+
+	if GameManager.can_prestige():
+		info.add_child(_build_prestige_button())
 
 	# Quick-glance stat chips, pulled from the same lifetime stats the
 	# full Character screen shows - a fast read without leaving Social.

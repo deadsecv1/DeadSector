@@ -4034,6 +4034,32 @@ func grant_xp(amount: int) -> void:
 		toast_requested.emit("Level Up! Now Level %d" % player_level)
 	xp_changed.emit()
 
+# --- Prestige: once MAX_LEVEL is fully climbed, optionally reset back to
+# Level 1 in exchange for a permanent, ever-climbing Prestige counter and
+# a one-time reward - something to chase once the normal level ladder
+# runs out. Deliberately narrow: only player_level/player_xp reset,
+# nothing else (currencies, gear, pets, unlocks, other progression
+# tracks) is touched.
+var prestige_level: int = 0
+
+func can_prestige() -> bool:
+	return player_level >= MAX_LEVEL
+
+func prestige() -> bool:
+	if not can_prestige():
+		return false
+	prestige_level += 1
+	player_level = 1
+	player_xp = 0
+	var reward_rubles: int = 5000 * prestige_level
+	var reward_skill_points: int = 3
+	add_currency("rubles", reward_rubles)
+	skill_points += reward_skill_points
+	toast_requested.emit("Prestige %d! Back to Level 1 - %d Rubles and %d Skill Points as thanks for the climb." % [prestige_level, reward_rubles, reward_skill_points])
+	xp_changed.emit()
+	save_game()
+	return true
+
 func record_kill() -> void:
 	stat_enemies_killed += 1
 	add_score(5)
@@ -5348,6 +5374,7 @@ func reset_character() -> void:
 	player_guild_name = ""
 	player_guild_tag = ""
 	player_guild_is_custom = false
+	prestige_level = 0
 	for key in upgrades.keys():
 		upgrades[key]["level"] = 0
 	for key in hideout_upgrades.keys():
@@ -6521,6 +6548,7 @@ func save_game() -> void:
 		"player_loadout_presets": player_loadout_presets,
 		"player_guild_id": player_guild_id, "player_guild_name": player_guild_name,
 		"player_guild_tag": player_guild_tag, "player_guild_is_custom": player_guild_is_custom,
+		"prestige_level": prestige_level,
 		"is_scav_run": is_scav_run,
 		"saved_pmc_equipped": _saved_pmc_equipped,
 		"arena_loadout_active": _arena_loadout_active,
@@ -6725,6 +6753,7 @@ func load_game() -> void:
 	player_guild_name = String(parsed.get("player_guild_name", ""))
 	player_guild_tag = String(parsed.get("player_guild_tag", ""))
 	player_guild_is_custom = bool(parsed.get("player_guild_is_custom", false))
+	prestige_level = int(parsed.get("prestige_level", 0))
 
 	is_scav_run = bool(parsed.get("is_scav_run", false))
 	var loaded_saved_pmc = parsed.get("saved_pmc_equipped", null)
