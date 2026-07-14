@@ -182,6 +182,8 @@ func _make_pack_card(pack: Dictionary) -> Control:
 		lines.append("%d Ammo pickups (mixed types)" % int(pack.get("ammo_count", 0)))
 	if int(pack.get("plushie_count", 0)) > 0:
 		lines.append("%d Plushies" % int(pack.get("plushie_count", 0)))
+	if int(pack.get("backpack_count", 0)) > 0:
+		lines.append("%d Backpack(s)" % int(pack.get("backpack_count", 0)))
 	contents_lbl.text = "\n".join(lines)
 	contents_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	contents_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD

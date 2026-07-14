@@ -999,6 +999,11 @@ const CHANGELOG_CURRENT := [
 		"Every wall - and every building, since they're all built from the same wall piece - now uses a real brick texture.",
 		"Boneclock's ground is no longer just scattered abstract bone shapes - real bone piles, rocks, dead trees, gravestones, and rare skull piles now dress the map.",
 	]},
+	{"version": "3.53.1", "title": "Ammo and Backpacks Join the General Loot Pool", "notes": [
+		"Loot Bags can now contain Ammo, not just gear.",
+		"Rotating Trader stock (Medic, Quartermaster, Scavenger) can now include Ammo alongside gear.",
+		"Added a Backpack Pack to the Store, and contract rewards can now include Ammo as well as gear - \"Bring Backup\" now hands over a Ranger Pack, and \"Fire in the Hole\" now includes Heavy Ammo.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

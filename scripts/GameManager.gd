@@ -1223,6 +1223,10 @@ func _roll_weighted_loot_bag_item(bag_tier: String = "common") -> Dictionary:
 
 	var pool: Array = []
 	if tier == "common_uncommon":
+		# Ammo is common/uncommon-tier loot itself, so give bags a real
+		# chance at it here instead of only ever handing back gear.
+		if randf() < 0.35:
+			return roll_ammo()
 		for pool_item in ENEMY_LOOT_POOL:
 			if pool_item.get("rarity", "") in ["common", "uncommon"]:
 				pool.append(pool_item)
@@ -1529,7 +1533,7 @@ const QUEST_DATA := {
 	"unlock_door": {"title": "Breaking In", "desc": "Unlock a door using a key.", "trigger": "unlock_door", "reward_text": "250 Rubles", "reward": {"rubles": 250}, "icon": "key", "npc": "echo", "lore": "Locked doors in the Sector usually mean someone thought what's behind them was worth protecting. Sometimes they were right."},
 	"talk_to_recruits": {"title": "New Faces", "desc": "Talk to the recruits in the Hideout.", "trigger": "talk_to_recruits", "reward_text": "200 Rubles", "reward": {"rubles": 200}, "icon": "recruits", "npc": "echo", "lore": "The recruits watch every new operative the same way: waiting to see if you're worth following into the Sector, or another name they'll have to remember for the wrong reasons."},
 	"find_midnight_bones": {"title": "Something in the Dark", "desc": "Find and talk to Midnight Bones somewhere in Boneclock, during a Night Raid.", "trigger": "find_midnight_bones", "reward_text": "300 Rubles (Graveyard Key handed over on the spot)", "reward": {"rubles": 300}, "icon": "key", "npc": "echo", "lore": "Echo won't say much about him - just that he's real, he's out there at night, and he's been waiting on someone to finally show up worth talking to."},
-	"bring_recruit_raid": {"title": "Bring Backup", "desc": "Bring a Recruit into a raid with you.", "trigger": "bring_recruit_raid", "reward_text": "375 Rubles", "reward": {"rubles": 375}, "icon": "squad", "npc": "warden", "lore": "A recruit at your back doubles your odds and halves your loot. Most operatives decide that's a trade worth making, at least once."},
+	"bring_recruit_raid": {"title": "Bring Backup", "desc": "Bring a Recruit into a raid with you.", "trigger": "bring_recruit_raid", "reward_text": "375 Rubles + Ranger Pack", "reward": {"rubles": 375, "gear": {"name": "Ranger Pack", "value": 75, "slot": "backpack", "stat_type": "fire_rate", "stat_value": 0.0, "icon_key": "backpack", "rarity": "uncommon"}}, "icon": "squad", "npc": "warden", "lore": "A recruit at your back doubles your odds and halves your loot. Most operatives decide that's a trade worth making, at least once."},
 	"sneak_kill": {"title": "Ghost Protocol", "desc": "Kill an enemy while hiding in a bush.", "trigger": "sneak_kill", "reward_text": "300 Rubles", "reward": {"rubles": 300}, "icon": "stealth", "npc": "warden", "lore": "The bushes don't hide you from everything out here - but they hide you from enough. Patience kills more raiders than bullets ever will."},
 	"night_extract": {"title": "Into the Dark", "desc": "Successfully extract from a Night Raid.", "trigger": "night_extract", "reward_text": "375 Rubles + Combat Boots", "reward": {"rubles": 375, "gear": {"name": "Combat Boots", "value": 70, "slot": "boots", "stat_type": "speed", "stat_value": 20.0, "icon_key": "boots", "rarity": "uncommon"}}, "icon": "vehicle", "npc": "warden", "lore": "Night raids pay better because almost nobody survives them clean. The Sector doesn't get quieter after dark. It just gets harder to see what's coming."},
 	"kill_spike": {"title": "The Big One", "desc": "Kill Spike.", "trigger": "kill_spike", "reward_text": "750 Rubles + Reinforced Plate", "reward": {"rubles": 750, "gear": {"name": "Reinforced Plate", "value": 120, "slot": "body", "stat_type": "max_health", "stat_value": 28.0, "icon_key": "chestplate", "rarity": "rare"}}, "icon": "spike_crown", "npc": "warden", "lore": "Spike used to be a person, allegedly. Whatever's left of that is buried somewhere under all that scar tissue and rage. Good luck finding it before he finds you."},
@@ -1538,7 +1542,7 @@ const QUEST_DATA := {
 	"ashen_house_power": {"title": "Lights On", "desc": "Turn on the power for the Ashen House.", "trigger": "ashen_house_power", "reward_text": "375 Rubles", "reward": {"rubles": 375}, "icon": "tech", "npc": "tinkerer", "lore": "Somewhere in Overgrowth, a house still has power running to it. That shouldn't be possible anymore. Go find out why it still is."},
 	"pay_car_extract": {"title": "Priority Pickup", "desc": "Pay the car driver 2000 Rubles to extract.", "trigger": "pay_car_extract", "reward_text": "450 Rubles", "reward": {"rubles": 450}, "icon": "vehicle", "npc": "cartographer", "lore": "Some extractions have a toll. Pay it, or don't - but the car doesn't wait for operatives who hesitate."},
 	"equip_attachment": {"title": "Modded Out", "desc": "Equip a weapon attachment.", "trigger": "equip_attachment", "reward_text": "350 Rubles", "reward": {"rubles": 350}, "icon": "gear", "npc": "tinkerer", "lore": "A gun is a promise. An attachment is you making sure it keeps it."},
-	"grenade_kill": {"title": "Fire in the Hole", "desc": "Kill an enemy with a grenade.", "trigger": "grenade_kill", "reward_text": "550 Rubles", "reward": {"rubles": 550}, "icon": "combat", "npc": "warden", "lore": "Subtlety has its place. This isn't it. Sometimes the fastest way through a room is to not leave much of the room standing."},
+	"grenade_kill": {"title": "Fire in the Hole", "desc": "Kill an enemy with a grenade.", "trigger": "grenade_kill", "reward_text": "550 Rubles + 300 Heavy Ammo", "reward": {"rubles": 550, "ammo": {"type": "heavy", "amount": 300}}, "icon": "combat", "npc": "warden", "lore": "Subtlety has its place. This isn't it. Sometimes the fastest way through a room is to not leave much of the room standing."},
 	"deliver_batteries": {"title": "Power Supply", "desc": "Deliver 2 Batteries to the Scrapper.", "trigger": "deliver_batteries", "reward_text": "400 Rubles", "reward": {"rubles": 400}, "icon": "tech", "npc": "tinkerer", "lore": "The Scrapper's been running half his rig on hope and spare parts. A couple batteries won't fix everything he's short on, but it'll buy you some goodwill."},
 	"craft_bandage": {"title": "Field Medicine", "desc": "Craft a Bandage at the Workbench.", "trigger": "craft_bandage", "reward_text": "375 Rubles", "reward": {"rubles": 375}, "icon": "medical", "npc": "tinkerer", "lore": "You learn fast that the Sector doesn't wait for you to patch yourself up. Better to already know how before you need to."},
 	"open_loot_bag": {"title": "Jackpot", "desc": "Open a Loot Bag.", "trigger": "open_loot_bag", "reward_text": "875 Rubles + Vanguard Helmet", "reward": {"rubles": 875, "gear": {"name": "Vanguard Helmet", "value": 125, "slot": "head", "stat_type": "max_health", "stat_value": 30.0, "icon_key": "helmet", "rarity": "rare"}}, "icon": "money", "npc": "cartographer", "lore": "Loot bags are a gamble dressed up as a reward. Sometimes it's junk. Sometimes it's the thing that changes your whole run."},
@@ -1696,6 +1700,21 @@ func turn_in_quest(key: String) -> bool:
 		add_currency("rubles", int(reward["rubles"]))
 	if reward.has("gear"):
 		_add_to_stash(reward["gear"].duplicate(true))
+	if reward.has("ammo"):
+		var ammo_spec: Dictionary = reward["ammo"]
+		var atype: String = ammo_spec.get("type", "light")
+		var amount: int = int(ammo_spec.get("amount", 100))
+		var base: Dictionary = {}
+		for pool_item in AMMO_POOL:
+			if pool_item.get("ammo_type", "") == atype:
+				base = pool_item.duplicate(true)
+				break
+		if base.is_empty():
+			base = AMMO_POOL[0].duplicate(true)
+		base["base_name"] = base["name"]
+		base["ammo_amount"] = amount
+		base["name"] = "%s x%d" % [base["base_name"], amount]
+		_add_to_stash(base)
 	quest_status[key] = "done"
 	quest_state_changed.emit()
 	grant_pet_xp(15)
@@ -1912,11 +1931,20 @@ func _rotate_traders() -> void:
 	for trader_id in ["medic", "quartermaster", "scavenger"]:
 		var trader: Dictionary = TRADER_CATALOG[trader_id]
 		var count: int = trader["items"].size()
+		# Mixed in with gear so rotating stock can land on ammo too, not
+		# just weapons/armor - ammo entries get rolled through roll_ammo()
+		# below so they come out with a real ammo_amount, not a bare stack.
 		var pool: Array = ENEMY_LOOT_POOL.duplicate()
+		pool.append_array(AMMO_POOL)
 		pool.shuffle()
 		var new_items: Array = []
 		for i in range(count):
-			var pick: Dictionary = finalize_rolled_item(pool[i % pool.size()].duplicate(true))
+			var raw: Dictionary = pool[i % pool.size()]
+			var pick: Dictionary
+			if raw.get("consumable_type", "") == "ammo":
+				pick = roll_ammo()
+			else:
+				pick = finalize_rolled_item(raw.duplicate(true))
 			pick["cost"] = int(pick.get("value", 50))
 			new_items.append(pick)
 		if trader_id == "quartermaster":
@@ -4336,6 +4364,7 @@ const STORE_PACKS := [
 	{"id": "rose_plushie_pack_small", "price": "$1.99", "label": "Rose's Plushie Pack (Small)", "rubles": 0, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0, "plushie_count": 2},
 	{"id": "rose_plushie_pack_medium", "price": "$4.99", "label": "Rose's Plushie Pack (Medium)", "rubles": 0, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0, "plushie_count": 5},
 	{"id": "rose_plushie_pack_large", "price": "$9.99", "label": "Rose's Plushie Pack (Large)", "rubles": 0, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0, "plushie_count": 12},
+	{"id": "backpack_pack", "price": "$2.99", "label": "Quartermaster's Backpack Pack", "rubles": 0, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0, "backpack_count": 1},
 ]
 
 var monthly_pass_owned: bool = false
@@ -4396,6 +4425,8 @@ func _grant_store_pack_contents(pack: Dictionary) -> void:
 		_add_to_stash(roll_ammo())
 	for i in range(int(pack.get("plushie_count", 0))):
 		_add_to_stash(roll_plushie())
+	for i in range(int(pack.get("backpack_count", 0))):
+		_add_to_stash(_roll_backpack_item())
 
 func _roll_store_item(rarity: String) -> Dictionary:
 	var pool: Array = []
@@ -4406,6 +4437,21 @@ func _roll_store_item(rarity: String) -> Dictionary:
 		for pool_item in ENEMY_LOOT_POOL:
 			if pool_item.get("rarity", "") == rarity:
 				pool.append(pool_item)
+	if pool.is_empty():
+		return roll_enemy_loot()
+	return finalize_rolled_item(pool[randi() % pool.size()].duplicate(true))
+
+# Dedicated puller for the Store's Backpack Pack - picks any slot:"backpack"
+# gear, favoring the higher-tier LOOT_BAG_GEAR_POOL entries the same way
+# _roll_store_item() favors them by rarity.
+func _roll_backpack_item() -> Dictionary:
+	var pool: Array = []
+	for pool_item in LOOT_BAG_GEAR_POOL:
+		if pool_item.get("slot", "") == "backpack":
+			pool.append(pool_item)
+	for pool_item in ENEMY_LOOT_POOL:
+		if pool_item.get("slot", "") == "backpack":
+			pool.append(pool_item)
 	if pool.is_empty():
 		return roll_enemy_loot()
 	return finalize_rolled_item(pool[randi() % pool.size()].duplicate(true))
