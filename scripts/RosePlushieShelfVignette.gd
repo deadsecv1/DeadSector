@@ -59,6 +59,11 @@ func _layout() -> void:
 		p.wander_radius = 36.0
 		p.start_delay = float(i) * 1.3
 		p.follow_cursor = true
+		# Cursor-following can drift them close to/behind Rose's own
+		# position - force them to always draw in front of her rather
+		# than leaving it to sibling order (which put them behind hers
+		# whenever they crossed near her feet, making them vanish).
+		p.z_index = 5
 		p.follow_lag = 2.0 + float(i) * 0.5
 		p.position = Vector2(w * 0.64 + float(i - 1) * 55.0, h * 0.9)
 		add_child(p)
