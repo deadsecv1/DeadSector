@@ -5218,7 +5218,33 @@ func reset_character() -> void:
 	junk = 0
 	artifacts = 0
 	alloys = 0
+	souls = 0
+	blossoms = 0
+	skill_points = 0
+	stones = 0
+	rank_points = 0
+	arena_rank_points = 0
+	blood_shards = 0
+	bloodline_tier = 0
+	bloodline_progress = 0
+	battle_pass_tier = 0
+	battle_pass_progress = 0
+	milestone_tier = 0
+	milestone_progress = 0
+	gauntlet_best_level = 0
+	engrams = []
+	salvaged_beasts_tickets = 0
+	salvaged_beasts_tier = 0
+	salvaged_beasts_progress = 0
+	graveyard_kills = 0
+	monthly_pass_owned = false
+	double_xp_owned = false
+	fast_hatching_owned = false
+	claimed_free_store_packs = []
+	leaderboard_player_baseline = {}
+	_last_starter_pack_claim = -STARTER_PACK_COOLDOWN
 	stash_items = []
+	backpack_storage = []
 	equipped_items = {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null, "backpack": null}
 	for key in upgrades.keys():
 		upgrades[key]["level"] = 0
@@ -5227,13 +5253,49 @@ func reset_character() -> void:
 	quest_status = {}
 	owned_skins = {}
 	equipped_skins = {}
+	owned_titles = []
+	owned_badges = []
+	equipped_title = ""
+	equipped_chat_background = ""
+	unlocked_achievements = {}
+	achievement_flag_multiversal_pull = false
+	achievement_flag_close_call = false
+	discovered_enemies = {}
+	seen_collectibles = {}
+	ghost_recruited = false
+	rose_talked_to = false
+	recruit_equipment = {
+		"clarity": {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null},
+		"sorrow": {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null},
+		"glenn": {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null},
+		"big_crax": {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null},
+	}
+	owned_pets = []
+	equipped_pet = ""
+	owned_pet_instances = {}
+	_pet_instance_counter = 0
+	pet_eggs = []
+	egg_hatching_slots = []
+	flea_market_listings = []
+	_flea_listing_counter = 0
+	mail_messages = []
+	_mail_counter = 0
+	welcome_mail_sent = false
+	tech_test_mail_sent = false
+	alpha_rewards_claimed = false
+	has_seen_welcome = false
 	player_level = 1
 	player_xp = 0
+	player_score = 0
 	stat_total_loot_collected = 0
 	stat_total_sold = 0
 	stat_enemies_killed = 0
 	stat_deaths = 0
 	stat_extractions = 0
+	stat_scav_extractions = 0
+	stat_crates_opened = 0
+	stat_blueprints_researched = 0
+	stat_eggs_hatched = 0
 	bitcoin_gpu_slots = [null, null, null, null]
 	character_created = false
 	player_name = "Operative"
@@ -5245,6 +5307,10 @@ func reset_character() -> void:
 	player_eye_color_idx = 0
 	player_mouth_style_idx = 0
 	player_skin_color_idx = 2
+	player_torso_style = "sleek"
+	player_glow_color_idx = 0
+	player_backpack_style = "sleek_rig"
+	player_trait = "adrenaline_junkie"
 	player_particle_trail = "none"
 	save_game()
 
@@ -5363,6 +5429,7 @@ func _notification(what: int) -> void:
 # survives closing the game. Saved automatically when a run ends, when
 # the window is closed, and periodically while playing.
 const SAVE_PATH := "user://savegame.json"
+const SAVE_BACKUP_PATH := "user://savegame.json.bak"
 
 # A genuine full wipe for the Main Menu's Wipe button - deletes the save
 # file outright rather than manually resetting every individual field
@@ -5648,6 +5715,11 @@ func list_item_on_flea_market(stash_index: int, price: int) -> bool:
 		toast_requested.emit("Set a price above 0 first")
 		return false
 	var item: Dictionary = stash_items[stash_index]
+	# Clamp to the same 0.5x-3x band the UI suggests - the price_edit field
+	# is free-form text entry, so this is the only real enforcement against
+	# listing junk for Mythic money and cashing out on the 75% sell chance.
+	var price_range := get_flea_market_price_range(item)
+	price = clampi(price, price_range.x, price_range.y)
 	stash_items.remove_at(stash_index)
 	_flea_listing_counter += 1
 	var now := _flea_now()
@@ -6341,7 +6413,13 @@ func save_game() -> void:
 		"fast_hatching_owned": fast_hatching_owned,
 		"claimed_free_store_packs": claimed_free_store_packs,
 		"stash_items": stash_items,
+		"safe_pockets": safe_pockets,
 		"equipped_items": equipped_items,
+		"is_scav_run": is_scav_run,
+		"saved_pmc_equipped": _saved_pmc_equipped,
+		"arena_loadout_active": _arena_loadout_active,
+		"saved_arena_equipped": _saved_arena_equipped,
+		"saved_arena_pet": _saved_arena_pet,
 		"upgrade_levels": _levels_of(upgrades),
 		"hideout_upgrade_levels": _levels_of(hideout_upgrades),
 		"quest_status": quest_status,
@@ -6411,10 +6489,31 @@ func save_game() -> void:
 		"achievement_flag_close_call": achievement_flag_close_call,
 		"rose_talked_to": rose_talked_to,
 	}
-	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	if f:
-		f.store_string(JSON.stringify(data))
-		f.close()
+	# Write to a temp file first, then rotate it into place, rather than
+	# truncating savegame.json directly - a crash/forced-close mid-write
+	# used to be able to leave a half-written, unparseable save behind,
+	# which load_game() then treated identically to "no save at all" and
+	# silently wiped the player back to a blank slate. Keeping one rotated
+	# backup generation also means a genuinely corrupted write still has
+	# last session's known-good save to recover from.
+	var tmp_path := SAVE_PATH + ".tmp"
+	var f := FileAccess.open(tmp_path, FileAccess.WRITE)
+	if f == null:
+		toast_requested.emit("Save failed - could not write to disk")
+		return
+	f.store_string(JSON.stringify(data))
+	f.close()
+	var dir := DirAccess.open("user://")
+	if dir == null:
+		toast_requested.emit("Save failed - could not access save directory")
+		return
+	if dir.file_exists(SAVE_PATH.trim_prefix("user://")):
+		if dir.file_exists(SAVE_BACKUP_PATH.trim_prefix("user://")):
+			dir.remove(SAVE_BACKUP_PATH.trim_prefix("user://"))
+		dir.rename(SAVE_PATH.trim_prefix("user://"), SAVE_BACKUP_PATH.trim_prefix("user://"))
+	var err := dir.rename(tmp_path.trim_prefix("user://"), SAVE_PATH.trim_prefix("user://"))
+	if err != OK:
+		toast_requested.emit("Save failed - progress may not have been saved")
 
 func _levels_of(source: Dictionary) -> Dictionary:
 	var out := {}
@@ -6422,17 +6521,36 @@ func _levels_of(source: Dictionary) -> Dictionary:
 		out[key] = int(source[key].get("level", 0))
 	return out
 
-func load_game() -> void:
-	if not FileAccess.file_exists(SAVE_PATH):
-		return
-	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
+func _try_load_save_file(path: String) -> Variant:
+	if not FileAccess.file_exists(path):
+		return null
+	var f := FileAccess.open(path, FileAccess.READ)
 	if not f:
-		return
+		return null
 	var text := f.get_as_text()
 	f.close()
-	var parsed = JSON.parse_string(text)
+	if text == "":
+		return null
+	return JSON.parse_string(text)
+
+func load_game() -> void:
+	var primary_existed := FileAccess.file_exists(SAVE_PATH)
+	var parsed = _try_load_save_file(SAVE_PATH)
+	var used_backup := false
 	if typeof(parsed) != TYPE_DICTIONARY:
-		return
+		var backup_existed := FileAccess.file_exists(SAVE_BACKUP_PATH)
+		parsed = _try_load_save_file(SAVE_BACKUP_PATH)
+		if typeof(parsed) == TYPE_DICTIONARY:
+			used_backup = true
+		elif not primary_existed and not backup_existed:
+			# Neither file exists anywhere - a genuinely new install, not
+			# a failure. Nothing to warn about.
+			return
+		else:
+			toast_requested.emit("Your save file couldn't be read, even from backup - starting fresh. Sorry about that.")
+			return
+	if used_backup:
+		toast_requested.emit("Your main save couldn't be read, so your previous backup was restored instead - you may have lost a small amount of recent progress.")
 
 	# NOTE: this used to unconditionally wipe any save with an older
 	# save_format_version before loading anything - but that ran BEFORE
@@ -6487,6 +6605,21 @@ func load_game() -> void:
 		for key in equipped_items.keys():
 			if loaded_equipped.has(key):
 				equipped_items[key] = loaded_equipped[key]
+
+	is_scav_run = bool(parsed.get("is_scav_run", false))
+	var loaded_saved_pmc = parsed.get("saved_pmc_equipped", null)
+	if typeof(loaded_saved_pmc) == TYPE_DICTIONARY:
+		_saved_pmc_equipped = loaded_saved_pmc
+	_arena_loadout_active = bool(parsed.get("arena_loadout_active", false))
+	var loaded_saved_arena = parsed.get("saved_arena_equipped", null)
+	if typeof(loaded_saved_arena) == TYPE_DICTIONARY:
+		_saved_arena_equipped = loaded_saved_arena
+	_saved_arena_pet = String(parsed.get("saved_arena_pet", ""))
+	# NOTE: recovery (restoring real gear/pet if a run was left active) is
+	# applied much further down, after equipped_pet's normal load below -
+	# otherwise that unconditional load would immediately clobber it back
+	# to the temporary loadout's pet.
+	var recovered_interrupted_run := false
 
 	var loaded_upgrade_levels = parsed.get("upgrade_levels", {})
 	if typeof(loaded_upgrade_levels) == TYPE_DICTIONARY:
@@ -6638,6 +6771,38 @@ func load_game() -> void:
 	var loaded_backpack_storage = parsed.get("backpack_storage", null)
 	if typeof(loaded_backpack_storage) == TYPE_ARRAY:
 		backpack_storage = loaded_backpack_storage
+	# A Scav Run or Arena Loadout that was still active when the game last
+	# closed (quit, crash, forced shutdown) never reached its normal
+	# end_*_if_active() call, so the real gear/pet underneath is only
+	# sitting in these backups. This is the only chance to give it back,
+	# since a raid/arena match never survives a cold boot to begin with.
+	# Runs here (rather than right after equipped_items loads above) so it
+	# applies after equipped_pet's normal load, instead of being clobbered
+	# by it.
+	if is_scav_run and not _saved_pmc_equipped.is_empty():
+		equipped_items = _saved_pmc_equipped.duplicate(true)
+		is_scav_run = false
+		_saved_pmc_equipped = {}
+		recovered_interrupted_run = true
+	if _arena_loadout_active and not _saved_arena_equipped.is_empty():
+		equipped_items = _saved_arena_equipped.duplicate(true)
+		equipped_pet = _saved_arena_pet
+		_arena_loadout_active = false
+		_saved_arena_equipped = {}
+		_saved_arena_pet = ""
+		recovered_interrupted_run = true
+	var loaded_safe_pockets = parsed.get("safe_pockets", null)
+	if typeof(loaded_safe_pockets) == TYPE_ARRAY:
+		for i in range(min(loaded_safe_pockets.size(), safe_pockets.size())):
+			safe_pockets[i] = loaded_safe_pockets[i]
+		# A raid never survives a cold boot, so pockets still holding
+		# something here means the game closed mid-run before end_run()
+		# could bank them - drain them now the same way a normal
+		# extraction/death would, instead of leaving them stuck in
+		# limbo (or worse, silently lost).
+		if safe_pockets.any(func(it): return it != null):
+			_drain_safe_pockets_to_stash()
+			recovered_interrupted_run = true
 	has_seen_welcome = bool(parsed.get("has_seen_welcome", false))
 	achievement_flag_multiversal_pull = bool(parsed.get("achievement_flag_multiversal_pull", false))
 	achievement_flag_close_call = bool(parsed.get("achievement_flag_close_call", false))
@@ -6649,6 +6814,9 @@ func load_game() -> void:
 				keybinds[action] = int(loaded_keybinds[action])
 	_repair_overlapping_grid_items()
 	_migrate_stash_eggs_to_hatchery()
+	if recovered_interrupted_run:
+		toast_requested.emit("Restored your real loadout after an interrupted run")
+		save_game()
 
 # Older saves (from before eggs started auto-depositing) can have Eggs
 # still sitting in the Stash from before this change - sweep them into
@@ -7657,17 +7825,7 @@ func end_run(success: bool) -> void:
 	# Graveyard Key so far) specifically need to be in Backpack Storage
 	# to count for anything, so route those there instead, with the same
 	# "fall back to Stash if full" safety net grant_graveyard_key() uses.
-	for item in safe_pockets:
-		if item == null:
-			continue
-		if item.get("item_id", "") in BACKPACK_STORAGE_ONLY_ITEM_IDS:
-			if not add_to_backpack_storage(item):
-				_add_to_stash(item)
-				toast_requested.emit("%s came back from your Safe Pocket, but Backpack Storage was full - it's in your Stash for now." % str(item.get("name", "Item")))
-		else:
-			_add_to_stash(item)
-	safe_pockets = [null, null]
-	pockets_changed.emit()
+	_drain_safe_pockets_to_stash()
 	run_ended.emit(success, carried_value)
 	save_game()
 	get_tree().paused = true
@@ -7696,3 +7854,23 @@ func end_run(success: bool) -> void:
 	get_tree().change_scene_to_packed(Transition.get_cached_scene(next_scene_path))
 	await get_tree().process_frame
 	Transition.fade_in(0.6)
+
+# Safe Pocket items always survive, win or lose. Most items land in the
+# Stash like anything else you extract with - but a couple (the Graveyard
+# Key so far) specifically need to be in Backpack Storage to count for
+# anything, so route those there instead, with the same "fall back to
+# Stash if full" safety net grant_graveyard_key() uses. Also called from
+# load_game() to recover pockets left stranded by a mid-raid quit/crash,
+# since a raid never survives a cold boot to drain them the normal way.
+func _drain_safe_pockets_to_stash() -> void:
+	for item in safe_pockets:
+		if item == null:
+			continue
+		if item.get("item_id", "") in BACKPACK_STORAGE_ONLY_ITEM_IDS:
+			if not add_to_backpack_storage(item):
+				_add_to_stash(item)
+				toast_requested.emit("%s came back from your Safe Pocket, but Backpack Storage was full - it's in your Stash for now." % str(item.get("name", "Item")))
+		else:
+			_add_to_stash(item)
+	safe_pockets = [null, null]
+	pockets_changed.emit()

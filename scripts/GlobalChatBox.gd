@@ -790,6 +790,15 @@ func _start_recruit_join(invite: Dictionary) -> void:
 	for i in [3, 2, 1]:
 		join_overlay_label.text = "Joining game in %d..." % i
 		await get_tree().create_timer(1.0).timeout
+	# The player had ~4 uninterruptible seconds to close chat, open another
+	# panel, or otherwise navigate away while this counted down - closing
+	# chat (or any scene change already in flight) doubles as the cancel,
+	# so bail out here instead of committing a party to a join that's no
+	# longer relevant. Without this, pending_raid_party could leak into a
+	# later, unrelated raid the player starts some other way entirely.
+	if not chat_box_open or Transition._is_transitioning:
+		join_overlay.visible = false
+		return
 	var party_size: int = int(invite.get("party_size", 2)) - 1
 	var party_members: Array = []
 	for i in range(party_size):
