@@ -3,6 +3,7 @@ extends Control
 const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
 const BONECLOCK_LEVEL_REQUIREMENT := 10
 const VOID_TRENCH_LEVEL_REQUIREMENT := 20
+const IRONSCRAP_LEVEL_REQUIREMENT := 30
 
 @onready var overgrowth_button: Button = $VBox/MapRow/OvergrowthCard
 @onready var boneclock_button: Button = $VBox/MapRow/BoneclockCard
@@ -10,6 +11,8 @@ const VOID_TRENCH_LEVEL_REQUIREMENT := 20
 @onready var boneclock_lock_label: Label = $VBox/MapRow/BoneclockCard/BoneclockVBox/BoneclockLockLabel
 @onready var void_trench_button: Button = $VBox/MapRow/VoidTrenchCard
 @onready var void_trench_lock_label: Label = $VBox/MapRow/VoidTrenchCard/VoidTrenchVBox/VoidTrenchLockLabel
+@onready var ironscrap_button: Button = $VBox/MapRow/IronscrapCard
+@onready var ironscrap_lock_label: Label = $VBox/MapRow/IronscrapCard/IronscrapVBox/IronscrapLockLabel
 @onready var back_button: Button = $VBox/BackButton
 
 func _input(event: InputEvent) -> void:
@@ -34,9 +37,14 @@ func _ready() -> void:
 	void_trench_lock_label.visible = not void_unlocked
 	void_trench_button.modulate = Color(1, 1, 1, 1) if void_unlocked else Color(0.6, 0.6, 0.6, 1)
 
+	var ironscrap_unlocked: bool = GameManager.player_level >= IRONSCRAP_LEVEL_REQUIREMENT
+	ironscrap_lock_label.visible = not ironscrap_unlocked
+	ironscrap_button.modulate = Color(1, 1, 1, 1) if ironscrap_unlocked else Color(0.6, 0.6, 0.6, 1)
+
 	overgrowth_button.pressed.connect(func(): _choose("overgrowth"))
 	boneclock_button.pressed.connect(func(): _choose("boneclock"))
 	void_trench_button.pressed.connect(func(): _choose("void_trench"))
+	ironscrap_button.pressed.connect(func(): _choose("ironscrap"))
 	back_button.pressed.connect(func(): Transition.change_scene_instant("res://scenes/MainMenu.tscn"))
 
 func _choose(map_id: String) -> void:
@@ -45,6 +53,9 @@ func _choose(map_id: String) -> void:
 		return
 	if map_id == "void_trench" and GameManager.player_level < VOID_TRENCH_LEVEL_REQUIREMENT:
 		GameManager.toast_requested.emit("Void Trench unlocks at Level %d (you're Level %d)" % [VOID_TRENCH_LEVEL_REQUIREMENT, GameManager.player_level])
+		return
+	if map_id == "ironscrap" and GameManager.player_level < IRONSCRAP_LEVEL_REQUIREMENT:
+		GameManager.toast_requested.emit("Ironscrap Yard unlocks at Level %d (you're Level %d)" % [IRONSCRAP_LEVEL_REQUIREMENT, GameManager.player_level])
 		return
 	GameManager.selected_map = map_id
 	Transition.change_scene("res://scenes/MapSelect.tscn")

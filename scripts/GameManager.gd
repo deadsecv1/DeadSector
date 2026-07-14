@@ -5252,6 +5252,7 @@ const MAP_SCENES := {
 	"boneclock": "res://scenes/Boneclock.tscn",
 	"void_trench": "res://scenes/VoidTrench.tscn",
 	"graveyard": "res://scenes/Graveyard.tscn",
+	"ironscrap": "res://scenes/IronscrapYard.tscn",
 }
 
 var character_created: bool = false

@@ -24,9 +24,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -470.0
+offset_left = -550.0
 offset_top = -220.0
-offset_right = 470.0
+offset_right = 550.0
 offset_bottom = 220.0
 theme_override_constants/separation = 16
 
@@ -42,14 +42,14 @@ text = "SELECT SECTOR"
 theme_override_font_sizes/font_size = 13
 horizontal_alignment = 1
 modulate = Color(1, 1, 1, 0.6)
-text = "Three very different places to not come back from."
+text = "Four very different places to not come back from."
 
 [node name="MapRow" type="HBoxContainer" parent="VBox"]
 size_flags_vertical = 3
 theme_override_constants/separation = 20
 
 [node name="OvergrowthCard" type="Button" parent="VBox/MapRow"]
-custom_minimum_size = Vector2(280, 260)
+custom_minimum_size = Vector2(240, 260)
 size_flags_horizontal = 3
 
 [node name="OvergrowthVBox" type="VBoxContainer" parent="VBox/MapRow/OvergrowthCard"]
@@ -76,7 +76,7 @@ theme_override_font_sizes/font_size = 13
 text = "Sprawling overgrown houses, a lake, a mechanic shop, and a boss lurking out in the open field. The original sector."
 
 [node name="BoneclockCard" type="Button" parent="VBox/MapRow"]
-custom_minimum_size = Vector2(280, 260)
+custom_minimum_size = Vector2(240, 260)
 size_flags_horizontal = 3
 
 [node name="BoneclockVBox" type="VBoxContainer" parent="VBox/MapRow/BoneclockCard"]
@@ -116,7 +116,7 @@ theme_override_colors/font_color = Color(1, 0.55, 0.3, 1)
 text = "Unlocks at Level 10"
 
 [node name="VoidTrenchCard" type="Button" parent="VBox/MapRow"]
-custom_minimum_size = Vector2(280, 260)
+custom_minimum_size = Vector2(240, 260)
 size_flags_horizontal = 3
 
 [node name="VoidTrenchVBox" type="VBoxContainer" parent="VBox/MapRow/VoidTrenchCard"]
@@ -147,6 +147,39 @@ horizontal_alignment = 1
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(1, 0.55, 0.3, 1)
 text = "Unlocks at Level 20"
+
+[node name="IronscrapCard" type="Button" parent="VBox/MapRow"]
+custom_minimum_size = Vector2(240, 260)
+size_flags_horizontal = 3
+
+[node name="IronscrapVBox" type="VBoxContainer" parent="VBox/MapRow/IronscrapCard"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = -14.0
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="IronscrapTitle" type="Label" parent="VBox/MapRow/IronscrapCard/IronscrapVBox"]
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.55, 0.25, 1)
+text = "IRONSCRAP YARD"
+
+[node name="IronscrapDesc" type="Label" parent="VBox/MapRow/IronscrapCard/IronscrapVBox"]
+horizontal_alignment = 1
+autowrap_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 13
+text = "A gutted industrial scrapyard - stacked containers, dead cranes, and raiders dug in around the best salvage left standing."
+
+[node name="IronscrapLockLabel" type="Label" parent="VBox/MapRow/IronscrapCard/IronscrapVBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(1, 0.55, 0.3, 1)
+text = "Unlocks at Level 30"
 
 [node name="BackButton" type="Button" parent="VBox"]
 custom_minimum_size = Vector2(0, 46)
