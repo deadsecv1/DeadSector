@@ -302,6 +302,12 @@ text = "Helmet Attach."
 script = ExtResource("3")
 slot_name = "helmet_attachment"
 
+[node name="HPLabel" type="Label" parent="VBox/Panels/CharacterPanel"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
+text = "100 HP"
+
 [node name="BackButton" type="Button" parent="VBox"]
 custom_minimum_size = Vector2(200, 50)
 theme_override_font_sizes/font_size = 20
