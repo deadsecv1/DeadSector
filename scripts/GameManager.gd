@@ -4016,6 +4016,10 @@ const RECRUITS := {
 # doll's Pet slot. Unlike Recruits they don't fight - each just grants a
 # small passive stat bonus (via the same stat_type/stat_value system
 # gear uses) and follows you around as a visual companion in-raid.
+# Ellie's own pink used to be hand-copied as a literal in RosePanel.gd
+# and StorePanel.gd (2 separate spots re-typing the same color instead
+# of referencing this one) - both now read this constant instead.
+const ELLIE_ICON_COLOR := Color(1.0, 0.65, 0.9, 1)
 const PET_CATALOG := {
 	"rex": {"name": "Rex", "cost": 3000, "color": Color(0.55, 0.4, 0.22, 1), "stat_type": "speed", "stat_value": 15.0, "icon_key": "pet_dog", "speed_mult": 1.0, "quote": "\"Loyal, and fast on his feet.\""},
 	"whiskers": {"name": "Whiskers", "cost": 3000, "color": Color(0.32, 0.32, 0.36, 1), "stat_type": "max_health", "stat_value": 20.0, "icon_key": "pet_cat", "speed_mult": 0.85, "quote": "\"Nine lives, shared with you.\""},
@@ -4451,7 +4455,7 @@ const PLUSHIE_EXCLUSIVE_PET_POOL := {
 	# equipped, a small ring of miniature plushies orbits the player in
 	# raid, Arena, and Spectral Tide, not just a menu-only visual.
 	"godforged": [
-		{"id": "ellie", "name": "Ellie", "color": Color(1.0, 0.65, 0.9, 1), "icon_key": "pet_elephant", "stat_type": "max_health", "stat_value": 50.0, "stat_type_2": "loot_sense", "stat_value_2": 0.02, "speed_mult": 1.0, "godforged_orbit": true},
+		{"id": "ellie", "name": "Ellie", "color": ELLIE_ICON_COLOR, "icon_key": "pet_elephant", "stat_type": "max_health", "stat_value": 50.0, "stat_type_2": "loot_sense", "stat_value_2": 0.02, "speed_mult": 1.0, "godforged_orbit": true},
 	],
 }
 
@@ -6332,6 +6336,7 @@ func save_game() -> void:
 		"gauntlet_best_level": gauntlet_best_level, "engrams": engrams,
 		"battle_pass_tier": battle_pass_tier, "battle_pass_progress": battle_pass_progress,
 		"milestone_tier": milestone_tier, "milestone_progress": milestone_progress,
+		"has_shown_chat_keybind_hint": has_shown_chat_keybind_hint,
 		"monthly_pass_owned": monthly_pass_owned, "double_xp_owned": double_xp_owned,
 		"fast_hatching_owned": fast_hatching_owned,
 		"claimed_free_store_packs": claimed_free_store_packs,
@@ -6465,6 +6470,7 @@ func load_game() -> void:
 	battle_pass_progress = int(parsed.get("battle_pass_progress", 0))
 	milestone_tier = int(parsed.get("milestone_tier", 0))
 	milestone_progress = int(parsed.get("milestone_progress", 0))
+	has_shown_chat_keybind_hint = bool(parsed.get("has_shown_chat_keybind_hint", false))
 	monthly_pass_owned = bool(parsed.get("monthly_pass_owned", false))
 	double_xp_owned = bool(parsed.get("double_xp_owned", false))
 	fast_hatching_owned = bool(parsed.get("fast_hatching_owned", false))
@@ -7525,6 +7531,11 @@ func unequip_to_backpack_storage_cell(slot: String, gx: int, gy: int) -> void:
 # then on.
 var ghost_recruited: bool = false
 var rose_talked_to: bool = false
+# Once-ever flag - the first time the ambient chat-ping popup fires, a
+# toast also mentions the chat keybind, since GlobalChatBox (the real
+# multi-channel chat) has zero on-screen affordance otherwise, unlike
+# the Social button the ping popup itself points at.
+var has_shown_chat_keybind_hint: bool = false
 var raid_ghost_following: bool = false
 
 # True while the player has the Tab inventory panel open in a raid -

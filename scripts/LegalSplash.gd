@@ -4,17 +4,28 @@ extends Control
 # before the title sequence. Same "fade in, hold, wait for skippable
 # input" shape as the other splash screens.
 
+const TooltipParticlesScript := preload("res://scripts/TooltipParticles.gd")
+
 var _waiting_for_skip: bool = false
 var _skip_requested: bool = false
 var _advanced: bool = false
 
 @onready var content: Control = $Content
 @onready var continue_label: Label = $Content/ContinueLabel
+@onready var sparkles_holder: Control = $Sparkles
 
 func _ready() -> void:
 	GameManager.set_default_cursor()
 	content.modulate.a = 0.0
 	continue_label.visible = false
+	# Deliberately very faint and slow - this screen's whole job is
+	# legibility, so the touch of ambient life has to stay well out of
+	# the text's way rather than compete with it.
+	sparkles_holder.set_script(TooltipParticlesScript)
+	sparkles_holder.set_process(true)
+	sparkles_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sparkles_holder.particle_color = Color(0.5, 0.55, 0.65, 0.35)
+	sparkles_holder.intensity = 8
 	_play_sequence()
 
 func _input(event: InputEvent) -> void:

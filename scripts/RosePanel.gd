@@ -93,7 +93,7 @@ func _build_ellie_corner() -> void:
 
 	var ellie_icon = ItemIconScene.instantiate()
 	ellie_icon.icon_key = "pet_elephant"
-	ellie_icon.icon_color = Color(1.0, 0.65, 0.9, 1)
+	ellie_icon.icon_color = GameManager.ELLIE_ICON_COLOR
 	ellie_icon.spin = true
 	ellie_icon.anchor_right = 1.0
 	ellie_icon.anchor_bottom = 1.0

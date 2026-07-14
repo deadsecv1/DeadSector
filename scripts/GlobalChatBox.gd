@@ -68,6 +68,7 @@ var channel_btn: Button
 var channel_menu: PanelContainer
 var join_overlay: PanelContainer
 var join_overlay_label: Label
+var join_overlay_spinner: Control
 
 var chat_box_open: bool = false
 var _chat_opened_at_ms: int = 0
@@ -235,13 +236,40 @@ func _build_join_overlay() -> void:
 	join_overlay.add_theme_stylebox_override("panel", sb)
 	chat_root.add_child(join_overlay)
 
+	# Same "orbiting dot" spinner technique as ArenaMatchmaking.gd's
+	# equivalent wait beat - this used to be a plain static label with
+	# no motion at all for the whole countdown.
+	var vbox := VBoxContainer.new()
+	vbox.anchor_right = 1.0
+	vbox.anchor_bottom = 1.0
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 6)
+	join_overlay.add_child(vbox)
+
+	join_overlay_spinner = Control.new()
+	join_overlay_spinner.custom_minimum_size = Vector2(0, 32)
+	join_overlay_spinner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	join_overlay_spinner.draw.connect(_draw_join_spinner)
+	vbox.add_child(join_overlay_spinner)
+
 	join_overlay_label = Label.new()
 	join_overlay_label.text = "Joining game in 3..."
 	join_overlay_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	join_overlay_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	join_overlay_label.add_theme_font_size_override("font_size", 18)
 	join_overlay_label.add_theme_color_override("font_color", Color(0.85, 0.9, 1.0, 1))
-	join_overlay.add_child(join_overlay_label)
+	vbox.add_child(join_overlay_label)
+
+func _draw_join_spinner() -> void:
+	var t := Time.get_ticks_msec() * 0.001
+	var center: Vector2 = join_overlay_spinner.size / 2.0
+	var radius := 13.0
+	var segments := 8
+	for i in range(segments):
+		var ang: float = t * 3.2 + TAU * float(i) / float(segments)
+		var alpha: float = 0.15 + 0.75 * (float(i) / float(segments))
+		var pos := center + Vector2(cos(ang), sin(ang)) * radius
+		join_overlay_spinner.draw_circle(pos, 3.2, Color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b, alpha))
 
 # ------------------------------------------------------------------
 # Channel switching
@@ -317,6 +345,8 @@ func _input(event: InputEvent) -> void:
 			channel_menu.visible = false
 
 func _process(delta: float) -> void:
+	if join_overlay.visible:
+		join_overlay_spinner.queue_redraw()
 	if not chat_box_open or _current_channel in CHANNELS_NO_SIM:
 		return
 	_msg_timer += delta

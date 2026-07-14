@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://scripts/StoreGoldBackground.gd" id="14"]
 [ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="15"]
 [ext_resource type="Script" path="res://scripts/DystopianHoverButton.gd" id="16"]
+[ext_resource type="Script" path="res://scripts/PulsingWarningVignette.gd" id="160"]
 [ext_resource type="Script" path="res://scripts/PlayButtonGlow.gd" id="40"]
 [ext_resource type="PackedScene" path="res://scenes/FleaMarketPanel.tscn" id="41"]
 [ext_resource type="PackedScene" path="res://scenes/MailPanel.tscn" id="42"]
@@ -924,6 +925,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.1, 0.03, 0.03, 0.97)
 
+[node name="Vignette" type="Control" parent="DeleteConfirmPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("160")
+
 [node name="VBox" type="VBoxContainer" parent="DeleteConfirmPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -970,6 +977,12 @@ visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.1, 0.03, 0.03, 0.97)
+
+[node name="Vignette" type="Control" parent="WipeConfirmPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("160")
 
 [node name="VBox" type="VBoxContainer" parent="WipeConfirmPanel"]
 anchor_right = 1.0

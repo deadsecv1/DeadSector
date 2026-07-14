@@ -43,10 +43,12 @@ func _process(delta: float) -> void:
 	_time += delta
 	_next_pulse_at -= delta
 	if _next_pulse_at <= 0.0 and not _edges.is_empty():
-		_next_pulse_at = randf_range(0.35, 0.9)
+		# Tightened from (0.35, 0.9) - the old range often left 0-1 pulses
+		# alive at any given moment, reading as inert rather than dormant.
+		_next_pulse_at = randf_range(0.18, 0.45)
 		_pulses.append({"edge": _edges[randi() % _edges.size()], "t": 0.0})
 	for p in _pulses:
-		p["t"] += delta * 1.6
+		p["t"] += delta * 1.3
 	_pulses = _pulses.filter(func(p): return p["t"] < 1.0)
 	queue_redraw()
 

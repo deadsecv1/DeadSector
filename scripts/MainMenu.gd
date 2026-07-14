@@ -364,6 +364,9 @@ func _check_leaderboard_podium_popup() -> void:
 func _show_chat_ping_popup() -> void:
 	if global_chat_panel.visible:
 		return
+	if not GameManager.has_shown_chat_keybind_hint:
+		GameManager.has_shown_chat_keybind_hint = true
+		GameManager.toast_requested.emit("Tip: press %s anytime for the full multi-channel chat" % OS.get_keycode_string(GameManager.get_keybind("chat")))
 	if social_panel.visible:
 		var target: Button = social_panel.global_chat_button
 		_show_ambient_popup(target, "...", Color(0.6, 0.8, 1.0, 1), "right")
