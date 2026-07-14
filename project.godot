@@ -21,6 +21,7 @@ Sfx="*res://scripts/Sfx.gd"
 Transition="*res://scripts/Transition.gd"
 Notify="*res://scripts/Notify.gd"
 MenuMusic="*res://scripts/MenuMusic.gd"
+GlobalChatBox="*res://scripts/GlobalChatBox.gd"
 
 [display]
 
