@@ -22,11 +22,11 @@ base_color = Color(0.24, 0.21, 0.18, 1)
 
 [node name="WallTop" parent="." instance=ExtResource("3")]
 position = Vector2(0, -1300)
-size = Vector2(3520, 40)
+size = Vector2(3560, 40)
 
 [node name="WallBottom" parent="." instance=ExtResource("3")]
 position = Vector2(0, 1300)
-size = Vector2(3520, 40)
+size = Vector2(3560, 40)
 
 [node name="WallLeft" parent="." instance=ExtResource("3")]
 position = Vector2(-1800, 0)

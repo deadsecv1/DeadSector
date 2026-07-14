@@ -461,6 +461,7 @@ func _shoot() -> void:
 		bullet.global_position = muzzle.global_position
 	recoil = -5.0
 	_flash_muzzle()
+	Sfx.play_gunshot()
 	await get_tree().create_timer(shoot_cooldown).timeout
 	can_shoot = true
 

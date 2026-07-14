@@ -1207,10 +1207,10 @@ func consume_carried_item(index: int) -> Dictionary:
 # slot "blueprint" until researched at Lil Dirty's bench in the Hideout,
 # which consumes the blueprint and grants the mythic item it unlocks.
 const BLUEPRINT_RESULTS := [
-	{"name": "Widowmaker", "value": 500, "slot": "weapon", "stat_type": "damage", "stat_value": 32.0, "icon_key": "rifle", "rarity": "mythic"},
-	{"name": "Aegis Plate", "value": 500, "slot": "body", "stat_type": "max_health", "stat_value": 60.0, "icon_key": "chestplate", "rarity": "mythic"},
-	{"name": "Phantom Visor", "value": 450, "slot": "head", "stat_type": "max_health", "stat_value": 55.0, "icon_key": "helmet", "rarity": "mythic"},
-	{"name": "Ghostwalker Boots", "value": 400, "slot": "boots", "stat_type": "speed", "stat_value": 45.0, "icon_key": "boots", "rarity": "mythic"},
+	{"name": "Widowmaker", "value": 500, "slot": "weapon", "stat_type": "damage", "stat_value": 43.2, "icon_key": "rifle", "rarity": "mythic"},
+	{"name": "Aegis Plate", "value": 500, "slot": "body", "stat_type": "max_health", "stat_value": 81.0, "icon_key": "chestplate", "rarity": "mythic"},
+	{"name": "Phantom Visor", "value": 450, "slot": "head", "stat_type": "max_health", "stat_value": 74.2, "icon_key": "helmet", "rarity": "mythic"},
+	{"name": "Ghostwalker Boots", "value": 400, "slot": "boots", "stat_type": "speed", "stat_value": 60.8, "icon_key": "boots", "rarity": "mythic"},
 	{"name": "Cataclysm", "value": 520, "slot": "weapon", "stat_type": "damage", "stat_value": 34.0, "icon_key": "sniper", "rarity": "mythic"},
 	{"name": "Sentinel's Ward", "value": 480, "slot": "body", "stat_type": "max_health", "stat_value": 58.0, "icon_key": "chestplate", "rarity": "mythic"},
 	{"name": "Oracle Crown", "value": 440, "slot": "head", "stat_type": "max_health", "stat_value": 52.0, "icon_key": "helmet", "rarity": "mythic"},
@@ -2513,9 +2513,9 @@ const WEAPON_CATALOG := {
 	# --- Divine: one tier above Multiversal, a 0.01% Undertow crate
 	# roll. Every one leans on the flashiest existing projectile
 	# behavior in the game instead of a flat single-target hit.
-	"seraphs_verdict": {"name": "Seraph's Verdict", "icon_key": "railgun", "rarity": "divine", "value": 12000, "stat_type": "damage", "stat_value": 130.0, "desc": "Pierces every target in its path and arcs lightning to a second one on every shot - a Railgun's whole kit, turned up past what should be possible."},
-	"halo_reaver": {"name": "Halo Reaver", "icon_key": "alpha_cannon", "rarity": "divine", "value": 12500, "stat_type": "damage", "stat_value": 135.0, "desc": "Fires the same piercing, sparkle-trailed bolt as the Alpha Cannon - except this one wasn't handed out during a Tech Test. Nobody's quite sure where it came from."},
-	"judgments_reach": {"name": "Judgment's Reach", "icon_key": "sniper", "rarity": "divine", "value": 13000, "stat_type": "damage", "stat_value": 140.0, "desc": "Chills, staggers, and drops nearly anything in the Sector in a single shot. The scope shows the kill before you've even pulled the trigger."},
+	"seraphs_verdict": {"name": "Seraph's Verdict", "icon_key": "railgun", "rarity": "divine", "value": 12000, "stat_type": "damage", "stat_value": 175.5, "desc": "Pierces every target in its path and arcs lightning to a second one on every shot - a Railgun's whole kit, turned up past what should be possible."},
+	"halo_reaver": {"name": "Halo Reaver", "icon_key": "alpha_cannon", "rarity": "divine", "value": 12500, "stat_type": "damage", "stat_value": 182.2, "desc": "Fires the same piercing, sparkle-trailed bolt as the Alpha Cannon - except this one wasn't handed out during a Tech Test. Nobody's quite sure where it came from."},
+	"judgments_reach": {"name": "Judgment's Reach", "icon_key": "sniper", "rarity": "divine", "value": 13000, "stat_type": "damage", "stat_value": 189.0, "desc": "Chills, staggers, and drops nearly anything in the Sector in a single shot. The scope shows the kill before you've even pulled the trigger."},
 	# --- Tech Test exclusive: boosts fire rate instead of raw damage. ---
 	"tech_testers_sidearm": {"name": "Tech Tester's Sidearm", "icon_key": "pistol", "rarity": "legendary", "value": 400, "stat_type": "fire_rate", "stat_value": 0.03, "desc": "A memento from the Tech Test, before Dead Sector was even in Alpha. Trades raw damage for a genuinely absurd fire rate.", "beta_only": true},
 }
@@ -5411,7 +5411,13 @@ func reset_character() -> void:
 	mail_messages = []
 	_mail_counter = 0
 	welcome_mail_sent = false
-	tech_test_mail_sent = false
+	# Deliberately NOT reset to false: the "From Tech Test to Alpha" mail is a
+	# one-time historical transition gift for saves that genuinely existed
+	# before Dead Sector left its Tech Test period. A character reset isn't
+	# that - it's a fresh start well after that transition already happened,
+	# so it shouldn't re-grant a huge "welcome back, veteran" mail every time
+	# someone deletes and remakes a character.
+	tech_test_mail_sent = true
 	alpha_rewards_claimed = false
 	has_seen_welcome = false
 	player_level = 1
@@ -6106,7 +6112,12 @@ func equip_title(id: String) -> void:
 		equipped_title = id
 		save_game()
 
-var tech_test_mail_sent: bool = false
+# Defaults to true (not false) so a genuinely fresh install - no save file
+# at all - never triggers this one-time "welcome back from the Tech Test"
+# transition mail; load_game() explicitly overwrites this back to false
+# for any save that already existed before this field did, preserving the
+# one legitimate case: an actual pre-existing player catching up on it once.
+var tech_test_mail_sent: bool = true
 
 func _maybe_send_tech_test_mail() -> void:
 	if tech_test_mail_sent:
@@ -6495,7 +6506,7 @@ func _maybe_send_welcome_mail() -> void:
 	send_mail(
 		"Welcome to Dead Sector",
 		"Hey - welcome to Dead Sector! Glad to have you out here. Raid a Sector, loot what you can carry, and extract before your time runs out - everything you bring home is yours to keep and build on for next time.\n\nHere's a little something to help you gear up early: a stack of Rubles, some Artifacts and Alloys, and an Early Supporter badge for your profile. Good luck out there - the Sector doesn't forgive, but we're glad you're here anyway.",
-		{"rubles": 50000, "artifacts": 50, "alloys": 50, "skill_points": 5, "badge": "day_one"},
+		{"rubles": 3000, "artifacts": 5, "alloys": 5, "skill_points": 1, "badge": "day_one"},
 	)
 
 const SAVE_FORMAT_VERSION := 5
