@@ -288,34 +288,24 @@ text = "Pet"
 script = ExtResource("20")
 
 [node name="PocketSlot1" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
-offset_left = 293.0
-offset_top = 464.0
-offset_right = 320.0
-offset_bottom = 491.0
+offset_left = 296.0
+offset_top = 459.0
+offset_right = 334.0
+offset_bottom = 497.0
 theme_override_font_sizes/font_size = 8
 text = "Empty"
 script = ExtResource("13")
 pocket_index = 0
 
 [node name="PocketSlot2" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
-offset_left = 323.0
-offset_top = 464.0
-offset_right = 350.0
-offset_bottom = 491.0
+offset_left = 340.0
+offset_top = 459.0
+offset_right = 378.0
+offset_bottom = 497.0
 theme_override_font_sizes/font_size = 8
 text = "Empty"
 script = ExtResource("13")
 pocket_index = 1
-
-[node name="PocketSlot3" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
-offset_left = 353.0
-offset_top = 464.0
-offset_right = 380.0
-offset_bottom = 491.0
-theme_override_font_sizes/font_size = 8
-text = "Empty"
-script = ExtResource("13")
-pocket_index = 2
 
 [node name="AccessorySlot" type="Button" parent="InventoryPanel/VBox/Panels/CharacterPanel/PortraitArea"]
 offset_left = 7.0

@@ -16,7 +16,7 @@ signal pockets_changed
 
 # 2 Safe Pocket slots - anything can go in, and whatever's inside survives
 # to the Stash even if the run ends in death.
-var safe_pockets: Array = [null, null, null]
+var safe_pockets: Array = [null, null]
 
 # Set by MapSelect.tscn before loading Main.tscn - Main.gd reads this to
 # darken the world for a Night Raid (and it also gates the "Extract from a
@@ -7577,7 +7577,7 @@ func end_run(success: bool) -> void:
 				toast_requested.emit("%s came back from your Safe Pocket, but Backpack Storage was full - it's in your Stash for now." % str(item.get("name", "Item")))
 		else:
 			_add_to_stash(item)
-	safe_pockets = [null, null, null]
+	safe_pockets = [null, null]
 	pockets_changed.emit()
 	run_ended.emit(success, carried_value)
 	save_game()
