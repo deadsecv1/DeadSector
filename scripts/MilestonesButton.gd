@@ -2,9 +2,10 @@ extends Button
 
 # The Milestones button - same permanent-border + idle-glow + orbiting
 # sparkle treatment as Arena/Alpha Rewards/Bloodline/Salvaged Beasts,
-# recolored gold for its own currency (Stones) (#46). Hover sound is the
-# generic shared one (wired in MainMenu.gd's hover array), not a bespoke
-# Sfx generator - this button doesn't need its own dedicated sound.
+# recolored gold for its own currency (Stones) (#46). Reuses
+# Sfx.play_coin_hover() - the same gold/currency hover chime StoreButton
+# already uses - rather than a new bespoke generator, since a fitting
+# sound already existed.
 
 const TwinkleStarBorderScript := preload("res://scripts/TwinkleStarBorder.gd")
 
@@ -56,6 +57,7 @@ func _make_sparkle() -> Dictionary:
 
 func _on_hover_start() -> void:
 	hovering = true
+	Sfx.play_coin_hover()
 	var tw := create_tween()
 	tw.tween_property(self, "scale", Vector2(1.18, 1.18), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	var gtw := create_tween()

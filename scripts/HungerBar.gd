@@ -9,7 +9,7 @@ var max_val: int = 100
 
 const WIDTH := 36.0
 const HEIGHT := 5.0
-const Y_OFFSET := -27.0
+const Y_OFFSET := -24.0
 
 func update_hunger(cur: int, mx: int) -> void:
 	current = cur
@@ -22,13 +22,17 @@ func _draw() -> void:
 
 	draw_rect(Rect2(top_left, Vector2(WIDTH, HEIGHT)), Color(0, 0, 0, 0.65))
 
+	# Deliberately clear of HealthBar's red/amber/green palette at every
+	# tier (its mid-tier amber used to be pixel-identical to this bar's
+	# full-tier color) - a burnt-orange/rust family instead, so the two
+	# bars never render as the same color 5px apart.
 	var fill_color: Color
 	if pct < 0.3:
-		fill_color = Color(0.55, 0.2, 0.1, 1)
+		fill_color = Color(0.55, 0.18, 0.08, 1)
 	elif pct < 0.6:
-		fill_color = Color(0.75, 0.45, 0.12, 1)
+		fill_color = Color(0.78, 0.38, 0.08, 1)
 	else:
-		fill_color = Color(0.85, 0.65, 0.15, 1)
+		fill_color = Color(0.9, 0.55, 0.12, 1)
 	if pct > 0.0:
 		draw_rect(Rect2(top_left, Vector2(WIDTH * pct, HEIGHT)), fill_color)
 

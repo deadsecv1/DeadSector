@@ -38,16 +38,17 @@ func open() -> void:
 func _build_tiers() -> void:
 	for c in tier_list.get_children():
 		c.queue_free()
-	for tier in GameManager.ARENA_RANK_TIERS:
-		tier_list.add_child(_make_tier_card(tier))
+	for i in range(GameManager.ARENA_RANK_TIERS.size()):
+		tier_list.add_child(_make_tier_card(GameManager.ARENA_RANK_TIERS[i], i))
 
-func _make_tier_card(tier: Dictionary) -> Control:
+func _make_tier_card(tier: Dictionary, index: int) -> Control:
+	var is_current: bool = GameManager.get_arena_rank_index() == index
 	var card := PanelContainer.new()
 	var color: Color = tier.get("color", Color.WHITE)
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.08, 0.05, 0.1, 0.9)
-	sb.border_color = color
-	sb.set_border_width_all(2)
+	sb.border_color = color if is_current else Color(color.r, color.g, color.b, 0.5)
+	sb.set_border_width_all(3 if is_current else 1)
 	sb.set_corner_radius_all(8)
 	sb.set_content_margin_all(12)
 	card.add_theme_stylebox_override("panel", sb)
@@ -72,7 +73,7 @@ func _make_tier_card(tier: Dictionary) -> Control:
 	hbox.add_child(vbox)
 
 	var label_lbl := Label.new()
-	label_lbl.text = str(tier.get("label", "?"))
+	label_lbl.text = str(tier.get("label", "?")) + (" (Your Rank)" if is_current else "")
 	label_lbl.add_theme_font_size_override("font_size", 18)
 	label_lbl.add_theme_color_override("font_color", color)
 	vbox.add_child(label_lbl)
