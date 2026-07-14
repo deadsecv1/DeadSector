@@ -39,6 +39,8 @@
 [ext_resource type="PackedScene" path="res://scenes/ArenaFindTeamPanel.tscn" id="72"]
 [ext_resource type="PackedScene" path="res://scenes/ArenaRewardsPanel.tscn" id="73"]
 [ext_resource type="PackedScene" path="res://scenes/ArenaRankRewardsPanel.tscn" id="91"]
+[ext_resource type="Script" path="res://scripts/MilestonesButton.gd" id="150"]
+[ext_resource type="PackedScene" path="res://scenes/MilestonesPanel.tscn" id="151"]
 [ext_resource type="Script" path="res://scripts/RankedButton.gd" id="61"]
 [ext_resource type="Script" path="res://scripts/GamblePanel.gd" id="17"]
 [ext_resource type="Script" path="res://scripts/SocialPanel.gd" id="18"]
@@ -183,6 +185,30 @@ offset_right = -53.0
 offset_bottom = 100.0
 mouse_default_cursor_shape = 2
 script = ExtResource("34")
+
+[node name="MilestonesButton" type="Button" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -130.0
+offset_top = 108.0
+offset_right = -16.0
+offset_bottom = 140.0
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.95, 0.8, 0.35, 1)
+theme_override_colors/font_hover_color = Color(1.0, 0.9, 0.5, 1)
+text = "Milestones"
+script = ExtResource("150")
+
+[node name="Glow" type="ColorRect" parent="MilestonesButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.5, 0.4, 0.05, 0)
 
 [node name="AchievementsButton" type="Button" parent="."]
 anchor_top = 1.0
@@ -1700,6 +1726,8 @@ color = Color(0.02, 0.02, 0.02, 0)
 [node name="ArenaRewardsPanel" parent="." instance=ExtResource("73")]
 
 [node name="ArenaRankRewardsPanel" parent="." instance=ExtResource("91")]
+
+[node name="MilestonesPanel" parent="." instance=ExtResource("151")]
 
 [node name="FeedbackPanel" parent="." instance=ExtResource("45")]
 

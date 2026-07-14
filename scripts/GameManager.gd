@@ -432,6 +432,7 @@ var alloys: int = 0
 var souls: int = 0
 var blossoms: int = 0
 var skill_points: int = 0
+var stones: int = 0
 
 func get_currency(currency: String) -> int:
 	match currency:
@@ -444,6 +445,7 @@ func get_currency(currency: String) -> int:
 		"blood_shards": return blood_shards
 		"tickets": return salvaged_beasts_tickets
 		"skill_points": return skill_points
+		"stones": return stones
 		_: return 0
 
 func add_currency(currency: String, amount: int) -> void:
@@ -456,6 +458,7 @@ func add_currency(currency: String, amount: int) -> void:
 		"blood_shards": blood_shards += amount
 		"tickets": salvaged_beasts_tickets += amount
 		"skill_points": skill_points += amount
+		"stones": stones += amount
 		"souls":
 			souls += amount
 			if souls >= 500:
@@ -602,6 +605,74 @@ func _advance_battle_pass_tier() -> void:
 			bp_bag["event_tag"] = EVENT_NAME
 			_add_to_stash(bp_bag)
 	toast_requested.emit("Battle Pass Tier %d unlocked!" % battle_pass_tier)
+	save_game()
+
+# --- Milestones: a permanent (non-limited-time) progression track themed
+# around raid/Arena career moments. Its currency (Stones) is earned from
+# successful extractions, killing real-player enemies, and winning Arena
+# matches - see end_run() and Enemy.gd's die(). Unlike the Battle Pass's
+# procedurally-generated 200 tiers, this is a small, curated, hand-authored
+# list, and its rewards are deliberately never more Stones themselves.
+const REAL_PLAYER_KILL_STONES := 5
+const EXTRACTION_STONES := 10
+const ARENA_WIN_STONES := 15
+
+var milestone_tier: int = 0
+var milestone_progress: int = 0
+const MILESTONE_STONES_PER_TIER := 50
+const MILESTONE_MAX_TIER := 24
+
+const MILESTONE_TIER_DATA := [
+	{"name": "First Extraction", "type": "rubles", "amount": 150},
+	{"name": "Blooded", "type": "rubles", "amount": 200},
+	{"name": "Scavenger", "type": "skill_points", "amount": 1},
+	{"name": "Marksman", "type": "rubles", "amount": 300},
+	{"name": "Silent Professional", "type": "xp", "amount": 150},
+	{"name": "Grid Contender", "type": "rubles", "amount": 400},
+	{"name": "Loadout Specialist", "type": "lootbag", "bag_tier": "common"},
+	{"name": "Extraction Veteran", "type": "rubles", "amount": 500},
+	{"name": "Real Threat", "type": "skill_points", "amount": 1},
+	{"name": "Grid Duelist", "type": "rubles", "amount": 650},
+	{"name": "Night Operator", "type": "xp", "amount": 250},
+	{"name": "Arena Regular", "type": "lootbag", "bag_tier": "rare"},
+	{"name": "Extraction Expert", "type": "rubles", "amount": 800},
+	{"name": "Sharpshooter", "type": "skill_points", "amount": 2},
+	{"name": "Grid Veteran", "type": "rubles", "amount": 1000},
+	{"name": "Field Tactician", "type": "xp", "amount": 350},
+	{"name": "Arena Contender", "type": "lootbag", "bag_tier": "rare"},
+	{"name": "Elite Extractor", "type": "rubles", "amount": 1300},
+	{"name": "Marked Hunter", "type": "skill_points", "amount": 2},
+	{"name": "Grid Champion", "type": "rubles", "amount": 1600},
+	{"name": "Operator of Note", "type": "xp", "amount": 500},
+	{"name": "Arena Elite", "type": "lootbag", "bag_tier": "epic"},
+	{"name": "Sector Veteran", "type": "rubles", "amount": 2000},
+	{"name": "Legend of the Grid", "type": "lootbag", "bag_tier": "legendary"},
+]
+
+func grant_stones(amount: int) -> void:
+	if amount <= 0:
+		return
+	add_currency("stones", amount)
+	if milestone_tier >= MILESTONE_MAX_TIER:
+		return
+	milestone_progress += amount
+	while milestone_progress >= MILESTONE_STONES_PER_TIER and milestone_tier < MILESTONE_MAX_TIER:
+		milestone_progress -= MILESTONE_STONES_PER_TIER
+		_advance_milestone_tier()
+
+func _advance_milestone_tier() -> void:
+	milestone_tier += 1
+	var tier_data: Dictionary = MILESTONE_TIER_DATA[milestone_tier - 1]
+	match tier_data.get("type", ""):
+		"rubles":
+			add_currency("rubles", int(tier_data.get("amount", 0)))
+		"xp":
+			grant_xp(int(tier_data.get("amount", 0)))
+		"skill_points":
+			add_currency("skill_points", int(tier_data.get("amount", 0)))
+		"lootbag":
+			_add_to_stash(make_loot_bag(str(tier_data.get("bag_tier", "rare"))))
+	toast_requested.emit("Milestone reached: %s!" % str(tier_data.get("name", "Tier %d" % milestone_tier)))
 	save_game()
 
 # --- Enemy loot drops: the ONLY sources of loot are enemies and vault
@@ -6249,7 +6320,7 @@ func save_game() -> void:
 	check_achievements()
 	var data := {
 		"save_format_version": SAVE_FORMAT_VERSION,
-		"rubles": rubles, "junk": junk, "artifacts": artifacts, "alloys": alloys, "souls": souls, "blossoms": blossoms, "skill_points": skill_points,
+		"rubles": rubles, "junk": junk, "artifacts": artifacts, "alloys": alloys, "souls": souls, "blossoms": blossoms, "skill_points": skill_points, "stones": stones,
 		"rank_points": rank_points,
 		"arena_rank_points": arena_rank_points,
 		"last_starter_pack_claim": _last_starter_pack_claim,
@@ -6258,6 +6329,7 @@ func save_game() -> void:
 		"blood_shards": blood_shards, "bloodline_tier": bloodline_tier, "bloodline_progress": bloodline_progress,
 		"gauntlet_best_level": gauntlet_best_level, "engrams": engrams,
 		"battle_pass_tier": battle_pass_tier, "battle_pass_progress": battle_pass_progress,
+		"milestone_tier": milestone_tier, "milestone_progress": milestone_progress,
 		"monthly_pass_owned": monthly_pass_owned, "double_xp_owned": double_xp_owned,
 		"fast_hatching_owned": fast_hatching_owned,
 		"claimed_free_store_packs": claimed_free_store_packs,
@@ -6378,6 +6450,7 @@ func load_game() -> void:
 	if typeof(loaded_baseline) == TYPE_DICTIONARY:
 		leaderboard_player_baseline = loaded_baseline
 	souls = int(parsed.get("souls", souls))
+	stones = int(parsed.get("stones", stones))
 	blossoms = int(parsed.get("blossoms", blossoms))
 	blood_shards = int(parsed.get("blood_shards", blood_shards))
 	bloodline_tier = int(parsed.get("bloodline_tier", bloodline_tier))
@@ -6388,6 +6461,8 @@ func load_game() -> void:
 		engrams = loaded_engrams
 	battle_pass_tier = int(parsed.get("battle_pass_tier", 0))
 	battle_pass_progress = int(parsed.get("battle_pass_progress", 0))
+	milestone_tier = int(parsed.get("milestone_tier", 0))
+	milestone_progress = int(parsed.get("milestone_progress", 0))
 	monthly_pass_owned = bool(parsed.get("monthly_pass_owned", false))
 	double_xp_owned = bool(parsed.get("double_xp_owned", false))
 	fast_hatching_owned = bool(parsed.get("fast_hatching_owned", false))
@@ -7496,6 +7571,7 @@ func end_run(success: bool) -> void:
 		stat_extractions += 1
 		if is_scav_run:
 			stat_scav_extractions += 1
+		grant_stones(ARENA_WIN_STONES if is_arena_match else EXTRACTION_STONES)
 		add_score(40)
 		# Extraction XP: bumped up across the board (was 20 base), plus a
 		# real Night Raid bonus on top - night raids are riskier (worse

@@ -525,6 +525,8 @@ func die() -> void:
 	died.emit()
 	GameManager.notify_event("kill_enemy")
 	GameManager.record_kill()
+	if is_real_player:
+		GameManager.grant_stones(GameManager.REAL_PLAYER_KILL_STONES)
 	_mark_discovered()
 	if player != null and is_instance_valid(player) and player.in_bush:
 		GameManager.notify_event("sneak_kill")

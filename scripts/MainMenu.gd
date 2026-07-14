@@ -62,6 +62,8 @@ extends Control
 @onready var arena_find_team_panel: Panel = $ArenaFindTeamPanel
 @onready var arena_rewards_panel: Panel = $ArenaRewardsPanel
 @onready var arena_rank_rewards_panel: Panel = $ArenaRankRewardsPanel
+@onready var milestones_button: Button = $MilestonesButton
+@onready var milestones_panel: Panel = $MilestonesPanel
 @onready var feedback_button: Button = $FeedbackButton
 @onready var feedback_panel: Panel = $FeedbackPanel
 @onready var whats_new_button: Button = $WhatsNewButton
@@ -188,7 +190,7 @@ func _ready() -> void:
 	exit_cancel_button.pressed.connect(func(): exit_confirm_panel.visible = false)
 	exit_confirm_button.pressed.connect(_on_exit)
 
-	for btn in [play_button, quests_button, traders_button, skill_tree_button, hideout_button, stash_button, settings_button, exit_button, roadmap_button, stats_button, changelog_button, social_button, achievements_button, flea_market_button, mail_button, feedback_button, whats_new_button, leaderboard_button]:
+	for btn in [play_button, quests_button, traders_button, skill_tree_button, hideout_button, stash_button, settings_button, exit_button, roadmap_button, stats_button, changelog_button, social_button, achievements_button, flea_market_button, mail_button, feedback_button, whats_new_button, leaderboard_button, milestones_button]:
 		btn.mouse_entered.connect(_play_hover)
 
 	flea_market_button.pressed.connect(func(): _open_panel(flea_market_panel))
@@ -240,6 +242,8 @@ func _ready() -> void:
 		arena_rank_rewards_panel.visible = false
 		_open_panel(arena_panel)
 	)
+	milestones_button.pressed.connect(func(): _open_panel(milestones_panel))
+	milestones_panel.closed.connect(func(): _close_panel(milestones_panel))
 	feedback_button.pressed.connect(func(): _open_panel(feedback_panel))
 	feedback_panel.closed.connect(func(): _close_panel(feedback_panel))
 	# WhatsNewButton manually reopens the Update Spotlight (the curated
@@ -314,6 +318,7 @@ func _ambient_popups_suppressed() -> bool:
 		leaderboard_rewards_panel, rank_percentiles_panel, salvaged_beasts_panel, my_pets_panel,
 		bloodline_panel, delete_confirm_panel, wipe_confirm_panel, changelog_panel,
 		flea_market_panel, mail_panel, alpha_rewards_panel, feedback_panel, welcome_panel, update_spotlight_panel,
+		milestones_panel,
 	]
 	for p in panels:
 		if is_instance_valid(p) and p.visible:
@@ -482,6 +487,7 @@ func _set_main_buttons_visible(vis: bool) -> void:
 	feedback_button.visible = vis
 	whats_new_button.visible = vis
 	arena_button.visible = vis
+	milestones_button.visible = vis
 
 func _show_random_quote() -> void:
 	var idx := randi() % QUOTES.size()
