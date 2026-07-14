@@ -27,6 +27,10 @@ func _make_wisp() -> Dictionary:
 	}
 
 func _process(delta: float) -> void:
+	# Same fix as DystopianBackground.gd - this reskin shares the same
+	# always-processing-regardless-of-visible flaw.
+	if not is_visible_in_tree():
+		return
 	var w: float = max(size.x, 1.0)
 	var h: float = max(size.y, 1.0)
 	for wisp in wisps:

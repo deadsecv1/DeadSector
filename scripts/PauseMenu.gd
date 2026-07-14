@@ -21,6 +21,21 @@ signal resume_requested
 signal exit_requested
 
 func _ready() -> void:
+	# Matches HUD.gd, which now actually pauses the tree while this menu is
+	# open - everything the player needs to interact with in here has to
+	# keep processing/receiving input regardless, or the menu (including
+	# its own Resume button) would freeze along with everything else.
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	main_view.process_mode = Node.PROCESS_MODE_ALWAYS
+	settings_view.process_mode = Node.PROCESS_MODE_ALWAYS
+	resume_button.process_mode = Node.PROCESS_MODE_ALWAYS
+	settings_button.process_mode = Node.PROCESS_MODE_ALWAYS
+	exit_button.process_mode = Node.PROCESS_MODE_ALWAYS
+	master_slider.process_mode = Node.PROCESS_MODE_ALWAYS
+	music_slider.process_mode = Node.PROCESS_MODE_ALWAYS
+	sfx_slider.process_mode = Node.PROCESS_MODE_ALWAYS
+	fullscreen_toggle.process_mode = Node.PROCESS_MODE_ALWAYS
+	settings_back_button.process_mode = Node.PROCESS_MODE_ALWAYS
 	main_view.visible = true
 	settings_view.visible = false
 

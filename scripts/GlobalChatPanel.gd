@@ -370,7 +370,12 @@ func _on_chat_submitted(text: String) -> void:
 	if not _chat_pool.is_empty() and randf() < 0.75:
 		var delay := randf_range(0.8, 2.4)
 		await get_tree().create_timer(delay).timeout
-		if not visible:
+		# is_instance_valid() first, always - this whole panel is a plain
+		# scene child (freed on any scene change), not an autoload, so a
+		# scene change during the wait above can free self before this
+		# resumes. Reading `visible` on an already-freed instance is
+		# itself the failing operation, not just a stale read.
+		if not is_instance_valid(self) or not visible:
 			return
 		var replier: Dictionary = _chat_pool[randi() % _chat_pool.size()]
 		var reply_text: String = REPLY_TO_PLAYER[randi() % REPLY_TO_PLAYER.size()]
@@ -406,7 +411,9 @@ func _maybe_chain_reply(previous_sender: Dictionary) -> void:
 		replier = _chat_pool[randi() % _chat_pool.size()]
 		tries += 1
 	await get_tree().create_timer(randf_range(0.9, 2.2)).timeout
-	if not visible:
+	# See the matching comment in _send_message()'s reply above - this
+	# panel can be freed by a scene change while suspended here.
+	if not is_instance_valid(self) or not visible:
 		return
 	var text: String = REPLY_ACKS[randi() % REPLY_ACKS.size()]
 	_add_message_row(replier, text)
@@ -419,7 +426,7 @@ func _maybe_chain_reply(previous_sender: Dictionary) -> void:
 			second_replier = _chat_pool[randi() % _chat_pool.size()]
 			tries2 += 1
 		await get_tree().create_timer(randf_range(0.8, 2.0)).timeout
-		if not visible:
+		if not is_instance_valid(self) or not visible:
 			return
 		var text2: String = REPLY_ACKS[randi() % REPLY_ACKS.size()]
 		_add_message_row(second_replier, text2)
@@ -538,6 +545,8 @@ func _do_scroll_to_bottom() -> void:
 	# visible delay, so it still reads as instant).
 	await get_tree().process_frame
 	await get_tree().process_frame
+	if not is_instance_valid(self):
+		return
 	var bar: VScrollBar = message_scroll.get_v_scroll_bar()
 	if bar != null:
 		message_scroll.scroll_vertical = int(bar.max_value)

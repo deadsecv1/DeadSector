@@ -33,6 +33,15 @@ func _make_particle(w: float, h: float, random_y: bool) -> Dictionary:
 	}
 
 func _process(delta: float) -> void:
+	# Godot doesn't skip _process() for an invisible node on its own, and
+	# this is instanced ~20 times across MainMenu's permanent hidden
+	# sub-panels - without this check, all ~20 update and redraw their
+	# full particle count every frame regardless of whether their parent
+	# panel is actually the one currently shown. is_visible_in_tree()
+	# (not just `visible`) since it's the PARENT panel that toggles, not
+	# this node's own visibility.
+	if not is_visible_in_tree():
+		return
 	var w: float = max(size.x, 1.0)
 	var h: float = max(size.y, 1.0)
 	for p in particles:

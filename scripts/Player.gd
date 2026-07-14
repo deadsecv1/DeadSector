@@ -304,6 +304,12 @@ func _recompute_stats() -> void:
 		health += (max_health - prev_max_health)
 		health = clamp(health, 0, max_health)
 		health_changed.emit(health, max_health)
+		# A big enough loss (e.g. unequipping a health-boosting item while
+		# already badly hurt) can clamp straight to 0 here, same as any
+		# other source of damage - take_damage() below already checks
+		# this after its own clamp, so this path needs to as well.
+		if health <= 0 and alive:
+			die()
 	health_bar.update_health(health, max_health)
 
 	var weapon_item = GameManager.equipped_items.get("weapon")

@@ -1244,6 +1244,7 @@ const LOOT_BAG_GEAR_POOL := [
 const LOOT_BAG_TIERS := {
 	"common": {"name": "Loot Bag", "rarity": "common", "value": 50},
 	"rare": {"name": "Sturdy Loot Bag", "rarity": "rare", "value": 90},
+	"epic": {"name": "Armored Loot Bag", "rarity": "epic", "value": 120},
 	"legendary": {"name": "Reinforced Loot Bag", "rarity": "legendary", "value": 160},
 	"mythic": {"name": "Gilded Loot Bag", "rarity": "mythic", "value": 260},
 	"exotic": {"name": "Prismatic Loot Bag", "rarity": "exotic", "value": 420},
@@ -1299,6 +1300,9 @@ func roll_loot_bag_contents(bag_tier: String = "common") -> Dictionary:
 		"rare":
 			count = 2
 			currency_mult = 1.6
+		"epic":
+			count = 2
+			currency_mult = 2.0
 		"legendary":
 			count = 3
 			currency_mult = 2.5
@@ -1312,7 +1316,7 @@ func roll_loot_bag_contents(bag_tier: String = "common") -> Dictionary:
 	for i in range(count):
 		items.append(_roll_weighted_loot_bag_item(bag_tier))
 	# Higher-tier bags have a shot at a bonus egg on top of the usual gear.
-	var egg_chance: float = {"common": 0.0, "rare": 0.05, "legendary": 0.12, "mythic": 0.2, "exotic": 0.3, "alpha": 0.9}.get(bag_tier, 0.0)
+	var egg_chance: float = {"common": 0.0, "rare": 0.05, "epic": 0.08, "legendary": 0.12, "mythic": 0.2, "exotic": 0.3, "alpha": 0.9}.get(bag_tier, 0.0)
 	if randf() < egg_chance:
 		var bag_egg := roll_pet_egg_drop(1.0)
 		if not bag_egg.is_empty():
@@ -1350,6 +1354,15 @@ func _roll_weighted_loot_bag_item(bag_tier: String = "common") -> Dictionary:
 			if roll < 0.08:
 				tier = "legendary"
 			elif roll < 0.4:
+				tier = "epic"
+			else:
+				tier = "rare"
+		"epic":
+			if roll < 0.05:
+				tier = "mythic"
+			elif roll < 0.3:
+				tier = "legendary"
+			elif roll < 0.75:
 				tier = "epic"
 			else:
 				tier = "rare"
@@ -1396,14 +1409,24 @@ func _roll_weighted_loot_bag_item(bag_tier: String = "common") -> Dictionary:
 func roll_loot_bag_item() -> Dictionary:
 	return make_loot_bag(roll_loot_bag_tier())
 
-func _collect_bag_contents(contents: Dictionary, into_stash: bool) -> void:
+# Returns how many items didn't fit and had to fall back to Vicinity,
+# so the panel that revealed this bag can say so accurately instead of
+# always claiming full success into the Backpack.
+func _collect_bag_contents(contents: Dictionary, into_stash: bool) -> int:
+	var overflow := 0
 	for item in contents.get("items", []):
 		if into_stash:
 			_add_to_stash(item)
-		else:
-			add_loot(item)
+		elif not add_loot(item):
+			# Every other loot source falls back to the uncapped Vicinity
+			# staging area when the Backpack is full - a Loot Bag opened
+			# mid-raid used to be the one path that just discarded whatever
+			# didn't fit while still reporting full success.
+			add_to_vicinity(item)
+			overflow += 1
 	for cur in contents.get("currency", {}):
 		add_currency(cur, int(contents["currency"][cur]))
+	return overflow
 
 func open_carried_loot_bag(index: int) -> Dictionary:
 	if index < 0 or index >= carried_loot.size() or carried_loot[index].get("slot", "") != "lootbag":
@@ -1411,7 +1434,7 @@ func open_carried_loot_bag(index: int) -> Dictionary:
 	var bag_tier: String = carried_loot[index].get("bag_tier", "common")
 	carried_loot.remove_at(index)
 	var contents := roll_loot_bag_contents(bag_tier)
-	_collect_bag_contents(contents, false)
+	contents["overflow_count"] = _collect_bag_contents(contents, false)
 	notify_event("open_loot_bag")
 	return contents
 
@@ -1421,7 +1444,7 @@ func open_stash_loot_bag(index: int) -> Dictionary:
 	var bag_tier: String = stash_items[index].get("bag_tier", "common")
 	stash_items.remove_at(index)
 	var contents := roll_loot_bag_contents(bag_tier)
-	_collect_bag_contents(contents, true)
+	contents["overflow_count"] = _collect_bag_contents(contents, true)
 	notify_event("open_loot_bag")
 	return contents
 
@@ -1432,7 +1455,7 @@ func open_vicinity_loot_bag(index: int) -> Dictionary:
 	vicinity_items.remove_at(index)
 	_reindex_vicinity()
 	var contents := roll_loot_bag_contents(bag_tier)
-	_collect_bag_contents(contents, false)
+	contents["overflow_count"] = _collect_bag_contents(contents, false)
 	vicinity_changed.emit()
 	notify_event("open_loot_bag")
 	return contents
@@ -2009,6 +2032,7 @@ var TRADER_CATALOG := {
 			{"name": "Riot Armor", "cost": 130, "value": 130, "slot": "body", "stat_type": "max_health", "stat_value": 40.5, "icon_key": "chestplate", "rarity": "rare"},
 			{"name": "Loot Bag", "cost": 50, "value": 50, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "common", "bag_tier": "common"},
 			{"name": "Sturdy Loot Bag", "cost": 90, "value": 90, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "rare", "bag_tier": "rare"},
+			{"name": "Armored Loot Bag", "cost": 120, "value": 120, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "epic", "bag_tier": "epic"},
 			{"name": "Reinforced Loot Bag", "cost": 160, "value": 160, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "legendary", "bag_tier": "legendary"},
 			{"name": "Gilded Loot Bag", "cost": 260, "value": 260, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "mythic", "bag_tier": "mythic"},
 			{"name": "Prismatic Loot Bag", "cost": 420, "value": 420, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "exotic", "bag_tier": "exotic"},
@@ -3146,6 +3170,9 @@ func get_rank_progress(full_idx: int = -1) -> Vector2i:
 # sub-numbers, unlike the main Rank ladder) just for Arena's 1v1/2v2
 # matches - won by Matchmake wins, not raid extractions.
 var arena_rank_points: int = 0
+# Highest ARENA_REWARD_TIERS index already paid out - see
+# grant_arena_rank_points() below for why this starts at -1.
+var arena_reward_tiers_granted: int = -1
 const ARENA_RANK_TIERS := [
 	{"id": "arena_initiate", "label": "Initiate", "icon": "arena_initiate", "color": Color(0.75, 0.7, 0.8, 1), "desc": "Everyone starts here. Show up, take a hit, take a win."},
 	{"id": "arena_rival", "label": "Rival", "icon": "arena_rival", "color": Color(0.55, 0.6, 0.9, 1), "desc": "You've got someone's number now - and they've got yours."},
@@ -3180,6 +3207,42 @@ func get_arena_rank_index_for_points(points: int) -> int:
 
 func get_arena_rank_index() -> int:
 	return get_arena_rank_index_for_points(arena_rank_points)
+
+# Adds Arena Rank Points and grants ARENA_REWARD_TIERS's reward for any
+# tier newly crossed. Previously arena_rank_points was mutated directly
+# by TheGrid.gd with nothing ever consulting this table, so every tier's
+# itemized reward was UI text with no backing grant. The first call after
+# this fix lazily baselines arena_reward_tiers_granted to the CURRENT
+# tier with no retroactive payout - an existing save doesn't suddenly
+# cash in every tier it already passed, only tiers reached from here on.
+func grant_arena_rank_points(amount: int) -> void:
+	if arena_reward_tiers_granted < 0:
+		arena_reward_tiers_granted = get_arena_rank_index()
+	arena_rank_points += amount
+	var new_index := get_arena_rank_index()
+	while arena_reward_tiers_granted < new_index:
+		arena_reward_tiers_granted += 1
+		_grant_arena_reward_tier(arena_reward_tiers_granted)
+	save_game()
+
+func _grant_arena_reward_tier(index: int) -> void:
+	if index < 0 or index >= ARENA_REWARD_TIERS.size():
+		return
+	var tier: Dictionary = ARENA_REWARD_TIERS[index]
+	if int(tier.get("rubles", 0)) > 0:
+		add_currency("rubles", int(tier["rubles"]))
+	if int(tier.get("artifacts", 0)) > 0:
+		add_currency("artifacts", int(tier["artifacts"]))
+	if int(tier.get("alloys", 0)) > 0:
+		add_currency("alloys", int(tier["alloys"]))
+	if int(tier.get("skill_points", 0)) > 0:
+		skill_points += int(tier["skill_points"])
+	for bag_tier in tier.get("bags", []):
+		_add_to_stash(make_loot_bag(str(bag_tier)))
+	var badge_id: String = str(tier.get("badge", ""))
+	if badge_id != "":
+		grant_badge(badge_id)
+	toast_requested.emit("Arena Rank Up: %s! Rewards added to your Stash/currency." % str(tier.get("label", "?")))
 
 func get_arena_rank_tier(index: int = -1) -> Dictionary:
 	var idx: int = index if index >= 0 else get_arena_rank_index()
@@ -5224,6 +5287,7 @@ func reset_character() -> void:
 	stones = 0
 	rank_points = 0
 	arena_rank_points = 0
+	arena_reward_tiers_granted = -1
 	blood_shards = 0
 	bloodline_tier = 0
 	bloodline_progress = 0
@@ -6401,6 +6465,7 @@ func save_game() -> void:
 		"rubles": rubles, "junk": junk, "artifacts": artifacts, "alloys": alloys, "souls": souls, "blossoms": blossoms, "skill_points": skill_points, "stones": stones,
 		"rank_points": rank_points,
 		"arena_rank_points": arena_rank_points,
+		"arena_reward_tiers_granted": arena_reward_tiers_granted,
 		"last_starter_pack_claim": _last_starter_pack_claim,
 		"leaderboard_season_start": leaderboard_season_start,
 		"leaderboard_player_baseline": leaderboard_player_baseline,
@@ -6569,6 +6634,11 @@ func load_game() -> void:
 	skill_points = int(parsed.get("skill_points", skill_points))
 	rank_points = int(parsed.get("rank_points", rank_points))
 	arena_rank_points = int(parsed.get("arena_rank_points", arena_rank_points))
+	# Absent on any save from before this field existed - defaults to -1,
+	# which grant_arena_rank_points() reads as "not yet baselined" and
+	# will resolve to the current tier with no retroactive payout, same
+	# as any other pre-existing save that already reached that rank.
+	arena_reward_tiers_granted = int(parsed.get("arena_reward_tiers_granted", -1))
 	_last_starter_pack_claim = float(parsed.get("last_starter_pack_claim", _last_starter_pack_claim))
 	leaderboard_season_start = float(parsed.get("leaderboard_season_start", 0.0))
 	var loaded_baseline = parsed.get("leaderboard_player_baseline", null)
@@ -7736,9 +7806,14 @@ func end_run(success: bool) -> void:
 		var level_before := player_level
 		var xp_before := player_xp
 		# Anything left unclaimed in Vicinity still counts - you found it,
-		# it just hadn't been dragged into the Backpack yet.
+		# it just hadn't been dragged into the Backpack yet. carried_value
+		# has to be updated here too, same as every other path that moves
+		# an item into carried_loot - extraction XP, pet XP, Rank Points,
+		# the 5000-loot achievement, and the rewards screen's "Rubles
+		# Secured" figure are all computed from it further below.
 		for item in vicinity_items:
 			carried_loot.append(item)
+			carried_value += int(item.get("value", 0))
 		for item in carried_loot:
 			_add_to_stash(item)
 		if is_night_raid:

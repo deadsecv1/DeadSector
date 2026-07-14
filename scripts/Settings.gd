@@ -125,20 +125,24 @@ func _refresh_keybind_labels() -> void:
 	chat_bind_button.text = OS.get_keycode_string(GameManager.get_keybind("chat"))
 	inventory_bind_button.text = OS.get_keycode_string(GameManager.get_keybind("inventory"))
 
+# value_changed fires on every step of a drag, not just on release - these
+# three used to call save_game() on every one of those ticks, serializing
+# and writing the entire save file dozens of times in a couple of seconds
+# (real, reproducible stutter). apply_settings() still applies the volume
+# live so dragging still sounds instant; _on_back() below already saves
+# once when leaving this screen, same as PauseMenu.gd's equivalent
+# sliders never saving per-tick either.
 func _on_master_changed(value: float) -> void:
 	GameManager.master_volume = value
 	GameManager.apply_settings()
-	GameManager.save_game()
 
 func _on_music_changed(value: float) -> void:
 	GameManager.music_volume = value
 	GameManager.apply_settings()
-	GameManager.save_game()
 
 func _on_sfx_changed(value: float) -> void:
 	GameManager.sfx_volume = value
 	GameManager.apply_settings()
-	GameManager.save_game()
 
 func _on_display_mode_selected(index: int) -> void:
 	GameManager.window_mode_setting = ["windowed", "fullscreen", "windowed_fullscreen"][index]

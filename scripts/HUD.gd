@@ -52,6 +52,12 @@ var _last_artifacts: int = -1
 var _last_alloys: int = -1
 
 func _ready() -> void:
+	# The Pause Menu is about to actually pause the tree - this HUD's own
+	# _process() (which polls Tab/Esc, including the input that closes the
+	# menu again) and the menu itself both need to keep running regardless,
+	# or opening Pause would freeze the only way to ever close it.
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	pause_menu.process_mode = Node.PROCESS_MODE_ALWAYS
 	message_label.visible = false
 	inventory_panel.visible = false
 	GameManager.inventory_tab_open = false
@@ -251,6 +257,7 @@ func _process(_delta: float) -> void:
 		else:
 			pause_menu.open()
 			_set_player_locked(true)
+			get_tree().paused = true
 	esc_was_down = esc_down
 
 	# Keep the mouse cursor as a normal arrow whenever a menu/screen covers
@@ -282,9 +289,11 @@ func _on_search_finished() -> void:
 func _close_pause() -> void:
 	pause_menu.close()
 	_set_player_locked(false)
+	get_tree().paused = false
 
 func _on_exit_requested() -> void:
 	pause_menu.close()
+	get_tree().paused = false
 	GameManager.end_run(false)
 
 func _set_player_locked(locked: bool) -> void:

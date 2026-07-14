@@ -178,7 +178,11 @@ func _play_reveal(contents: Dictionary) -> void:
 	result_area.add_child(cur_lbl)
 
 	await get_tree().create_timer(0.5 + float(items.size()) * 0.12).timeout
-	status_label.text = "All loot collected into your Backpack!"
+	var overflow_count: int = int(contents.get("overflow_count", 0))
+	if overflow_count > 0:
+		status_label.text = "Backpack was full - %d item(s) left in Vicinity to grab" % overflow_count
+	else:
+		status_label.text = "All loot collected into your Backpack!"
 	Sfx.play_loot_pickup()
 
 func _spawn_burst(at_pos: Vector2, color: Color) -> void:

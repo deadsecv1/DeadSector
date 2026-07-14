@@ -146,8 +146,8 @@ func _on_opponent_defeated() -> void:
 func _win_match() -> void:
 	_match_won = true
 	var gained: int = randi_range(60, 140)
-	GameManager.arena_rank_points += gained
 	GameManager.last_arena_rank_points_gained = gained
+	GameManager.grant_arena_rank_points(gained)
 	# Routes through the normal end_run(true) - is_arena_match being true
 	# is what makes it land on ArenaVictory.tscn instead of RaidRewards.tscn
 	# (see GameManager.end_run). Arena has no real loot, so the raid-side

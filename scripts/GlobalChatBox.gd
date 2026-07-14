@@ -787,15 +787,22 @@ func _start_recruit_join(invite: Dictionary) -> void:
 	await get_tree().create_timer(randf_range(0.8, 1.6)).timeout
 	if not is_instance_valid(join_overlay):
 		return
+	# Closing chat (or any scene change already in flight) doubles as
+	# canceling the join - checked after every wait below, not just the
+	# final one, so dismissing early during "Filling party..." stops this
+	# immediately instead of continuing to visibly count down regardless.
+	if not chat_box_open or Transition._is_transitioning:
+		join_overlay.visible = false
+		return
 	for i in [3, 2, 1]:
 		join_overlay_label.text = "Joining game in %d..." % i
 		await get_tree().create_timer(1.0).timeout
-	# The player had ~4 uninterruptible seconds to close chat, open another
-	# panel, or otherwise navigate away while this counted down - closing
-	# chat (or any scene change already in flight) doubles as the cancel,
-	# so bail out here instead of committing a party to a join that's no
-	# longer relevant. Without this, pending_raid_party could leak into a
-	# later, unrelated raid the player starts some other way entirely.
+		if not chat_box_open or Transition._is_transitioning:
+			join_overlay.visible = false
+			return
+	# Last-resort safety net for the sliver of time between the loop above
+	# finishing and here - without this, pending_raid_party could leak into
+	# a later, unrelated raid the player starts some other way entirely.
 	if not chat_box_open or Transition._is_transitioning:
 		join_overlay.visible = false
 		return

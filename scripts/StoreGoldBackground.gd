@@ -23,6 +23,10 @@ func _init_sparkles() -> void:
 		})
 
 func _process(_delta: float) -> void:
+	# Same fix as DystopianBackground.gd - this reskin shares the same
+	# always-processing-regardless-of-visible flaw.
+	if not is_visible_in_tree():
+		return
 	queue_redraw()
 
 func _draw() -> void:
