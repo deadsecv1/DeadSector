@@ -1,14 +1,15 @@
 extends Control
 
 # Ambient menu vignette: Rose in her Hideout alcove, fidgeting at a shelf
-# of plushies while a couple of plushie pets amble around near her,
-# idly drifting toward the cursor (see WanderingPlushie.gd's
-# follow_cursor) - reuses the real Rose sprite and the WanderingPlushie
-# scene (see scenes/WanderingPlushie.tscn and scenes/Hideout.tscn)
-# instead of redrawing them from scratch, so this matches exactly what's
-# already in the Hideout. Only the shelf/room backdrop below is drawn
-# procedurally, same technique as the other vignettes (see
-# ExtractionChopperVignette.gd).
+# of plushies while a few plushie pets roam the whole screen, slowly and
+# with a heavy delay, toward wherever the cursor is (see
+# WanderingPlushie.gd's follow_cursor) - reuses the real Rose sprite and
+# the WanderingPlushie scene (see scenes/WanderingPlushie.tscn and
+# scenes/Hideout.tscn) instead of redrawing them from scratch, so this
+# matches exactly what's already in the Hideout. Only the shelf/room
+# backdrop below (including the separate, permanently-static plushies
+# sitting on the shelf itself) is drawn procedurally, same technique as
+# the other vignettes (see ExtractionChopperVignette.gd).
 
 const ROSE_TEXTURE := preload("res://assets/npcs/rose.png")
 const PLUSHIE_SCENE := preload("res://scenes/WanderingPlushie.tscn")
@@ -51,18 +52,12 @@ func _layout() -> void:
 	for i in range(PLUSHIE_COLORS.size()):
 		var p = PLUSHIE_SCENE.instantiate()
 		p.body_color = PLUSHIE_COLORS[i]
-		# Slower and smaller-radius than the Hideout default, and each
-		# starts on its own short delay so they don't all set off the
-		# instant the vignette appears - reads as idly milling around
-		# the shelf rather than briskly patrolling it.
-		p.speed = 22.0
-		# Wider than before (was 36, basically invisible motion against a
-		# full-screen vignette) so drifting toward the cursor actually
-		# reads as movement, while the anchor itself sits in the one
-		# genuinely open pocket of screen space here - below Rose, above
-		# the Mail/Leaderboard buttons - so the wander circle can't reach
-		# either.
-		p.wander_radius = 70.0
+		# Roams the whole screen following the cursor (see
+		# WanderingPlushie.follow_cursor) rather than being confined to a
+		# small patch - fast enough to actually cross the screen in a
+		# reasonable time, but still a walk, not a dash, and each starts
+		# on its own short delay so they don't all set off in lockstep.
+		p.speed = 70.0
 		p.start_delay = float(i) * 1.3
 		p.follow_cursor = true
 		# Cursor-following can drift them close to/behind Rose's own

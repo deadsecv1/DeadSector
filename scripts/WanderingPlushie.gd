@@ -13,13 +13,13 @@ extends Node2D
 
 # When true, this plushie ambles toward the mouse cursor instead of
 # picking random points - used by the Rose menu vignette. The tracked
-# point trails well behind the real cursor (follow_lag) and is always
-# clamped to within wander_radius of its anchor, so it still just looks
-# like it's idly drifting toward wherever you're looking, confined to
-# its own patch of the background, never an instant/teleporting follow
-# and never able to wander off past the vignette's edges.
+# point trails well behind the real cursor (follow_lag) so it's a slow,
+# delayed amble rather than an instant/teleporting follow, and is only
+# clamped to the screen edges (not wander_radius, which is unused in
+# this mode) - it can walk anywhere on screen, not just a small patch.
 @export var follow_cursor: bool = false
 @export var follow_lag: float = 2.2
+@export var follow_edge_margin: float = 30.0
 
 @export var body_color: Color = Color(0.85, 0.55, 0.65, 1)
 
@@ -60,8 +60,11 @@ func _process(delta: float) -> void:
 	if follow_cursor:
 		var mouse := get_global_mouse_position()
 		_lagged_cursor = _lagged_cursor.lerp(mouse, clamp(delta / follow_lag, 0.0, 1.0))
-		var to_anchor := _lagged_cursor - _anchor
-		_target = _anchor + to_anchor.limit_length(wander_radius)
+		var vp_size: Vector2 = get_viewport_rect().size
+		_target = Vector2(
+			clamp(_lagged_cursor.x, follow_edge_margin, vp_size.x - follow_edge_margin),
+			clamp(_lagged_cursor.y, follow_edge_margin, vp_size.y - follow_edge_margin)
+		)
 
 	var to_target := _target - global_position
 	var dist := to_target.length()
