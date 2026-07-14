@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3]
+[gd_scene load_steps=42 format=3]
 
 [ext_resource type="Script" path="res://scripts/MainMenu.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/MainMenuBackground.gd" id="3"]
@@ -59,6 +59,8 @@
 [ext_resource type="FontFile" path="res://assets/fonts/Rajdhani-Regular.ttf" id="33"]
 [ext_resource type="Script" path="res://scripts/SocialIconButton.gd" id="34"]
 [ext_resource type="Script" path="res://scripts/AchievementsPanel.gd" id="35"]
+[ext_resource type="Script" path="res://scripts/SadFaceFX.gd" id="100"]
+[ext_resource type="Script" path="res://scripts/LeaderboardTrophyBanner.gd" id="101"]
 
 [sub_resource type="StyleBoxFlat" id="MailBadgeStyle"]
 bg_color = Color(0.85, 0.15, 0.15, 1)
@@ -908,6 +910,63 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 15
 text = "Cancel"
 
+[node name="ExitConfirmPanel" type="Panel" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -190.0
+offset_top = -140.0
+offset_right = 190.0
+offset_bottom = 140.0
+visible = false
+
+[node name="Backdrop" type="ColorRect" parent="ExitConfirmPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.06, 0.07, 0.09, 0.97)
+
+[node name="VBox" type="VBoxContainer" parent="ExitConfirmPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 14.0
+offset_right = -20.0
+offset_bottom = -16.0
+theme_override_constants/separation = 10
+
+[node name="SadFace" type="Control" parent="ExitConfirmPanel/VBox"]
+custom_minimum_size = Vector2(0, 72)
+script = ExtResource("100")
+
+[node name="MessageLabel" type="Label" parent="ExitConfirmPanel/VBox"]
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+text = "Sorry to see you go."
+
+[node name="SubLabel" type="Label" parent="ExitConfirmPanel/VBox"]
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.6)
+text = "Your progress is already saved - come back anytime."
+
+[node name="ButtonRow" type="HBoxContainer" parent="ExitConfirmPanel/VBox"]
+theme_override_constants/separation = 12
+
+[node name="ConfirmButton" type="Button" parent="ExitConfirmPanel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1, 0.4, 0.35, 1)
+text = "Exit Game"
+
+[node name="CancelButton" type="Button" parent="ExitConfirmPanel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "Stay"
+
 [node name="BloodlineButton" type="Button" parent="."]
 anchor_left = 0.5
 anchor_top = 0.5
@@ -1699,6 +1758,11 @@ text = "Rewards"
 custom_minimum_size = Vector2(90, 36)
 theme_override_font_sizes/font_size = 13
 text = "Ranks"
+
+[node name="TrophyBanner" type="Control" parent="LeaderboardPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+mouse_filter = 2
+script = ExtResource("101")
 
 [node name="TabRow" type="HBoxContainer" parent="LeaderboardPanel/VBox"]
 alignment = 1

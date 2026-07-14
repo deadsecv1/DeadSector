@@ -9,6 +9,9 @@ extends Control
 @onready var stash_button: Button = $VBoxContainer/StashButton
 @onready var settings_button: Button = $VBoxContainer/SettingsButton
 @onready var exit_button: Button = $VBoxContainer/ExitButton
+@onready var exit_confirm_panel: Panel = $ExitConfirmPanel
+@onready var exit_confirm_button: Button = $ExitConfirmPanel/VBox/ButtonRow/ConfirmButton
+@onready var exit_cancel_button: Button = $ExitConfirmPanel/VBox/ButtonRow/CancelButton
 @onready var tagline_label: Label = $VBoxContainer/Tagline
 @onready var quest_panel: Control = $QuestPanel
 @onready var roadmap_button: Button = $RoadmapButton
@@ -181,7 +184,9 @@ func _ready() -> void:
 	hideout_button.pressed.connect(_on_hideout)
 	stash_button.pressed.connect(_on_stash)
 	settings_button.pressed.connect(_on_settings)
-	exit_button.pressed.connect(_on_exit)
+	exit_button.pressed.connect(func(): exit_confirm_panel.visible = true)
+	exit_cancel_button.pressed.connect(func(): exit_confirm_panel.visible = false)
+	exit_confirm_button.pressed.connect(_on_exit)
 
 	for btn in [play_button, quests_button, traders_button, skill_tree_button, hideout_button, stash_button, settings_button, exit_button, roadmap_button, stats_button, changelog_button, social_button, achievements_button, flea_market_button, mail_button, feedback_button, whats_new_button, leaderboard_button, arena_button]:
 		btn.mouse_entered.connect(_play_hover)

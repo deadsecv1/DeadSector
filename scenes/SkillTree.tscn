@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/SkillTree.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/SkillTreeCircuitBanner.gd" id="3"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_detail"]
 bg_color = Color(0.08, 0.1, 0.13, 0.9)
@@ -54,6 +55,11 @@ theme_override_colors/font_color = Color(0.55, 0.78, 1.0, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
 theme_override_constants/outline_size = 4
 text = "SKILL TREE"
+
+[node name="CircuitBanner" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 40)
+mouse_filter = 2
+script = ExtResource("3")
 
 [node name="ArtifactsLabel" type="Label" parent="VBox"]
 theme_override_font_sizes/font_size = 16
