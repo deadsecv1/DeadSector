@@ -55,8 +55,14 @@ func _layout() -> void:
 		# starts on its own short delay so they don't all set off the
 		# instant the vignette appears - reads as idly milling around
 		# the shelf rather than briskly patrolling it.
-		p.speed = 14.0
-		p.wander_radius = 36.0
+		p.speed = 22.0
+		# Wider than before (was 36, basically invisible motion against a
+		# full-screen vignette) so drifting toward the cursor actually
+		# reads as movement, while the anchor itself sits in the one
+		# genuinely open pocket of screen space here - below Rose, above
+		# the Mail/Leaderboard buttons - so the wander circle can't reach
+		# either.
+		p.wander_radius = 70.0
 		p.start_delay = float(i) * 1.3
 		p.follow_cursor = true
 		# Cursor-following can drift them close to/behind Rose's own
@@ -65,7 +71,7 @@ func _layout() -> void:
 		# whenever they crossed near her feet, making them vanish).
 		p.z_index = 5
 		p.follow_lag = 2.0 + float(i) * 0.5
-		p.position = Vector2(w * 0.64 + float(i - 1) * 55.0, h * 0.9)
+		p.position = Vector2(w * 0.64 + float(i - 1) * 55.0, h * 0.8)
 		add_child(p)
 
 func _process(delta: float) -> void:
