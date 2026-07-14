@@ -839,11 +839,23 @@ const CONSUMABLE_POOL := [
 # for its type, same idea as the Grenade stack below. Deliberately its
 # own pool, separate from CONSUMABLE_POOL, so ammo drop rates can be
 # tuned on their own without also changing how often heals/grenades show up.
+# Rarity here is purely a color choice (green/blue/purple per type, via
+# the shared rarity-color system every other item already uses) - NOT
+# a drop-weight or value signal the way it is for real gear. See
+# get_ammo_rarity() below, the single source every OTHER hardcoded ammo
+# dict in this file derives its own "rarity" field from, so this
+# mapping only ever needs to change in one place.
 const AMMO_POOL := [
-	{"name": "Light Ammo", "value": 15, "slot": "ammo", "icon_key": "ammo_light", "rarity": "common", "consumable_type": "ammo", "ammo_type": "light"},
-	{"name": "Medium Ammo", "value": 20, "slot": "ammo", "icon_key": "ammo_medium", "rarity": "common", "consumable_type": "ammo", "ammo_type": "medium"},
-	{"name": "Heavy Ammo", "value": 28, "slot": "ammo", "icon_key": "ammo_heavy", "rarity": "uncommon", "consumable_type": "ammo", "ammo_type": "heavy"},
+	{"name": "Light Ammo", "value": 15, "slot": "ammo", "icon_key": "ammo_light", "rarity": "uncommon", "consumable_type": "ammo", "ammo_type": "light"},
+	{"name": "Medium Ammo", "value": 20, "slot": "ammo", "icon_key": "ammo_medium", "rarity": "rare", "consumable_type": "ammo", "ammo_type": "medium"},
+	{"name": "Heavy Ammo", "value": 28, "slot": "ammo", "icon_key": "ammo_heavy", "rarity": "epic", "consumable_type": "ammo", "ammo_type": "heavy"},
 ]
+
+func get_ammo_rarity(ammo_type: String) -> String:
+	for pool_item in AMMO_POOL:
+		if pool_item.get("ammo_type", "") == ammo_type:
+			return str(pool_item.get("rarity", "common"))
+	return "common"
 
 # How many rounds a single pickup grants - randomized per pickup rather
 # than a flat amount, so finding ammo doesn't feel identical every time.
@@ -864,9 +876,9 @@ const AMMO_STACK_MAX := {"light": 2000, "medium": 1000, "heavy": 500}
 # the AMMO_POOL "value" above (that's calibrated for sell-back value, not
 # what a trader charges to buy).
 const SCAVENGER_AMMO_STOCK := [
-	{"name": "Light Ammo x150", "base_name": "Light Ammo", "cost": 50, "value": 15, "slot": "ammo", "icon_key": "ammo_light", "rarity": "common", "consumable_type": "ammo", "ammo_type": "light", "ammo_amount": 150},
-	{"name": "Medium Ammo x150", "base_name": "Medium Ammo", "cost": 80, "value": 20, "slot": "ammo", "icon_key": "ammo_medium", "rarity": "common", "consumable_type": "ammo", "ammo_type": "medium", "ammo_amount": 150},
-	{"name": "Heavy Ammo x150", "base_name": "Heavy Ammo", "cost": 120, "value": 28, "slot": "ammo", "icon_key": "ammo_heavy", "rarity": "uncommon", "consumable_type": "ammo", "ammo_type": "heavy", "ammo_amount": 150},
+	{"name": "Light Ammo x150", "base_name": "Light Ammo", "cost": 50, "value": 15, "slot": "ammo", "icon_key": "ammo_light", "rarity": "uncommon", "consumable_type": "ammo", "ammo_type": "light", "ammo_amount": 150},
+	{"name": "Medium Ammo x150", "base_name": "Medium Ammo", "cost": 80, "value": 20, "slot": "ammo", "icon_key": "ammo_medium", "rarity": "rare", "consumable_type": "ammo", "ammo_type": "medium", "ammo_amount": 150},
+	{"name": "Heavy Ammo x150", "base_name": "Heavy Ammo", "cost": 120, "value": 28, "slot": "ammo", "icon_key": "ammo_heavy", "rarity": "epic", "consumable_type": "ammo", "ammo_type": "heavy", "ammo_amount": 150},
 ]
 
 func roll_ammo() -> Dictionary:
@@ -2069,7 +2081,7 @@ func start_scav_run() -> void:
 	for ammo_type in ["light", "medium", "heavy"]:
 		add_loot({
 			"name": "%s Ammo" % ammo_type.capitalize(), "value": 15, "slot": "ammo",
-			"icon_key": "ammo_%s" % ammo_type, "rarity": "common",
+			"icon_key": "ammo_%s" % ammo_type, "rarity": get_ammo_rarity(ammo_type),
 			"consumable_type": "ammo", "ammo_type": ammo_type, "ammo_amount": 60,
 		})
 	equipped_changed.emit()
@@ -3174,7 +3186,7 @@ func apply_arena_loadout_preset(preset_id: String) -> void:
 	var ammo_type: String = str(preset.get("ammo_type", "medium"))
 	add_loot({
 		"name": "%s Ammo" % ammo_type.capitalize(), "value": 15, "slot": "ammo",
-		"icon_key": "ammo_%s" % ammo_type, "rarity": "common",
+		"icon_key": "ammo_%s" % ammo_type, "rarity": get_ammo_rarity(ammo_type),
 		"consumable_type": "ammo", "ammo_type": ammo_type, "ammo_amount": 200,
 	})
 	equipped_changed.emit()
