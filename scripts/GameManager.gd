@@ -3656,7 +3656,7 @@ const ACHIEVEMENTS := {
 	"met_a_wisp": {"name": "Will-o'-the-Wisp", "desc": "Encounter a Wisp.", "icon": "ghost_kill"},
 	"met_a_ghoul": {"name": "Fresh Rot", "desc": "Encounter a Ghoul.", "icon": "combat"},
 	"met_a_noxious_bat": {"name": "Rabies Shot Recommended", "desc": "Encounter a Noxious Bat.", "icon": "combat"},
-	"met_a_toxic_waste": {"name": "Biohazard", "desc": "Encounter Toxic Waste.", "icon": "combat"},
+	"met_a_toxic_waste": {"name": "Biohazard", "desc": "Encounter a Goblin.", "icon": "combat"},
 	"met_a_marauder": {"name": "Scavenger's Scavenger", "desc": "Encounter a Marauder.", "icon": "combat"},
 	"met_a_sentinel": {"name": "Standing Guard", "desc": "Encounter a Sentinel.", "icon": "combat"},
 
@@ -4065,6 +4065,7 @@ func prestige() -> bool:
 	add_currency("rubles", reward_rubles)
 	skill_points += reward_skill_points
 	toast_requested.emit("Prestige %d! Back to Level 1 - %d Rubles and %d Skill Points as thanks for the climb." % [prestige_level, reward_rubles, reward_skill_points])
+	Sfx.play_reveal()
 	xp_changed.emit()
 	save_game()
 	return true
@@ -7882,6 +7883,7 @@ func create_guild(guild_name: String) -> bool:
 	player_guild_tag = trimmed.substr(0, 3).to_upper()
 	player_guild_is_custom = true
 	toast_requested.emit("Founded [%s] %s" % [player_guild_tag, player_guild_name])
+	Sfx.play_coin_hover()
 	save_game()
 	return true
 
@@ -7894,6 +7896,7 @@ func join_guild(guild_id: String) -> bool:
 	player_guild_tag = str(g.get("tag", ""))
 	player_guild_is_custom = false
 	toast_requested.emit("Joined [%s] %s" % [player_guild_tag, player_guild_name])
+	Sfx.play_coin_hover()
 	save_game()
 	return true
 
@@ -7901,6 +7904,7 @@ func leave_guild() -> void:
 	if player_guild_id == "":
 		return
 	toast_requested.emit("Left %s" % player_guild_name)
+	Sfx.play_menu_confirm()
 	player_guild_id = ""
 	player_guild_name = ""
 	player_guild_tag = ""

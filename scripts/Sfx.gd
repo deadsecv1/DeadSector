@@ -163,7 +163,10 @@ func play_alarm() -> void:
 func play_soul_hover() -> void:
 	var p := _get_free_player()
 	p.stream = _soul_hover
-	p.volume_db = -6.0
+	# Was -6.0 - as loud as play_gunshot()/play_explosion(), despite
+	# _make_soul_hover() below describing this as a soft, airy whisper.
+	# Every comparable menu-hover cue sits in the -19 to -21 range.
+	p.volume_db = -20.0
 	p.play()
 
 func play_pet_hover() -> void:
@@ -371,23 +374,6 @@ func _to_wav(data: PackedByteArray) -> AudioStreamWAV:
 	stream.data = data
 	return stream
 
-func _make_gunshot() -> AudioStreamWAV:
-	var dur := 0.15
-	var n := int(SAMPLE_RATE * dur)
-	var data := PackedByteArray()
-	data.resize(n * 2)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 1
-	for i in range(n):
-		var t := float(i) / SAMPLE_RATE
-		var env: float = exp(-t * 28.0)
-		var noise := rng.randf_range(-1.0, 1.0)
-		var thump := sin(TAU * 90.0 * t) * exp(-t * 18.0)
-		var s: float = (noise * 0.6 + thump * 0.7) * env
-		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
-		data.encode_s16(i * 2, s16)
-	return _to_wav(data)
-
 func _make_footstep() -> AudioStreamWAV:
 	var dur := 0.06
 	var n := int(SAMPLE_RATE * dur)
@@ -469,27 +455,6 @@ func _make_explosion() -> AudioStreamWAV:
 		var noise := rng.randf_range(-1.0, 1.0)
 		var thump := sin(TAU * 55.0 * t) * exp(-t * 9.0)
 		var s: float = (noise * 0.7 + thump * 0.8) * env
-		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
-		data.encode_s16(i * 2, s16)
-	return _to_wav(data)
-
-func _make_reload() -> AudioStreamWAV:
-	# Two short mechanical clacks (mag out, mag in) with a bit of noise.
-	var dur := 0.28
-	var n := int(SAMPLE_RATE * dur)
-	var data := PackedByteArray()
-	data.resize(n * 2)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 9
-	var click_times := [0.02, 0.16]
-	for i in range(n):
-		var t := float(i) / SAMPLE_RATE
-		var s: float = 0.0
-		for ct in click_times:
-			var dt: float = t - ct
-			if dt >= 0.0 and dt < 0.03:
-				var env: float = exp(-dt * 140.0)
-				s += (rng.randf_range(-1.0, 1.0) * 0.5 + sin(TAU * 260.0 * dt) * 0.5) * env
 		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
 		data.encode_s16(i * 2, s16)
 	return _to_wav(data)

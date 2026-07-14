@@ -1120,6 +1120,8 @@ func _make_row(entry: Dictionary) -> Control:
 	var title_lbl := Label.new()
 	title_lbl.text = entry.get("title", "")
 	title_lbl.add_theme_font_size_override("font_size", 15)
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
 	header.add_child(title_lbl)
 
 	for note in entry.get("notes", []):

@@ -56,6 +56,14 @@ func _input(event: InputEvent) -> void:
 		GameManager.save_game()
 		Transition.change_scene_instant(GameManager.stash_return_scene)
 	elif event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+		# FilterPopup is a bare Panel with no script of its own, so unlike
+		# every other sub-panel here it has no _unhandled_input() to fall
+		# through to - without this, Escape silently did nothing while it
+		# was open instead of closing it like every sibling panel does.
+		if filter_popup.visible:
+			get_viewport().set_input_as_handled()
+			filter_popup.visible = false
+			return
 		# _input() runs before any sub-panel's own _unhandled_input(), so
 		# unconditionally consuming Escape here meant TagEditPanel/
 		# InspectPanel/etc. never got a chance to close themselves -

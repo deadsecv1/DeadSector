@@ -26,6 +26,14 @@ func _init_particles() -> void:
 		})
 
 func _process(delta: float) -> void:
+	# Same fix as DystopianBackground.gd: Godot doesn't skip _process() for
+	# an invisible node on its own. Global Chat can retain up to 60 message
+	# rows, each with its own TooltipParticles instance if a chat background
+	# is equipped - without this check, all of them keep animating and
+	# redrawing for the rest of the session even after the chat panel (the
+	# actual thing that toggles visible/hidden) is closed.
+	if not is_visible_in_tree():
+		return
 	for p in particles:
 		p["y"] -= p["speed"] * 6.0 * delta
 		if p["y"] < 0.0:

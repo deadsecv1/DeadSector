@@ -83,6 +83,47 @@ func _gui_input(event: InputEvent) -> void:
 				else:
 					GameManager.unequip_to_carried(slot_name)
 				dropped.emit()
+			else:
+				# A single left-click was never actually implemented despite
+				# the class comment above promising it shows item info, same
+				# as any other tile - same disambiguation-by-timer as
+				# InventoryTile.gd's _handle_click_release: wait out the
+				# double-click window before popping anything up, so a real
+				# double-click's first release doesn't show a popup right as
+				# (or after) the unequip above already happened.
+				var my_stamp := now_ms
+				var click_pos := get_global_mouse_position()
+				get_tree().create_timer(DOUBLE_CLICK_WINDOW_MS / 1000.0).timeout.connect(func():
+					if not is_instance_valid(self) or _last_click_time_ms != my_stamp:
+						return
+					_show_click_popup(click_pos)
+				)
+
+func _show_click_popup(at_position: Vector2) -> void:
+	if current_item == null:
+		return
+	var popup := PopupPanel.new()
+	popup.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	get_tree().current_scene.add_child(popup)
+	var content := ItemTooltip.build(current_item)
+	popup.add_child(content)
+	popup.position = Vector2i(at_position) + Vector2i(16, 16)
+	popup.popup()
+
+	var fallback_timer := get_tree().create_timer(6.0)
+	var fallback_close := func():
+		if is_instance_valid(popup):
+			popup.hide()
+			popup.queue_free()
+	fallback_timer.timeout.connect(fallback_close)
+
+	mouse_exited.connect(func():
+		if is_instance_valid(popup):
+			popup.hide()
+			popup.queue_free()
+		if is_instance_valid(fallback_timer) and fallback_timer.timeout.is_connected(fallback_close):
+			fallback_timer.timeout.disconnect(fallback_close)
+	, CONNECT_ONE_SHOT)
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
 	if current_item == null:

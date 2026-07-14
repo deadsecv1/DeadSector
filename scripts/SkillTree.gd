@@ -260,7 +260,8 @@ func _show_detail(key: String) -> void:
 func _on_detail_buy() -> void:
 	if selected_key == "":
 		return
-	GameManager.purchase_upgrade(selected_key)
+	if GameManager.purchase_upgrade(selected_key):
+		Sfx.play_reveal()
 	refresh()
 
 func _on_detail_buy_with_skill_points() -> void:
