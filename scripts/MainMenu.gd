@@ -61,7 +61,8 @@ extends Control
 @onready var feedback_button: Button = $FeedbackButton
 @onready var feedback_panel: Panel = $FeedbackPanel
 @onready var whats_new_button: Button = $WhatsNewButton
-@onready var whats_new_panel: Control = $WhatsNewPanel
+@onready var welcome_panel: Control = $WelcomePanel
+@onready var update_spotlight_panel: Control = $UpdateSpotlightPanel
 
 # --- Ambient background popups: small, easy-to-miss notifications that
 # make the world feel like it's happening even when you're just sitting
@@ -203,13 +204,28 @@ func _ready() -> void:
 	arena_rewards_panel.closed.connect(func(): _close_panel(arena_rewards_panel))
 	feedback_button.pressed.connect(func(): _open_panel(feedback_panel))
 	feedback_panel.closed.connect(func(): _close_panel(feedback_panel))
-	whats_new_button.pressed.connect(func(): _open_panel(whats_new_panel))
-	whats_new_panel.closed.connect(func(): _close_panel(whats_new_panel))
-	# Shows every time the Main Menu loads (not just the first time) -
-	# a deliberate change from the old has_seen_whats_new one-shot gate.
+	# WhatsNewButton manually reopens the Update Spotlight (the curated
+	# recent-update summary) - the Welcome window is first-launch-only
+	# and has no manual reopen path.
+	whats_new_button.pressed.connect(func(): _open_panel(update_spotlight_panel))
+	update_spotlight_panel.closed.connect(func(): _close_panel(update_spotlight_panel))
+	welcome_panel.closed.connect(func():
+		_close_panel(welcome_panel)
+		GameManager.has_seen_welcome = true
+		GameManager.save_game()
+		_open_panel(update_spotlight_panel)
+	)
+	# Welcome only ever shows once, the very first time the game is
+	# launched. The Update Spotlight shows every time the Main Menu
+	# loads (chained after Welcome on that first launch, standalone
+	# every launch after).
 	get_tree().create_timer(0.5).timeout.connect(func():
-		if is_instance_valid(self):
-			_open_panel(whats_new_panel)
+		if not is_instance_valid(self):
+			return
+		if not GameManager.has_seen_welcome:
+			_open_panel(welcome_panel)
+		else:
+			_open_panel(update_spotlight_panel)
 	)
 	GameManager.mail_received.connect(_refresh_mail_button)
 	_refresh_mail_button()
@@ -255,7 +271,7 @@ func _ambient_popups_suppressed() -> bool:
 		store_panel, social_panel, global_chat_panel, find_team_panel, data_panel, leaderboard_panel,
 		leaderboard_rewards_panel, rank_percentiles_panel, salvaged_beasts_panel, my_pets_panel,
 		bloodline_panel, delete_confirm_panel, wipe_confirm_panel, changelog_panel,
-		flea_market_panel, mail_panel, alpha_rewards_panel, feedback_panel, whats_new_panel,
+		flea_market_panel, mail_panel, alpha_rewards_panel, feedback_panel, welcome_panel, update_spotlight_panel,
 	]
 	for p in panels:
 		if is_instance_valid(p) and p.visible:

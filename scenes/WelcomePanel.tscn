@@ -1,8 +1,8 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://scripts/WhatsNewPanel.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/WelcomePanel.gd" id="1"]
 
-[node name="WhatsNewPanel" type="Control"]
+[node name="WelcomePanel" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 0
@@ -61,27 +61,16 @@ text = "WELCOME TO DEAD SECTOR"
 theme_override_font_sizes/font_size = 11
 horizontal_alignment = 1
 modulate = Color(1, 0.8, 0.5, 0.85)
-text = "Currently in Alpha - here's what's going on and what's new."
+text = "Currently in Alpha - here's the short version before you dive in."
 
 [node name="Scroll" type="ScrollContainer" parent="Box/VBox"]
 size_flags_vertical = 3
 
-[node name="VBox" type="VBoxContainer" parent="Box/VBox/Scroll"]
+[node name="WelcomeBody" type="Label" parent="Box/VBox/Scroll"]
 size_flags_horizontal = 3
-theme_override_constants/separation = 14
-
-[node name="WelcomeBody" type="Label" parent="Box/VBox/Scroll/VBox"]
 autowrap_mode = 2
 theme_override_font_sizes/font_size = 13
 modulate = Color(1, 1, 1, 0.85)
-
-[node name="HighlightsHeader" type="Label" parent="Box/VBox/Scroll/VBox"]
-theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.6, 0.9, 0.65, 1)
-text = "RECENT UPDATES"
-
-[node name="HighlightsList" type="VBoxContainer" parent="Box/VBox/Scroll/VBox"]
-theme_override_constants/separation = 6
 
 [node name="CloseButton" type="Button" parent="Box/VBox"]
 custom_minimum_size = Vector2(0, 44)

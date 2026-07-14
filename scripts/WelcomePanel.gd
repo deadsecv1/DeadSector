@@ -1,6 +1,9 @@
 extends Control
 const DraggablePanelScript := preload("res://scripts/DraggablePanel.gd")
 
+# First-launch-only onboarding window - just the welcome/how-to-play text.
+# Recent-update content lives in its own separate UpdateSpotlightPanel now.
+
 signal closed
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -8,16 +11,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		closed.emit()
 
-const ChangelogScript := preload("res://scripts/ChangelogPanel.gd")
 const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
-const MAX_HIGHLIGHTS := 5
 
 @onready var box: Panel = $Box
 @onready var icon_holder: Control = $Box/VBox/IconHolder
 @onready var title_holder: Control = $Box/VBox/TitleHolder
 @onready var title_label: Label = $Box/VBox/TitleHolder/TitleLabel
-@onready var welcome_body: Label = $Box/VBox/Scroll/VBox/WelcomeBody
-@onready var highlights_list: VBoxContainer = $Box/VBox/Scroll/VBox/HighlightsList
+@onready var welcome_body: Label = $Box/VBox/Scroll/WelcomeBody
 @onready var close_button: Button = $Box/VBox/CloseButton
 
 func _ready() -> void:
@@ -34,26 +34,6 @@ func _ready() -> void:
 	_build_title_fx()
 
 	welcome_body.text = "Welcome to Dead Sector! This is a real Alpha - the core loop is here (raid, loot, extract, gear up, come back harder) but you'll run into rough edges, unfinished corners, and things that still need balancing. That's expected at this stage.\n\nThe short version: pick a Sector, gear up from your Stash before you go, extract before your time runs out or you don't keep what you found. Contacts around the Hideout hand out contracts for real rewards. Spend what you earn on Skill Tree upgrades, Hideout training, and better gear. Everything you build up carries forward raid to raid - that's the whole point.\n\nFound something broken? There's a Feedback button right on this screen for exactly that."
-
-	for c in highlights_list.get_children():
-		highlights_list.remove_child(c)
-		c.queue_free()
-	var shown := 0
-	var entries: Array = ChangelogScript.get_all_entries().duplicate()
-	entries.reverse()
-	for entry in entries:
-		if shown >= MAX_HIGHLIGHTS:
-			break
-		var title: String = str(entry.get("title", ""))
-		if title.begins_with("Hotfix"):
-			continue
-		var lbl := Label.new()
-		lbl.text = "  •  %s" % title
-		lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
-		lbl.add_theme_font_size_override("font_size", 13)
-		lbl.add_theme_color_override("font_color", Color(0.85, 0.95, 0.85, 1))
-		highlights_list.add_child(lbl)
-		shown += 1
 
 # A slow warm shimmer sweeping across the title's color/glow, a gentle
 # breathing scale pulse, and a handful of drifting gold sparks behind
@@ -94,9 +74,19 @@ func _build_title_fx() -> void:
 
 func open() -> void:
 	visible = true
-	# Same runtime anchor-collapse bug as Flea Market/Mail - force the
-	# designed centered layout back explicitly. Only the inner Box needs
-	# this now; the root just fills the screen for the dim backdrop.
+	# Runtime anchor-collapse bug (same one Flea Market/Mail hit) - force
+	# the designed layout back explicitly every time this opens, for both
+	# the full-screen root AND the centered inner Box. Previously only
+	# Box was being re-forced, which wasn't enough - the whole panel was
+	# showing pinned to the top-left instead of centered.
+	anchor_left = 0.0
+	anchor_top = 0.0
+	anchor_right = 1.0
+	anchor_bottom = 1.0
+	offset_left = 0.0
+	offset_top = 0.0
+	offset_right = 0.0
+	offset_bottom = 0.0
 	box.anchor_left = 0.5
 	box.anchor_top = 0.5
 	box.anchor_right = 0.5

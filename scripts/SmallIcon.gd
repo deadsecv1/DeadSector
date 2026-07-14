@@ -159,6 +159,13 @@ func _draw() -> void:
 				c + Vector2(r * 0.42, r * 0.32),
 			]), Color(1.0, 0.85, 0.3, 1))
 			draw_circle(c + Vector2(0, -r * 0.15), r * 0.08, Color(0.9, 0.4, 0.9, 1))
+		"arena":
+			# A purple ring with a small star core - the Arena feature
+			# itself (distinct from the per-rank icons above).
+			draw_arc(c, r * 0.5, 0.0, TAU, 20, Color(0.7, 0.45, 0.95, 1), max(2.0, r * 0.14), true)
+			for i in range(5):
+				var star_ang3: float = -PI / 2.0 + TAU * float(i) / 5.0
+				draw_circle(c + Vector2(cos(star_ang3), sin(star_ang3)) * r * 0.24, r * 0.07, Color(0.85, 0.65, 1.0, 1))
 		_:
 			var pts := PackedVector2Array()
 			for i in range(5):
