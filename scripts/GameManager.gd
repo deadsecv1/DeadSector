@@ -54,16 +54,16 @@ const RARITY_TIERS := {
 # InventoryTile.gd). Anything that only supports a single flat color
 # falls back to RARITY_TIERS["exotic"]["color"] above.
 const EXOTIC_GRADIENT := [
-	Color(0.95, 0.25, 0.35, 0.45), Color(0.95, 0.75, 0.15, 0.45), Color(0.3, 0.9, 0.55, 0.45),
-	Color(0.25, 0.65, 0.95, 0.45), Color(0.75, 0.35, 0.95, 0.45),
+	Color(0.95, 0.25, 0.35, 0.3), Color(0.95, 0.75, 0.15, 0.3), Color(0.3, 0.9, 0.55, 0.3),
+	Color(0.25, 0.65, 0.95, 0.3), Color(0.75, 0.35, 0.95, 0.3),
 ]
 
 # Mythic - a fiery red-orange-gold blend, sitting one tier below Exotic
 # on the ladder and now visually distinct with its own gradient instead
 # of a single flat color.
 const MYTHIC_GRADIENT := [
-	Color(0.95, 0.15, 0.35, 0.45), Color(1.0, 0.5, 0.15, 0.45), Color(0.95, 0.75, 0.2, 0.45),
-	Color(0.85, 0.1, 0.25, 0.45), Color(1.0, 0.35, 0.1, 0.45),
+	Color(0.95, 0.15, 0.35, 0.3), Color(1.0, 0.5, 0.15, 0.3), Color(0.95, 0.75, 0.2, 0.3),
+	Color(0.85, 0.1, 0.25, 0.3), Color(1.0, 0.35, 0.1, 0.3),
 ]
 
 # Multiversal - the rarest tier of all, a shimmering gold-white-prismatic
@@ -73,8 +73,8 @@ const MYTHIC_GRADIENT := [
 # fully-opaque version, particularly the near-white point, was washing
 # out light-colored text sitting on top of it.
 const MULTIVERSAL_GRADIENT := [
-	Color(1.0, 0.95, 0.75, 0.45), Color(0.95, 0.8, 0.3, 0.45), Color(1.0, 1.0, 1.0, 0.4),
-	Color(0.9, 0.7, 1.0, 0.45), Color(1.0, 0.9, 0.5, 0.45),
+	Color(1.0, 0.95, 0.75, 0.3), Color(0.95, 0.8, 0.3, 0.3), Color(1.0, 1.0, 1.0, 0.25),
+	Color(0.9, 0.7, 1.0, 0.3), Color(1.0, 0.9, 0.5, 0.3),
 ]
 
 # Divine - one tier above Multiversal, a radiant white-gold-sky blend
@@ -82,16 +82,16 @@ const MULTIVERSAL_GRADIENT := [
 # mix, so the two read as clearly distinct at a glance rather than
 # just "the same shimmer, slightly different."
 const DIVINE_GRADIENT := [
-	Color(1.0, 1.0, 1.0, 0.45), Color(1.0, 0.95, 0.7, 0.45), Color(0.85, 0.95, 1.0, 0.45),
-	Color(1.0, 1.0, 0.9, 0.45), Color(0.9, 0.98, 1.0, 0.45),
+	Color(1.0, 1.0, 1.0, 0.3), Color(1.0, 0.95, 0.7, 0.3), Color(0.85, 0.95, 1.0, 0.3),
+	Color(1.0, 1.0, 0.9, 0.3), Color(0.9, 0.98, 1.0, 0.3),
 ]
 
 # Godforged - one tier above Divine, and the only tier never reachable
 # through Loot Bags/Eggs/crates at all (see PLUSHIE_PET_RARITY_WEIGHTS)
 # - a pink-to-gold blend, distinct from every gradient above it.
 const GODFORGED_GRADIENT := [
-	Color(1.0, 0.55, 0.85, 0.45), Color(1.0, 0.8, 0.35, 0.45), Color(1.0, 0.6, 0.9, 0.45),
-	Color(1.0, 0.85, 0.55, 0.45), Color(1.0, 0.5, 0.8, 0.45),
+	Color(1.0, 0.55, 0.85, 0.3), Color(1.0, 0.8, 0.35, 0.3), Color(1.0, 0.6, 0.9, 0.3),
+	Color(1.0, 0.85, 0.55, 0.3), Color(1.0, 0.5, 0.8, 0.3),
 ]
 
 

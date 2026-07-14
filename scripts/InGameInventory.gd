@@ -159,7 +159,7 @@ func _update_slot_visual(btn, slot_key: String, item) -> void:
 			shimmer.anchor_bottom = 1.0
 			shimmer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			shimmer.set_script(RotatingGradientBorderScript)
-			shimmer.gradient_colors = [Color(1.0, 0.85, 0.2, 0.6), Color(1.0, 0.62, 0.08, 0.4), Color(1.0, 0.95, 0.65, 0.6)]
+			shimmer.gradient_colors = [Color(1.0, 0.85, 0.2, 0.3), Color(1.0, 0.62, 0.08, 0.2), Color(1.0, 0.95, 0.65, 0.3)]
 			shimmer.rotate_speed = 0.35
 			btn.add_child(shimmer)
 			var gold_particles := Control.new()
@@ -188,7 +188,7 @@ func _update_slot_visual(btn, slot_key: String, item) -> void:
 			rotating_bg.anchor_bottom = 1.0
 			rotating_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			rotating_bg.set_script(RotatingGradientBorderScript)
-			rotating_bg.gradient_colors = [CHROME_WHITE, CHROME_BLACK, Color(0.7, 0.7, 0.7, 1)]
+			rotating_bg.gradient_colors = [Color(1, 1, 1, 0.3), Color(0.05, 0.05, 0.05, 0.3), Color(0.7, 0.7, 0.7, 0.3)]
 			rotating_bg.rotate_speed = 0.5
 			btn.add_child(rotating_bg)
 

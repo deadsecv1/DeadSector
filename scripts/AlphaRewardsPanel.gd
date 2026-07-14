@@ -16,8 +16,8 @@ const GlowTraceBorderScript := preload("res://scripts/GlowTraceBorder.gd")
 const CHROME_WHITE := Color(1.0, 1.0, 1.0, 1.0)
 const CHROME_BLACK := Color(0.05, 0.05, 0.05, 1.0)
 const CHROME_GRADIENT := [
-	Color(1.0, 1.0, 1.0, 0.95), Color(0.05, 0.05, 0.05, 0.95), Color(0.95, 0.95, 0.95, 0.9),
-	Color(0.03, 0.03, 0.03, 0.95), Color(1.0, 1.0, 1.0, 0.95),
+	Color(1.0, 1.0, 1.0, 0.3), Color(0.05, 0.05, 0.05, 0.3), Color(0.95, 0.95, 0.95, 0.25),
+	Color(0.03, 0.03, 0.03, 0.3), Color(1.0, 1.0, 1.0, 0.3),
 ]
 
 func _unhandled_input(event: InputEvent) -> void:

@@ -8,7 +8,7 @@ extends Control
 # texture is assigned) so it actually fills whatever box it's given
 # instead of rendering at the texture's raw pixel size.
 
-@export var gradient_colors: Array = [Color(1, 1, 1, 1), Color(0.05, 0.05, 0.05, 1)]
+@export var gradient_colors: Array = [Color(1, 1, 1, 0.3), Color(0.05, 0.05, 0.05, 0.3)]
 @export var rotate_speed: float = 0.6
 
 var _rect: TextureRect

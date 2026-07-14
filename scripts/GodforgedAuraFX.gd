@@ -27,7 +27,15 @@ static func apply(target: Control) -> void:
 	shimmer.anchor_bottom = 1.0
 	shimmer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	shimmer.set_script(RotatingGradientBorderScript)
-	shimmer.gradient_colors = [GODFORGED_PINK, GODFORGED_GOLD, GODFORGED_PINK]
+	# Lower alpha than GODFORGED_PINK/GOLD's own full-strength versions
+	# (used as-is below for the particles/stars/trace) - this is a
+	# full-rect fill, not a small accent, so it needs its own dimmer
+	# copies to stay a background behind the icon rather than a wash.
+	shimmer.gradient_colors = [
+		Color(GODFORGED_PINK.r, GODFORGED_PINK.g, GODFORGED_PINK.b, 0.3),
+		Color(GODFORGED_GOLD.r, GODFORGED_GOLD.g, GODFORGED_GOLD.b, 0.3),
+		Color(GODFORGED_PINK.r, GODFORGED_PINK.g, GODFORGED_PINK.b, 0.3),
+	]
 	shimmer.rotate_speed = 0.3
 	target.add_child(shimmer)
 
