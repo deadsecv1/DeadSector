@@ -6,6 +6,7 @@ signal skins_requested(item: Dictionary)
 signal open_bag_requested(index: int, source: String, item: Dictionary)
 signal rotate_requested(index: int, source: String, item: Dictionary)
 signal equip_requested(index: int, source: String, item: Dictionary)
+signal use_requested(index: int, source: String, item: Dictionary)
 signal unequip_requested(slot_name: String)
 signal deposit_egg_requested(index: int, source: String, item: Dictionary)
 signal tag_requested(index: int, source: String, item: Dictionary)
@@ -18,6 +19,7 @@ var current_slot_name: String = ""
 
 @onready var equip_button: Button = $VBox/EquipButton
 @onready var inspect_button: Button = $VBox/InspectButton
+@onready var use_button: Button = $VBox/UseButton
 @onready var attachments_button: Button = $VBox/AttachmentsButton
 @onready var skins_button: Button = $VBox/SkinsButton
 @onready var open_bag_button: Button = $VBox/OpenBagButton
@@ -41,6 +43,10 @@ func _ready() -> void:
 	inspect_button.pressed.connect(func():
 		visible = false
 		inspect_requested.emit(current_item)
+	)
+	use_button.pressed.connect(func():
+		visible = false
+		use_requested.emit(current_index, current_source, current_item)
 	)
 	attachments_button.pressed.connect(func():
 		visible = false
@@ -91,6 +97,10 @@ func open_for(index: int, source: String, item: Dictionary, at_position: Vector2
 	equip_button.text = "Equip"
 	equip_button.visible = not is_bag and not is_pet_case and not is_egg
 	inspect_button.visible = true
+	# Only in the in-raid Backpack (source "carried") - there's no live
+	# HP to heal out in the Stash, so this stays hidden there rather
+	# than offering an action that can't actually do anything.
+	use_button.visible = source == "carried" and item.get("consumable_type", "") == "heal"
 	attachments_button.visible = show_attachments_option and not is_bag and not is_pet_case and item.get("slot", "") == "weapon"
 	skins_button.visible = not is_bag and not is_pet_case and not is_egg and GameManager.get_skins_for(item.get("icon_key", "")).size() > 0
 	open_bag_button.visible = is_bag or is_pet_case or is_backpack_item
@@ -114,6 +124,7 @@ func open_for_equipped(slot_name: String, item: Dictionary, at_position: Vector2
 	equip_button.text = "Unequip"
 	equip_button.visible = true
 	inspect_button.visible = true
+	use_button.visible = false
 	attachments_button.visible = show_attachments_option and item.get("slot", "") == "weapon"
 	skins_button.visible = GameManager.get_skins_for(item.get("icon_key", "")).size() > 0
 	open_bag_button.visible = item.get("slot", "") == "backpack"

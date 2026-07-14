@@ -99,6 +99,14 @@ func _ready() -> void:
 		GameManager.unequip_to_carried(slot_name)
 		inventory_panel.refresh()
 	)
+	item_context_menu.use_requested.connect(func(index, _source, _item):
+		var removed := GameManager.consume_carried_item(index)
+		if not removed.is_empty():
+			var p = get_tree().get_first_node_in_group("player")
+			if p != null and is_instance_valid(p):
+				p.apply_consumable(removed)
+		inventory_panel.refresh()
+	)
 	open_bag_panel.closed.connect(func(): open_bag_panel.visible = false)
 	open_bag_panel.bag_opened.connect(inventory_panel.refresh)
 	inspect_panel.closed.connect(func(): inspect_panel.visible = false)

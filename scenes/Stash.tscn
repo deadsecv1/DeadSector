@@ -403,6 +403,12 @@ custom_minimum_size = Vector2(0, 32)
 theme_override_font_sizes/font_size = 13
 text = "Info"
 
+[node name="UseButton" type="Button" parent="ItemContextMenu/VBox"]
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 13
+text = "Use"
+visible = false
+
 [node name="AttachmentsButton" type="Button" parent="ItemContextMenu/VBox"]
 custom_minimum_size = Vector2(0, 32)
 theme_override_font_sizes/font_size = 13
