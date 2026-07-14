@@ -3077,6 +3077,15 @@ func is_max_arena_rank(index: int) -> bool:
 # the player's own team (blue); Team 2 is the opposing team (red).
 var current_arena_match: Dictionary = {}
 
+# True for the whole time the player is inside TheGrid.tscn (set in
+# TheGrid.gd's _ready(), read/reset by end_run() below) - lets end_run()
+# treat an Arena win/loss differently from a normal raid: no gear-strip
+# on loss (nothing to actually lose here), and routes to the Arena's own
+# win/loss screens instead of RaidRewards/DeathScreen.
+var is_arena_match: bool = false
+var last_arena_kills: int = 0
+var last_arena_rank_points_gained: int = 0
+
 func generate_arena_match(team_size: int) -> void:
 	var pool: Array = get_leaderboard("arena").filter(func(e): return not e.get("is_player", false))
 	pool.shuffle()
@@ -7327,6 +7336,7 @@ func end_run(success: bool) -> void:
 			"quests": raid_quests_completed.duplicate(),
 			"was_scav": is_scav_run,
 			"is_ranked": is_ranked_match,
+			"xp_gained": extraction_xp,
 			"rank_points_gained": rank_points_gained,
 			"rank_index_before": rank_index_before,
 			"rank_index_after": rank_index_after,
@@ -7349,12 +7359,15 @@ func end_run(success: bool) -> void:
 		# except Character Bound items (the Alpha/Tech Test exclusives),
 		# which stay on you no matter what. Everything else still only
 		# survives if it was already in the Stash or a Safe Pocket.
-		for slot in equipped_items.keys():
-			var eq_item = equipped_items[slot]
-			if eq_item != null and (eq_item.get("alpha_only", false) or eq_item.get("beta_only", false)):
-				continue
-			equipped_items[slot] = null
-		equipped_changed.emit()
+		# Arena is exempt entirely - it's a simulated match, not a real
+		# raid, and losing there was never meant to cost your real loadout.
+		if not is_arena_match:
+			for slot in equipped_items.keys():
+				var eq_item = equipped_items[slot]
+				if eq_item != null and (eq_item.get("alpha_only", false) or eq_item.get("beta_only", false)):
+					continue
+				equipped_items[slot] = null
+			equipped_changed.emit()
 	# A Scav run's gear was never really "yours" - whatever happened to
 	# it above, your actual PMC loadout comes back untouched now.
 	end_scav_run_if_active()
@@ -7392,7 +7405,13 @@ func end_run(success: bool) -> void:
 	carried_value = 0
 	run_over = false
 	selected_recruit = ""
-	var next_scene_path := "res://scenes/RaidRewards.tscn" if success else "res://scenes/DeathScreen.tscn"
+	var was_arena_match := is_arena_match
+	is_arena_match = false
+	var next_scene_path: String
+	if was_arena_match:
+		next_scene_path = "res://scenes/ArenaVictory.tscn" if success else "res://scenes/ArenaDefeat.tscn"
+	else:
+		next_scene_path = "res://scenes/RaidRewards.tscn" if success else "res://scenes/DeathScreen.tscn"
 	get_tree().change_scene_to_packed(Transition.get_cached_scene(next_scene_path))
 	await get_tree().process_frame
 	Transition.fade_in(0.6)

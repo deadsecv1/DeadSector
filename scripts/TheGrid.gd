@@ -20,11 +20,14 @@ var _match_won: bool = false
 
 func _ready() -> void:
 	GameManager.set_crosshair_cursor()
+	GameManager.is_arena_match = true
+	GameManager.last_arena_kills = 0
 	player.stats_ready.connect(hud.update_stats)
 	player.ammo_changed.connect(hud.update_ammo)
 	player._update_ammo_display()
 	player.stunned.connect(hud.flash_stun)
 	player.health_changed.connect(hud._on_player_health_changed)
+	_spawn_pet()
 
 	var team_size: int = int(GameManager.current_arena_match.get("team_size", 1))
 	_spawn_opponents(team_size)
@@ -49,15 +52,27 @@ func _ready() -> void:
 
 const ENEMY_SCENE := preload("res://scenes/Enemy.tscn")
 const ALLY_SCRIPT := preload("res://scripts/ArenaAlly.gd")
+const PET_SCENE := preload("res://scenes/Pet.tscn")
 const OPPONENT_SPOTS := [Vector2(260, -120), Vector2(340, 80)]
 const ALLY_SPOT := Vector2(-320, -60)
+
+func _spawn_pet() -> void:
+	if GameManager.equipped_pet == "":
+		return
+	var pet = PET_SCENE.instantiate()
+	pet.pet_id = GameManager.equipped_pet
+	add_child(pet)
+	pet.global_position = player.global_position + Vector2(-40, 30)
 
 func _spawn_opponents(team_size: int) -> void:
 	_opponents_remaining = team_size
 	for i in range(team_size):
 		var opponent = ENEMY_SCENE.instantiate()
 		opponent.is_real_player = true
-		opponent.tree_exited.connect(_on_opponent_defeated)
+		# died (not tree_exited) - tree_exited also fires on ordinary scene
+		# teardown (e.g. leaving via "Return to Main Menu" while an
+		# opponent is still alive), which used to be able to misfire a win.
+		opponent.died.connect(_on_opponent_defeated)
 		add_child(opponent)
 		opponent.global_position = OPPONENT_SPOTS[i % OPPONENT_SPOTS.size()]
 		opponent.get_node("Visuals").modulate = Color(1.1, 0.75, 0.75, 1)
@@ -74,6 +89,7 @@ func _spawn_ally() -> void:
 func _on_opponent_defeated() -> void:
 	if _match_won or GameManager.run_over:
 		return
+	GameManager.last_arena_kills += 1
 	_opponents_remaining -= 1
 	if _opponents_remaining <= 0:
 		_win_match()
@@ -82,10 +98,13 @@ func _win_match() -> void:
 	_match_won = true
 	var gained: int = randi_range(60, 140)
 	GameManager.arena_rank_points += gained
-	GameManager.save_game()
-	GameManager.toast_requested.emit("Arena match won! +%d Arena Rank points." % gained)
-	await get_tree().create_timer(2.0).timeout
-	_return_to_main_menu()
+	GameManager.last_arena_rank_points_gained = gained
+	# Routes through the normal end_run(true) - is_arena_match being true
+	# is what makes it land on ArenaVictory.tscn instead of RaidRewards.tscn
+	# (see GameManager.end_run). Arena has no real loot, so the raid-side
+	# effects of end_run's success branch (carried_value, loot quests,
+	# etc.) are all harmless no-ops here.
+	GameManager.end_run(true)
 
 func _open_lilly_panel() -> void:
 	lilly_panel.visible = true

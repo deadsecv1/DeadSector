@@ -2,6 +2,7 @@ extends Node2D
 
 const WISP_SCENE := preload("res://scenes/Wisp.tscn")
 const GHOST_PASSER_SCENE := preload("res://scenes/GhostPasserBy.tscn")
+const PET_SCENE := preload("res://scenes/Pet.tscn")
 const MAX_WAVE := 20
 
 @onready var player = $Player
@@ -28,6 +29,7 @@ func _ready() -> void:
 	player.stunned.connect(hud.flash_stun)
 	player.health_changed.connect(hud._on_player_health_changed)
 	statue_station.interacted.connect(_on_statue_interact)
+	_spawn_pet()
 	wave_label.text = ""
 	prompt_label.text = "Approach the Statue of the Great Harvester and press F to begin."
 	Notify.show_toast("Welcome to the Soul Realm. The Harvester is waiting.")
@@ -36,6 +38,14 @@ func _ready() -> void:
 		victory_overlay.visible = false
 		player.set_input_locked(false)
 	)
+
+func _spawn_pet() -> void:
+	if GameManager.equipped_pet == "":
+		return
+	var pet = PET_SCENE.instantiate()
+	pet.pet_id = GameManager.equipped_pet
+	add_child(pet)
+	pet.global_position = player.global_position + Vector2(-40, 30)
 
 func _process(delta: float) -> void:
 	ghost_timer += delta
