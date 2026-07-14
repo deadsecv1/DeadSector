@@ -30,6 +30,7 @@ const ROADMAP := [
 	{"section": SECTION_LIVE, "date": "Jul 12", "title": "Rose & Plushies", "desc": "A new Hideout NPC with her own Lore. Plushies are a new universal drop - hand her one and she'll turn it into a real, equippable pet with a guaranteed Plushie Buff.", "icon": "recruits"},
 	{"section": SECTION_LIVE, "date": "Jul 12", "title": "Case Tagging", "desc": "Name and color-code your Loot Bags and Pet Cases so you can tell them apart at a glance in the Stash.", "icon": "gear"},
 	{"section": SECTION_LIVE, "date": "Jul 12", "title": "Draggable Windows", "desc": "Every popup window in the game can now be repositioned by its edges - Stash, Traders, Leaderboard, Mail, Global Chat, and everywhere else.", "icon": "compass"},
+	{"section": SECTION_LIVE, "date": "Jul 14", "title": "Prestige System", "desc": "Once you hit the level cap, reset back to Level 1 in exchange for a real Rubles and Skill Point bonus - a fresh climb with a reward for reaching the top.", "icon": "star"},
 	# --- Coming soon. ---
 	{"section": SECTION_UPCOMING, "date": "Jul 18", "title": "Weekly Events", "desc": "Rotating modifiers - double loot weekends, blackout raids, and more.", "icon": "event"},
 	{"section": SECTION_UPCOMING, "date": "Jul 20", "title": "Weapon & Armor Durability", "desc": "Gear wears down with use, and a new Repairman in the Hideout lets you fix anything that's not already at full durability.", "icon": "gear"},
@@ -39,7 +40,6 @@ const ROADMAP := [
 	{"section": SECTION_UPCOMING, "date": "Aug 22", "title": "Clan System", "desc": "Team up with friends, share a Hideout, split the loot.", "icon": "gear"},
 	{"section": SECTION_UPCOMING, "date": "Sep 01", "title": "New Boss: The Warden", "desc": "A second boss guarding a vault deep in a new district.", "icon": "boss"},
 	{"section": SECTION_UPCOMING, "date": "Sep 12", "title": "Vehicle Extraction", "desc": "Hot-wire a car and drive out instead of waiting on a chopper.", "icon": "vehicle"},
-	{"section": SECTION_UPCOMING, "date": "Sep 21", "title": "Prestige System", "desc": "Reset your progress for permanent cosmetic rewards.", "icon": "star"},
 	{"section": SECTION_UPCOMING, "date": "Sep 30", "title": "New Map: The Foundry", "desc": "An industrial district with tighter corridors and bigger risks.", "icon": "key"},
 	{"section": SECTION_UPCOMING, "date": "Oct 09", "title": "Blood Moon Event", "desc": "A limited-time raid where everything - loot AND enemies - doubles.", "icon": "boss"},
 	{"section": SECTION_UPCOMING, "date": "Oct 20", "title": "Combat Roll / Dash", "desc": "A directional dodge with a brief invincibility window - a new defensive option in every raid.", "icon": "combat"},
