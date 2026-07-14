@@ -301,6 +301,16 @@ func _recompute_stats() -> void:
 
 	var weapon_item = GameManager.equipped_items.get("weapon")
 	weapon_icon = weapon_item.get("icon_key", "pistol") if weapon_item != null else "pistol"
+	# A handful of specific weapon items (e.g. the Behemoth Anti-Materiel
+	# Rifle) carry their own "shot_cooldown" field, which overrides the
+	# shared base_shoot_cooldown entirely instead of just trimming it -
+	# fire_rate gear still shaves a little off, but a weapon like this can
+	# never approach a normal gun's pace. Same "diverge via a flag on the
+	# item, not a new icon_key" approach as the Tech Tester's Sidearm's
+	# beta_only check below, so reload/mag/ammo-type/scope/chill behavior
+	# for the rest of the sniper family (or any other icon_key) is untouched.
+	if weapon_item != null and weapon_item.has("shot_cooldown"):
+		shoot_cooldown = max(1.5, float(weapon_item["shot_cooldown"]) - GameManager.get_equipped_bonus("fire_rate") - GameManager.get_upgrade_bonus("fire_rate"))
 	_apply_ammo_type_tradeoff(weapon_item)
 
 	stats_ready.emit(speed, max_health, damage, shoot_cooldown)
