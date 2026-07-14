@@ -3203,6 +3203,35 @@ func _arena_roster_entry(entry: Dictionary) -> Dictionary:
 		"arena_rank": str(tier.get("label", "?")), "arena_color": tier.get("color", Color.WHITE),
 	}
 
+# Builds current_arena_match from a team the player actually joined via
+# Find a Team (ArenaFindTeamPanel), instead of a freshly-rolled
+# matchmake team like generate_arena_match() builds above. team_members
+# is that team's simple {name, portrait[, is_player]} roster - the
+# player's own slot gets upgraded to full self data the same way
+# generate_arena_match() does for team1[0], and a fresh opposing
+# roster is rolled the same way generate_arena_match() rolls team2.
+func generate_arena_match_from_team(team_members: Array, team_size: int) -> void:
+	var team1: Array = []
+	for m in team_members:
+		if m.get("is_player", false):
+			team1.append({
+				"name": player_name if player_name != "" else "You", "portrait": player_portrait_id if player_portrait_id != "" else "portrait_1",
+				"is_player": true, "level": player_level, "gear": equipped_items, "title": equipped_title, "badges": owned_badges,
+				"arena_rank": get_arena_rank_display_name(), "arena_color": get_arena_rank_tier().get("color", Color.WHITE),
+			})
+		else:
+			team1.append({
+				"name": m.get("name", "?"), "portrait": m.get("portrait", "portrait_1"), "is_player": false,
+				"arena_rank": get_arena_rank_display_name(), "arena_color": get_arena_rank_tier().get("color", Color.WHITE),
+			})
+	var pool: Array = get_leaderboard("arena").filter(func(e): return not e.get("is_player", false))
+	pool.shuffle()
+	var team2 := []
+	for i in range(team_size):
+		if i < pool.size():
+			team2.append(_arena_roster_entry(pool[i]))
+	current_arena_match = {"team_size": team_size, "team1": team1, "team2": team2}
+
 # Rough illustrative share of players actually sitting in each of the 18
 # ranks (index-aligned with RANK_POINT_THRESHOLDS) - a steep drop-off
 # toward the top, same spirit as any ranked ladder: most people sit in

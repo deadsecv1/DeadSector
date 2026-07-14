@@ -65,13 +65,28 @@ func _run_countdown() -> void:
 	var team_size: int = int(GameManager.current_arena_match.get("team_size", 1))
 	_spawn_opponents(team_size)
 	if team_size > 1:
-		_spawn_ally()
+		_spawn_allies(team_size - 1)
 
 const ENEMY_SCENE := preload("res://scenes/Enemy.tscn")
 const ALLY_SCRIPT := preload("res://scripts/ArenaAlly.gd")
 const PET_SCENE := preload("res://scenes/Pet.tscn")
-const OPPONENT_SPOTS := [Vector2(260, -120), Vector2(340, 80)]
-const ALLY_SPOT := Vector2(-320, -60)
+const OPPONENT_BASE_X := 300.0
+const ALLY_BASE_X := -320.0
+const ROSTER_SPREAD_Y := 300.0
+
+# Spreads up to `count` spawn points evenly across the room's vertical
+# span at a fixed x (positive for the opponent side, negative for the
+# ally side) - replaces the old fixed 2-slot position arrays now that
+# matches can field rosters up to 7v7 instead of just 1v1/2v2.
+func _spread_positions(count: int, base_x: float) -> Array:
+	var positions: Array = []
+	if count <= 1:
+		positions.append(Vector2(base_x, 0))
+		return positions
+	for i in range(count):
+		var t: float = float(i) / float(count - 1)
+		positions.append(Vector2(base_x, lerp(-ROSTER_SPREAD_Y, ROSTER_SPREAD_Y, t)))
+	return positions
 
 func _spawn_pet() -> void:
 	if GameManager.equipped_pet == "":
@@ -83,6 +98,7 @@ func _spawn_pet() -> void:
 
 func _spawn_opponents(team_size: int) -> void:
 	_opponents_remaining = team_size
+	var spots := _spread_positions(team_size, OPPONENT_BASE_X)
 	for i in range(team_size):
 		var opponent = ENEMY_SCENE.instantiate()
 		opponent.is_real_player = true
@@ -91,17 +107,22 @@ func _spawn_opponents(team_size: int) -> void:
 		# opponent is still alive), which used to be able to misfire a win.
 		opponent.died.connect(_on_opponent_defeated)
 		add_child(opponent)
-		opponent.global_position = OPPONENT_SPOTS[i % OPPONENT_SPOTS.size()]
+		opponent.global_position = spots[i]
 		opponent.get_node("Visuals").modulate = Color(1.1, 0.75, 0.75, 1)
 
-# The player's 2v2 teammate - reuses Enemy.tscn's visuals with its
-# script swapped to ArenaAlly.gd (set_script() before add_child() so
-# ArenaAlly's own _ready() is what actually fires).
-func _spawn_ally() -> void:
-	var ally = ENEMY_SCENE.instantiate()
-	ally.set_script(ALLY_SCRIPT)
-	add_child(ally)
-	ally.global_position = ALLY_SPOT
+# The player's teammates (up to 6, for a 7v7) - reuses Enemy.tscn's
+# visuals with its script swapped to ArenaAlly.gd (set_script() before
+# add_child() so ArenaAlly's own _ready() is what actually fires).
+# team_index maps each ally to its slot in current_arena_match["team1"]
+# (team1[0] is always the player).
+func _spawn_allies(count: int) -> void:
+	var spots := _spread_positions(count, ALLY_BASE_X)
+	for i in range(count):
+		var ally = ENEMY_SCENE.instantiate()
+		ally.set_script(ALLY_SCRIPT)
+		ally.team_index = i + 1
+		add_child(ally)
+		ally.global_position = spots[i]
 
 func _on_opponent_defeated() -> void:
 	if _match_won or GameManager.run_over:

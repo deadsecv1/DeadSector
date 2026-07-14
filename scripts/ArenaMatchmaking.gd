@@ -2,7 +2,8 @@ extends Control
 
 # A brief "matchmaking" beat before dropping into The Grid - same spirit
 # as SearchingForPlayers.gd (this is still a simulated experience under
-# the hood, no live netcode), randomly settling on a 1v1 or a 2v2.
+# the hood, no live netcode), randomly settling on a squad size from
+# 4v4 up to 7v7.
 
 const SEARCH_SECONDS := 4.0
 
@@ -13,8 +14,8 @@ var _team_size: int = 1
 
 func _ready() -> void:
 	GameManager.set_default_cursor()
-	_team_size = 1 if randf() < 0.5 else 2
-	mode_label.text = "Finding a 1v1 match..." if _team_size == 1 else "Finding a 2v2 match..."
+	_team_size = randi_range(4, 7)
+	mode_label.text = "Finding a %dv%d match..." % [_team_size, _team_size]
 	spinner.draw.connect(_draw_spinner)
 	set_process(true)
 	await get_tree().create_timer(SEARCH_SECONDS).timeout

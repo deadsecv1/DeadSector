@@ -4,9 +4,9 @@ const PortraitScene := preload("res://scenes/TraderPortrait.tscn")
 const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
 
 # Arena's version of Social's Find a Team - same "simulated, ever-moving
-# list of groups" spirit (see FindTeamPanel.gd), but capped to teams of
-# 2 (Arena's a 1v1/2v2 mode, not open 5-person squads) and showing each
-# leader's Arena Rank instead of the normal Rank.
+# list of groups" spirit (see FindTeamPanel.gd), sized to Arena's
+# 4v4-7v7 squads and showing each leader's Arena Rank instead of the
+# normal Rank.
 
 signal closed
 
@@ -81,9 +81,16 @@ func _tick() -> void:
 		if t["joining_countdown"] > 0:
 			t["joining_countdown"] -= 1
 			if t["joining_countdown"] <= 0:
-				to_remove.append(t)
 				if t.get("player_joined", false):
+					# Previously just emitted a toast and stopped - never
+					# actually built a match or transitioned, so "Heading
+					# into The Grid" never happened. Build the match from
+					# THIS specific team (not a fresh random roll) and go.
+					GameManager.generate_arena_match_from_team(t["members"], t["max"])
 					GameManager.toast_requested.emit("Team ready! Heading into The Grid...")
+					Transition.change_scene("res://scenes/ArenaLoadoutChoice.tscn")
+					return
+				to_remove.append(t)
 				continue
 			_refresh_row_status(t)
 			continue
@@ -112,7 +119,7 @@ func _spawn_team() -> void:
 	if pool.is_empty():
 		return
 	var leader: Dictionary = pool[randi() % pool.size()]
-	var max_size: int = 1 if randf() < 0.5 else 2
+	var max_size: int = randi_range(4, 7)
 	var t := {
 		"id": _next_id, "leader": leader, "max": max_size,
 		"members": [{"name": leader.get("name", "?"), "portrait": leader.get("portrait", "portrait_1")}],
@@ -167,7 +174,7 @@ func _add_row(t: Dictionary) -> void:
 	vbox.add_child(header)
 
 	var mode_lbl := Label.new()
-	mode_lbl.text = "1v1" if t["max"] == 1 else "2v2"
+	mode_lbl.text = "%dv%d" % [t["max"], t["max"]]
 	mode_lbl.add_theme_font_size_override("font_size", 13)
 	mode_lbl.add_theme_color_override("font_color", Color(0.75, 0.5, 0.95, 1))
 	header.add_child(mode_lbl)
