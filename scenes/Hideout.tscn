@@ -54,6 +54,7 @@ size = Vector2(25, 1400)
 
 [node name="Player" parent="." instance=ExtResource("2")]
 position = Vector2(0, 50)
+decays_hunger = false
 
 [node name="GymCrate1" parent="." instance=ExtResource("8")]
 position = Vector2(-337.5, -237.5)

@@ -22,14 +22,33 @@ extends Node2D
 
 var _opponents_remaining: int = 0
 var _match_won: bool = false
+var _esc_was_down: bool = false
+# Snapshot of current_teams_panel.visible taken at the END of the previous
+# frame - ArenaCurrentTeamsPanel.gd closes ITSELF via its own
+# _unhandled_input on Escape (being a deeper child, it can consume the
+# event before this script's own input ever saw it), so a live check here
+# would race the exact same way polling was needed elsewhere in the
+# codebase for this same class of bug.
+var _current_teams_was_open_at_frame_start: bool = false
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
-		get_viewport().set_input_as_handled()
-		if current_teams_panel.visible:
+func _process(_delta: float) -> void:
+	var esc_down := Input.is_key_pressed(KEY_ESCAPE)
+	if esc_down and not _esc_was_down:
+		# HUD's own Escape handling is Input.is_key_pressed() polling in
+		# its own _process(), which reads raw hardware key state and has
+		# no way to know Lilly's panel exists at all - without this, it
+		# opened its own Pause Menu on the exact same keypress that just
+		# opened/closed this one. Escape in this scene is always fully
+		# owned by the Lilly/Current-Teams system, never HUD's Pause Menu.
+		hud.suppress_escape_this_frame = true
+		if _current_teams_was_open_at_frame_start:
+			pass
+		elif current_teams_panel.visible:
 			current_teams_panel.visible = false
 		else:
 			lilly_panel.visible = not lilly_panel.visible
+	_esc_was_down = esc_down
+	_current_teams_was_open_at_frame_start = current_teams_panel.visible
 
 func _ready() -> void:
 	GameManager.set_crosshair_cursor()
@@ -55,7 +74,10 @@ func _ready() -> void:
 		current_teams_panel.open()
 	)
 	close_btn.pressed.connect(func(): lilly_panel.visible = false)
-	current_teams_panel.closed.connect(func(): current_teams_panel.visible = false)
+	current_teams_panel.closed.connect(func():
+		current_teams_panel.visible = false
+		lilly_panel.visible = true
+	)
 
 	# Movement/shooting stay locked, and opponents/ally stay unspawned,
 	# until the countdown hits GO - matches the "Choose Your Loadout"

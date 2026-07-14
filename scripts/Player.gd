@@ -9,6 +9,11 @@ signal died
 @export var base_max_health: int = 100
 @export var base_shoot_cooldown: float = 0.25
 @export var base_damage: int = 10
+# Player.tscn is instanced identically in the Hideout as in a raid, and
+# hunger was built as a raid survival mechanic - defaults to true (raid
+# behavior) so every existing raid map needs no changes; only Hideout.tscn
+# overrides this to false.
+@export var decays_hunger: bool = true
 
 var speed: float
 var max_health: int
@@ -643,7 +648,7 @@ func _handle_regen(delta: float) -> void:
 # Hunger only ever decays (no passive regen to counteract, unlike health) -
 # restored solely by eating food-type consumables, see apply_consumable().
 func _handle_hunger_decay(delta: float) -> void:
-	if hunger <= 0:
+	if not decays_hunger or hunger <= 0:
 		return
 	hunger_accumulator += HUNGER_DECAY_RATE * delta
 	if hunger_accumulator >= 1.0:

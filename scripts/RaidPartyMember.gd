@@ -148,7 +148,8 @@ func _shoot() -> void:
 	if is_instance_valid(muzzle_flash):
 		muzzle_flash.visible = false
 	await get_tree().create_timer(shoot_cooldown).timeout
-	can_shoot = true
+	if is_instance_valid(self):
+		can_shoot = true
 
 # Occasional speech bubble (~15-30s), same lightweight floating-Label
 # pattern Pet.gd/ArenaAlly.gd already use for their own chat.

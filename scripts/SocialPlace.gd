@@ -30,6 +30,13 @@ const RESPAWN_CHECK_INTERVAL := 3.0
 
 var _npc_despawn_at_ms: Dictionary = {}
 var _respawn_check_timer: float = 0.0
+var _esc_was_down: bool = false
+# Snapshot taken at the END of the previous frame, not a live check -
+# ArenaCurrentTeamsPanel.gd closes ITSELF via its own _unhandled_input on
+# Escape (a deeper child, so it can consume the event before this script
+# ever sees it), same class of race fixed elsewhere in the codebase for
+# this exact pattern.
+var _current_teams_was_open_at_frame_start: bool = false
 
 func _ready() -> void:
 	GameManager.set_crosshair_cursor()
@@ -56,7 +63,10 @@ func _ready() -> void:
 		current_teams_panel.open()
 	)
 	close_btn.pressed.connect(func(): lilly_panel.visible = false)
-	current_teams_panel.closed.connect(func(): current_teams_panel.visible = false)
+	current_teams_panel.closed.connect(func():
+		current_teams_panel.visible = false
+		lilly_panel.visible = true
+	)
 
 func _spawn_pet() -> void:
 	if GameManager.equipped_pet == "":
@@ -78,6 +88,24 @@ func _spawn_npc() -> void:
 	_npc_despawn_at_ms[npc] = Time.get_ticks_msec() + int(lifetime * 1000.0)
 
 func _process(delta: float) -> void:
+	var esc_down := Input.is_key_pressed(KEY_ESCAPE)
+	if esc_down and not _esc_was_down:
+		if _current_teams_was_open_at_frame_start:
+			# ArenaCurrentTeamsPanel already closed itself (and its closed
+			# signal already restored lilly_panel) via its own
+			# _unhandled_input on this same press - just make sure HUD's
+			# poll-based Pause Menu doesn't also open on top of that.
+			hud.suppress_escape_this_frame = true
+		elif current_teams_panel.visible:
+			current_teams_panel.visible = false
+			lilly_panel.visible = true
+			hud.suppress_escape_this_frame = true
+		elif lilly_panel.visible:
+			lilly_panel.visible = false
+			hud.suppress_escape_this_frame = true
+	_esc_was_down = esc_down
+	_current_teams_was_open_at_frame_start = current_teams_panel.visible
+
 	var now := Time.get_ticks_msec()
 	var to_forget: Array = []
 	for npc in _npc_despawn_at_ms.keys():

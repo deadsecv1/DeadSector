@@ -303,7 +303,17 @@ func open() -> void:
 	offset_right = 300.0
 	offset_bottom = 320.0
 	_chat_pool = GameManager.get_ranked_leaderboard().filter(func(e): return not e.get("is_player", false))
+	# remove_child() before queue_free(), not queue_free() alone - the
+	# latter only defers to end-of-frame, so these rows were still real
+	# children of message_list while the 6 new ones below got added right
+	# after. If the >60 row cap in _add_message_row() happened to fire
+	# during that window (after 4+ min of ambient traffic, i.e. exactly
+	# when a reopen was likely), it evicted one of these stale-but-still-
+	# present ghost rows while _message_rows.pop_front() popped a
+	# brand-new entry instead - desyncing the two until reactions had
+	# nothing valid left to attach to for the rest of the session.
 	for c in message_list.get_children():
+		message_list.remove_child(c)
 		c.queue_free()
 	_message_rows.clear()
 	_recent_message_uses.clear()

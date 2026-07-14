@@ -39,6 +39,25 @@ func _update_reload_prompt_visibility() -> void:
 var tab_was_down: bool = false
 var esc_was_down: bool = false
 var cursor_is_default: bool = false
+# Snapshot of tag_edit_panel.visible taken at the END of the previous
+# frame - see the Escape handling below for why this has to be the OLD
+# value, not a live re-check.
+var _tag_edit_was_open_at_frame_start: bool = false
+# Lets a parent scene with its own scene-specific panels HUD has no way
+# to know about (e.g. TheGrid's Lilly panel, opened via Escape since
+# there's no in-map NPC there anymore) suppress this frame's Escape
+# handling - same idea as the chat_box_open/tag_edit_panel checks below,
+# just for state that lives outside this script. One-shot: the parent's
+# own _unhandled_input sets this (input phase, fires before this script's
+# polling _process() this same frame), consumed and cleared below.
+var suppress_escape_this_frame: bool = false
+
+# Only re-format the raid timer label when the displayed mm:ss actually
+# changes, instead of every frame regardless (~60x/sec for a value that
+# visibly changes once a second) - same guard already used for the
+# currency readout above.
+var _last_time_m: int = -1
+var _last_time_s: int = -1
 
 # Cached instead of re-queried via get_first_node_in_group every _process
 # frame - the player doesn't change mid-raid.
@@ -227,6 +246,8 @@ func _process(_delta: float) -> void:
 			# this branch just needs to exist so this chain doesn't also
 			# fall through to opening the Pause Menu on the same press.
 			pass
+		elif suppress_escape_this_frame:
+			suppress_escape_this_frame = false
 		elif item_context_menu.visible:
 			item_context_menu.visible = false
 		elif inspect_panel.visible:
@@ -240,12 +261,17 @@ func _process(_delta: float) -> void:
 		elif wandering_trader_panel.visible:
 			wandering_trader_panel.visible = false
 			_set_player_locked(false)
-		elif tag_edit_panel.visible:
-			# TagEditPanel already closes itself via its own
-			# _unhandled_input (event-based) on this same Escape press -
-			# this branch just needs to exist so THIS polled check doesn't
-			# fall through to the else below and open the Pause Menu as
-			# an unwanted side effect of that close.
+		elif _tag_edit_was_open_at_frame_start:
+			# TagEditPanel closes itself via its own _unhandled_input
+			# (event-based), which fires before this polled _process()
+			# check on the SAME Escape press - by the time we get here
+			# tag_edit_panel.visible already reads false, so a live check
+			# here could never actually match, and this fell through to
+			# the else below and opened the Pause Menu as an unwanted side
+			# effect of that close. _tag_edit_was_open_at_frame_start is a
+			# snapshot from the end of last frame (before that self-close
+			# happened), so it still correctly reflects "yes, it was open
+			# when this Escape press landed."
 			pass
 		elif inventory_panel.visible:
 			inventory_panel.visible = false
@@ -259,6 +285,7 @@ func _process(_delta: float) -> void:
 			_set_player_locked(true)
 			get_tree().paused = true
 	esc_was_down = esc_down
+	_tag_edit_was_open_at_frame_start = tag_edit_panel.visible
 
 	# Keep the mouse cursor as a normal arrow whenever a menu/screen covers
 	# the view, and restore the in-game crosshair the instant it's all
@@ -309,6 +336,10 @@ func update_ammo(current_mag: int, _mag_size: int, reserve_ammo: int, ammo_type:
 func update_time_remaining(seconds: float) -> void:
 	var m := floori(seconds / 60.0)
 	var s := floori(seconds) % 60
+	if m == _last_time_m and s == _last_time_s:
+		return
+	_last_time_m = m
+	_last_time_s = s
 	time_label.text = "%02d:%02d" % [m, s]
 	time_label.add_theme_color_override("font_color", Color(1, 0.3, 0.25, 1) if seconds <= 30.0 else Color(0.95, 0.9, 0.75, 1))
 

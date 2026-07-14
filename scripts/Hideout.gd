@@ -40,6 +40,18 @@ extends Node2D
 var sleeping: bool = false
 var esc_was_down: bool = false
 var cursor_is_default: bool = false
+# Snapshot of _any_panel_open(), taken at the END of the previous frame -
+# see the Escape handling in _process() for why this has to be the OLD
+# value, not a live re-check.
+var _panel_was_open_at_frame_start: bool = false
+
+# Only re-format/re-parse the currency label when a value actually
+# changed, instead of every frame regardless - same guard HUD.gd already
+# uses for its own currency readout.
+var _last_rubles: int = -1
+var _last_junk: int = -1
+var _last_artifacts: int = -1
+var _last_alloys: int = -1
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.keycode == GameManager.get_keybind("inventory") and event.pressed and not event.echo:
@@ -114,9 +126,14 @@ func _ready() -> void:
 	sleep_no.pressed.connect(_on_sleep_confirm_no)
 
 func _process(_delta: float) -> void:
-	currency_label.text = "Rubles %d   //   Junk %d   //   Artifacts %d   //   Alloys %d" % [
-		GameManager.rubles, GameManager.junk, GameManager.artifacts, GameManager.alloys
-	]
+	if GameManager.rubles != _last_rubles or GameManager.junk != _last_junk or GameManager.artifacts != _last_artifacts or GameManager.alloys != _last_alloys:
+		_last_rubles = GameManager.rubles
+		_last_junk = GameManager.junk
+		_last_artifacts = GameManager.artifacts
+		_last_alloys = GameManager.alloys
+		currency_label.text = "Rubles %d   //   Junk %d   //   Artifacts %d   //   Alloys %d" % [
+			_last_rubles, _last_junk, _last_artifacts, _last_alloys
+		]
 	if reload_prompt.visible:
 		var mouse_pos := get_viewport().get_mouse_position()
 		reload_prompt.position = mouse_pos + Vector2(18, 18)
@@ -126,6 +143,20 @@ func _process(_delta: float) -> void:
 			# GlobalChatBox polls Escape independently to close itself -
 			# this branch just needs to exist so this chain doesn't also
 			# fall through to opening the Pause overlay on the same press.
+			pass
+		elif _panel_was_open_at_frame_start:
+			# All 11 station panels below close themselves independently
+			# on Escape (their own _unhandled_input, which also runs the
+			# full close cleanup via their `closed` signal - e.g. Gym's
+			# _close_gym() unlocking player input) - that fires BEFORE
+			# this poll-based _process() check, on the SAME keypress. By
+			# the time we get here every .visible check below would
+			# already read false, so without this guard the chain fell
+			# through all of them and opened Pause on top of a menu the
+			# player just backed out of. _panel_was_open_at_frame_start is
+			# a snapshot from the END of last frame (before that self-close
+			# happened), so it still correctly reflects "yes, a panel was
+			# open when this Escape press landed."
 			pass
 		elif gym_panel.visible:
 			_close_gym()
@@ -156,6 +187,7 @@ func _process(_delta: float) -> void:
 		elif not sleeping:
 			_open_pause()
 	esc_was_down = esc_down
+	_panel_was_open_at_frame_start = _any_panel_open()
 
 	# Any popup that needs mouse interaction (talking to Justin, opening
 	# a station panel, and so on) swaps to the normal pointer - swaps

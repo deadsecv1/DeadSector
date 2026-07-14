@@ -984,18 +984,34 @@ func _try_merge_ammo_stack(items: Array, item: Dictionary) -> bool:
 		return false
 	var atype: String = item.get("ammo_type", "light")
 	var cap: int = int(AMMO_STACK_MAX.get(atype, 500))
-	var incoming: int = int(item.get("ammo_amount", 0))
+	# Unlike grenades (always +1, so "this stack's full, keep looking" and
+	# "no room anywhere, spill to a new stack" are the only two outcomes),
+	# an ammo pickup is a variable amount that can PARTLY fit into one
+	# stack's remaining headroom - the old version merged as much as fit
+	# into the first eligible stack and returned true unconditionally,
+	# discarding whatever didn't fit instead of continuing to look for
+	# room elsewhere or spilling it into a new stack.
+	var remaining: int = int(item.get("ammo_amount", 0))
 	for existing in items:
+		if remaining <= 0:
+			break
 		if existing.get("consumable_type", "") == "ammo" and existing.get("ammo_type", "") == atype:
 			var current: int = int(existing.get("ammo_amount", 0))
 			if current >= cap:
 				continue
 			if not existing.has("base_name"):
 				existing["base_name"] = "%s Ammo" % atype.capitalize()
-			var added: int = min(incoming, cap - current)
+			var added: int = min(remaining, cap - current)
 			existing["ammo_amount"] = current + added
 			existing["name"] = "%s x%d" % [existing["base_name"], current + added]
-			return true
+			remaining -= added
+	if remaining <= 0:
+		return true
+	# Didn't fully fit - hand back what's left instead of letting it just
+	# vanish. The caller (add_loot()/_add_to_stash()) treats a false
+	# return as "couldn't merge" and spills item into a fresh stack, same
+	# as grenades already do; item now correctly holds only the leftover.
+	item["ammo_amount"] = remaining
 	return false
 
 # Total rounds of `ammo_type` currently sitting in the Backpack - this
@@ -2587,6 +2603,13 @@ func gauntlet_equip_item(index: int) -> void:
 	gauntlet_equipped_items[slot] = item
 	carried_loot.remove_at(index)
 	if previous != null:
+		# Every other equip path allocates a fresh, non-overlapping cell
+		# before appending back to carried_loot - this one skipped it and
+		# kept the item's stale grid_x/grid_y from wherever it used to
+		# sit, which can now overlap whatever's already in that cell.
+		var cell := _next_free_cell_in(carried_loot, true, get_item_footprint(previous))
+		previous["grid_x"] = cell.x
+		previous["grid_y"] = cell.y
 		carried_loot.append(previous)
 	toast_requested.emit("Equipped %s" % item.get("name", "Item"))
 	gauntlet_equipment_changed.emit()
@@ -2596,6 +2619,9 @@ func gauntlet_unequip_item(slot: String) -> void:
 	if item == null:
 		return
 	gauntlet_equipped_items[slot] = null
+	var cell := _next_free_cell_in(carried_loot, true, get_item_footprint(item))
+	item["grid_x"] = cell.x
+	item["grid_y"] = cell.y
 	carried_loot.append(item)
 	gauntlet_equipment_changed.emit()
 
@@ -3296,6 +3322,7 @@ const ARENA_LOADOUT_PRESETS := [
 			"body": {"name": "Ghost Cloak", "value": 150, "slot": "body", "stat_type": "speed", "stat_value": 15.0, "icon_key": "chestplate", "rarity": "rare"},
 			"boots": {"name": "Sentinel Boots", "value": 90, "slot": "boots", "stat_type": "speed", "stat_value": 29.7, "icon_key": "boots", "rarity": "rare"},
 			"head": {"name": "Oracle Visor", "value": 220, "slot": "head", "stat_type": "loot_sense", "stat_value": 0.0, "icon_key": "helmet", "rarity": "epic"},
+			"accessory": null, "backpack": null,
 		},
 		"pet_id": "scout",
 	},
@@ -3307,6 +3334,7 @@ const ARENA_LOADOUT_PRESETS := [
 			"body": {"name": "Ironclad Vest", "value": 235, "slot": "body", "stat_type": "max_health", "stat_value": 60.8, "icon_key": "chestplate", "rarity": "epic"},
 			"boots": {"name": "Blitz Boots", "value": 190, "slot": "boots", "stat_type": "speed", "stat_value": 43.2, "icon_key": "boots", "rarity": "epic"},
 			"head": {"name": "Warden Helm", "value": 210, "slot": "head", "stat_type": "max_health", "stat_value": 51.3, "icon_key": "helmet", "rarity": "epic"},
+			"accessory": null, "backpack": null,
 		},
 		"pet_id": "shadow",
 	},
@@ -3318,6 +3346,7 @@ const ARENA_LOADOUT_PRESETS := [
 			"body": {"name": "Juggernaut Plate", "value": 230, "slot": "body", "stat_type": "max_health", "stat_value": 56.7, "icon_key": "chestplate", "rarity": "epic"},
 			"boots": {"name": "Ridgeline Boots", "value": 92, "slot": "boots", "stat_type": "speed", "stat_value": 31.1, "icon_key": "boots", "rarity": "rare"},
 			"head": {"name": "Vanguard Helmet", "value": 125, "slot": "head", "stat_type": "max_health", "stat_value": 40.5, "icon_key": "helmet", "rarity": "rare"},
+			"accessory": null, "backpack": null,
 		},
 		"pet_id": "whiskers",
 	},
@@ -3342,7 +3371,11 @@ func apply_arena_loadout_preset(preset_id: String) -> void:
 	_arena_loadout_active = true
 	var gear: Dictionary = preset.get("gear", {})
 	for slot in gear:
-		equipped_items[slot] = gear[slot].duplicate(true)
+		# Accessory/backpack are explicitly null in every preset - real
+		# gear equipped there before the match used to stay mechanically
+		# active for the whole thing, against the standardized-loadout
+		# premise. null itself has no duplicate() method, so guard it.
+		equipped_items[slot] = gear[slot].duplicate(true) if gear[slot] != null else null
 	if preset.has("pet_id"):
 		equipped_pet = str(preset["pet_id"])
 	# Same starting-ammo grant start_scav_run() uses for the ammo type its

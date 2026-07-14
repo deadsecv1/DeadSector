@@ -22,6 +22,10 @@ var _next_id: int = 1
 var _tick_accum: float = 0.0
 var _spawn_timer: float = 0.0
 var _next_spawn_delay: float = 2.0
+# player_joined is tracked per-team, so nothing stopped clicking Join on
+# a second, different row before the first team filled up and
+# transitioned - registering the player on two rosters at once.
+var _player_has_joined_a_team: bool = false
 
 func _unhandled_input(event: InputEvent) -> void:
 	if visible and event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
@@ -44,6 +48,7 @@ func open() -> void:
 	offset_right = 320.0
 	offset_bottom = 260.0
 	_clear_all()
+	_player_has_joined_a_team = false
 	_next_spawn_delay = randf_range(1.0, 2.0)
 	_spawn_timer = 0.0
 	_tick_accum = 0.0
@@ -143,8 +148,9 @@ func _on_join_pressed(team_id: int) -> void:
 		if candidate["id"] == team_id:
 			t = candidate
 			break
-	if t.is_empty() or t.get("player_joined", false) or t["members"].size() >= t["max"]:
+	if t.is_empty() or t.get("player_joined", false) or t["members"].size() >= t["max"] or _player_has_joined_a_team:
 		return
+	_player_has_joined_a_team = true
 	t["player_joined"] = true
 	t["members"].append({"name": GameManager.player_name if GameManager.player_name != "" else "You", "portrait": GameManager.player_portrait_id if GameManager.player_portrait_id != "" else "portrait_1", "is_player": true})
 	Sfx.play_coin_hover()

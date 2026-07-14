@@ -38,6 +38,19 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	# Same runtime anchor-collapse bug as Flea Market/Mail (there, forced
+	# back to a centered layout) - this is a full-screen panel, so force
+	# back to a full-rect fill instead. Without this, a collapsed
+	# anchor_right/anchor_bottom reading back as 0 renders as a blank
+	# screen with no visible cue anything is open.
+	anchor_left = 0.0
+	anchor_top = 0.0
+	anchor_right = 1.0
+	anchor_bottom = 1.0
+	offset_left = 0.0
+	offset_top = 0.0
+	offset_right = 0.0
+	offset_bottom = 0.0
 	refresh()
 
 func refresh() -> void:
