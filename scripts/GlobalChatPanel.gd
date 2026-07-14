@@ -7,6 +7,8 @@ func _input(event: InputEvent) -> void:
 	if not visible:
 		return
 	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+		if GlobalChatBox.chat_box_open:
+			return
 		get_viewport().set_input_as_handled()
 		closed.emit()
 		return

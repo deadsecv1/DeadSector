@@ -121,7 +121,12 @@ func _process(_delta: float) -> void:
 		reload_prompt.position = mouse_pos + Vector2(18, 18)
 	var esc_down := Input.is_key_pressed(KEY_ESCAPE)
 	if esc_down and not esc_was_down:
-		if gym_panel.visible:
+		if GlobalChatBox.chat_box_open:
+			# GlobalChatBox polls Escape independently to close itself -
+			# this branch just needs to exist so this chain doesn't also
+			# fall through to opening the Pause overlay on the same press.
+			pass
+		elif gym_panel.visible:
 			_close_gym()
 		elif lildirty_panel.visible:
 			_close_lildirty()

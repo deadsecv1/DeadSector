@@ -33,7 +33,6 @@ var chat_box: LineEdit
 var chat_box_open: bool = false
 var _chat_opened_at_ms: int = 0
 var _chat_fade_tween: Tween = null
-var _esc_was_down: bool = false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -85,12 +84,19 @@ func _input(event: InputEvent) -> void:
 		if not chat_box_open and not _is_cutscene_active() and not _other_text_field_focused():
 			get_viewport().set_input_as_handled()
 			_open_chat_box()
-
-func _process(_delta: float) -> void:
-	var esc_down := Input.is_key_pressed(KEY_ESCAPE)
-	if esc_down and not _esc_was_down and chat_box_open:
+	# Event-based (not polled) and specifically in _input() - this runs
+	# BEFORE _unhandled_input(), so marking it handled here means every
+	# panel/screen using the standard _unhandled_input Escape pattern
+	# (the vast majority in this codebase) automatically never sees this
+	# Escape press at all while chat is open, closing chat first with no
+	# per-screen changes needed. The handful of screens that instead poll
+	# Input.is_key_pressed(KEY_ESCAPE) or use their own _input() (Stash,
+	# Traders, SkillTree, Settings, Hideout, the various "choice" screens,
+	# ...) don't respect "handled" automatically and each check
+	# GlobalChatBox.chat_box_open explicitly before acting on Escape.
+	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo and chat_box_open:
+		get_viewport().set_input_as_handled()
 		_close_chat_box()
-	_esc_was_down = esc_down
 
 func _set_player_locked(locked: bool) -> void:
 	var player = get_tree().get_first_node_in_group("player")

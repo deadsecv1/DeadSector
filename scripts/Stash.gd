@@ -46,6 +46,8 @@ var quick_sell_mode: bool = false
 var quick_sell_selected: Array = []
 
 func _input(event: InputEvent) -> void:
+	if GlobalChatBox.chat_box_open:
+		return
 	if event is InputEventKey and event.keycode == GameManager.get_keybind("inventory") and event.pressed and not event.echo:
 		get_viewport().set_input_as_handled()
 		GameManager.save_game()

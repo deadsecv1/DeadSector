@@ -40,6 +40,8 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.keycode == KEY_TAB and event.pressed and not event.echo:
 		get_viewport().set_input_as_handled()
 	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+		if GlobalChatBox.chat_box_open:
+			return
 		get_viewport().set_input_as_handled()
 		if keybinds_view.visible:
 			_show_main()

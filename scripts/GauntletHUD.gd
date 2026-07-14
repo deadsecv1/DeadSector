@@ -56,7 +56,12 @@ func _process(_delta: float) -> void:
 
 	var esc_down := Input.is_key_pressed(KEY_ESCAPE)
 	if esc_down and not esc_was_down:
-		if inventory_panel.visible:
+		if GlobalChatBox.chat_box_open:
+			# GlobalChatBox polls Escape independently to close itself -
+			# this branch just needs to exist so this chain doesn't also
+			# toggle the Pause overlay on the same press.
+			pass
+		elif inventory_panel.visible:
 			inventory_panel.visible = false
 			get_tree().paused = false
 		else:
