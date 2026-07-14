@@ -20,8 +20,11 @@ codebase, so a fresh session doesn't have to rediscover them from scratch.
   `git add .` — this repo mixes source with generated `.import` files and
   it's easy to sweep in something unintended.
 - Create new commits rather than amending, unless explicitly asked to amend.
-- Don't push unless explicitly asked, even if a previous message in the same
-  session asked for a push — treat each push as a fresh request.
+- Standing authorization (given 2026-07-14): push to `main` whenever it's
+  judged appropriate, no need to ask first each time. (Previously this said
+  to treat every push as a fresh request — the user explicitly lifted that
+  for pushes specifically. GitHub Release publishing is separate and still
+  follows the manual hand-off workflow below.)
 - When exporting a build, always explicitly confirm the exe path is rebuilt
   and ready — don't just say "boots clean."
 
