@@ -160,6 +160,19 @@ func _ready() -> void:
 		GameManager.unequip_item(slot_name)
 		refresh()
 	)
+	# Heal/food items can be "Used" from the Stash too now - but there's
+	# no live HP/Hunger to restore outside a raid (no Player instance
+	# here), so this explains why rather than silently consuming a
+	# valuable item for zero effect.
+	item_context_menu.use_requested.connect(func(_index, source, item):
+		if source != "stash":
+			return
+		var ctype: String = str(item.get("consumable_type", ""))
+		if ctype == "heal":
+			GameManager.toast_requested.emit("You're already at full health outside a raid - nothing to heal right now.")
+		elif ctype == "food":
+			GameManager.toast_requested.emit("You're not hungry outside a raid - nothing to restore right now.")
+	)
 	attachments_panel.closed.connect(func(): attachments_panel.visible = false; refresh())
 	inspect_panel.closed.connect(func(): inspect_panel.visible = false)
 	skins_panel.closed.connect(func(): skins_panel.visible = false)

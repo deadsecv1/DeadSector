@@ -97,10 +97,11 @@ func open_for(index: int, source: String, item: Dictionary, at_position: Vector2
 	equip_button.text = "Equip"
 	equip_button.visible = not is_bag and not is_pet_case and not is_egg
 	inspect_button.visible = true
-	# Only in the in-raid Backpack (source "carried") - there's no live
-	# HP/Hunger to restore out in the Stash, so this stays hidden there
-	# rather than offering an action that can't actually do anything.
-	use_button.visible = source == "carried" and item.get("consumable_type", "") in ["heal", "food"]
+	# Available from both the in-raid Backpack and the Stash. There's no
+	# live HP/Hunger to restore outside a raid, so Stash.gd's own
+	# use_requested handler gives an explanatory toast instead of
+	# applying an effect there - see Stash.gd for that path.
+	use_button.visible = source in ["carried", "stash"] and item.get("consumable_type", "") in ["heal", "food"]
 	attachments_button.visible = show_attachments_option and not is_bag and not is_pet_case and item.get("slot", "") == "weapon"
 	skins_button.visible = not is_bag and not is_pet_case and not is_egg and GameManager.get_skins_for(item.get("icon_key", "")).size() > 0
 	open_bag_button.visible = is_bag or is_pet_case or is_backpack_item
