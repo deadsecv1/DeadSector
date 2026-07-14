@@ -1,12 +1,18 @@
 extends Control
 
 # Ambient menu vignette: a lone raider walking slowly through misty
-# woods, flashlight cone sweeping ahead - a quiet, atmospheric moment
-# rather than the skyline's monster prowl. Fully procedural, same
-# technique as MainMenuBackground.gd.
+# woods, flashlight cone sweeping toward wherever the cursor is (with a
+# heavy delay, like it takes a moment to notice and turn) rather than
+# just a fixed idle wobble - a quiet, atmospheric moment rather than the
+# skyline's monster prowl. Fully procedural, same technique as
+# MainMenuBackground.gd.
 
 var time: float = 0.0
 var trees: Array = []  # {x, w, h, depth}
+
+var _lagged_cursor: Vector2 = Vector2.ZERO
+var _cursor_lag_ready: bool = false
+const CURSOR_LAG := 2.6
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -16,6 +22,12 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	time += delta
+	var mouse := get_global_mouse_position()
+	if not _cursor_lag_ready:
+		_lagged_cursor = mouse
+		_cursor_lag_ready = true
+	else:
+		_lagged_cursor = _lagged_cursor.lerp(mouse, clamp(delta / CURSOR_LAG, 0.0, 1.0))
 	queue_redraw()
 
 func _regenerate() -> void:
@@ -60,12 +72,15 @@ func _draw() -> void:
 	var facing := 1.0
 
 	# Flashlight cone, drawn BEFORE the trees pass in front of it so
-	# distant trunks read as silhouettes cut into the beam.
-	var aim_wobble: float = sin(time * 0.6) * 0.15
-	var cone_dir := Vector2(cos(aim_wobble), sin(aim_wobble) * 0.3).normalized() * facing
+	# distant trunks read as silhouettes cut into the beam. Aims toward
+	# the (heavily lagged) cursor position instead of a fixed wobble - a
+	# small idle shake is layered on top so it still feels handheld.
+	var cone_origin := Vector2(figure_x + 8.0 * facing, ground_y - 34.0 - bob)
+	var to_cursor := _lagged_cursor - cone_origin
+	var aim_wobble: float = sin(time * 0.6) * 0.05
+	var cone_dir: Vector2 = (to_cursor.normalized() if to_cursor.length() > 1.0 else Vector2(facing, 0)).rotated(aim_wobble)
 	var cone_len := 260.0
 	var cone_spread := 0.34
-	var cone_origin := Vector2(figure_x + 8.0 * facing, ground_y - 34.0 - bob)
 	var cone_a := cone_origin + cone_dir.rotated(-cone_spread) * cone_len
 	var cone_b := cone_origin + cone_dir.rotated(cone_spread) * cone_len
 	var cone_poly := PackedVector2Array([cone_origin, cone_a, cone_b])

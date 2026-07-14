@@ -22,12 +22,22 @@ var windows: Array = []       # {x, y, w, h, phase, speed}
 var stars: Array = []         # {x, y, r, phase}
 var beacons: Array = []       # {x, y, warm, phase}
 
+var _lagged_cursor_x: float = 0.0
+var _cursor_lag_ready: bool = false
+const MONSTER_CURSOR_LAG := 3.2
+
 func _ready() -> void:
 	resized.connect(_regenerate)
 	_regenerate()
 
 func _process(delta: float) -> void:
 	time += delta
+	var mouse_x := get_global_mouse_position().x
+	if not _cursor_lag_ready:
+		_lagged_cursor_x = mouse_x
+		_cursor_lag_ready = true
+	else:
+		_lagged_cursor_x = lerp(_lagged_cursor_x, mouse_x, clamp(delta / MONSTER_CURSOR_LAG, 0.0, 1.0))
 	star_timer += delta
 	if not star_active and star_timer >= star_interval:
 		_trigger_star()
@@ -157,9 +167,10 @@ func _draw() -> void:
 	# A large shadowy creature prowling along the rooftops - dark but
 	# clearly visible now, with a jagged spine, a distinct head/jaw, claws,
 	# and a tail, so it reads as an actual monster rather than a blob.
-	var monster_speed := 24.0
+	# Stalks toward the (heavily lagged) cursor's horizontal position
+	# instead of pacing a fixed loop - unsettling on purpose.
 	var monster_w := 170.0
-	var monster_x: float = fmod(time * monster_speed, w + monster_w * 2.0) - monster_w
+	var monster_x: float = clamp(_lagged_cursor_x, -monster_w * 0.3, w + monster_w * 0.3)
 	var monster_ground := h * 0.6
 	var bob: float = sin(time * 2.2) * 3.0
 	var monster_color := Color(0.03, 0.03, 0.035, 0.78)
