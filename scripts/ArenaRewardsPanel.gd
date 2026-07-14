@@ -2,10 +2,11 @@ extends Panel
 const DraggablePanelScript := preload("res://scripts/DraggablePanel.gd")
 const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
 
-# Arena's version of the Leaderboard Rewards screen - shows what each of
-# the 6 Arena Rank tiers represents, same card-list shape as the main
-# Rewards screen, just built from GameManager.ARENA_RANK_TIERS instead
-# of the season reward tiers (Arena doesn't have those).
+# Arena's "Ranks" screen (formerly this panel's own "Rewards" button,
+# renamed once a real Rewards screen was added - see
+# ArenaRankRewardsPanel.gd) - purely descriptive flavor per Arena Rank
+# tier, built from GameManager.ARENA_RANK_TIERS. For what each tier
+# actually grants, see ArenaRankRewardsPanel.gd/ARENA_REWARD_TIERS.
 
 signal closed
 

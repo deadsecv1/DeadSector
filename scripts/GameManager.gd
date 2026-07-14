@@ -3051,6 +3051,21 @@ const ARENA_RANK_TIERS := [
 ]
 const ARENA_RANK_POINT_THRESHOLDS := [0, 150, 450, 900, 1600, 2600]
 
+# What each Arena Rank tier actually grants - index-aligned with
+# ARENA_RANK_TIERS/ARENA_RANK_POINT_THRESHOLDS above. Same shape as
+# LEADERBOARD_REWARD_TIERS (see ArenaRankRewardsPanel.gd, modeled
+# directly on LeaderboardRewardsPanel.gd), scaled down since reaching
+# a given Arena Rank is a real but much more attainable milestone than
+# a Leaderboard placement.
+const ARENA_REWARD_TIERS := [
+	{"label": "Initiate", "badge": "", "rubles": 500, "artifacts": 0, "alloys": 0, "skill_points": 0, "bags": []},
+	{"label": "Rival", "badge": "", "rubles": 3000, "artifacts": 10, "alloys": 10, "skill_points": 2, "bags": ["common"]},
+	{"label": "Duelist", "badge": "", "rubles": 8000, "artifacts": 25, "alloys": 25, "skill_points": 5, "bags": ["rare"]},
+	{"label": "Gladiator", "badge": "", "rubles": 18000, "artifacts": 50, "alloys": 50, "skill_points": 10, "bags": ["rare", "epic"]},
+	{"label": "Champion", "badge": "", "rubles": 40000, "artifacts": 100, "alloys": 100, "skill_points": 20, "bags": ["epic", "legendary"]},
+	{"label": "Grandmaster", "badge": "", "rubles": 90000, "artifacts": 250, "alloys": 250, "skill_points": 40, "bags": ["legendary", "mythic"]},
+]
+
 func get_arena_rank_index_for_points(points: int) -> int:
 	var idx := 0
 	for i in range(ARENA_RANK_POINT_THRESHOLDS.size()):

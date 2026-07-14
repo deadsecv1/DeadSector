@@ -58,6 +58,7 @@ extends Control
 @onready var arena_panel: Panel = $ArenaPanel
 @onready var arena_find_team_panel: Panel = $ArenaFindTeamPanel
 @onready var arena_rewards_panel: Panel = $ArenaRewardsPanel
+@onready var arena_rank_rewards_panel: Panel = $ArenaRankRewardsPanel
 @onready var feedback_button: Button = $FeedbackButton
 @onready var feedback_panel: Panel = $FeedbackPanel
 @onready var whats_new_button: Button = $WhatsNewButton
@@ -77,6 +78,10 @@ var _leaderboard_popup_next: float = 0.0
 var _chat_popup_timer: float = 0.0
 var _chat_popup_next: float = 0.0
 var _last_top3_names: Array = []
+# leaderboard_panel is shared between the direct Leaderboard button and
+# Arena's "Leaderboard" entry point - its closed handler needs to know
+# which one to return to (bare Main Menu vs back to the Arena panel).
+var _leaderboard_opened_from_arena: bool = false
 
 const QUOTES := [
 	"THE SECTOR DOES NOT FORGIVE",
@@ -143,8 +148,17 @@ func _ready() -> void:
 	)
 	data_button.pressed.connect(func(): _open_panel(data_panel))
 	data_panel.closed.connect(func(): _close_panel(data_panel))
-	leaderboard_button.pressed.connect(func(): _open_panel(leaderboard_panel))
-	leaderboard_panel.closed.connect(func(): _close_panel(leaderboard_panel))
+	leaderboard_button.pressed.connect(func():
+		_leaderboard_opened_from_arena = false
+		_open_panel(leaderboard_panel)
+	)
+	leaderboard_panel.closed.connect(func():
+		leaderboard_panel.visible = false
+		if _leaderboard_opened_from_arena:
+			_open_panel(arena_panel)
+		else:
+			_set_main_buttons_visible(true)
+	)
 	leaderboard_panel.rewards_requested.connect(func(): leaderboard_rewards_panel.open())
 	leaderboard_rewards_panel.closed.connect(func(): leaderboard_rewards_panel.visible = false)
 	leaderboard_panel.ranks_requested.connect(func(): rank_percentiles_panel.open())
@@ -191,21 +205,36 @@ func _ready() -> void:
 		_close_panel(arena_panel)
 		_open_panel(arena_find_team_panel)
 	)
-	arena_find_team_panel.closed.connect(func(): _close_panel(arena_find_team_panel))
+	arena_find_team_panel.closed.connect(func():
+		arena_find_team_panel.visible = false
+		_open_panel(arena_panel)
+	)
 	arena_panel.social_place_requested.connect(func():
 		_close_panel(arena_panel)
 		Transition.change_scene("res://scenes/SocialPlace.tscn")
 	)
 	arena_panel.leaderboard_requested.connect(func():
+		_leaderboard_opened_from_arena = true
 		_close_panel(arena_panel)
 		_open_panel(leaderboard_panel)
 		leaderboard_panel._switch_category("arena")
 	)
-	arena_panel.rewards_requested.connect(func():
+	arena_panel.ranks_requested.connect(func():
 		_close_panel(arena_panel)
 		_open_panel(arena_rewards_panel)
 	)
-	arena_rewards_panel.closed.connect(func(): _close_panel(arena_rewards_panel))
+	arena_rewards_panel.closed.connect(func():
+		arena_rewards_panel.visible = false
+		_open_panel(arena_panel)
+	)
+	arena_panel.rewards_requested.connect(func():
+		_close_panel(arena_panel)
+		_open_panel(arena_rank_rewards_panel)
+	)
+	arena_rank_rewards_panel.closed.connect(func():
+		arena_rank_rewards_panel.visible = false
+		_open_panel(arena_panel)
+	)
 	feedback_button.pressed.connect(func(): _open_panel(feedback_panel))
 	feedback_panel.closed.connect(func(): _close_panel(feedback_panel))
 	# WhatsNewButton manually reopens the Update Spotlight (the curated

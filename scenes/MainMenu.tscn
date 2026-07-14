@@ -38,6 +38,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ArenaPanel.tscn" id="71"]
 [ext_resource type="PackedScene" path="res://scenes/ArenaFindTeamPanel.tscn" id="72"]
 [ext_resource type="PackedScene" path="res://scenes/ArenaRewardsPanel.tscn" id="73"]
+[ext_resource type="PackedScene" path="res://scenes/ArenaRankRewardsPanel.tscn" id="91"]
 [ext_resource type="Script" path="res://scripts/RankedButton.gd" id="61"]
 [ext_resource type="Script" path="res://scripts/GamblePanel.gd" id="17"]
 [ext_resource type="Script" path="res://scripts/SocialPanel.gd" id="18"]
@@ -1638,6 +1639,8 @@ color = Color(0.02, 0.02, 0.02, 0)
 [node name="ArenaFindTeamPanel" parent="." instance=ExtResource("72")]
 
 [node name="ArenaRewardsPanel" parent="." instance=ExtResource("73")]
+
+[node name="ArenaRankRewardsPanel" parent="." instance=ExtResource("91")]
 
 [node name="FeedbackPanel" parent="." instance=ExtResource("45")]
 

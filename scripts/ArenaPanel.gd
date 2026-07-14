@@ -7,14 +7,17 @@ const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
 # Rank, and hosts the entry points into it: Matchmake (queues into an
 # actual match), Find a Team (Arena-flavored version of Social's),
 # Social Place (a no-damage hangout hub, not a match), Leaderboard
-# (the main Leaderboard panel, pre-switched to its Arena tab), and
-# Rewards (what each Arena Rank tier is worth).
+# (the main Leaderboard panel, pre-switched to its Arena tab), Ranks
+# (descriptive flavor per rank tier - formerly this panel's "Rewards"
+# button, renamed since it was never actually about concrete rewards),
+# and the real Rewards (what each Arena Rank tier actually grants).
 
 signal closed
 signal matchmake_requested
 signal find_team_requested
 signal social_place_requested
 signal leaderboard_requested
+signal ranks_requested
 signal rewards_requested
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -28,6 +31,7 @@ func _unhandled_input(event: InputEvent) -> void:
 @onready var find_team_button: Button = $VBox/FindTeamButton
 @onready var social_place_button: Button = $VBox/SocialPlaceButton
 @onready var leaderboard_button: Button = $VBox/LeaderboardButton
+@onready var ranks_button: Button = $VBox/RanksButton
 @onready var rewards_button: Button = $VBox/RewardsButton
 @onready var close_button: Button = $VBox/CloseButton
 
@@ -39,6 +43,7 @@ func _ready() -> void:
 	find_team_button.pressed.connect(func(): find_team_requested.emit())
 	social_place_button.pressed.connect(func(): social_place_requested.emit())
 	leaderboard_button.pressed.connect(func(): leaderboard_requested.emit())
+	ranks_button.pressed.connect(func(): ranks_requested.emit())
 	rewards_button.pressed.connect(func(): rewards_requested.emit())
 
 func open() -> void:
