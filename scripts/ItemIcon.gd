@@ -175,6 +175,10 @@ func _draw() -> void:
 			_draw_watch()
 		"medkit":
 			_draw_medkit()
+		"bandage":
+			_draw_bandage()
+		"mre_pouch":
+			_draw_mre_pouch()
 		"grenade":
 			_draw_grenade()
 		"ammo_light":
@@ -894,6 +898,19 @@ func _draw_canned_food() -> void:
 	draw_rect(Rect2(_p(0.28, 0.76), Vector2(size.x * 0.44, size.y * 0.06)), Color(0.75, 0.75, 0.75, 1))
 	draw_line(_p(0.3, 0.4), _p(0.7, 0.4), Color(0.9, 0.85, 0.6, 0.7), max(1.0, size.y * 0.02))
 
+# A sealed foil ration pouch for the MRE - a deliberately different
+# silhouette from Ration Pack's tin can above (_draw_canned_food), since
+# the two used to share one icon despite being different items. An MRE
+# is a pouch, not a can, in real life too.
+func _draw_mre_pouch() -> void:
+	var pouch := PackedVector2Array([_p(0.26, 0.22), _p(0.74, 0.22), _p(0.78, 0.3), _p(0.78, 0.78), _p(0.22, 0.78), _p(0.22, 0.3)])
+	draw_colored_polygon(pouch, Color(0.35, 0.42, 0.32, 1))
+	draw_rect(Rect2(_p(0.26, 0.2), Vector2(size.x * 0.48, size.y * 0.06)), Color(0.55, 0.6, 0.5, 1))
+	draw_colored_polygon(PackedVector2Array([_p(0.72, 0.22), _p(0.78, 0.22), _p(0.75, 0.28)]), Color(0.15, 0.15, 0.15, 0.6))
+	draw_rect(Rect2(_p(0.32, 0.42), Vector2(size.x * 0.36, size.y * 0.05)), Color(0.85, 0.8, 0.6, 0.85))
+	draw_line(_p(0.32, 0.56), _p(0.68, 0.56), Color(0.85, 0.8, 0.6, 0.6), max(1.0, size.y * 0.02))
+	draw_line(_p(0.32, 0.63), _p(0.6, 0.63), Color(0.85, 0.8, 0.6, 0.6), max(1.0, size.y * 0.02))
+
 func _draw_batteries() -> void:
 	for i in range(2):
 		var x0: float = 0.28 + float(i) * 0.24
@@ -1044,6 +1061,19 @@ func _draw_backpack() -> void:
 	draw_line(_p(0.35, 0.2), _p(0.3, 0.05), icon_color, max(1.0, size.x * 0.05))
 	draw_line(_p(0.65, 0.2), _p(0.7, 0.05), icon_color, max(1.0, size.x * 0.05))
 
+# A simpler rolled gauze bandage for Field Bandage - a deliberately
+# smaller, plainer shape than the full medkit case below (_draw_medkit,
+# now Trauma Kit only), since the two used to share one icon despite
+# being different tiers of heal-type consumable.
+func _draw_bandage() -> void:
+	draw_circle(_p(0.42, 0.5), size.x * 0.22, Color(0.92, 0.9, 0.85, 1))
+	draw_arc(_p(0.42, 0.5), size.x * 0.22, 0.0, TAU, 20, Color(0.75, 0.72, 0.65, 0.6), max(1.0, size.x * 0.015), true)
+	draw_arc(_p(0.42, 0.5), size.x * 0.13, 0.0, TAU, 16, Color(0.75, 0.72, 0.65, 0.5), max(1.0, size.x * 0.012), true)
+	var tail := PackedVector2Array([_p(0.58, 0.56), _p(0.86, 0.68), _p(0.84, 0.78), _p(0.56, 0.66)])
+	draw_colored_polygon(tail, Color(0.88, 0.85, 0.78, 1))
+	draw_rect(Rect2(_p(0.36, 0.44), Vector2(size.x * 0.04, size.y * 0.12)), Color(0.8, 0.15, 0.15, 1))
+	draw_rect(Rect2(_p(0.32, 0.48), Vector2(size.x * 0.12, size.y * 0.04)), Color(0.8, 0.15, 0.15, 1))
+
 func _draw_medkit() -> void:
 	# White case with a red cross - classic medical icon.
 	var case_pts := PackedVector2Array([_p(0.15, 0.28), _p(0.85, 0.28), _p(0.85, 0.78), _p(0.15, 0.78)])
@@ -1059,25 +1089,28 @@ func _draw_medkit() -> void:
 	var cross_h := PackedVector2Array([_p(0.30, 0.46), _p(0.70, 0.46), _p(0.70, 0.58), _p(0.30, 0.58)])
 	draw_colored_polygon(cross_h, Color(0.8, 0.15, 0.15, 1))
 
-# An open ammo crate with a row of cartridges - tier scales cartridge
-# count/size (light=3 thin, medium=3 medium, heavy=2 fat) so the three
-# ammo types read as visually distinct even before checking the label.
+# An open ammo crate with a row of cartridges - tier diverges sharply on
+# BOTH count and height (light=4 short thin rounds, medium=3 mid rounds,
+# heavy=1 single tall fat round) so the three ammo types read as
+# distinct silhouettes at a glance, even at small Stash-grid sizes,
+# rather than needing the border/rarity color to tell them apart.
 func _draw_ammo_box(tier: int) -> void:
 	var crate := PackedVector2Array([_p(0.18, 0.55), _p(0.82, 0.55), _p(0.78, 0.82), _p(0.22, 0.82)])
 	draw_colored_polygon(crate, Color(icon_color.r * 0.55, icon_color.g * 0.55, icon_color.b * 0.55, 1))
 	draw_line(_p(0.18, 0.55), _p(0.82, 0.55), Color(0, 0, 0, 0.4), max(1.0, size.y * 0.02))
-	var count: int = 2 if tier == 3 else 3
-	var cart_w: float = 0.16 if tier == 3 else (0.11 if tier == 2 else 0.08)
+	var count: int = 1 if tier == 3 else (3 if tier == 2 else 4)
+	var cart_w: float = 0.26 if tier == 3 else (0.12 if tier == 2 else 0.075)
+	var cart_top: float = 0.08 if tier == 3 else (0.16 if tier == 2 else 0.24)
 	var start_x: float = 0.5 - (float(count) * cart_w) / 2.0
 	for i in range(count):
 		var cx: float = start_x + float(i) * cart_w + cart_w / 2.0
 		var body := PackedVector2Array([
 			_p(cx - cart_w * 0.32, 0.5), _p(cx + cart_w * 0.32, 0.5),
-			_p(cx + cart_w * 0.32, 0.18), _p(cx - cart_w * 0.32, 0.18),
+			_p(cx + cart_w * 0.32, cart_top), _p(cx - cart_w * 0.32, cart_top),
 		])
 		draw_colored_polygon(body, icon_color)
 		var tip := PackedVector2Array([
-			_p(cx - cart_w * 0.32, 0.18), _p(cx + cart_w * 0.32, 0.18), _p(cx, 0.08),
+			_p(cx - cart_w * 0.32, cart_top), _p(cx + cart_w * 0.32, cart_top), _p(cx, cart_top - 0.1),
 		])
 		draw_colored_polygon(tip, Color(0.75, 0.6, 0.35, 1))
 
