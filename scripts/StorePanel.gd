@@ -12,6 +12,7 @@ const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
 const SkinTextureOverlayScript := preload("res://scripts/SkinTextureOverlay.gd")
 
 @onready var pack_row: GridContainer = $VBox/MainScroll/ContentVBox/PackRow
+@onready var free_pack_row: GridContainer = $VBox/MainScroll/ContentVBox/FreePackRow
 @onready var starter_pack_container: Control = $VBox/MainScroll/ContentVBox/StarterPackContainer
 @onready var skill_point_pack_row: GridContainer = $VBox/MainScroll/ContentVBox/SkillPointPackRow
 @onready var monthly_button: Button = $VBox/MainScroll/ContentVBox/PermRow/MonthlyButton
@@ -46,7 +47,15 @@ func refresh() -> void:
 		pack_row.remove_child(c)
 		c.queue_free()
 	for pack in GameManager.STORE_PACKS:
-		pack_row.add_child(_make_pack_card(pack))
+		if not pack.get("free", false):
+			pack_row.add_child(_make_pack_card(pack))
+
+	for c in free_pack_row.get_children():
+		free_pack_row.remove_child(c)
+		c.queue_free()
+	for pack in GameManager.STORE_PACKS:
+		if pack.get("free", false):
+			free_pack_row.add_child(_make_pack_card(pack))
 
 	for c in skill_point_pack_row.get_children():
 		skill_point_pack_row.remove_child(c)
@@ -184,12 +193,41 @@ func _make_pack_card(pack: Dictionary) -> Control:
 		lines.append("%d Plushies" % int(pack.get("plushie_count", 0)))
 	if int(pack.get("backpack_count", 0)) > 0:
 		lines.append("%d Backpack(s)" % int(pack.get("backpack_count", 0)))
+	if pack.get("grants_ellie", false):
+		lines.append("Grants Ellie (Godforged Pet)")
 	contents_lbl.text = "\n".join(lines)
 	contents_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	contents_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
 	contents_lbl.add_theme_font_size_override("font_size", 12)
 	contents_lbl.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	vbox.add_child(contents_lbl)
+
+	var pack_id: String = pack.get("id", "")
+
+	if pack.get("free", false):
+		var claimed: bool = GameManager.claimed_free_store_packs.has(pack_id)
+		var claim_btn := Button.new()
+		claim_btn.custom_minimum_size = Vector2(0, 36)
+		claim_btn.text = "Claimed" if claimed else "Claim"
+		claim_btn.disabled = claimed
+		claim_btn.add_theme_font_size_override("font_size", 14)
+		var claim_sb := StyleBoxFlat.new()
+		claim_sb.bg_color = Color(0.15, 0.35, 0.15, 0.9)
+		claim_sb.border_color = Color(0.5, 0.9, 0.5, 1)
+		claim_sb.set_border_width_all(1)
+		claim_sb.set_corner_radius_all(5)
+		claim_btn.add_theme_stylebox_override("normal", claim_sb)
+		claim_btn.add_theme_stylebox_override("disabled", claim_sb)
+		claim_btn.add_theme_color_override("font_color", Color(0.85, 1.0, 0.85, 1))
+		claim_btn.add_theme_color_override("font_disabled_color", Color(0.6, 0.7, 0.6, 0.7))
+		if not claimed:
+			claim_btn.pressed.connect(_on_claim_free_pack.bind(pack_id))
+		vbox.add_child(claim_btn)
+
+		if pack_id == "rose_free_pack":
+			_style_rose_free_pack_card(card, vbox)
+
+		return card
 
 	var buy_btn := Button.new()
 	buy_btn.custom_minimum_size = Vector2(0, 36)
@@ -211,7 +249,6 @@ func _make_pack_card(pack: Dictionary) -> Control:
 	# purpose (25x the Rubles the pack itself grants), since spending
 	# Rubles to buy a pack that mostly just gives you Rubles back is a
 	# joke option, not a real economic choice.
-	var pack_id: String = pack.get("id", "")
 	var rubles_cost: int = GameManager.get_store_pack_rubles_cost(pack_id)
 	var rubles_btn := Button.new()
 	rubles_btn.custom_minimum_size = Vector2(0, 36)
@@ -359,6 +396,67 @@ func _on_buy_pack_with_rubles(pack_id: String) -> void:
 	GameManager.purchase_store_pack_with_rubles(pack_id)
 	Sfx.play_reveal()
 	refresh()
+
+func _on_claim_free_pack(pack_id: String) -> void:
+	if GameManager.claim_free_store_pack(pack_id):
+		Sfx.play_reveal()
+		refresh()
+
+# --- Rose's Free Pack: a pink-tinted card with a few small procedural
+# boba tea cups drawn via draw_circle/draw_rect on custom Control nodes,
+# each fading modulate:a in and out on its own randomized-delay loop
+# (same "bind_node + set_loops + tween_property(modulate:a)" pattern
+# used everywhere else in this codebase for ambient loops - see
+# GhostPasserBy.gd's flicker_tw / Corpse.gd's glow_tween) so the handful
+# of copies don't all pulse in sync.
+func _style_rose_free_pack_card(card: PanelContainer, vbox: VBoxContainer) -> void:
+	var sb := card.get_theme_stylebox("panel") as StyleBoxFlat
+	if sb:
+		var pink_sb := sb.duplicate()
+		pink_sb.bg_color = Color(0.35, 0.14, 0.24, 0.88)
+		pink_sb.border_color = Color(1.0, 0.55, 0.8, 0.85)
+		card.add_theme_stylebox_override("panel", pink_sb)
+
+	# A plain (non-Container) overlay sized to fill the card - its own
+	# rect gets managed by the PanelContainer like any other child, but
+	# ITS children keep whatever manual position/size we give them,
+	# unlike direct children of the PanelContainer itself.
+	var overlay := Control.new()
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.anchor_right = 1.0
+	overlay.anchor_bottom = 1.0
+	card.add_child(overlay)
+
+	var boba_count := 4
+	for i in range(boba_count):
+		var boba := Control.new()
+		boba.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		boba.size = Vector2(16, 20)
+		boba.position = Vector2(randf_range(10, 160), randf_range(20, 280))
+		boba.z_index = 5
+		boba.modulate.a = 0.0
+		boba.draw.connect(_draw_boba_cup.bind(boba))
+		overlay.add_child(boba)
+		boba.queue_redraw()
+
+		var boba_tw := boba.create_tween()
+		boba_tw.bind_node(boba)
+		boba_tw.set_loops()
+		boba_tw.tween_interval(randf_range(0.0, 2.0))
+		boba_tw.tween_property(boba, "modulate:a", 0.8, randf_range(1.4, 2.0)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		boba_tw.tween_property(boba, "modulate:a", 0.0, randf_range(1.4, 2.0)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		boba_tw.tween_interval(randf_range(0.3, 1.2))
+
+func _draw_boba_cup(boba: Control) -> void:
+	# Simple rounded cup shape + a few "pearl" dots at the bottom.
+	var cup_color := Color(0.95, 0.75, 0.85, 0.9)
+	var tea_color := Color(0.65, 0.35, 0.25, 0.85)
+	var pearl_color := Color(0.15, 0.08, 0.06, 0.9)
+	boba.draw_rect(Rect2(1, 4, 14, 16), cup_color, true)
+	boba.draw_rect(Rect2(2, 8, 12, 12), tea_color, true)
+	boba.draw_rect(Rect2(0, 2, 16, 3), cup_color, true)
+	for px in [4, 8, 12]:
+		boba.draw_circle(Vector2(px, 18), 1.6, pearl_color)
 
 func _on_monthly() -> void:
 	if GameManager.purchase_monthly_pass_with_rubles():

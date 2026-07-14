@@ -4387,11 +4387,21 @@ const STORE_PACKS := [
 	{"id": "rose_plushie_pack_small", "price": "$1.99", "label": "Rose's Plushie Pack (Small)", "rubles": 0, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0, "plushie_count": 2},
 	{"id": "rose_plushie_pack_medium", "price": "$4.99", "label": "Rose's Plushie Pack (Medium)", "rubles": 0, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0, "plushie_count": 5},
 	{"id": "rose_plushie_pack_large", "price": "$9.99", "label": "Rose's Plushie Pack (Large)", "rubles": 0, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0, "plushie_count": 12},
+	{"id": "rose_plushie_pack_sampler", "price": "$0.99", "label": "Rose's Plushie Pack (Sampler)", "rubles": 0, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0, "plushie_count": 1},
+	{"id": "rose_plushie_pack_mega", "price": "$19.99", "label": "Rose's Plushie Pack (Mega)", "rubles": 0, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0, "plushie_count": 20},
 	{"id": "backpack_pack", "price": "$2.99", "label": "Quartermaster's Backpack Pack", "rubles": 0, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0, "backpack_count": 1},
+	# --- Free section: genuinely free, one-time-claimable packs (no real
+	# money or Rubles cost) - see claim_free_store_pack() below. Never
+	# put anything here with a real currency cost.
+	{"id": "free_welcome_gift", "price": "Free", "label": "Welcome Gift", "free": true, "rubles": 500, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0},
+	{"id": "free_soul_fragment", "price": "Free", "label": "Soul Fragment Gift", "free": true, "rubles": 0, "souls": 50, "item_count": 0, "lootbags": 0, "bonus_exotic": 0},
+	{"id": "free_ammo_crate", "price": "Free", "label": "Free Ammo Crate", "free": true, "rubles": 0, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0, "ammo_count": 2},
+	{"id": "rose_free_pack", "price": "Free", "label": "Rose's Free Pack", "free": true, "rubles": 0, "souls": 0, "item_count": 0, "lootbags": 0, "bonus_exotic": 0, "grants_ellie": true},
 ]
 
 var monthly_pass_owned: bool = false
 var double_xp_owned: bool = false
+var claimed_free_store_packs: Array = []
 
 func purchase_store_pack(pack_id: String) -> void:
 	var pack: Dictionary = _find_store_pack(pack_id)
@@ -4422,6 +4432,34 @@ func purchase_store_pack_with_rubles(pack_id: String) -> bool:
 	rubles -= cost
 	_grant_store_pack_contents(pack)
 	toast_requested.emit("%s purchased for %d Rubles!" % [pack.get("label", "Pack"), cost])
+	save_game()
+	return true
+
+# The Free section: genuinely free, no real money or Rubles involved -
+# each pack in this section can only ever be claimed once per save.
+# "rose_free_pack" is special-cased to hand over Ellie directly rather
+# than rolling any RNG (see give_plushie_to_rose() for the normal
+# random-roll path a Plushie takes).
+func claim_free_store_pack(pack_id: String) -> bool:
+	var pack: Dictionary = _find_store_pack(pack_id)
+	if pack.is_empty():
+		return false
+	if not bool(pack.get("free", false)):
+		return false
+	if claimed_free_store_packs.has(pack_id):
+		return false
+	if pack.get("grants_ellie", false):
+		_pet_instance_counter += 1
+		var instance_id := "plushie_%d_ellie" % _pet_instance_counter
+		owned_pet_instances[instance_id] = {
+			"pet_type": "ellie", "rarity": "godforged", "custom_name": "",
+			"found_date": Time.get_date_string_from_system(), "found_map": "The Hideout",
+			"level": 1, "pet_xp": 0, "trait": "plushie_buff",
+		}
+	else:
+		_grant_store_pack_contents(pack)
+	claimed_free_store_packs.append(pack_id)
+	toast_requested.emit("%s claimed!" % pack.get("label", "Pack"))
 	save_game()
 	return true
 
@@ -5972,6 +6010,7 @@ func save_game() -> void:
 		"battle_pass_tier": battle_pass_tier, "battle_pass_progress": battle_pass_progress,
 		"monthly_pass_owned": monthly_pass_owned, "double_xp_owned": double_xp_owned,
 		"fast_hatching_owned": fast_hatching_owned,
+		"claimed_free_store_packs": claimed_free_store_packs,
 		"stash_items": stash_items,
 		"equipped_items": equipped_items,
 		"upgrade_levels": _levels_of(upgrades),
@@ -6102,6 +6141,9 @@ func load_game() -> void:
 	monthly_pass_owned = bool(parsed.get("monthly_pass_owned", false))
 	double_xp_owned = bool(parsed.get("double_xp_owned", false))
 	fast_hatching_owned = bool(parsed.get("fast_hatching_owned", false))
+	var loaded_claimed_free_packs = parsed.get("claimed_free_store_packs", null)
+	if typeof(loaded_claimed_free_packs) == TYPE_ARRAY:
+		claimed_free_store_packs = loaded_claimed_free_packs
 
 	var loaded_stash = parsed.get("stash_items", null)
 	if typeof(loaded_stash) == TYPE_ARRAY:
