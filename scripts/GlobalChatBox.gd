@@ -31,12 +31,18 @@ const PlayerContextMenuScript := preload("res://scripts/PlayerContextMenu.gd")
 # exists in GlobalChatPanel).
 const GlobalChatPanelScript := preload("res://scripts/GlobalChatPanel.gd")
 
-const WINDOW_WIDTH := 340.0
+const WINDOW_WIDTH := 320.0
 const WINDOW_HEIGHT := 360.0
 const INPUT_HEIGHT := 38.0
 const MAX_LOG_ROWS := 60
-const ACCENT_COLOR := Color(0.62, 0.62, 0.66, 1.0)
-const WINDOW_OPACITY := 0.6
+# Same blue identity as GlobalChatPanel.tscn's title (0.6, 0.8, 1.0) - this
+# used to be its own unrelated gray, making the two chat surfaces look
+# like different features despite being the same one.
+const ACCENT_COLOR := Color(0.6, 0.8, 1.0, 1.0)
+# Background-only alpha now (see root_style below) - this used to fade
+# the WHOLE window including message text via chat_root.modulate, the
+# only panel in the game that washed out its own text like that.
+const WINDOW_BG_ALPHA := 0.94
 const SEND_HOLD_SECONDS := 3.0
 const SEND_FADE_SECONDS := 1.0
 
@@ -92,7 +98,7 @@ func _build_ui() -> void:
 	chat_root.visible = false
 	chat_root.mouse_filter = Control.MOUSE_FILTER_STOP
 	var root_style := StyleBoxFlat.new()
-	root_style.bg_color = Color(0.09, 0.09, 0.1, 1.0)
+	root_style.bg_color = Color(0.09, 0.09, 0.1, WINDOW_BG_ALPHA)
 	root_style.border_color = Color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b, 0.6)
 	root_style.set_border_width_all(2)
 	root_style.set_corner_radius_all(10)
@@ -114,7 +120,7 @@ func _build_ui() -> void:
 	vbox.add_child(header_row)
 	var header_dot := ColorRect.new()
 	header_dot.custom_minimum_size = Vector2(6, 6)
-	header_dot.color = Color(0.4, 0.95, 0.55, 1)
+	header_dot.color = ACCENT_COLOR
 	header_dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	header_row.add_child(header_dot)
 
@@ -331,7 +337,7 @@ func _open_chat_box() -> void:
 	chat_input.editable = _current_channel != "Guild"
 	chat_input.text = ""
 	chat_root.visible = true
-	chat_root.modulate.a = WINDOW_OPACITY
+	chat_root.modulate.a = 1.0
 	chat_input.grab_focus()
 	_chat_opened_at_ms = Time.get_ticks_msec()
 	_set_player_locked(true)
@@ -360,6 +366,7 @@ func _on_chat_submitted(text: String) -> void:
 	chat_input.text = ""
 	if trimmed == "":
 		return
+	Sfx.play_menu_confirm()
 	var player_entry := {
 		"name": GameManager.player_name if GameManager.player_name != "" else "You",
 		"portrait": GameManager.player_portrait_id if GameManager.player_portrait_id != "" else "portrait_1",
@@ -405,13 +412,20 @@ func _close_chat_box() -> void:
 		_send_fade_tween.kill()
 	channel_menu.visible = false
 	chat_box_open = false
-	chat_root.visible = false
-	chat_root.modulate.a = WINDOW_OPACITY
 	chat_input.text = ""
 	_set_player_locked(false)
 	var player = get_tree().get_first_node_in_group("player")
 	if player != null and player.has_method("cancel_chat_typing"):
 		player.cancel_chat_typing()
+	# A quick fade instead of an instant snap - Escape/click-away used to
+	# hard-cut while the auto-close-after-send path faded gracefully;
+	# this brings both up to the same standard.
+	var tw := create_tween()
+	tw.tween_property(chat_root, "modulate:a", 0.0, 0.12)
+	tw.tween_callback(func():
+		chat_root.visible = false
+		chat_root.modulate.a = 1.0
+	)
 
 # ------------------------------------------------------------------
 # Simulated crowd chatter
@@ -716,6 +730,15 @@ func _add_invite_row(ch: String, entry: Dictionary) -> void:
 	join_btn.text = "Join"
 	join_btn.custom_minimum_size = Vector2(0, 26)
 	join_btn.add_theme_font_size_override("font_size", 12)
+	join_btn.add_theme_color_override("font_color", Color(0.85, 0.92, 1.0, 1))
+	join_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	var join_btn_style := StyleBoxFlat.new()
+	join_btn_style.bg_color = Color(0.15, 0.22, 0.32, 0.9)
+	join_btn_style.border_color = Color(0.6, 0.8, 1.0, 0.8)
+	join_btn_style.set_border_width_all(1)
+	join_btn_style.set_corner_radius_all(5)
+	join_btn.add_theme_stylebox_override("normal", join_btn_style)
+	join_btn.add_theme_stylebox_override("hover", join_btn_style)
 	join_btn.pressed.connect(func(): _start_recruit_join(invite))
 	card_vbox.add_child(join_btn)
 

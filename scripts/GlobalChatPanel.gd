@@ -354,6 +354,7 @@ func _on_chat_submitted(text: String) -> void:
 	chat_input.text = ""
 	if trimmed == "":
 		return
+	Sfx.play_menu_confirm()
 	var player_entry: Dictionary = {
 		"name": GameManager.player_name if GameManager.player_name != "" else "You",
 		"portrait": GameManager.player_portrait_id if GameManager.player_portrait_id != "" else "portrait_1",
