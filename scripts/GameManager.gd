@@ -3086,6 +3086,94 @@ var is_arena_match: bool = false
 var last_arena_kills: int = 0
 var last_arena_rank_points_gained: int = 0
 
+# --- Arena Loadout Presets: a named, ready-made weapon/gear/pet/ammo
+# combo picked on the "Choose Your Loadout" screen right before entering
+# The Grid. Applied the exact same way start_scav_run() temporarily
+# swaps equipped_items for a Scav run - snapshot the player's REAL
+# loadout first, swap in the preset, then restore the snapshot the
+# moment the match ends (see end_arena_loadout, called from end_run()).
+# Pets are set directly from PET_CATALOG's base (always-defined) pets
+# rather than the player's own collection, since this is a temporary
+# loaner for the match, not a real equip - ownership doesn't matter.
+const ARENA_LOADOUT_PRESETS := [
+	{
+		"id": "marksman", "name": "Marksman", "desc": "One shot, one kill - if you can land it. Slow-firing, hits like a truck.",
+		"ammo_type": "heavy",
+		"gear": {
+			"weapon": {"name": "Behemoth Anti-Materiel Rifle", "value": 280, "slot": "weapon", "stat_type": "damage", "stat_value": 62.0, "icon_key": "sniper", "rarity": "epic", "shot_cooldown": 2.5},
+			"body": {"name": "Ghost Cloak", "value": 150, "slot": "body", "stat_type": "speed", "stat_value": 15.0, "icon_key": "chestplate", "rarity": "rare"},
+			"boots": {"name": "Sentinel Boots", "value": 90, "slot": "boots", "stat_type": "speed", "stat_value": 29.7, "icon_key": "boots", "rarity": "rare"},
+			"head": {"name": "Oracle Visor", "value": 220, "slot": "head", "stat_type": "loot_sense", "stat_value": 0.0, "icon_key": "helmet", "rarity": "epic"},
+		},
+		"pet_id": "scout",
+	},
+	{
+		"id": "assault", "name": "Assault", "desc": "No gimmicks - a solid rifle and gear built to trade fire and win.",
+		"ammo_type": "medium",
+		"gear": {
+			"weapon": {"name": "Phantom SMG", "value": 220, "slot": "weapon", "stat_type": "damage", "stat_value": 40.5, "icon_key": "rifle", "rarity": "epic"},
+			"body": {"name": "Ironclad Vest", "value": 235, "slot": "body", "stat_type": "max_health", "stat_value": 60.8, "icon_key": "chestplate", "rarity": "epic"},
+			"boots": {"name": "Blitz Boots", "value": 190, "slot": "boots", "stat_type": "speed", "stat_value": 43.2, "icon_key": "boots", "rarity": "epic"},
+			"head": {"name": "Warden Helm", "value": 210, "slot": "head", "stat_type": "max_health", "stat_value": 51.3, "icon_key": "helmet", "rarity": "epic"},
+		},
+		"pet_id": "shadow",
+	},
+	{
+		"id": "bruiser", "name": "Bruiser", "desc": "Get in close and don't stop moving forward. Built to soak hits and answer with a shotgun.",
+		"ammo_type": "medium",
+		"gear": {
+			"weapon": {"name": "Reaper's Shotgun", "value": 240, "slot": "weapon", "stat_type": "damage", "stat_value": 43.2, "icon_key": "shotgun", "rarity": "epic"},
+			"body": {"name": "Juggernaut Plate", "value": 230, "slot": "body", "stat_type": "max_health", "stat_value": 56.7, "icon_key": "chestplate", "rarity": "epic"},
+			"boots": {"name": "Ridgeline Boots", "value": 92, "slot": "boots", "stat_type": "speed", "stat_value": 31.1, "icon_key": "boots", "rarity": "rare"},
+			"head": {"name": "Vanguard Helmet", "value": 125, "slot": "head", "stat_type": "max_health", "stat_value": 40.5, "icon_key": "helmet", "rarity": "rare"},
+		},
+		"pet_id": "whiskers",
+	},
+]
+
+var _saved_arena_equipped: Dictionary = {}
+var _saved_arena_pet: String = ""
+var _arena_loadout_active: bool = false
+
+func get_arena_loadout_preset(preset_id: String) -> Dictionary:
+	for preset in ARENA_LOADOUT_PRESETS:
+		if preset.get("id", "") == preset_id:
+			return preset
+	return {}
+
+func apply_arena_loadout_preset(preset_id: String) -> void:
+	var preset: Dictionary = get_arena_loadout_preset(preset_id)
+	if preset.is_empty():
+		return
+	_saved_arena_equipped = equipped_items.duplicate(true)
+	_saved_arena_pet = equipped_pet
+	_arena_loadout_active = true
+	var gear: Dictionary = preset.get("gear", {})
+	for slot in gear:
+		equipped_items[slot] = gear[slot].duplicate(true)
+	if preset.has("pet_id"):
+		equipped_pet = str(preset["pet_id"])
+	# Same starting-ammo grant start_scav_run() uses for the ammo type its
+	# random weapon happens to need - real Backpack ammo, kept if you win,
+	# gone with the rest of your temp loadout either way.
+	var ammo_type: String = str(preset.get("ammo_type", "medium"))
+	add_loot({
+		"name": "%s Ammo" % ammo_type.capitalize(), "value": 15, "slot": "ammo",
+		"icon_key": "ammo_%s" % ammo_type, "rarity": "common",
+		"consumable_type": "ammo", "ammo_type": ammo_type, "ammo_amount": 200,
+	})
+	equipped_changed.emit()
+
+func end_arena_loadout_if_active() -> void:
+	if not _arena_loadout_active:
+		return
+	_arena_loadout_active = false
+	equipped_items = _saved_arena_equipped.duplicate(true)
+	equipped_pet = _saved_arena_pet
+	_saved_arena_equipped = {}
+	_saved_arena_pet = ""
+	equipped_changed.emit()
+
 func generate_arena_match(team_size: int) -> void:
 	var pool: Array = get_leaderboard("arena").filter(func(e): return not e.get("is_player", false))
 	pool.shuffle()
@@ -7371,6 +7459,9 @@ func end_run(success: bool) -> void:
 	# A Scav run's gear was never really "yours" - whatever happened to
 	# it above, your actual PMC loadout comes back untouched now.
 	end_scav_run_if_active()
+	# Same idea for an Arena Loadout Preset, if one was applied - the
+	# player's real gear/pet come back regardless of win or loss.
+	end_arena_loadout_if_active()
 	# Safe Pocket items always survive, win or lose. Most items land in
 	# the Stash like anything else you extract with - but a couple (the
 	# Graveyard Key so far) specifically need to be in Backpack Storage

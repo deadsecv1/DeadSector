@@ -14,6 +14,7 @@ extends Node2D
 @onready var lilly_station = $LillyStation
 @onready var lilly_panel: Panel = $ArenaUI/LillyPanel
 @onready var current_teams_panel: Panel = $ArenaUI/CurrentTeamsPanel
+@onready var countdown_label: Label = $ArenaUI/CountdownLabel
 
 var _opponents_remaining: int = 0
 var _match_won: bool = false
@@ -28,11 +29,6 @@ func _ready() -> void:
 	player.stunned.connect(hud.flash_stun)
 	player.health_changed.connect(hud._on_player_health_changed)
 	_spawn_pet()
-
-	var team_size: int = int(GameManager.current_arena_match.get("team_size", 1))
-	_spawn_opponents(team_size)
-	if team_size > 1:
-		_spawn_ally()
 
 	lilly_station.interacted.connect(_open_lilly_panel)
 	lilly_panel.visible = false
@@ -49,6 +45,27 @@ func _ready() -> void:
 	)
 	close_btn.pressed.connect(func(): lilly_panel.visible = false)
 	current_teams_panel.closed.connect(func(): current_teams_panel.visible = false)
+
+	# Movement/shooting stay locked, and opponents/ally stay unspawned,
+	# until the countdown hits GO - matches the "Choose Your Loadout"
+	# screen's promise that picking a preset doesn't drop you straight
+	# into a fight with no warning.
+	player.set_input_locked(true)
+	_run_countdown()
+
+const COUNTDOWN_STEPS := ["5", "4", "3", "2", "1", "GO!"]
+const COUNTDOWN_STEP_SECONDS := 0.8
+
+func _run_countdown() -> void:
+	for step in COUNTDOWN_STEPS:
+		countdown_label.text = step
+		await get_tree().create_timer(COUNTDOWN_STEP_SECONDS).timeout
+	countdown_label.text = ""
+	player.set_input_locked(false)
+	var team_size: int = int(GameManager.current_arena_match.get("team_size", 1))
+	_spawn_opponents(team_size)
+	if team_size > 1:
+		_spawn_ally()
 
 const ENEMY_SCENE := preload("res://scenes/Enemy.tscn")
 const ALLY_SCRIPT := preload("res://scripts/ArenaAlly.gd")
@@ -110,4 +127,9 @@ func _open_lilly_panel() -> void:
 	lilly_panel.visible = true
 
 func _return_to_main_menu() -> void:
+	# Leaving early (before a win/loss fires end_run()) would otherwise
+	# leave the player's real gear/pet permanently swapped for whatever
+	# Arena Loadout Preset they picked, and is_arena_match stuck true.
+	GameManager.end_arena_loadout_if_active()
+	GameManager.is_arena_match = false
 	Transition.change_scene_instant("res://scenes/MainMenu.tscn")

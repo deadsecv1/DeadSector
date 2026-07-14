@@ -19,7 +19,7 @@ func _ready() -> void:
 	set_process(true)
 	await get_tree().create_timer(SEARCH_SECONDS).timeout
 	GameManager.generate_arena_match(_team_size)
-	Transition.change_scene("res://scenes/TheGrid.tscn")
+	Transition.change_scene("res://scenes/ArenaLoadoutChoice.tscn")
 
 func _process(_delta: float) -> void:
 	spinner.queue_redraw()
