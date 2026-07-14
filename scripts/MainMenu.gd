@@ -215,18 +215,22 @@ func _ready() -> void:
 		GameManager.save_game()
 		_open_panel(update_spotlight_panel)
 	)
-	# Welcome only ever shows once, the very first time the game is
-	# launched. The Update Spotlight shows every time the Main Menu
-	# loads (chained after Welcome on that first launch, standalone
-	# every launch after).
-	get_tree().create_timer(0.5).timeout.connect(func():
-		if not is_instance_valid(self):
-			return
-		if not GameManager.has_seen_welcome:
-			_open_panel(welcome_panel)
-		else:
-			_open_panel(update_spotlight_panel)
-	)
+	# Welcome only ever shows once, the very first time the game is ever
+	# launched. The Update Spotlight shows once per launch (chained after
+	# Welcome that first time, standalone on every launch after) - NOT
+	# once per Main Menu load, which is what has_shown_update_spotlight_
+	# this_session guards against, since returning from Stash/Traders/
+	# Skill Tree reloads this whole scene from scratch.
+	if not GameManager.has_shown_update_spotlight_this_session:
+		get_tree().create_timer(0.5).timeout.connect(func():
+			if not is_instance_valid(self):
+				return
+			GameManager.has_shown_update_spotlight_this_session = true
+			if not GameManager.has_seen_welcome:
+				_open_panel(welcome_panel)
+			else:
+				_open_panel(update_spotlight_panel)
+		)
 	GameManager.mail_received.connect(_refresh_mail_button)
 	_refresh_mail_button()
 

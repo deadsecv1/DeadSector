@@ -98,13 +98,17 @@ func _has_unclaimed_reward() -> bool:
 # Claims every mail's reward in one go instead of opening each message
 # one at a time - GameManager.claim_mail already no-ops safely on mail
 # with no reward or an already-claimed one, so it's safe to just sweep
-# the whole list.
+# the whole list. Also marks everything read (normally only happens by
+# opening a mail's detail view individually) - without this, Claim All
+# left every message still counted as unread, so the Mail button kept
+# showing its "new mail" badge even though there was nothing left to do.
 func _on_claim_all() -> void:
 	var claimed_any := false
 	for m in GameManager.mail_messages:
 		if not m.get("rewards", {}).is_empty() and not m.get("claimed", true):
 			GameManager.claim_mail(int(m.get("id", -1)))
 			claimed_any = true
+		GameManager.mark_mail_read(int(m.get("id", -1)))
 	if claimed_any:
 		Sfx.play_reveal()
 		refresh()

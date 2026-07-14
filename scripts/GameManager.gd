@@ -5573,6 +5573,12 @@ func claim_alpha_rewards() -> bool:
 
 var feedback_submissions: Array = []
 var has_seen_welcome: bool = false
+# Deliberately NOT saved/loaded - resets every time the game process
+# actually launches, unlike has_seen_welcome above. MainMenu.tscn gets
+# fully reloaded (re-running _ready()) every time the player returns
+# from Stash/Traders/Skill Tree, which used to retrigger the Update
+# Spotlight popup on every single return trip instead of once per launch.
+var has_shown_update_spotlight_this_session: bool = false
 
 func submit_feedback(text: String) -> void:
 	feedback_submissions.append({"text": text, "date": Time.get_date_string_from_system()})

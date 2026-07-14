@@ -49,7 +49,6 @@
 [ext_resource type="Script" path="res://scripts/SalvagedBeastsButton.gd" id="24"]
 [ext_resource type="Script" path="res://scripts/SalvagedBeastsPanel.gd" id="25"]
 [ext_resource type="Script" path="res://scripts/SalvagedBeastsParticles.gd" id="26"]
-[ext_resource type="Script" path="res://scripts/OneDotOhBadge.gd" id="27"]
 [ext_resource type="Script" path="res://scripts/MyPetsPanel.gd" id="28"]
 [ext_resource type="FontFile" path="res://assets/fonts/BlackOpsOne-Regular.ttf" id="29"]
 [ext_resource type="FontFile" path="res://assets/fonts/GaliverSans-Regular.ttf" id="47"]
@@ -444,15 +443,6 @@ custom_minimum_size = Vector2(56, 18)
 modulate = Color(1, 1, 1, 0.5)
 theme_override_font_sizes/font_size = 9
 text = "Wipe"
-
-[node name="OneDotOhBadge" type="Label" parent="."]
-custom_minimum_size = Vector2(150, 22)
-theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.55, 0.95, 0.75, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 0.7)
-theme_override_constants/outline_size = 2
-text = "1.0 RELEASED"
-script = ExtResource("27")
 
 [node name="QuestPanel" type="Control" parent="."]
 anchor_left = 0.0
