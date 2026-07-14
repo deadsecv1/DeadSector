@@ -675,6 +675,14 @@ const ENEMY_LOOT_POOL := [
 	{"name": "Ridgeline Boots", "value": 92, "slot": "boots", "stat_type": "speed", "stat_value": 31.1, "icon_key": "boots", "rarity": "rare"},
 	{"name": "Hollowpoint Ring", "value": 130, "slot": "accessory", "stat_type": "damage", "stat_value": 10.8, "icon_key": "ring", "rarity": "rare"},
 	{"name": "Widowmaker Sniper", "value": 160, "slot": "weapon", "stat_type": "damage", "stat_value": 39.2, "icon_key": "sniper", "rarity": "rare"},
+	# "shot_cooldown" (seconds) is a per-item override Player.gd's
+	# _recompute_stats() checks for - it replaces the shared base fire-rate
+	# entirely instead of just trimming it, so this specific rifle fires far
+	# slower than the rest of the "sniper" family despite sharing its
+	# icon_key (same reload/mag/ammo-type/scope-zoom/frost-on-hit behavior).
+	# 2.5s here becomes ~3.0s in practice once the heavy-ammo 1.2x cooldown
+	# multiplier is applied in _apply_ammo_type_tradeoff().
+	{"name": "Behemoth Anti-Materiel Rifle", "value": 280, "slot": "weapon", "stat_type": "damage", "stat_value": 62.0, "icon_key": "sniper", "rarity": "epic", "shot_cooldown": 2.5},
 	{"name": "Reaper's Shotgun", "value": 240, "slot": "weapon", "stat_type": "damage", "stat_value": 43.2, "icon_key": "shotgun", "rarity": "epic"},
 	{"name": "Aegis Plate", "value": 245, "slot": "body", "stat_type": "max_health", "stat_value": 64.8, "icon_key": "chestplate", "rarity": "epic"},
 	{"name": "Oracle Visor", "value": 220, "slot": "head", "stat_type": "loot_sense", "stat_value": 0.0, "icon_key": "helmet", "rarity": "epic"},
