@@ -17,6 +17,9 @@ var damage: int
 var health_regen_rate: float = 0.0
 
 var health: int
+var hunger: int
+const MAX_HUNGER := 100
+const HUNGER_DECAY_RATE := 0.15
 var can_shoot: bool = true
 var alive: bool = true
 
@@ -36,6 +39,7 @@ var walk_cycle: float = 0.0
 var recoil: float = 0.0
 var footstep_timer: float = 0.0
 var regen_accumulator: float = 0.0
+var hunger_accumulator: float = 0.0
 
 # Set true by HUD while the Backpack/TAB screen is open, so dragging loot
 # around doesn't also move or fire the weapon.
@@ -106,6 +110,7 @@ func cancel_chat_typing() -> void:
 
 @onready var visuals: Node2D = $Visuals
 @onready var health_bar: Node2D = $HealthBar
+@onready var hunger_bar: Node2D = $HungerBar
 @onready var external_sprite: Sprite2D = $Visuals/ExternalSprite
 @onready var camera: Camera2D = $Camera2D
 @onready var gun_pivot: Node2D = $Visuals/GunPivot
@@ -194,6 +199,8 @@ func _ready() -> void:
 	health = max_health
 	health_changed.emit(health, max_health)
 	health_bar.update_health(health, max_health)
+	hunger = MAX_HUNGER
+	hunger_bar.update_hunger(hunger, MAX_HUNGER)
 
 # --- Optional external art: if res://assets/player.png exists, use it
 # instead of the built-in vector body. Drop your own art there any time -
@@ -530,6 +537,7 @@ func _physics_process(delta: float) -> void:
 	if not alive:
 		return
 	_handle_regen(delta)
+	_handle_hunger_decay(delta)
 	if input_locked:
 		velocity = velocity.lerp(Vector2.ZERO, clamp(delta * 12.0, 0.0, 1.0))
 		move_and_slide()
@@ -625,6 +633,18 @@ func _handle_regen(delta: float) -> void:
 		regen_accumulator -= heal
 		health_changed.emit(health, max_health)
 		health_bar.update_health(health, max_health)
+
+# Hunger only ever decays (no passive regen to counteract, unlike health) -
+# restored solely by eating food-type consumables, see apply_consumable().
+func _handle_hunger_decay(delta: float) -> void:
+	if hunger <= 0:
+		return
+	hunger_accumulator += HUNGER_DECAY_RATE * delta
+	if hunger_accumulator >= 1.0:
+		var drain := int(hunger_accumulator)
+		hunger = max(hunger - drain, 0)
+		hunger_accumulator -= drain
+		hunger_bar.update_hunger(hunger, MAX_HUNGER)
 
 func _handle_movement(delta: float) -> void:
 	var prone_key := GameManager.get_keybind("prone")
@@ -1122,6 +1142,12 @@ func apply_consumable(item: Dictionary) -> void:
 		health_bar.update_health(health, max_health)
 		Sfx.play_heal()
 		GameManager.toast_requested.emit("Used %s (+%d HP)" % [item.get("name", "Bandage"), amount])
+	elif ctype == "food":
+		var food_amount := int(item.get("food_amount", 30))
+		hunger = min(hunger + food_amount, MAX_HUNGER)
+		hunger_bar.update_hunger(hunger, MAX_HUNGER)
+		Sfx.play_heal()
+		GameManager.toast_requested.emit("Ate %s (+%d Hunger)" % [item.get("name", "Food"), food_amount])
 	elif ctype == "grenade":
 		_throw_grenade(item)
 		GameManager.toast_requested.emit("Threw %s" % item.get("name", "Grenade"))

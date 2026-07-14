@@ -892,10 +892,12 @@ func _try_merge_grenade_stack(items: Array, item: Dictionary) -> bool:
 
 # --- Consumables: usable from the Hotbar (slots 2-5), not equippable gear -
 # they just sit in carried_loot/stash_items with slot "consumable" until
-# used (heal) or thrown (grenade), then they're removed.
+# used (heal), eaten (food), or thrown (grenade), then they're removed.
 const CONSUMABLE_POOL := [
 	{"name": "Field Bandage", "value": 20, "slot": "consumable", "icon_key": "medkit", "rarity": "common", "consumable_type": "heal", "heal_amount": 35.0},
 	{"name": "Trauma Kit", "value": 45, "slot": "consumable", "icon_key": "medkit", "rarity": "uncommon", "consumable_type": "heal", "heal_amount": 60.0},
+	{"name": "Ration Pack", "value": 22, "slot": "consumable", "icon_key": "canned_food", "rarity": "common", "consumable_type": "food", "food_amount": 35.0},
+	{"name": "MRE", "value": 48, "slot": "consumable", "icon_key": "canned_food", "rarity": "uncommon", "consumable_type": "food", "food_amount": 60.0},
 	{"name": "Frag Grenade", "value": 30, "slot": "consumable", "icon_key": "grenade", "rarity": "uncommon", "consumable_type": "grenade", "grenade_type": "frag", "grenade_damage": 55, "grenade_radius": 95.0},
 	{"name": "Smoke Grenade", "value": 25, "slot": "consumable", "icon_key": "smoke_grenade", "rarity": "common", "consumable_type": "grenade", "grenade_type": "smoke"},
 	{"name": "Molotov", "value": 35, "slot": "consumable", "icon_key": "molotov", "rarity": "uncommon", "consumable_type": "grenade", "grenade_type": "molotov"},
