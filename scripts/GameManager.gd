@@ -846,8 +846,30 @@ const AMMO_PICKUP_MAX := 150
 # before a fresh pickup of that type has to start a new tile instead.
 const AMMO_STACK_MAX := {"light": 2000, "medium": 1000, "heavy": 500}
 
+# Guaranteed static ammo stock added to the Scavenger's shop (see
+# TRADER_CATALOG below) - always in stock regardless of the 10-minute
+# rotation reroll (see _rotate_traders, which re-appends a fresh copy each
+# cycle the same way Quartermaster's Loot Bags are), so there's a reliable
+# place to restock reserve ammo without waiting on RNG. Priced on this
+# catalog's existing ~50-140 Ruble scale, cheapest to priciest matching
+# Light/Medium/Heavy's relative rarity - these are purchase prices, NOT
+# the AMMO_POOL "value" above (that's calibrated for sell-back value, not
+# what a trader charges to buy).
+const SCAVENGER_AMMO_STOCK := [
+	{"name": "Light Ammo x150", "base_name": "Light Ammo", "cost": 50, "value": 15, "slot": "ammo", "icon_key": "ammo_light", "rarity": "common", "consumable_type": "ammo", "ammo_type": "light", "ammo_amount": 150},
+	{"name": "Medium Ammo x150", "base_name": "Medium Ammo", "cost": 80, "value": 20, "slot": "ammo", "icon_key": "ammo_medium", "rarity": "common", "consumable_type": "ammo", "ammo_type": "medium", "ammo_amount": 150},
+	{"name": "Heavy Ammo x150", "base_name": "Heavy Ammo", "cost": 120, "value": 28, "slot": "ammo", "icon_key": "ammo_heavy", "rarity": "uncommon", "consumable_type": "ammo", "ammo_type": "heavy", "ammo_amount": 150},
+]
+
 func roll_ammo() -> Dictionary:
-	var base: Dictionary = AMMO_POOL[randi() % AMMO_POOL.size()].duplicate(true)
+	return _stack_ammo(AMMO_POOL[randi() % AMMO_POOL.size()].duplicate(true))
+
+# Stamps a random AMMO_PICKUP_MIN..MAX quantity onto a raw AMMO_POOL entry
+# (or a duplicate of one) - shared by roll_ammo() above and by anywhere
+# else that already picked a specific ammo type/rarity and just needs it
+# turned into a real stack with a "x123" display name, e.g. the Flea
+# Market's "other sellers" roll (see _roll_flea_market_item).
+func _stack_ammo(base: Dictionary) -> Dictionary:
 	var amount := randi_range(AMMO_PICKUP_MIN, AMMO_PICKUP_MAX)
 	base["base_name"] = base["name"]
 	base["ammo_amount"] = amount
@@ -1887,7 +1909,7 @@ var TRADER_CATALOG := {
 	"scavenger": {
 		"name": "The Scavenger",
 		"icon_key": "grenade",
-		"tagline": "Sells grenades & flares",
+		"tagline": "Sells grenades, flares & ammo",
 		"currency": "rubles",
 		"items": [
 			{"name": "Flare Kit", "cost": 50, "value": 50, "slot": "accessory", "stat_type": "speed", "stat_value": 13.5, "icon_key": "flare", "rarity": "common"},
@@ -1897,7 +1919,7 @@ var TRADER_CATALOG := {
 			{"name": "Signal Flare Pack", "cost": 110, "value": 110, "slot": "accessory", "stat_type": "speed", "stat_value": 24.3, "icon_key": "flare", "rarity": "rare"},
 			{"name": "Demolition Charge Belt", "cost": 140, "value": 140, "slot": "accessory", "stat_type": "damage", "stat_value": 18.9, "icon_key": "grenade", "rarity": "rare"},
 			{"name": "Salvager's Satchel", "cost": 100, "value": 100, "slot": "backpack", "stat_type": "loot_sense", "stat_value": 0.0, "icon_key": "backpack", "rarity": "rare"},
-		],
+		] + SCAVENGER_AMMO_STOCK.duplicate(true),
 	},
 	"scrapper": {
 		"name": "The Scrapper",
@@ -1942,11 +1964,21 @@ func _rotate_traders() -> void:
 	for trader_id in ["medic", "quartermaster", "scavenger"]:
 		var trader: Dictionary = TRADER_CATALOG[trader_id]
 		var count: int = trader["items"].size()
-		# Mixed in with gear so rotating stock can land on ammo too, not
-		# just weapons/armor - ammo entries get rolled through roll_ammo()
-		# below so they come out with a real ammo_amount, not a bare stack.
+		# The Scavenger's static ammo stock (see SCAVENGER_AMMO_STOCK) is
+		# re-appended below every rotation same as it is up front, so it
+		# must NOT be counted toward how many random gear items get rolled
+		# here - otherwise the reroll count would creep upward every cycle
+		# as its own previous ammo entries got counted back in.
+		if trader_id == "scavenger":
+			count -= SCAVENGER_AMMO_STOCK.size()
+		# Medic/Quartermaster have no guaranteed static ammo stock, so mix
+		# ammo into their rotating pool too - ammo entries get rolled
+		# through roll_ammo() below so they come out with a real
+		# ammo_amount, not a bare stack. Scavenger skips this mix-in since
+		# its ammo need is already covered by the guaranteed static stock.
 		var pool: Array = ENEMY_LOOT_POOL.duplicate()
-		pool.append_array(AMMO_POOL)
+		if trader_id != "scavenger":
+			pool.append_array(AMMO_POOL)
 		pool.shuffle()
 		var new_items: Array = []
 		for i in range(count):
@@ -1963,6 +1995,8 @@ func _rotate_traders() -> void:
 				var bag := make_loot_bag(bag_tier)
 				bag["cost"] = int(bag["value"])
 				new_items.append(bag)
+		elif trader_id == "scavenger":
+			new_items.append_array(SCAVENGER_AMMO_STOCK.duplicate(true))
 		trader["items"] = new_items
 	_reroll_featured_skins()
 	_roll_scav_loadout()
@@ -5497,9 +5531,19 @@ func _roll_flea_market_item() -> Dictionary:
 	for entry in FLEA_MARKET_EXTRA_POOL:
 		if entry.get("rarity", "common") == chosen_rarity:
 			candidates.append(entry)
+	# Also mix in Ammo (slot "ammo") so the market's "Ammo" browse category
+	# (see FleaMarketPanel.gd BROWSE_CATEGORIES) actually has real "other
+	# seller" listings to show, not just whatever ammo the player happens
+	# to list themselves.
+	for entry in AMMO_POOL:
+		if entry.get("rarity", "common") == chosen_rarity:
+			candidates.append(entry)
 	if candidates.is_empty():
 		return roll_enemy_loot()
-	return finalize_rolled_item(candidates[randi() % candidates.size()].duplicate(true))
+	var picked: Dictionary = candidates[randi() % candidates.size()]
+	if picked.get("consumable_type", "") == "ammo":
+		return _stack_ammo(picked.duplicate(true))
+	return finalize_rolled_item(picked.duplicate(true))
 
 # --- Titles & Badges: cosmetic profile flair (shown on the Social
 # screen), separate from the 100 gameplay Achievements. Titles can be
