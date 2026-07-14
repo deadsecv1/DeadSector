@@ -280,19 +280,26 @@ func _toggle_channel_menu() -> void:
 	if channel_menu.visible:
 		channel_menu.position = channel_btn.global_position + Vector2(0, channel_btn.size.y + 4.0)
 
+func _guild_channel_unlocked() -> bool:
+	return GameManager.player_guild_id != ""
+
 func _select_channel(ch: String) -> void:
 	channel_menu.visible = false
 	if ch == _current_channel:
 		return
 	_current_channel = ch
 	channel_btn.text = "%s CHAT  ▾" % ch.to_upper()
-	var locked: bool = ch in CHANNELS_NO_SIM and ch == "Guild"
+	# Guild unlocks the moment you've actually joined/founded one - every
+	# other channel's lock state is unchanged (Party still has nothing
+	# behind it and isn't part of this).
+	var locked: bool = ch == "Guild" and GameManager.player_guild_id == ""
 	guild_placeholder.visible = locked
 	log_scroll.visible = not locked
 	chat_input.editable = not locked
-	chat_input.placeholder_text = "Guilds aren't available yet..." if locked else "Press Enter to send..."
+	chat_input.placeholder_text = "Create or join a guild first..." if locked else "Press Enter to send..."
 	_rebuild_log_view()
-	if not (ch in CHANNELS_NO_SIM):
+	var channel_is_simmed: bool = not (ch in CHANNELS_NO_SIM) or (ch == "Guild" and not locked)
+	if channel_is_simmed:
 		_ensure_chat_pool()
 		_seed_channel(ch)
 	_msg_timer = 0.0
@@ -347,7 +354,7 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if join_overlay.visible:
 		join_overlay_spinner.queue_redraw()
-	if not chat_box_open or _current_channel in CHANNELS_NO_SIM:
+	if not chat_box_open or (_current_channel in CHANNELS_NO_SIM and not (_current_channel == "Guild" and _guild_channel_unlocked())):
 		return
 	_msg_timer += delta
 	if _msg_timer >= _next_msg_delay:
@@ -364,14 +371,14 @@ func _open_chat_box() -> void:
 	if _send_fade_tween != null and _send_fade_tween.is_valid():
 		_send_fade_tween.kill()
 	chat_box_open = true
-	chat_input.editable = _current_channel != "Guild"
+	chat_input.editable = _current_channel != "Guild" or _guild_channel_unlocked()
 	chat_input.text = ""
 	chat_root.visible = true
 	chat_root.modulate.a = 1.0
 	chat_input.grab_focus()
 	_chat_opened_at_ms = Time.get_ticks_msec()
 	_set_player_locked(true)
-	if not (_current_channel in CHANNELS_NO_SIM):
+	if not (_current_channel in CHANNELS_NO_SIM) or (_current_channel == "Guild" and _guild_channel_unlocked()):
 		_ensure_chat_pool()
 		_seed_channel(_current_channel)
 	_msg_timer = 0.0
@@ -413,7 +420,7 @@ func _on_chat_submitted(text: String) -> void:
 	_start_send_fade()
 
 	# Other operatives are pretty likely to actually reply to you.
-	if not (_current_channel in CHANNELS_NO_SIM):
+	if not (_current_channel in CHANNELS_NO_SIM) or (_current_channel == "Guild" and _guild_channel_unlocked()):
 		_ensure_chat_pool()
 		if not _chat_pool.is_empty() and randf() < 0.65:
 			var replier: Dictionary = _chat_pool[randi() % _chat_pool.size()]

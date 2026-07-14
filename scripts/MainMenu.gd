@@ -28,6 +28,7 @@ extends Control
 @onready var social_panel: Panel = $SocialPanel
 @onready var global_chat_panel: Panel = $GlobalChatPanel
 @onready var find_team_panel: Panel = $FindTeamPanel
+@onready var guild_panel: Panel = $GuildPanel
 @onready var data_button: Button = $DataButton
 @onready var data_panel: Panel = $DataPanel
 @onready var leaderboard_button: Button = $LeaderboardButton
@@ -149,6 +150,14 @@ func _ready() -> void:
 	)
 	find_team_panel.closed.connect(func():
 		find_team_panel.visible = false
+		_open_panel(social_panel)
+	)
+	social_panel.guild_requested.connect(func():
+		_close_panel(social_panel)
+		_open_panel(guild_panel)
+	)
+	guild_panel.closed.connect(func():
+		guild_panel.visible = false
 		_open_panel(social_panel)
 	)
 	data_button.pressed.connect(func(): _open_panel(data_panel))
@@ -318,7 +327,7 @@ func _ambient_popups_suppressed() -> bool:
 		leaderboard_rewards_panel, rank_percentiles_panel, salvaged_beasts_panel, my_pets_panel,
 		bloodline_panel, delete_confirm_panel, wipe_confirm_panel, changelog_panel,
 		flea_market_panel, mail_panel, alpha_rewards_panel, feedback_panel, welcome_panel, update_spotlight_panel,
-		milestones_panel,
+		milestones_panel, guild_panel,
 	]
 	for p in panels:
 		if is_instance_valid(p) and p.visible:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=3]
+[gd_scene load_steps=43 format=3]
 
 [ext_resource type="Script" path="res://scripts/MainMenu.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/MainMenuBackground.gd" id="3"]
@@ -30,6 +30,7 @@
 [ext_resource type="PackedScene" path="res://scenes/RankPercentilesPanel.tscn" id="62"]
 [ext_resource type="PackedScene" path="res://scenes/GlobalChatPanel.tscn" id="63"]
 [ext_resource type="PackedScene" path="res://scenes/FindTeamPanel.tscn" id="64"]
+[ext_resource type="PackedScene" path="res://scenes/GuildPanel.tscn" id="161"]
 [ext_resource type="Script" path="res://scripts/MenuCinematicRotator.gd" id="65"]
 [ext_resource type="Script" path="res://scripts/OvergrowthFogVignette.gd" id="66"]
 [ext_resource type="Script" path="res://scripts/ExtractionChopperVignette.gd" id="67"]
@@ -1520,6 +1521,11 @@ custom_minimum_size = Vector2(110, 36)
 theme_override_font_sizes/font_size = 13
 text = "Find a Team"
 
+[node name="GuildButton" type="Button" parent="SocialPanel/Margin/VBox/TitleRow"]
+custom_minimum_size = Vector2(90, 36)
+theme_override_font_sizes/font_size = 13
+text = "Guild"
+
 [node name="ChatBgButton" type="Button" parent="SocialPanel/Margin/VBox"]
 custom_minimum_size = Vector2(0, 34)
 theme_override_font_sizes/font_size = 12
@@ -1894,6 +1900,8 @@ text = "Close"
 [node name="GlobalChatPanel" parent="." instance=ExtResource("63")]
 
 [node name="FindTeamPanel" parent="." instance=ExtResource("64")]
+
+[node name="GuildPanel" parent="." instance=ExtResource("161")]
 
 
 [node name="SalvagedBeastsPanel" type="Panel" parent="."]

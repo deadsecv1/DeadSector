@@ -4,6 +4,7 @@ const DraggablePanelScript := preload("res://scripts/DraggablePanel.gd")
 signal closed
 signal global_chat_requested
 signal find_team_requested
+signal guild_requested
 
 func _unhandled_input(event: InputEvent) -> void:
 	if visible and event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
@@ -30,6 +31,7 @@ const MUTED := Color(1, 1, 1, 0.6)
 @onready var close_button: Button = $Margin/VBox/CloseButton
 @onready var global_chat_button: Button = $Margin/VBox/TitleRow/GlobalChatButton
 @onready var find_team_button: Button = $Margin/VBox/TitleRow/FindTeamButton
+@onready var guild_button: Button = $Margin/VBox/TitleRow/GuildButton
 @onready var chat_bg_button: Button = $Margin/VBox/ChatBgButton
 
 const CHAT_BG_ID := "tech_test_prism"
@@ -40,8 +42,10 @@ func _ready() -> void:
 	close_button.pressed.connect(func(): closed.emit())
 	global_chat_button.pressed.connect(func(): global_chat_requested.emit())
 	find_team_button.pressed.connect(func(): find_team_requested.emit())
+	guild_button.pressed.connect(func(): guild_requested.emit())
 	chat_bg_button.pressed.connect(_on_chat_bg_pressed)
 	_refresh_chat_bg_button()
+	_refresh_guild_button()
 	_style_global_chat_button()
 
 # Global Chat was sitting there with no stylebox of its own - just the
@@ -78,6 +82,27 @@ func _style_global_chat_button() -> void:
 	find_team_button.add_theme_stylebox_override("pressed", tpressed_sb)
 	find_team_button.add_theme_color_override("font_color", team_accent)
 
+	var guild_accent := Color(0.85, 0.65, 1.0, 1)
+	var gsb := StyleBoxFlat.new()
+	gsb.bg_color = Color(guild_accent.r, guild_accent.g, guild_accent.b, 0.12)
+	gsb.border_color = guild_accent
+	gsb.set_border_width_all(2)
+	gsb.set_corner_radius_all(5)
+	guild_button.add_theme_stylebox_override("normal", gsb)
+	var ghover_sb := gsb.duplicate()
+	ghover_sb.bg_color = Color(guild_accent.r, guild_accent.g, guild_accent.b, 0.28)
+	guild_button.add_theme_stylebox_override("hover", ghover_sb)
+	var gpressed_sb := gsb.duplicate()
+	gpressed_sb.bg_color = Color(guild_accent.r, guild_accent.g, guild_accent.b, 0.4)
+	guild_button.add_theme_stylebox_override("pressed", gpressed_sb)
+	guild_button.add_theme_color_override("font_color", guild_accent)
+
+func _refresh_guild_button() -> void:
+	if GameManager.player_guild_id != "":
+		guild_button.text = "[%s] Guild" % GameManager.player_guild_tag
+	else:
+		guild_button.text = "Guild"
+
 func _on_chat_bg_pressed() -> void:
 	if not GameManager.has_chat_background_unlocked(CHAT_BG_ID):
 		GameManager.toast_requested.emit("Unlocks with the Tech Test Veteran title")
@@ -103,6 +128,7 @@ func _refresh_chat_bg_button() -> void:
 
 func open() -> void:
 	visible = true
+	_refresh_guild_button()
 	refresh()
 
 func refresh() -> void:

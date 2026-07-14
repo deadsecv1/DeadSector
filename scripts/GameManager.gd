@@ -5344,6 +5344,10 @@ func reset_character() -> void:
 	backpack_storage = []
 	equipped_items = {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null, "backpack": null}
 	player_loadout_presets = [null, null, null]
+	player_guild_id = ""
+	player_guild_name = ""
+	player_guild_tag = ""
+	player_guild_is_custom = false
 	for key in upgrades.keys():
 		upgrades[key]["level"] = 0
 	for key in hideout_upgrades.keys():
@@ -6515,6 +6519,8 @@ func save_game() -> void:
 		"safe_pockets": safe_pockets,
 		"equipped_items": equipped_items,
 		"player_loadout_presets": player_loadout_presets,
+		"player_guild_id": player_guild_id, "player_guild_name": player_guild_name,
+		"player_guild_tag": player_guild_tag, "player_guild_is_custom": player_guild_is_custom,
 		"is_scav_run": is_scav_run,
 		"saved_pmc_equipped": _saved_pmc_equipped,
 		"arena_loadout_active": _arena_loadout_active,
@@ -6715,6 +6721,10 @@ func load_game() -> void:
 	if typeof(loaded_presets) == TYPE_ARRAY:
 		for i in range(min(loaded_presets.size(), player_loadout_presets.size())):
 			player_loadout_presets[i] = loaded_presets[i]
+	player_guild_id = String(parsed.get("player_guild_id", ""))
+	player_guild_name = String(parsed.get("player_guild_name", ""))
+	player_guild_tag = String(parsed.get("player_guild_tag", ""))
+	player_guild_is_custom = bool(parsed.get("player_guild_is_custom", false))
 
 	is_scav_run = bool(parsed.get("is_scav_run", false))
 	var loaded_saved_pmc = parsed.get("saved_pmc_equipped", null)
@@ -7787,6 +7797,82 @@ func apply_loadout_preset(slot_index: int) -> void:
 	else:
 		toast_requested.emit("Loadout %d equipped - couldn't find: %s" % [slot_index + 1, ", ".join(missing)])
 	save_game()
+
+# --- Guilds: simulated (client-side, matching the game's honest "no real
+# netcode" design used everywhere else - Global Chat, Find a Team, the
+# Leaderboard) - create your own or join one of a small fixed roster of
+# simulated guilds. Membership unlocks the Guild chat channel, which
+# otherwise shows a "create or join a guild" placeholder.
+const GUILD_ROSTER := [
+	{"id": "iron_wolves", "name": "Iron Wolves", "tag": "IW", "desc": "Raid hard, extract harder. No excuses."},
+	{"id": "night_owls", "name": "Night Owls", "tag": "NO", "desc": "Mostly night raiders. We see you coming."},
+	{"id": "scrap_kings", "name": "Scrap Kings", "tag": "SK", "desc": "We loot everything. Everything."},
+	{"id": "the_extracted", "name": "The Extracted", "tag": "TEX", "desc": "Survivors only. We've all seen some things out there."},
+]
+var player_guild_id: String = ""
+var player_guild_name: String = ""
+var player_guild_tag: String = ""
+var player_guild_is_custom: bool = false
+
+func get_guild_roster_entry(guild_id: String) -> Dictionary:
+	for g in GUILD_ROSTER:
+		if g.get("id", "") == guild_id:
+			return g
+	return {}
+
+func create_guild(guild_name: String) -> bool:
+	var trimmed := guild_name.strip_edges()
+	if trimmed == "":
+		toast_requested.emit("Enter a guild name first")
+		return false
+	if trimmed.length() > 24:
+		trimmed = trimmed.substr(0, 24)
+	player_guild_id = "custom_" + trimmed.to_lower().replace(" ", "_")
+	player_guild_name = trimmed
+	player_guild_tag = trimmed.substr(0, 3).to_upper()
+	player_guild_is_custom = true
+	toast_requested.emit("Founded [%s] %s" % [player_guild_tag, player_guild_name])
+	save_game()
+	return true
+
+func join_guild(guild_id: String) -> bool:
+	var g := get_guild_roster_entry(guild_id)
+	if g.is_empty():
+		return false
+	player_guild_id = guild_id
+	player_guild_name = str(g.get("name", ""))
+	player_guild_tag = str(g.get("tag", ""))
+	player_guild_is_custom = false
+	toast_requested.emit("Joined [%s] %s" % [player_guild_tag, player_guild_name])
+	save_game()
+	return true
+
+func leave_guild() -> void:
+	if player_guild_id == "":
+		return
+	toast_requested.emit("Left %s" % player_guild_name)
+	player_guild_id = ""
+	player_guild_name = ""
+	player_guild_tag = ""
+	player_guild_is_custom = false
+	save_game()
+
+# A believable simulated member roster drawn from the same name pool
+# every other social feature uses (Global Chat, Find a Team, the
+# Leaderboard) - seeded off the guild's own id so the SAME guild always
+# shows the same roster without needing to persist a member list.
+func get_guild_member_names(guild_id: String, count: int = 6) -> Array:
+	if guild_id == "":
+		return []
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(guild_id)
+	var pool: Array = LEADERBOARD_NAMES.duplicate()
+	for i in range(pool.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var tmp = pool[i]
+		pool[i] = pool[j]
+		pool[j] = tmp
+	return pool.slice(0, min(count, pool.size()))
 
 # --- Equip / unequip: mid-run (Backpack, uses carried_loot). Reverts on
 # death via run_start_equipped_snapshot; becomes permanent on extraction. ---
