@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/Stash.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/InventoryGrid.gd" id="2"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://scripts/PetCasePanel.gd" id="12"]
 [ext_resource type="PackedScene" path="res://scenes/BackpackStoragePopup.tscn" id="13"]
 [ext_resource type="PackedScene" path="res://scenes/TagEditPanel.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://scenes/LoadoutPresetsPanel.tscn" id="15"]
 
 [sub_resource type="StyleBoxFlat" id="DollBackdropStyle"]
 bg_color = Color(0.05, 0.07, 0.06, 0.9)
@@ -307,6 +308,11 @@ horizontal_alignment = 1
 theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
 text = "100 HP"
+
+[node name="LoadoutsButton" type="Button" parent="VBox/Panels/CharacterPanel"]
+custom_minimum_size = Vector2(0, 36)
+theme_override_font_sizes/font_size = 13
+text = "PMC Loadouts"
 
 [node name="BackButton" type="Button" parent="VBox"]
 custom_minimum_size = Vector2(200, 50)
@@ -718,3 +724,5 @@ theme_override_font_sizes/font_size = 13
 text = "Cancel"
 
 [node name="TagEditPanel" parent="." instance=ExtResource("14")]
+
+[node name="LoadoutPresetsPanel" parent="." instance=ExtResource("15")]

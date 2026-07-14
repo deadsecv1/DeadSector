@@ -36,6 +36,8 @@ const CHROME_BLACK := Color(0.05, 0.05, 0.05, 1.0)
 @onready var back_button: Button = $VBox/BackButton
 @onready var item_context_menu = $ItemContextMenu
 @onready var tag_edit_panel = $TagEditPanel
+@onready var loadouts_button: Button = $VBox/Panels/CharacterPanel/LoadoutsButton
+@onready var loadout_presets_panel = $LoadoutPresetsPanel
 @onready var inspect_panel = $InspectPanel
 @onready var skins_panel = $SkinsPanel
 @onready var open_bag_panel = $OpenLootBagPanel
@@ -68,7 +70,7 @@ func _input(event: InputEvent) -> void:
 func _any_sub_panel_open() -> bool:
 	return tag_edit_panel.visible or inspect_panel.visible or skins_panel.visible \
 		or open_bag_panel.visible or attachments_panel.visible or pet_case_panel.visible \
-		or filter_popup.visible or backpack_storage_popup.visible
+		or filter_popup.visible or backpack_storage_popup.visible or loadout_presets_panel.visible
 
 func _ready() -> void:
 	GameManager.set_default_cursor()
@@ -140,6 +142,8 @@ func _ready() -> void:
 	item_context_menu.tag_requested.connect(func(index, source, item): tag_edit_panel.open_for(index, source, item))
 	tag_edit_panel.closed.connect(func(): tag_edit_panel.visible = false)
 	tag_edit_panel.saved.connect(refresh)
+	loadouts_button.pressed.connect(func(): loadout_presets_panel.open())
+	loadout_presets_panel.closed.connect(func(): loadout_presets_panel.visible = false)
 	item_context_menu.equip_requested.connect(func(index, source, _item):
 		if source == "stash":
 			# Equipping removes the item from stash_items, shifting every

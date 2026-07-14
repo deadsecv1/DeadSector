@@ -5343,6 +5343,7 @@ func reset_character() -> void:
 	stash_items = []
 	backpack_storage = []
 	equipped_items = {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null, "backpack": null}
+	player_loadout_presets = [null, null, null]
 	for key in upgrades.keys():
 		upgrades[key]["level"] = 0
 	for key in hideout_upgrades.keys():
@@ -6513,6 +6514,7 @@ func save_game() -> void:
 		"stash_items": stash_items,
 		"safe_pockets": safe_pockets,
 		"equipped_items": equipped_items,
+		"player_loadout_presets": player_loadout_presets,
 		"is_scav_run": is_scav_run,
 		"saved_pmc_equipped": _saved_pmc_equipped,
 		"arena_loadout_active": _arena_loadout_active,
@@ -6708,6 +6710,11 @@ func load_game() -> void:
 		for key in equipped_items.keys():
 			if loaded_equipped.has(key):
 				equipped_items[key] = loaded_equipped[key]
+
+	var loaded_presets = parsed.get("player_loadout_presets", null)
+	if typeof(loaded_presets) == TYPE_ARRAY:
+		for i in range(min(loaded_presets.size(), player_loadout_presets.size())):
+			player_loadout_presets[i] = loaded_presets[i]
 
 	is_scav_run = bool(parsed.get("is_scav_run", false))
 	var loaded_saved_pmc = parsed.get("saved_pmc_equipped", null)
@@ -7703,6 +7710,83 @@ func unequip_item(slot: String) -> void:
 	equipped_items[slot] = null
 	_add_to_stash(item)
 	equipped_changed.emit()
+
+# --- PMC Loadout Presets: save your currently equipped gear into one of
+# a fixed 3 slots, then one-click re-equip it later - the permanent-gear
+# equivalent of Arena's disposable loadout presets (which restore
+# automatically after the match; this is real gear, so applying a
+# preset here genuinely swaps what's in your Stash).
+const LOADOUT_PRESET_SLOT_COUNT := 3
+var player_loadout_presets: Array = [null, null, null]
+
+func save_loadout_preset(slot_index: int) -> void:
+	if slot_index < 0 or slot_index >= LOADOUT_PRESET_SLOT_COUNT:
+		return
+	player_loadout_presets[slot_index] = equipped_items.duplicate(true)
+	toast_requested.emit("Saved current gear as Loadout %d" % (slot_index + 1))
+	save_game()
+
+func delete_loadout_preset(slot_index: int) -> void:
+	if slot_index < 0 or slot_index >= LOADOUT_PRESET_SLOT_COUNT:
+		return
+	player_loadout_presets[slot_index] = null
+	save_game()
+
+# Matches two items ignoring their grid position, since the SAME item
+# will almost always have moved since a preset was saved.
+func _items_match_ignoring_position(a: Dictionary, b: Dictionary) -> bool:
+	for key in b.keys():
+		if key == "grid_x" or key == "grid_y":
+			continue
+		if not a.has(key) or a[key] != b[key]:
+			return false
+	for key in a.keys():
+		if key == "grid_x" or key == "grid_y":
+			continue
+		if not b.has(key):
+			return false
+	return true
+
+# Re-equips a saved loadout by finding each of its items in the Stash.
+# A slot whose saved item can no longer be found there (sold, lost,
+# already equipped elsewhere, etc.) is just left as currently equipped,
+# with a toast naming what's missing rather than failing silently.
+func apply_loadout_preset(slot_index: int) -> void:
+	if slot_index < 0 or slot_index >= LOADOUT_PRESET_SLOT_COUNT:
+		return
+	var preset = player_loadout_presets[slot_index]
+	if preset == null:
+		return
+	var missing: Array = []
+	for slot in preset.keys():
+		var wanted = preset[slot]
+		var current = equipped_items.get(slot)
+		if wanted == null:
+			if current != null:
+				_add_to_stash(current)
+				equipped_items[slot] = null
+			continue
+		if current != null and _items_match_ignoring_position(current, wanted):
+			continue
+		var found_index := -1
+		for i in range(stash_items.size()):
+			if _items_match_ignoring_position(stash_items[i], wanted):
+				found_index = i
+				break
+		if found_index == -1:
+			missing.append(str(wanted.get("name", "Item")))
+			continue
+		var found_item: Dictionary = stash_items[found_index]
+		stash_items.remove_at(found_index)
+		if current != null:
+			_add_to_stash(current)
+		equipped_items[slot] = found_item
+	equipped_changed.emit()
+	if missing.is_empty():
+		toast_requested.emit("Loadout %d equipped" % (slot_index + 1))
+	else:
+		toast_requested.emit("Loadout %d equipped - couldn't find: %s" % [slot_index + 1, ", ".join(missing)])
+	save_game()
 
 # --- Equip / unequip: mid-run (Backpack, uses carried_loot). Reverts on
 # death via run_start_equipped_snapshot; becomes permanent on extraction. ---
