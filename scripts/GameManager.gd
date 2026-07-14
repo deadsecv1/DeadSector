@@ -3113,6 +3113,15 @@ var is_arena_match: bool = false
 var last_arena_kills: int = 0
 var last_arena_rank_points_gained: int = 0
 
+# One-shot handoff from a Recruit-channel invite's Join flow
+# (GlobalChatBox.gd) to whichever raid map scene loads next - a list of
+# simulated {name, portrait, rank_full_idx, level, ...} entries (same
+# shape the Leaderboard/chat pools already use) for the party that
+# "joined" the invite. The target map's _ready() spawns a follower per
+# entry and MUST clear this back to [] right after reading it, so a
+# later raid entered normally doesn't also spawn a leftover party.
+var pending_raid_party: Array = []
+
 # --- Arena Loadout Presets: a named, ready-made weapon/gear/pet/ammo
 # combo picked on the "Choose Your Loadout" screen right before entering
 # The Grid. Applied the exact same way start_scav_run() temporarily

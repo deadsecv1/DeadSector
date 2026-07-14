@@ -1,6 +1,7 @@
 extends Node2D
 
 const RECRUIT_SCENE := preload("res://scenes/Recruit.tscn")
+const RaidPartyMemberScript := preload("res://scripts/RaidPartyMember.gd")
 const PET_SCENE := preload("res://scenes/Pet.tscn")
 const WANDERING_TRADER_SCENE := preload("res://scenes/WanderingTrader.tscn")
 
@@ -16,6 +17,7 @@ var time_remaining: float = RUN_TIME_LIMIT
 func _ready() -> void:
 	GameManager.set_crosshair_cursor()
 	_spawn_recruit()
+	_spawn_raid_party()
 	_spawn_pet()
 	_maybe_spawn_wandering_trader()
 	player.stats_ready.connect(hud.update_stats)
@@ -60,6 +62,25 @@ func _spawn_recruit() -> void:
 	recruit.recruit_id = GameManager.selected_recruit
 	add_child(recruit)
 	recruit.global_position = player.global_position + Vector2(-70, 0)
+
+# A party joined via a Recruit-channel chat invite (see GlobalChatBox.gd)
+# - GameManager.pending_raid_party is a one-shot handoff, consumed and
+# cleared here so a later raid entered normally doesn't also spawn a
+# leftover party. Spread around the player instead of stacked on one
+# spot, same idea as TheGrid.gd's _spread_positions() for Arena allies.
+func _spawn_raid_party() -> void:
+	if GameManager.pending_raid_party.is_empty():
+		return
+	var party: Array = GameManager.pending_raid_party.duplicate()
+	GameManager.pending_raid_party = []
+	for i in range(party.size()):
+		var member = RECRUIT_SCENE.instantiate()
+		member.set_script(RaidPartyMemberScript)
+		member.party_entry = party[i]
+		var ang: float = (float(i) / float(max(1, party.size()))) * TAU
+		member.follow_offset = Vector2(cos(ang), sin(ang)) * 80.0
+		add_child(member)
+		member.global_position = player.global_position + member.follow_offset
 
 func _spawn_pet() -> void:
 	if GameManager.equipped_pet == "":
