@@ -1,23 +1,35 @@
 extends Node2D
 
-# The Arena's map - a small, close-quarters 1v1/2v2 room with a grid-
+# The Arena's map - a small, close-quarters battle room with a grid-
 # tiled floor. Opponents are "Real Player" Enemy.gd instances (the same
 # tougher, human-styled variant already used for the occasional Real
 # Player encounter in normal raids), matching the game's honest "this is
 # simulated, not live netcode" framing used everywhere else (Global
 # Chat, Find a Team, the Leaderboard). Beating every opponent grants
-# Arena Rank points and returns you to the Main Menu - losing routes
-# through the normal Death Screen, same as any other map.
+# Arena Rank points and routes to ArenaVictory - losing routes to
+# ArenaDefeat, same "no gear loss" framing as any other Arena outcome.
+#
+# Lilly and the match menu (Current Teams/Return) used to live here via
+# an in-map NPC - Lilly's since moved to the Social Place hub
+# (SocialPlace.tscn), so the same menu now opens on Escape instead of
+# walking up to an NPC that's no longer on this map.
 
 @onready var player = $Player
 @onready var hud = $HUD
-@onready var lilly_station = $LillyStation
 @onready var lilly_panel: Panel = $ArenaUI/LillyPanel
 @onready var current_teams_panel: Panel = $ArenaUI/CurrentTeamsPanel
 @onready var countdown_label: Label = $ArenaUI/CountdownLabel
 
 var _opponents_remaining: int = 0
 var _match_won: bool = false
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+		get_viewport().set_input_as_handled()
+		if current_teams_panel.visible:
+			current_teams_panel.visible = false
+		else:
+			lilly_panel.visible = not lilly_panel.visible
 
 func _ready() -> void:
 	GameManager.set_crosshair_cursor()
@@ -30,7 +42,6 @@ func _ready() -> void:
 	player.health_changed.connect(hud._on_player_health_changed)
 	_spawn_pet()
 
-	lilly_station.interacted.connect(_open_lilly_panel)
 	lilly_panel.visible = false
 	current_teams_panel.visible = false
 
@@ -143,9 +154,6 @@ func _win_match() -> void:
 	# effects of end_run's success branch (carried_value, loot quests,
 	# etc.) are all harmless no-ops here.
 	GameManager.end_run(true)
-
-func _open_lilly_panel() -> void:
-	lilly_panel.visible = true
 
 func _return_to_main_menu() -> void:
 	# Leaving early (before a win/loss fires end_run()) would otherwise

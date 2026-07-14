@@ -77,6 +77,11 @@ custom_minimum_size = Vector2(0, 40)
 theme_override_font_sizes/font_size = 15
 text = "Find a Team"
 
+[node name="SocialPlaceButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 40)
+theme_override_font_sizes/font_size = 15
+text = "Social Place"
+
 [node name="LeaderboardButton" type="Button" parent="VBox"]
 custom_minimum_size = Vector2(0, 40)
 theme_override_font_sizes/font_size = 15

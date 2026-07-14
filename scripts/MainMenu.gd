@@ -192,6 +192,10 @@ func _ready() -> void:
 		_open_panel(arena_find_team_panel)
 	)
 	arena_find_team_panel.closed.connect(func(): _close_panel(arena_find_team_panel))
+	arena_panel.social_place_requested.connect(func():
+		_close_panel(arena_panel)
+		Transition.change_scene("res://scenes/SocialPlace.tscn")
+	)
 	arena_panel.leaderboard_requested.connect(func():
 		_close_panel(arena_panel)
 		_open_panel(leaderboard_panel)

@@ -3,15 +3,17 @@ const DraggablePanelScript := preload("res://scripts/DraggablePanel.gd")
 const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
 
 # The Arena hub - opened from the Arena main menu button. Describes the
-# 1v1/2v2 mode and its map (The Grid), shows your current Arena Rank,
-# and hosts the entry points into it: Matchmake (queues into an actual
-# match), Find a Team (Arena-flavored version of Social's), Leaderboard
+# squad-based mode and its map (The Grid), shows your current Arena
+# Rank, and hosts the entry points into it: Matchmake (queues into an
+# actual match), Find a Team (Arena-flavored version of Social's),
+# Social Place (a no-damage hangout hub, not a match), Leaderboard
 # (the main Leaderboard panel, pre-switched to its Arena tab), and
 # Rewards (what each Arena Rank tier is worth).
 
 signal closed
 signal matchmake_requested
 signal find_team_requested
+signal social_place_requested
 signal leaderboard_requested
 signal rewards_requested
 
@@ -24,6 +26,7 @@ func _unhandled_input(event: InputEvent) -> void:
 @onready var rank_label: Label = $VBox/RankRow/RankLabel
 @onready var matchmake_button: Button = $VBox/MatchmakeButton
 @onready var find_team_button: Button = $VBox/FindTeamButton
+@onready var social_place_button: Button = $VBox/SocialPlaceButton
 @onready var leaderboard_button: Button = $VBox/LeaderboardButton
 @onready var rewards_button: Button = $VBox/RewardsButton
 @onready var close_button: Button = $VBox/CloseButton
@@ -34,6 +37,7 @@ func _ready() -> void:
 	close_button.pressed.connect(func(): closed.emit())
 	matchmake_button.pressed.connect(func(): matchmake_requested.emit())
 	find_team_button.pressed.connect(func(): find_team_requested.emit())
+	social_place_button.pressed.connect(func(): social_place_requested.emit())
 	leaderboard_button.pressed.connect(func(): leaderboard_requested.emit())
 	rewards_button.pressed.connect(func(): rewards_requested.emit())
 
