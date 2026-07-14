@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://scenes/HideoutStation.tscn" id="6"]
 [ext_resource type="Script" path="res://scripts/LillySprite.gd" id="7"]
 [ext_resource type="PackedScene" path="res://scenes/ArenaCurrentTeamsPanel.tscn" id="8"]
+[ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="9"]
 
 [node name="SocialPlace" type="Node2D"]
 script = ExtResource("1")
@@ -73,6 +74,13 @@ visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.07, 0.04, 0.09, 0.97)
+
+[node name="DystoBG" type="Control" parent="ArenaUI/LillyPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+modulate = Color(0.9, 0.8, 0.4, 1)
+script = ExtResource("9")
 
 [node name="VBox" type="VBoxContainer" parent="ArenaUI/LillyPanel"]
 anchor_right = 1.0

@@ -1,14 +1,28 @@
 extends Control
 
 const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
+const TooltipParticlesScript := preload("res://scripts/TooltipParticles.gd")
 
 @onready var loot_list: VBoxContainer = $Panel/VBox/Scroll/LootList
 @onready var back_button: Button = $Panel/VBox/BackButton
+@onready var sparkles_holder: Control = $Panel/Sparkles
 
 func _ready() -> void:
 	GameManager.set_default_cursor()
 	back_button.pressed.connect(_on_back)
 	_build_summary()
+	# A small celebratory ember burst behind the reward list - this used
+	# to be a completely flat victory screen despite GauntletIntro having
+	# a full parallax background for the same event.
+	sparkles_holder.set_script(TooltipParticlesScript)
+	# Known Godot quirk (see PlushiePetReveal.gd for the same workaround):
+	# attaching a script to a node already in the tree drops its process
+	# callback even though TooltipParticles.gd's own _ready() calls
+	# set_process(true) - has to be called again from out here.
+	sparkles_holder.set_process(true)
+	sparkles_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sparkles_holder.gradient_colors = [Color(0.95, 0.75, 0.3, 1), Color(0.9, 0.25, 0.2, 1)]
+	sparkles_holder.intensity = 26
 
 func _build_summary() -> void:
 	for c in loot_list.get_children():
