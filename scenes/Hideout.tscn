@@ -21,6 +21,7 @@
 [ext_resource type="Script" path="res://scripts/RosePanel.gd" id="19"]
 [ext_resource type="PackedScene" path="res://scenes/RoseSprite.tscn" id="20"]
 [ext_resource type="Script" path="res://scripts/ItemIcon.gd" id="21"]
+[ext_resource type="Script" path="res://scripts/DystopianHoverButton.gd" id="50"]
 [ext_resource type="PackedScene" path="res://scenes/PlushiePetReveal.tscn" id="22"]
 [ext_resource type="PackedScene" path="res://scenes/PlushiesPanel.tscn" id="23"]
 [ext_resource type="PackedScene" path="res://scenes/WanderingPlushie.tscn" id="24"]
@@ -1159,9 +1160,11 @@ offset_bottom = -14.0
 theme_override_constants/separation = 10
 
 [node name="Title" type="Label" parent="HideoutUI/RosePanel/VBox"]
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 24
 horizontal_alignment = 1
 theme_override_colors/font_color = Color(0.95, 0.6, 0.75, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
 text = "ROSE"
 
 [node name="IconSlot" type="Control" parent="HideoutUI/RosePanel/VBox"]
@@ -1194,12 +1197,34 @@ custom_minimum_size = Vector2(0, 44)
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 14
 text = "Plushies"
+script = ExtResource("50")
+
+[node name="Glow" type="ColorRect" parent="HideoutUI/RosePanel/VBox/MenuRow/GivePlushieButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -6.0
+offset_top = -6.0
+offset_right = 6.0
+offset_bottom = 6.0
+color = Color(0.03, 0.03, 0.03, 0)
 
 [node name="LoreButton" type="Button" parent="HideoutUI/RosePanel/VBox/MenuRow"]
 custom_minimum_size = Vector2(0, 44)
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 14
 text = "Lore"
+script = ExtResource("50")
+
+[node name="Glow" type="ColorRect" parent="HideoutUI/RosePanel/VBox/MenuRow/LoreButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -6.0
+offset_top = -6.0
+offset_right = 6.0
+offset_bottom = 6.0
+color = Color(0.03, 0.03, 0.03, 0)
 
 [node name="LoreTopicScroll" type="ScrollContainer" parent="HideoutUI/RosePanel/VBox"]
 custom_minimum_size = Vector2(0, 300)
@@ -1236,17 +1261,50 @@ custom_minimum_size = Vector2(0, 40)
 theme_override_font_sizes/font_size = 14
 text = "Back to Topics"
 visible = false
+script = ExtResource("50")
+
+[node name="Glow" type="ColorRect" parent="HideoutUI/RosePanel/VBox/LoreBackButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -6.0
+offset_top = -6.0
+offset_right = 6.0
+offset_bottom = 6.0
+color = Color(0.03, 0.03, 0.03, 0)
 
 [node name="BackButton" type="Button" parent="HideoutUI/RosePanel/VBox"]
 custom_minimum_size = Vector2(0, 40)
 theme_override_font_sizes/font_size = 14
 text = "Back"
 visible = false
+script = ExtResource("50")
+
+[node name="Glow" type="ColorRect" parent="HideoutUI/RosePanel/VBox/BackButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -6.0
+offset_top = -6.0
+offset_right = 6.0
+offset_bottom = 6.0
+color = Color(0.03, 0.03, 0.03, 0)
 
 [node name="CloseButton" type="Button" parent="HideoutUI/RosePanel/VBox"]
 custom_minimum_size = Vector2(0, 40)
 theme_override_font_sizes/font_size = 14
 text = "Close"
+script = ExtResource("50")
+
+[node name="Glow" type="ColorRect" parent="HideoutUI/RosePanel/VBox/CloseButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -6.0
+offset_top = -6.0
+offset_right = 6.0
+offset_bottom = 6.0
+color = Color(0.03, 0.03, 0.03, 0)
 
 [node name="PlushiePetReveal" parent="HideoutUI" instance=ExtResource("22")]
 

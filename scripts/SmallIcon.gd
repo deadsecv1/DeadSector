@@ -166,6 +166,28 @@ func _draw() -> void:
 			for i in range(5):
 				var star_ang3: float = -PI / 2.0 + TAU * float(i) / 5.0
 				draw_circle(c + Vector2(cos(star_ang3), sin(star_ang3)) * r * 0.24, r * 0.07, Color(0.85, 0.65, 1.0, 1))
+		# --- Rose's 5 Lore topics - each gets its own small icon in the
+		# topic list instead of all 5 rows looking identical.
+		"bags_topic":
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-r * 0.4, -r * 0.35), c + Vector2(r * 0.4, -r * 0.35), c + Vector2(r * 0.35, r * 0.45), c + Vector2(-r * 0.35, r * 0.45)]), Color(0.85, 0.55, 0.65, 1))
+			draw_arc(c + Vector2(0, -r * 0.4), r * 0.22, PI, TAU, 12, Color(0.6, 0.35, 0.45, 1), max(1.5, r * 0.1), false)
+		"boba_topic":
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-r * 0.32, -r * 0.15), c + Vector2(r * 0.32, -r * 0.15), c + Vector2(r * 0.24, r * 0.5), c + Vector2(-r * 0.24, r * 0.5)]), Color(0.85, 0.65, 0.45, 1))
+			draw_line(c + Vector2(r * 0.08, -r * 0.55), c + Vector2(r * 0.14, -r * 0.15), Color(0.95, 0.9, 0.85, 1), max(1.5, r * 0.08))
+			for i in range(3):
+				draw_circle(c + Vector2(-r * 0.16 + float(i) * r * 0.16, r * 0.35), r * 0.06, Color(0.2, 0.12, 0.08, 1))
+		"league_topic":
+			draw_colored_polygon(PackedVector2Array([c + Vector2(0, -r * 0.5), c + Vector2(r * 0.38, -r * 0.25), c + Vector2(r * 0.32, r * 0.2), c + Vector2(0, r * 0.5), c + Vector2(-r * 0.32, r * 0.2), c + Vector2(-r * 0.38, -r * 0.25)]), Color(0.55, 0.7, 0.95, 1))
+		"nessa_topic":
+			draw_circle(c + Vector2(-r * 0.22, r * 0.32), r * 0.16, Color(0.85, 0.6, 0.9, 1))
+			draw_rect(Rect2(c + Vector2(-r * 0.08, -r * 0.4), Vector2(r * 0.08, r * 0.72)), Color(0.85, 0.6, 0.9, 1))
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-r * 0.08, -r * 0.4), c + Vector2(r * 0.28, -r * 0.25), c + Vector2(r * 0.28, -r * 0.05), c + Vector2(-r * 0.08, -r * 0.2)]), Color(0.85, 0.6, 0.9, 1))
+		"plushies_topic":
+			draw_circle(c + Vector2(-r * 0.32, -r * 0.38), r * 0.16, Color(0.8, 0.6, 0.4, 1))
+			draw_circle(c + Vector2(r * 0.32, -r * 0.38), r * 0.16, Color(0.8, 0.6, 0.4, 1))
+			draw_circle(c + Vector2(0, r * 0.05), r * 0.42, Color(0.85, 0.65, 0.45, 1))
+			draw_circle(c + Vector2(-r * 0.14, -r * 0.02), r * 0.05, Color(0.15, 0.1, 0.08, 1))
+			draw_circle(c + Vector2(r * 0.14, -r * 0.02), r * 0.05, Color(0.15, 0.1, 0.08, 1))
 		_:
 			var pts := PackedVector2Array()
 			for i in range(5):

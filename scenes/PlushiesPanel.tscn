@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/PlushiesPanel.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/DystopianHoverButton.gd" id="3"]
 
 [node name="PlushiesPanel" type="Panel"]
 anchor_left = 0.5
@@ -37,11 +38,11 @@ offset_bottom = -14.0
 theme_override_constants/separation = 10
 
 [node name="Title" type="Label" parent="VBox"]
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 24
 horizontal_alignment = 1
 theme_override_colors/font_color = Color(0.95, 0.6, 0.75, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
-theme_override_constants/outline_size = 4
+theme_override_constants/outline_size = 3
 text = "PLUSHIE TRADE"
 
 [node name="Subtitle" type="Label" parent="VBox"]
@@ -59,8 +60,30 @@ custom_minimum_size = Vector2(0, 54)
 theme_override_font_sizes/font_size = 14
 text = "Trade Plushie for Plushie Pet"
 autowrap_mode = 2
+script = ExtResource("3")
+
+[node name="Glow" type="ColorRect" parent="VBox/TradeButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -6.0
+offset_top = -6.0
+offset_right = 6.0
+offset_bottom = 6.0
+color = Color(0.03, 0.03, 0.03, 0)
 
 [node name="CloseButton" type="Button" parent="VBox"]
 custom_minimum_size = Vector2(0, 40)
 theme_override_font_sizes/font_size = 14
 text = "Close"
+script = ExtResource("3")
+
+[node name="Glow" type="ColorRect" parent="VBox/CloseButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -6.0
+offset_top = -6.0
+offset_right = 6.0
+offset_bottom = 6.0
+color = Color(0.03, 0.03, 0.03, 0)

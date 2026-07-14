@@ -4,6 +4,14 @@ const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
 const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
 const GodforgedAuraFXScript := preload("res://scripts/GodforgedAuraFX.gd")
 
+const TOPIC_ICON_TYPES := {
+	"bags": "bags_topic",
+	"boba": "boba_topic",
+	"league": "league_topic",
+	"nessa": "nessa_topic",
+	"plushies": "plushies_topic",
+}
+
 signal closed
 signal plushies_requested
 # Emitted whenever _show_menu() runs (including from the Back button) -
@@ -155,12 +163,26 @@ func _make_topic_row(topic: Dictionary) -> Control:
 	sb.content_margin_bottom = 6
 	row.add_theme_stylebox_override("panel", sb)
 
+	var hbox := HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 10)
+	row.add_child(hbox)
+
+	var icon_box := Control.new()
+	icon_box.custom_minimum_size = Vector2(28, 28)
+	var icon := SmallIconScene.instantiate()
+	icon.icon_type = TOPIC_ICON_TYPES.get(topic.get("id", ""), "star")
+	icon.icon_bg = Color(0.3, 0.15, 0.22, 1)
+	icon.anchor_right = 1.0
+	icon.anchor_bottom = 1.0
+	icon_box.add_child(icon)
+	hbox.add_child(icon_box)
+
 	var title_lbl := Label.new()
 	title_lbl.text = str(topic.get("title", "?"))
 	title_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title_lbl.add_theme_font_size_override("font_size", 14)
 	title_lbl.add_theme_color_override("font_color", Color(0.95, 0.75, 0.85, 1))
-	row.add_child(title_lbl)
+	hbox.add_child(title_lbl)
 
 	var button := Button.new()
 	button.flat = true
