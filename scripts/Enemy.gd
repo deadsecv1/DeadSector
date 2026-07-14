@@ -27,6 +27,13 @@ signal died
 
 # Set true on the Spike boss scene - ties into the "Kill Spike" quest.
 @export var is_boss: bool = false
+
+# Rare mid-raid event enemy (see _maybe_spawn_elite_cache_event() in each
+# raid map script) - tougher than a normal Raider, guarding a
+# higher-value cache, but deliberately NOT is_boss: that flag fires the
+# Spike-specific "kill_spike" quest event, which an elite guard has
+# nothing to do with.
+@export var is_elite_guard: bool = false
 var is_on_ice: bool = false
 var _ice_sources: int = 0
 
@@ -124,6 +131,13 @@ func _ready() -> void:
 		shoot_cooldown *= 0.7
 		_dash_timer = randf_range(4.0, 7.0)
 		add_to_group("real_player")
+	elif is_elite_guard:
+		_apply_random_raider_look()
+		# Tougher than a normal Raider so it's a real "should I risk this"
+		# decision, but not as extreme as a Real Player - it's meant to be
+		# beatable with a decent loadout, not a wall.
+		max_health = int(max_health * 1.9)
+		attack_damage = int(round(attack_damage * 1.25))
 	elif not is_boss:
 		_apply_random_raider_look()
 	health = max_health
@@ -536,7 +550,7 @@ func die() -> void:
 		GameManager.notify_event("kill_a_ghost")
 	var death_pos := global_position
 	var effective_loot_chance: float = clamp(loot_drop_chance + GameManager.get_equipped_bonus("loot_sense") + GameManager.get_upgrade_bonus("loot_sense") + (0.08 if GameManager.player_trait == "loot_hound" else 0.0), 0.0, 1.0)
-	var loot_data: Dictionary = GameManager.roll_corpse_loot(is_real_player, drop_key_id, drop_key_label, effective_loot_chance, is_boss)
+	var loot_data: Dictionary = GameManager.roll_corpse_loot(is_real_player, drop_key_id, drop_key_label, effective_loot_chance, is_boss or is_elite_guard)
 	call_deferred("_spawn_corpse", death_pos, loot_data)
 	call_deferred("_spawn_kill_burst", death_pos)
 	queue_free()
