@@ -22,6 +22,7 @@ const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
 const BROWSE_CATEGORIES := [
 	["All", ""], ["Weapon", "weapon"], ["Chestplate", "body"], ["Helmet", "head"],
 	["Boots", "boots"], ["Backpack", "backpack"], ["Tactical Accessory", "accessory"], ["Pet Eggs", "egg"],
+	["Ammo", "ammo"], ["Helmet Attachments", "helmet_attachment"],
 ]
 var _browse_category_filter: String = ""
 var _browse_sort_by_rarity: bool = false
