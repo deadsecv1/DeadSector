@@ -44,6 +44,20 @@ indicate a real problem:
   unrelated scripts — autoloads simply don't resolve in that harness mode.
   A real full scene boot (`--path . scenes/Foo.tscn`) is the ground truth;
   trust that over bare-script output.
+- Booting `scenes/Stash.tscn` specifically throws exactly 2x
+  `ERROR: Cannot set object script. Parameter should be null or a reference
+  to a valid script.` during scene instantiation (before any `_ready()`
+  runs). Confirmed harmless: a full post-boot tree walk shows every node
+  that should have a script (all 7 `DystoBG`/`PetsBG` instances across
+  Stash and its nested sub-panels, which all share the same cached
+  `DystopianBackground.gd` resource) ends up with the correct script
+  attached — it's a transient, self-correcting Godot engine quirk tied to
+  this scene's unusually deep nested-scene structure, not a real bug. (An
+  earlier session's memory wrongly attributed this to `_setup_alpha_beta_
+  visuals()` existing in 3 duplicated files — verified 2026-07-14 that
+  function only exists in `InventoryTile.gd`, every `set_script()` call
+  in it and in `Stash.gd`'s doll-slot code succeeds, and the error still
+  appears with all of that code fully instrumented and traced clean.)
 
 ## Art pipeline: fallback-to-real-art convention
 
