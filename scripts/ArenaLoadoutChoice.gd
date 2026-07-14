@@ -23,10 +23,42 @@ func _ready() -> void:
 	for preset in GameManager.ARENA_LOADOUT_PRESETS:
 		card_row.add_child(_make_preset_card(preset))
 
+# The single biggest click target in the whole Arena Loadout flow used
+# to have zero hover feedback at all (just default button chrome) -
+# gives it a themed purple border that brightens on hover, plus a
+# subtle scale bump, matching the Arena identity without competing with
+# the icons/text already inside the card.
 func _make_preset_card(preset: Dictionary) -> Control:
 	var card := Button.new()
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+
+	var idle_style := StyleBoxFlat.new()
+	idle_style.bg_color = Color(0.1, 0.08, 0.13, 0.5)
+	idle_style.border_color = Color(0.75, 0.55, 0.95, 0.3)
+	idle_style.set_border_width_all(2)
+	idle_style.set_corner_radius_all(8)
+	card.add_theme_stylebox_override("normal", idle_style)
+	card.add_theme_stylebox_override("focus", idle_style)
+
+	var hover_style := StyleBoxFlat.new()
+	hover_style.bg_color = Color(0.14, 0.1, 0.18, 0.7)
+	hover_style.border_color = Color(0.85, 0.6, 1.0, 0.9)
+	hover_style.set_border_width_all(2)
+	hover_style.set_corner_radius_all(8)
+	card.add_theme_stylebox_override("hover", hover_style)
+	card.add_theme_stylebox_override("pressed", hover_style)
+
+	card.resized.connect(func(): card.pivot_offset = card.size / 2.0)
+	card.mouse_entered.connect(func():
+		var tw := card.create_tween()
+		tw.tween_property(card, "scale", Vector2(1.03, 1.03), 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	)
+	card.mouse_exited.connect(func():
+		var tw := card.create_tween()
+		tw.tween_property(card, "scale", Vector2(1.0, 1.0), 0.15).set_trans(Tween.TRANS_QUAD)
+	)
 
 	var vbox := VBoxContainer.new()
 	vbox.anchor_right = 1.0
