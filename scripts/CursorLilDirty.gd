@@ -34,7 +34,6 @@ const PLEADING_LINES := [
 ]
 
 var body: Node2D
-var name_tag: Label
 var _hit_cooldown: float = 0.0
 var _last_mouse_pos: Vector2 = Vector2.ZERO
 var _mouse_speed: float = 0.0
@@ -50,9 +49,9 @@ func _ready() -> void:
 	_build_character()
 	set_process(true)
 
-# Real sprite (his actual Hideout look) plus a small shadow, gun, and
-# name tag - same pieces as the Hideout NPC, just recomposed around his
-# own origin and scaled down for a cursor-following cameo.
+# Real sprite (his actual Hideout look) plus a small shadow and gun -
+# same pieces as the Hideout NPC, just recomposed around his own origin
+# and scaled down for a cursor-following cameo.
 func _build_character() -> void:
 	body = Node2D.new()
 	add_child(body)
@@ -75,17 +74,6 @@ func _build_character() -> void:
 	gun.scale = Vector2(BODY_SCALE, BODY_SCALE)
 	gun.rotation = 0.3
 	body.add_child(gun)
-
-	name_tag = Label.new()
-	name_tag.text = "Lil Dirty"
-	name_tag.add_theme_font_size_override("font_size", 11)
-	name_tag.add_theme_color_override("font_color", Color(0.9, 0.75, 0.35, 1))
-	name_tag.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
-	name_tag.add_theme_constant_override("outline_size", 3)
-	name_tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_tag.custom_minimum_size = Vector2(80, 14)
-	name_tag.position = Vector2(-40, -34 * BODY_SCALE - 14)
-	add_child(name_tag)
 
 # Converts a flat [x1, y1, x2, y2, ...] list into real Vector2 pairs -
 # PackedVector2Array(...) only accepts flat numbers like that inside

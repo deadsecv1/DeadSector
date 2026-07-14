@@ -5,8 +5,11 @@ extends Node2D
 # same quadruped body art as an equipped Pet (see Pet.gd), since these
 # are literally what Rose turns a Plushie item into.
 
-const WANDER_RADIUS := 90.0
-const SPEED := 34.0
+@export var wander_radius: float = 90.0
+@export var speed: float = 34.0
+# Extra pause before the very first move - lets a fresh vignette settle
+# instead of every plushie immediately setting off at once.
+@export var start_delay: float = 0.0
 
 @export var body_color: Color = Color(0.85, 0.55, 0.65, 1)
 
@@ -33,11 +36,11 @@ func _ready() -> void:
 	leg_bl.color = dark
 	leg_br.color = dark
 	_pick_new_target()
-	_wait_timer = randf_range(0.0, 2.0)
+	_wait_timer = start_delay + randf_range(0.0, 2.0)
 
 func _pick_new_target() -> void:
 	var ang := randf_range(0.0, TAU)
-	var dist := randf_range(20.0, WANDER_RADIUS)
+	var dist := randf_range(20.0, wander_radius)
 	_target = _anchor + Vector2(cos(ang), sin(ang)) * dist
 	_wait_timer = randf_range(2.0, 4.5)
 
@@ -45,7 +48,7 @@ func _process(delta: float) -> void:
 	var to_target := _target - global_position
 	var dist := to_target.length()
 	if dist > 4.0:
-		global_position += to_target.normalized() * SPEED * delta
+		global_position += to_target.normalized() * speed * delta
 		body.position.y = sin(Time.get_ticks_msec() * 0.008) * 1.5
 	else:
 		_wait_timer -= delta

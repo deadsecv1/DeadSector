@@ -18,18 +18,27 @@ var rose_base_pos: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Clips anything drawn by this vignette (Rose, the plushies) to its
+	# own rect - a hard guarantee nothing here can ever render over the
+	# main menu buttons, on top of whatever position bug caused that.
+	clip_contents = true
 	rose_sprite = Sprite2D.new()
 	rose_sprite.texture = ROSE_TEXTURE
 	rose_sprite.scale = Vector2(2.6, 2.6)
 	add_child(rose_sprite)
-	for c in PLUSHIE_COLORS:
-		var p = PLUSHIE_SCENE.instantiate()
-		p.body_color = c
-		add_child(p)
 	await get_tree().process_frame
 	_layout()
 	set_process(true)
 
+# Plushies are instantiated (and positioned) here, AFTER size is known,
+# instead of in _ready() before this vignette even had a real size -
+# WanderingPlushie captures its own wander anchor from global_position
+# the instant it enters the tree, so adding it to the tree before it
+# had a real position meant its anchor locked onto the wrong spot
+# entirely (near the vignette's top-left corner). It would then spend
+# forever walking toward that stale anchor across the whole screen -
+# which is what actually caused it to wander off past the edges and
+# through the main menu buttons instead of staying near the shelf.
 func _layout() -> void:
 	var w := size.x
 	var h := size.y
@@ -37,12 +46,18 @@ func _layout() -> void:
 		return
 	rose_base_pos = Vector2(w * 0.64, h * 0.7)
 	rose_sprite.position = rose_base_pos
-	var plushies := []
-	for child in get_children():
-		if child != rose_sprite and child is Node2D:
-			plushies.append(child)
-	for i in range(plushies.size()):
-		plushies[i].position = Vector2(w * 0.64 + float(i - 1) * 55.0, h * 0.9)
+	for i in range(PLUSHIE_COLORS.size()):
+		var p = PLUSHIE_SCENE.instantiate()
+		p.body_color = PLUSHIE_COLORS[i]
+		# Slower and smaller-radius than the Hideout default, and each
+		# starts on its own short delay so they don't all set off the
+		# instant the vignette appears - reads as idly milling around
+		# the shelf rather than briskly patrolling it.
+		p.speed = 14.0
+		p.wander_radius = 36.0
+		p.start_delay = float(i) * 1.3
+		p.position = Vector2(w * 0.64 + float(i - 1) * 55.0, h * 0.9)
+		add_child(p)
 
 func _process(delta: float) -> void:
 	time += delta
