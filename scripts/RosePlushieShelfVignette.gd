@@ -1,12 +1,14 @@
 extends Control
 
 # Ambient menu vignette: Rose in her Hideout alcove, fidgeting at a shelf
-# of plushies while a couple of plushie pets wander the floor near her -
-# reuses the real Rose sprite and the WanderingPlushie scene (see
-# scenes/WanderingPlushie.tscn and scenes/Hideout.tscn) instead of
-# redrawing them from scratch, so this matches exactly what's already in
-# the Hideout. Only the shelf/room backdrop below is drawn procedurally,
-# same technique as the other vignettes (see ExtractionChopperVignette.gd).
+# of plushies while a couple of plushie pets amble around near her,
+# idly drifting toward the cursor (see WanderingPlushie.gd's
+# follow_cursor) - reuses the real Rose sprite and the WanderingPlushie
+# scene (see scenes/WanderingPlushie.tscn and scenes/Hideout.tscn)
+# instead of redrawing them from scratch, so this matches exactly what's
+# already in the Hideout. Only the shelf/room backdrop below is drawn
+# procedurally, same technique as the other vignettes (see
+# ExtractionChopperVignette.gd).
 
 const ROSE_TEXTURE := preload("res://assets/npcs/rose.png")
 const PLUSHIE_SCENE := preload("res://scenes/WanderingPlushie.tscn")
@@ -56,6 +58,8 @@ func _layout() -> void:
 		p.speed = 14.0
 		p.wander_radius = 36.0
 		p.start_delay = float(i) * 1.3
+		p.follow_cursor = true
+		p.follow_lag = 2.0 + float(i) * 0.5
 		p.position = Vector2(w * 0.64 + float(i - 1) * 55.0, h * 0.9)
 		add_child(p)
 

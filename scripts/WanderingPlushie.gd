@@ -11,11 +11,22 @@ extends Node2D
 # instead of every plushie immediately setting off at once.
 @export var start_delay: float = 0.0
 
+# When true, this plushie ambles toward the mouse cursor instead of
+# picking random points - used by the Rose menu vignette. The tracked
+# point trails well behind the real cursor (follow_lag) and is always
+# clamped to within wander_radius of its anchor, so it still just looks
+# like it's idly drifting toward wherever you're looking, confined to
+# its own patch of the background, never an instant/teleporting follow
+# and never able to wander off past the vignette's edges.
+@export var follow_cursor: bool = false
+@export var follow_lag: float = 2.2
+
 @export var body_color: Color = Color(0.85, 0.55, 0.65, 1)
 
 var _anchor: Vector2
 var _target: Vector2
 var _wait_timer: float = 0.0
+var _lagged_cursor: Vector2 = Vector2.ZERO
 
 @onready var body: Polygon2D = $Body
 @onready var head: Polygon2D = $Head
@@ -27,6 +38,7 @@ var _wait_timer: float = 0.0
 
 func _ready() -> void:
 	_anchor = global_position
+	_lagged_cursor = _anchor
 	var dark := Color(body_color.r * 0.75, body_color.g * 0.75, body_color.b * 0.75, 1.0)
 	body.color = body_color
 	head.color = body_color
@@ -45,12 +57,18 @@ func _pick_new_target() -> void:
 	_wait_timer = randf_range(2.0, 4.5)
 
 func _process(delta: float) -> void:
+	if follow_cursor:
+		var mouse := get_global_mouse_position()
+		_lagged_cursor = _lagged_cursor.lerp(mouse, clamp(delta / follow_lag, 0.0, 1.0))
+		var to_anchor := _lagged_cursor - _anchor
+		_target = _anchor + to_anchor.limit_length(wander_radius)
+
 	var to_target := _target - global_position
 	var dist := to_target.length()
 	if dist > 4.0:
 		global_position += to_target.normalized() * speed * delta
 		body.position.y = sin(Time.get_ticks_msec() * 0.008) * 1.5
-	else:
+	elif not follow_cursor:
 		_wait_timer -= delta
 		if _wait_timer <= 0.0:
 			_pick_new_target()
