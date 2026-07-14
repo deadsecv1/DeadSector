@@ -105,6 +105,7 @@ func _ready() -> void:
 	justin_panel.closed.connect(_close_justin)
 	rose_panel.closed.connect(_close_rose)
 	rose_panel.plushies_requested.connect(_open_plushies)
+	rose_panel.menu_shown.connect(_close_plushies)
 	plushies_panel.closed.connect(_close_plushies)
 	plushies_panel.plushie_given.connect(func(instance_id: String): plushie_reveal.show_pet(instance_id))
 	plushie_reveal.closed.connect(func(): plushie_reveal.visible = false)
@@ -140,12 +141,12 @@ func _process(_delta: float) -> void:
 			_close_pet_shop()
 		elif justin_panel.visible:
 			_close_justin()
-		elif rose_panel.visible:
-			_close_rose()
-		elif plushies_panel.visible:
-			_close_plushies()
 		elif plushie_reveal.visible:
 			plushie_reveal.visible = false
+		elif plushies_panel.visible:
+			_close_plushies()
+		elif rose_panel.visible:
+			_close_rose()
 		elif gamble_panel.visible:
 			_close_gamble()
 		elif ghost_chat_open:
@@ -267,18 +268,21 @@ func _open_rose() -> void:
 	rose_panel.open()
 	player.set_input_locked(true)
 
-# Opened from the "Plushies" button INSIDE Rose's own panel, not from a
-# fresh world interaction - closes Rose behind it (same pattern as
-# Global Chat closing Social) rather than leaving both open at once.
-# Input was already locked when Rose opened, so this doesn't need to
-# lock it again - closing Plushies is what actually returns control.
+# Opened from the "Plushies" button INSIDE Rose's own panel - Rose's
+# window stays open behind it (she switches to her own "let's trade"
+# line, see RosePanel._show_plushie_talk()) instead of being hidden, so
+# there's no caller state that ever needs restoring: closing the trade
+# window or hitting Rose's Back button just leaves her window exactly
+# where it already was. Input was already locked when Rose opened, so
+# this doesn't need to lock it again.
 func _open_plushies() -> void:
-	rose_panel.visible = false
 	plushies_panel.open()
 
+# Also closes the reveal popup if it's still up - both are downstream
+# of Rose's own window, which is left untouched here on purpose.
 func _close_plushies() -> void:
 	plushies_panel.visible = false
-	player.set_input_locked(false)
+	plushie_reveal.visible = false
 
 func _open_gamble() -> void:
 	if sleeping or _any_panel_open():
@@ -375,6 +379,8 @@ func _close_justin() -> void:
 
 func _close_rose() -> void:
 	rose_panel.visible = false
+	plushies_panel.visible = false
+	plushie_reveal.visible = false
 	player.set_input_locked(false)
 
 # Sleeping in bed is now the ONLY way back to the Main Menu - no standalone

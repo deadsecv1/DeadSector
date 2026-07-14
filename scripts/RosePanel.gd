@@ -1,9 +1,16 @@
 extends Panel
 const DraggablePanelScript := preload("res://scripts/DraggablePanel.gd")
 const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
+const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
+const GodforgedAuraFXScript := preload("res://scripts/GodforgedAuraFX.gd")
 
 signal closed
 signal plushies_requested
+# Emitted whenever _show_menu() runs (including from the Back button) -
+# Hideout.gd listens so the plushie trade window/reveal popup close
+# alongside Rose stepping back to her main menu, instead of lingering
+# on screen after she's moved on.
+signal menu_shown
 
 func _unhandled_input(event: InputEvent) -> void:
 	if visible and event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
@@ -11,6 +18,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		closed.emit()
 
 const GREETING := "Hi! I'm Rose. I'm mostly just here for the bags, the boba, and the vibes, not necessarily in that order. If you ever find a stray Plushie out there, bring it to me - I'll turn it into a real, equippable pet you can take with you into a raid. If you ever want to hear me actually go off about any of it, hit Lore below - fair warning, it's a lot."
+
+const PLUSHIE_TALK_LINE := "Ooh, go on then! Trade window's just popped up on the side there - hand one over and I'll see what we can turn it into. No idea what you'll get 'til it happens, that's half the fun of it."
 
 # 5 topics, written like an actual 20-year-old from the UK talking your
 # ear off about her interests - long, in-depth, and (hopefully) funny.
@@ -42,7 +51,10 @@ func _ready() -> void:
 	visible = false
 	DraggablePanelScript.apply(self)
 	close_button.pressed.connect(func(): closed.emit())
-	give_plushie_button.pressed.connect(func(): plushies_requested.emit())
+	give_plushie_button.pressed.connect(func():
+		_show_plushie_talk()
+		plushies_requested.emit()
+	)
 	lore_button.pressed.connect(_show_lore_topics)
 	lore_back_button.pressed.connect(_show_lore_topics)
 	back_button.pressed.connect(_show_menu)
@@ -50,6 +62,36 @@ func _ready() -> void:
 	icon.icon_color = Color(1, 1, 1, 1)
 	lore_detail_icon.icon_key = "rose_icon"
 	lore_detail_icon.icon_color = Color(1, 1, 1, 1)
+	_build_ellie_corner()
+
+# A small piece of ambient life in the corner of Rose's whole window
+# (sits outside VBox/_hide_all() on purpose, so it stays put across
+# menu/lore/detail views instead of flickering out and back with every
+# navigation) - Ellie, slowly spinning via ItemIcon's own built-in spin
+# (reused rather than hand-rolling a second rotation timer), with her
+# full Godforged aura (stars/particles/gradient shimmer) from
+# GodforgedAuraFX. Purely decorative flavor, not tied to actually
+# owning her.
+func _build_ellie_corner() -> void:
+	var holder := Control.new()
+	holder.anchor_left = 1.0
+	holder.anchor_right = 1.0
+	holder.offset_left = -66.0
+	holder.offset_right = -10.0
+	holder.offset_top = 10.0
+	holder.offset_bottom = 66.0
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(holder)
+
+	var ellie_icon = ItemIconScene.instantiate()
+	ellie_icon.icon_key = "pet_elephant"
+	ellie_icon.icon_color = Color(1.0, 0.65, 0.9, 1)
+	ellie_icon.spin = true
+	ellie_icon.anchor_right = 1.0
+	ellie_icon.anchor_bottom = 1.0
+	ellie_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.add_child(ellie_icon)
+	GodforgedAuraFXScript.apply(holder)
 
 func open() -> void:
 	visible = true
@@ -74,6 +116,18 @@ func _show_menu() -> void:
 	menu_row.visible = true
 	give_plushie_button.disabled = false
 	give_plushie_button.text = "Plushies"
+	menu_shown.emit()
+
+# Shown when "Plushies" is pressed - Rose's own window stays open and
+# just switches to this line instead of being hidden in favor of a
+# separate panel, so there's no caller state to forget to restore later.
+func _show_plushie_talk() -> void:
+	title_label.text = "ROSE"
+	_hide_all()
+	icon_slot.visible = true
+	greeting_label.text = PLUSHIE_TALK_LINE
+	greeting_label.visible = true
+	back_button.visible = true
 
 func _show_lore_topics() -> void:
 	title_label.text = "ROSE - LORE"

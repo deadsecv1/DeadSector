@@ -757,16 +757,21 @@ func _draw_pet_bunny() -> void:
 	draw_colored_polygon(legs, Color(0.9, 0.7, 0.2, 1))
 
 # Plushie-exclusive, Godforged tier only: a small living elephant -
-# big round ears, a curled trunk, round body, tinted with Ellie's own
-# pink/gold color rather than a natural grey since she's meant to
-# stand out from every other plushie pet on sight.
+# big round ears, small ivory tusks, a curled trunk, round body, tinted
+# with Ellie's own pink/gold color rather than a natural grey since
+# she's meant to stand out from every other plushie pet on sight.
 func _draw_pet_elephant() -> void:
 	draw_circle(_p(0.24, 0.42), size.x * 0.17, Color(icon_color.r * 0.9, icon_color.g * 0.9, icon_color.b * 0.9, 1))
 	draw_circle(_p(0.76, 0.42), size.x * 0.17, Color(icon_color.r * 0.9, icon_color.g * 0.9, icon_color.b * 0.9, 1))
 	draw_circle(_p(0.5, 0.46), size.x * 0.26, icon_color)
 	var body := PackedVector2Array([_p(0.28, 0.6), _p(0.72, 0.6), _p(0.78, 0.88), _p(0.5, 0.98), _p(0.22, 0.88)])
 	draw_colored_polygon(body, Color(icon_color.r * 0.85, icon_color.g * 0.85, icon_color.b * 0.85, 1))
-	var trunk := PackedVector2Array([_p(0.46, 0.56), _p(0.54, 0.56), _p(0.58, 0.72), _p(0.5, 0.86), _p(0.42, 0.8), _p(0.48, 0.7)])
+	var tusk_color := Color(0.98, 0.95, 0.88, 1)
+	var tusk_l := PackedVector2Array([_p(0.4, 0.58), _p(0.35, 0.66), _p(0.38, 0.68), _p(0.43, 0.6)])
+	draw_colored_polygon(tusk_l, tusk_color)
+	var tusk_r := PackedVector2Array([_p(0.6, 0.58), _p(0.65, 0.66), _p(0.62, 0.68), _p(0.57, 0.6)])
+	draw_colored_polygon(tusk_r, tusk_color)
+	var trunk := PackedVector2Array([_p(0.46, 0.56), _p(0.54, 0.56), _p(0.58, 0.72), _p(0.52, 0.88), _p(0.4, 0.9), _p(0.36, 0.84), _p(0.46, 0.82), _p(0.5, 0.7), _p(0.42, 0.66)])
 	draw_colored_polygon(trunk, icon_color)
 	draw_circle(_p(0.42, 0.42), size.x * 0.026, Color(0.15, 0.1, 0.08, 1))
 	draw_circle(_p(0.58, 0.42), size.x * 0.026, Color(0.15, 0.1, 0.08, 1))

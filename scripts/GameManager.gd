@@ -981,16 +981,36 @@ func get_ammo_type_for_weapon_item(weapon_item) -> String:
 	var icon: String = weapon_item.get("icon_key", "pistol") if weapon_item != null else "pistol"
 	return get_ammo_type_for_weapon(icon)
 
-# --- Plushie: a universal drop from any enemy, on any map, no rarity
-# of its own since it's not gear - just a soft, slightly worn stuffed
-# toy. Its only purpose is Rose in the Hideout: hand her one and she'll
-# turn it into a real pet with the Plushie buff. Slot "plushie" is its
-# own thing (not "valuable"/"consumable") so it's trivial to check for
-# and consume specifically.
+# --- Plushie: a universal drop from any enemy, on any map. Its own
+# rarity is purely cosmetic (a colored border in the Stash) - it does
+# NOT affect the pet rarity Rose gives back for one, that's a fully
+# separate roll (see PLUSHIE_PET_RARITY_WEIGHTS below). Its only real
+# purpose is Rose in the Hideout: hand her one and she'll turn it into
+# a real pet with the Plushie buff. Slot "plushie" is its own thing
+# (not "valuable"/"consumable") so it's trivial to check for and
+# consume specifically. Capped at Legendary - a stuffed toy standing
+# out with a nicer color is enough, it shouldn't read as build-defining
+# loot the way a Multiversal weapon would.
+const PLUSHIE_ITEM_RARITY_WEIGHTS := {
+	"common": 50.0, "uncommon": 25.0, "rare": 15.0, "epic": 7.0, "legendary": 3.0,
+}
+
+func _roll_plushie_item_rarity() -> String:
+	var total := 0.0
+	for w in PLUSHIE_ITEM_RARITY_WEIGHTS.values():
+		total += float(w)
+	var roll := randf() * total
+	var cumulative := 0.0
+	for rarity in PLUSHIE_ITEM_RARITY_WEIGHTS:
+		cumulative += float(PLUSHIE_ITEM_RARITY_WEIGHTS[rarity])
+		if roll <= cumulative:
+			return rarity
+	return "common"
+
 func roll_plushie() -> Dictionary:
 	return {
 		"name": "Plushie", "value": 35, "slot": "plushie", "stat_type": "",
-		"stat_value": 0.0, "icon_key": "plushie", "rarity": "common",
+		"stat_value": 0.0, "icon_key": "plushie", "rarity": _roll_plushie_item_rarity(),
 		"desc": "A soft, slightly-worn stuffed toy - somebody's favorite, once. Rose would probably know what to do with this.",
 	}
 
@@ -4391,6 +4411,22 @@ func _consume_one_plushie() -> bool:
 const PLUSHIE_PET_RARITY_WEIGHTS := {
 	"rare": 25.0, "epic": 28.0, "legendary": 26.0, "mythic": 14.0, "exotic": 5.5, "multiversal": 1.2, "divine": 0.3, "godforged": 0.0001,
 }
+
+# Same tier-ordering convention GamblePanel.gd uses for its own odds
+# readout - shared by the plushie trade result popup so it's a real
+# "here's what you're working with" table, not just flavor text.
+const PLUSHIE_PET_TIER_ORDER := ["rare", "epic", "legendary", "mythic", "exotic", "multiversal", "divine", "godforged"]
+
+func get_plushie_pet_odds_text() -> String:
+	var lines: Array = []
+	for tier in PLUSHIE_PET_TIER_ORDER:
+		var pct: float = PLUSHIE_PET_RARITY_WEIGHTS.get(tier, 0.0)
+		# The Godforged sliver (0.0001%) would just print as "0.00%" and
+		# read as literally impossible at 2 decimal places - give anything
+		# under 0.01% enough precision to actually show up.
+		var pct_text: String = ("%.4f%%" % pct) if pct < 0.01 else ("%.2f%%" % pct)
+		lines.append("%s: %s" % [get_rarity_label(tier), pct_text])
+	return " | ".join(lines)
 
 func _roll_plushie_pet_rarity() -> String:
 	var total := 0.0

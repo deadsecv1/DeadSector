@@ -10,6 +10,7 @@ func _unhandled_input(event: InputEvent) -> void:
 const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
 const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
 const SkinTextureOverlayScript := preload("res://scripts/SkinTextureOverlay.gd")
+const GodforgedAuraFXScript := preload("res://scripts/GodforgedAuraFX.gd")
 
 @onready var pack_row: GridContainer = $VBox/MainScroll/ContentVBox/PackRow
 @onready var free_pack_row: GridContainer = $VBox/MainScroll/ContentVBox/FreePackRow
@@ -201,6 +202,21 @@ func _make_pack_card(pack: Dictionary) -> Control:
 	contents_lbl.add_theme_font_size_override("font_size", 12)
 	contents_lbl.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	vbox.add_child(contents_lbl)
+
+	if pack.get("grants_ellie", false):
+		var ellie_holder := Control.new()
+		ellie_holder.custom_minimum_size = Vector2(0, 56)
+		ellie_holder.clip_contents = true
+		ellie_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		vbox.add_child(ellie_holder)
+		var ellie_icon = ItemIconScene.instantiate()
+		ellie_icon.icon_key = "pet_elephant"
+		ellie_icon.icon_color = Color(1.0, 0.65, 0.9, 1)
+		ellie_icon.anchor_right = 1.0
+		ellie_icon.anchor_bottom = 1.0
+		ellie_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ellie_holder.add_child(ellie_icon)
+		GodforgedAuraFXScript.apply(ellie_holder)
 
 	var pack_id: String = pack.get("id", "")
 
