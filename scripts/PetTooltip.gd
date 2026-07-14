@@ -87,8 +87,9 @@ static func build(pet_id: String) -> Control:
 	# Rarity + the actual odds of pulling it from a Plushie, so the
 	# tooltip doubles as "here's how lucky this roll actually was."
 	var chance: float = GameManager.PLUSHIE_PET_RARITY_WEIGHTS.get(rarity, 0.0)
+	var chance_text: String = ("%.4f%%" % chance) if chance < 0.01 else ("%.2f%%" % chance)
 	var rarity_lbl := Label.new()
-	rarity_lbl.text = "%s  (%.2f%% chance)" % [GameManager.get_rarity_label(rarity).to_upper(), chance]
+	rarity_lbl.text = "%s  (%s chance)" % [GameManager.get_rarity_label(rarity).to_upper(), chance_text]
 	rarity_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	rarity_lbl.add_theme_font_size_override("font_size", 13)
 	rarity_lbl.add_theme_color_override("font_color", rarity_color)
@@ -135,6 +136,20 @@ static func build(pet_id: String) -> Control:
 		aura_lbl.add_theme_color_override("font_color", pet_color)
 		vbox.add_child(aura_lbl)
 		content_h += _wrapped_height(aura_lbl.text, 12, 33.0) + 4.0
+
+	# Godforged only: the one pet with an actual world effect, not just
+	# a menu shimmer - a ring of miniature plushies orbits the player
+	# in raid, Arena, and Spectral Tide while equipped (see Pet.gd).
+	if pet.get("godforged_orbit", false):
+		var orbit_lbl := Label.new()
+		orbit_lbl.text = "Effect: a ring of miniature plushies orbits you while equipped, in raid, Arena, and Spectral Tide"
+		orbit_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		orbit_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
+		orbit_lbl.custom_minimum_size = Vector2(TEXT_WIDTH, 0)
+		orbit_lbl.add_theme_font_size_override("font_size", 12)
+		orbit_lbl.add_theme_color_override("font_color", Color(1.0, 0.75, 0.9, 1))
+		vbox.add_child(orbit_lbl)
+		content_h += _wrapped_height(orbit_lbl.text, 12, 33.0) + 4.0
 
 	# Origin: Rose's own Plushie pets always list "The Hideout" as their
 	# found_map already (see give_plushie_to_rose()), so this reads

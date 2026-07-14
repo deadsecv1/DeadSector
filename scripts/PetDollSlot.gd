@@ -9,6 +9,7 @@ extends Button
 
 const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
 const PlushieAuraFXScript := preload("res://scripts/PlushieAuraFX.gd")
+const GodforgedAuraFXScript := preload("res://scripts/GodforgedAuraFX.gd")
 const MyPetsPanelScene := preload("res://scenes/MyPetsPanel.tscn")
 
 var _pets_panel: Panel = null
@@ -77,6 +78,8 @@ func refresh() -> void:
 			pulse_tw.tween_property(pet_icon, "modulate:a", 1.0, 0.9).set_trans(Tween.TRANS_SINE)
 		if trait_data.get("pet_aura", false):
 			PlushieAuraFXScript.apply(self, pet.get("color", Color.WHITE))
+		if instance.get("rarity", "") == "godforged":
+			GodforgedAuraFXScript.apply(self)
 
 func _show_info_popup() -> void:
 	var pet_id: String = GameManager.equipped_pet

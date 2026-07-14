@@ -46,6 +46,7 @@ const RARITY_TIERS := {
 	"exotic": {"multiplier": 6.0, "color": Color(0.85, 0.4, 0.85, 1), "label": "Exotic"},
 	"multiversal": {"multiplier": 10.0, "color": Color(0.95, 0.9, 0.5, 1), "label": "Multiversal"},
 	"divine": {"multiplier": 15.0, "color": Color(1.0, 0.98, 0.9, 1), "label": "Divine"},
+	"godforged": {"multiplier": 25.0, "color": Color(1.0, 0.8, 0.95, 1), "label": "Godforged"},
 }
 
 # The Exotic tier is a blend of several colors rather than one flat
@@ -83,6 +84,14 @@ const MULTIVERSAL_GRADIENT := [
 const DIVINE_GRADIENT := [
 	Color(1.0, 1.0, 1.0, 0.45), Color(1.0, 0.95, 0.7, 0.45), Color(0.85, 0.95, 1.0, 0.45),
 	Color(1.0, 1.0, 0.9, 0.45), Color(0.9, 0.98, 1.0, 0.45),
+]
+
+# Godforged - one tier above Divine, and the only tier never reachable
+# through Loot Bags/Eggs/crates at all (see PLUSHIE_PET_RARITY_WEIGHTS)
+# - a pink-to-gold blend, distinct from every gradient above it.
+const GODFORGED_GRADIENT := [
+	Color(1.0, 0.55, 0.85, 0.45), Color(1.0, 0.8, 0.35, 0.45), Color(1.0, 0.6, 0.9, 0.45),
+	Color(1.0, 0.85, 0.55, 0.45), Color(1.0, 0.5, 0.8, 0.45),
 ]
 
 
@@ -267,6 +276,8 @@ func roll_gear_from_pool(pool: Array) -> Dictionary:
 	return finalize_rolled_item(pool[randi() % pool.size()].duplicate(true))
 
 func get_gradient_colors(rarity: String) -> Array:
+	if rarity == "godforged":
+		return GODFORGED_GRADIENT
 	if rarity == "divine":
 		return DIVINE_GRADIENT
 	if rarity == "multiversal":
@@ -4138,6 +4149,13 @@ const PLUSHIE_EXCLUSIVE_PET_POOL := {
 	"mythic": [
 		{"id": "bunbun", "name": "Bunbun", "color": Color(0.92, 0.85, 0.88, 1), "icon_key": "pet_bunny", "stat_type": "speed", "stat_value": 24.0, "speed_mult": 1.3},
 	],
+	# Godforged - one tier above Divine, and the only Plushie-exclusive
+	# pet with its own "godforged_orbit" flag (see Pet.gd): while
+	# equipped, a small ring of miniature plushies orbits the player in
+	# raid, Arena, and Spectral Tide, not just a menu-only visual.
+	"godforged": [
+		{"id": "ellie", "name": "Ellie", "color": Color(1.0, 0.65, 0.9, 1), "icon_key": "pet_elephant", "stat_type": "max_health", "stat_value": 50.0, "stat_type_2": "loot_sense", "stat_value_2": 0.02, "speed_mult": 1.0, "godforged_orbit": true},
+	],
 }
 
 func has_plushie() -> bool:
@@ -4167,7 +4185,7 @@ func _consume_one_plushie() -> bool:
 # Rose a Plushie is meant to be the best real shot at a top-tier pet in
 # the game, not just a slightly-nicer version of the same long odds.
 const PLUSHIE_PET_RARITY_WEIGHTS := {
-	"rare": 25.0, "epic": 28.0, "legendary": 26.0, "mythic": 14.0, "exotic": 5.5, "multiversal": 1.2, "divine": 0.3,
+	"rare": 25.0, "epic": 28.0, "legendary": 26.0, "mythic": 14.0, "exotic": 5.5, "multiversal": 1.2, "divine": 0.3, "godforged": 0.0001,
 }
 
 func _roll_plushie_pet_rarity() -> String:
@@ -4191,7 +4209,12 @@ func give_plushie_to_rose() -> String:
 	if not _consume_one_plushie():
 		return ""
 	var rarity := _roll_plushie_pet_rarity()
-	var pool: Array = EGG_PET_POOL.get(rarity, EGG_PET_POOL["rare"]).duplicate()
+	# Rarities with no EGG_PET_POOL entry of their own (e.g. "godforged",
+	# which is Plushie-exclusive) must NOT fall back to the Rare egg pool
+	# here - that would silently dilute a guaranteed-Ellie roll with
+	# ordinary Rare pets instead. Only fall back to Rare if BOTH pools
+	# for this rarity end up genuinely empty.
+	var pool: Array = EGG_PET_POOL.get(rarity, []).duplicate()
 	pool.append_array(PLUSHIE_EXCLUSIVE_PET_POOL.get(rarity, []))
 	if pool.is_empty():
 		pool = EGG_PET_POOL["rare"]

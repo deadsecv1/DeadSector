@@ -33,6 +33,18 @@ var spider_color: Color = Color(0.14, 0.08, 0.18, 1)
 var leg_phase: float = 0.0
 var web_particles: CPUParticles2D
 
+# --- Godforged equip effect (Ellie): a small ring of miniature plushies
+# orbiting the PLAYER, not the pet itself - parented directly to the
+# player node so it works the same in every mode Pet.tscn gets
+# instantiated in (raids, Arena, Spectral Tide, gauntlet maps), with no
+# per-scene wiring needed.
+const ORBIT_COUNT := 3
+const ORBIT_RADIUS := 46.0
+const ORBIT_SPIN_SPEED := 1.4
+var has_orbit_fx: bool = false
+var orbit_nodes: Array = []
+var orbit_time: float = 0.0
+
 @onready var body: Polygon2D = $Body
 @onready var head: Polygon2D = $Head
 @onready var leg_fl: Polygon2D = $LegFrontLeft
@@ -67,6 +79,9 @@ func _ready() -> void:
 		leg_fr.color = dark_color
 		leg_bl.color = dark_color
 		leg_br.color = dark_color
+	has_orbit_fx = bool(pet.get("godforged_orbit", false))
+	if has_orbit_fx:
+		_setup_orbit_fx(base_color)
 	if player != null:
 		_pick_new_roam_target()
 
@@ -85,9 +100,37 @@ func _setup_web_trail() -> void:
 	web_particles.position = Vector2(0, 6)
 	add_child(web_particles)
 
+func _setup_orbit_fx(base_color: Color) -> void:
+	if player == null:
+		return
+	var gold := Color(1.0, 0.82, 0.4, 1.0)
+	for i in range(ORBIT_COUNT):
+		var orb := Polygon2D.new()
+		var pts := PackedVector2Array()
+		for a in range(8):
+			var ang: float = (float(a) / 8.0) * TAU
+			pts.append(Vector2(cos(ang), sin(ang)) * 6.0)
+		orb.polygon = pts
+		orb.color = base_color if i % 2 == 0 else gold
+		orb.z_index = 6
+		player.add_child(orb)
+		orbit_nodes.append(orb)
+
+func _exit_tree() -> void:
+	for n in orbit_nodes:
+		if is_instance_valid(n):
+			n.queue_free()
+
 func _process(_delta: float) -> void:
 	if is_spider:
 		queue_redraw()
+	if has_orbit_fx:
+		orbit_time += get_process_delta_time()
+		for i in range(orbit_nodes.size()):
+			if not is_instance_valid(orbit_nodes[i]):
+				continue
+			var ang: float = orbit_time * ORBIT_SPIN_SPEED + (TAU / ORBIT_COUNT) * i
+			orbit_nodes[i].position = Vector2(cos(ang), sin(ang)) * ORBIT_RADIUS + Vector2(0, sin(ang * 2.0) * 4.0)
 
 func _draw() -> void:
 	if not is_spider:

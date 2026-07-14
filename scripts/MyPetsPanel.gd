@@ -1,5 +1,6 @@
 extends Panel
 const PlushieAuraFXScript := preload("res://scripts/PlushieAuraFX.gd")
+const GodforgedAuraFXScript := preload("res://scripts/GodforgedAuraFX.gd")
 const PetTooltipHostScript := preload("res://scripts/PetTooltipHost.gd")
 
 signal closed
@@ -112,6 +113,8 @@ func _make_pet_cell(instance_id: String) -> Control:
 
 	if trait_data.get("pet_aura", false):
 		PlushieAuraFXScript.apply(icon_holder, data.get("color", Color.WHITE))
+	if rarity == "godforged":
+		GodforgedAuraFXScript.apply(icon_holder)
 
 	var name_lbl := Label.new()
 	name_lbl.text = data.get("name", "?")
@@ -197,6 +200,8 @@ func _open_info(instance_id: String) -> void:
 		pulse_tw.tween_property(icon, "modulate:a", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
 	if trait_data.get("pet_aura", false):
 		PlushieAuraFXScript.apply(info_icon_slot, data.get("color", Color.WHITE))
+	if rarity == "godforged":
+		GodforgedAuraFXScript.apply(info_icon_slot)
 
 	info_name.text = data.get("name", "?")
 	info_name.add_theme_color_override("font_color", rarity_color)

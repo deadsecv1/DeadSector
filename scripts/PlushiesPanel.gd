@@ -2,6 +2,7 @@ extends Panel
 const DraggablePanelScript := preload("res://scripts/DraggablePanel.gd")
 const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
 const PetTooltipHostScript := preload("res://scripts/PetTooltipHost.gd")
+const GodforgedAuraFXScript := preload("res://scripts/GodforgedAuraFX.gd")
 
 signal closed
 signal plushie_given(instance_id: String)
@@ -12,7 +13,7 @@ signal plushie_given(instance_id: String)
 # not just flavor text, since Multiversal and Divine are genuinely
 # reachable through this specific path (see GameManager.
 # PLUSHIE_PET_RARITY_WEIGHTS).
-const TIER_ORDER := ["rare", "epic", "legendary", "mythic", "exotic", "multiversal", "divine"]
+const TIER_ORDER := ["rare", "epic", "legendary", "mythic", "exotic", "multiversal", "divine", "godforged"]
 
 func _unhandled_input(event: InputEvent) -> void:
 	if visible and event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
@@ -65,7 +66,11 @@ func _build_odds_text() -> void:
 	var lines: Array = []
 	for tier in TIER_ORDER:
 		var pct: float = GameManager.PLUSHIE_PET_RARITY_WEIGHTS.get(tier, 0.0)
-		lines.append("%s: %.2f%%" % [GameManager.get_rarity_label(tier), pct])
+		# The Godforged sliver (0.0001%) would just print as "0.00%" and
+		# read as literally impossible at 2 decimal places - give anything
+		# under 0.01% enough precision to actually show up.
+		var pct_text: String = ("%.4f%%" % pct) if pct < 0.01 else ("%.2f%%" % pct)
+		lines.append("%s: %s" % [GameManager.get_rarity_label(tier), pct_text])
 	odds_label.text = " | ".join(lines)
 
 func _on_give_pressed() -> void:
@@ -116,6 +121,8 @@ func _make_pet_cell(instance_id: String) -> Control:
 	icon.anchor_bottom = 1.0
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon_holder.add_child(icon)
+	if rarity == "godforged":
+		GodforgedAuraFXScript.apply(icon_holder)
 
 	var name_lbl := Label.new()
 	name_lbl.text = GameManager.get_pet_display_name(instance_id)
