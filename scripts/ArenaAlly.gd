@@ -28,6 +28,12 @@ var target: Node2D = null
 var walk_cycle: float = 0.0
 var chat_cooldown_until_ms: int = 0
 
+# Retargeting every physics tick is an O(allies x enemies) group scan - a
+# new nearest target every 0.25s is imperceptible during combat but cuts
+# that scan rate 15x. Matches Recruit.gd/RaidPartyMember.gd's own pattern.
+const RETARGET_INTERVAL := 0.25
+var _retarget_timer: float = 0.0
+
 const BULLET_SCENE := preload("res://scenes/Bullet.tscn")
 const CHAT_LINES := [
 	"On you!", "Covering!", "Got one!", "Watch your flank!", "Pushing up!",
@@ -64,7 +70,10 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_maybe_chat()
-	_acquire_target()
+	_retarget_timer -= delta
+	if _retarget_timer <= 0.0 or target == null or not is_instance_valid(target):
+		_retarget_timer = RETARGET_INTERVAL
+		_acquire_target()
 	if target == null or not is_instance_valid(target):
 		velocity = velocity.move_toward(Vector2.ZERO, speed * delta)
 		move_and_slide()

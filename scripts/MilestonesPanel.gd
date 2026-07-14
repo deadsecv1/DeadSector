@@ -54,7 +54,7 @@ func open() -> void:
 	refresh()
 
 func refresh() -> void:
-	stones_label.text = "Stones: %d" % GameManager.stones
+	stones_label.text = "Lifetime Stones Earned: %d" % GameManager.stones
 	tier_label.text = "Milestone %d / %d" % [GameManager.milestone_tier, GameManager.MILESTONE_MAX_TIER]
 	progress_bar.max_value = GameManager.MILESTONE_STONES_PER_TIER
 	progress_bar.value = GameManager.milestone_progress

@@ -175,6 +175,12 @@ position = Vector2(1050, -650)
 [node name="ExtractionZoneFree2" parent="." instance=ExtResource("5")]
 position = Vector2(-1100, 700)
 
+[node name="ExtractionZonePaid" parent="." instance=ExtResource("5")]
+position = Vector2(1100, 700)
+is_paid = true
+unlock_cost = 1200
+pickup_type = "helicopter"
+
 [node name="ExtractionLabel" type="Label" parent="."]
 position = Vector2(970, -740)
 theme_override_font_sizes/font_size = 16

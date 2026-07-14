@@ -1687,7 +1687,7 @@ func claim_gpu(slot_index: int) -> bool:
 # Completing the trigger just marks it "ready" - the player still has to
 # open the Quests panel and turn it in before the next one unlocks.
 const QUEST_ORDER := [
-	"meet_lil_dirty", "talk_to_recruits", "find_midnight_bones", "kill_first_enemy", "scrap_item", "unlock_door",
+	"meet_lil_dirty", "talk_to_recruits", "kill_first_enemy", "scrap_item", "unlock_door", "find_midnight_bones",
 	"bring_recruit_raid",
 	"sneak_kill", "night_extract", "kill_spike", "research_blueprint",
 	"low_hp_extract", "ashen_house_power", "pay_car_extract",
@@ -2358,8 +2358,17 @@ func roll_wandering_trader_stock(count: int = 6) -> Array:
 	var stock: Array = []
 	for i in range(min(count, pool.size())):
 		var item: Dictionary = finalize_rolled_item(pool[i].duplicate(true))
-		var rarity_mult := {"legendary": 8, "mythic": 14, "exotic": 22, "multiversal": 40}
-		item["cost"] = int(item.get("value", 100)) * int(rarity_mult.get(item.get("rarity", "legendary"), 10))
+		# Blossoms only come from 6 plants scattered on Overgrowth (3 each,
+		# 18/raid at best) - these multipliers used to be 8/14/22/40, which
+		# priced the cheapest Legendary at 2000+ Blossoms (100+ flawless
+		# raids) and the cheapest Multiversal at 180,000+ (10,000+ raids),
+		# making the whole shop unusable. Tuned instead so Legendary is a
+		# real short-term goal, Multiversal a real but achievable long-term
+		# one - not monotonic with rarity because "value" itself already
+		# scales steeply per tier, so a flatter multiplier is what keeps
+		# the final Blossom cost increasing sensibly tier to tier.
+		var rarity_mult := {"legendary": 0.4, "mythic": 0.9, "exotic": 1.3, "multiversal": 0.55}
+		item["cost"] = int(item.get("value", 100) * rarity_mult.get(item.get("rarity", "legendary"), 0.5))
 		stock.append(item)
 	return stock
 

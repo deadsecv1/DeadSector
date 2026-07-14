@@ -74,12 +74,33 @@ color = Color(0.5, 0.5, 0.5, 1)
 
 [node name="Chest1" parent="." instance=ExtResource("6")]
 position = Vector2(-950, -280)
+item_name = "Rusted Toolbox"
+base_value = 90
+rarity = "uncommon"
 
 [node name="Chest2" parent="." instance=ExtResource("6")]
 position = Vector2(950, -400)
+item_name = "Foreman's Locker"
+base_value = 140
+rarity = "rare"
 
 [node name="Chest3" parent="." instance=ExtResource("6")]
 position = Vector2(-650, 950)
+item_name = "Scrap Crate"
+base_value = 80
+rarity = "uncommon"
+
+[node name="Chest5" parent="." instance=ExtResource("6")]
+position = Vector2(-900, 500)
+item_name = "Loader Toolkit"
+base_value = 110
+rarity = "uncommon"
+
+[node name="Chest6" parent="." instance=ExtResource("6")]
+position = Vector2(1400, 500)
+item_name = "Site Office Safe"
+base_value = 260
+rarity = "rare"
 
 [node name="Chest4" parent="." instance=ExtResource("6")]
 position = Vector2(750, 320)
@@ -140,6 +161,23 @@ position = Vector2(420, -880)
 
 [node name="Barrel4" parent="." instance=ExtResource("11")]
 position = Vector2(-1400, 300)
+
+[node name="Barrel5" parent="." instance=ExtResource("11")]
+position = Vector2(-500, -900)
+
+[node name="Barrel6" parent="." instance=ExtResource("11")]
+position = Vector2(1300, 900)
+
+[node name="Barrel7" parent="." instance=ExtResource("11")]
+position = Vector2(-1600, -400)
+
+[node name="Crate3" parent="." instance=ExtResource("10")]
+position = Vector2(-1300, -600)
+box_size = 25.0
+
+[node name="Crate4" parent="." instance=ExtResource("10")]
+position = Vector2(1100, -1100)
+box_size = 23.0
 
 [node name="ExtractionZoneFree" parent="." instance=ExtResource("5")]
 position = Vector2(-1550, 1100)
