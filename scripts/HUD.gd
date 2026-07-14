@@ -42,6 +42,15 @@ var esc_was_down: bool = false
 var chat_box_open: bool = false
 var cursor_is_default: bool = false
 var _chat_opened_at_ms: int = 0
+var _chat_fade_tween: Tween = null
+
+# The box's normal resting opacity while open/typing - NOT the sent-
+# message opacity, which stays at this same level too (only the final
+# fade-out after the 3s hold below drops it to 0).
+const CHAT_BOX_OPACITY := 0.5
+# How long a sent message stays fully visible before it starts fading.
+const CHAT_BOX_HOLD_SECONDS := 3.0
+const CHAT_BOX_FADE_SECONDS := 1.0
 
 # Cached instead of re-queried via get_first_node_in_group every _process
 # frame - the player doesn't change mid-raid.
@@ -291,10 +300,16 @@ func _set_player_locked(locked: bool) -> void:
 		player.set_input_locked(locked)
 
 func _open_chat_box() -> void:
+	# Interrupts a still-fading previous message (if the player reopens
+	# chat right after sending one, before its 3s hold/fade finishes)
+	# instead of letting that old tween fight this fresh open.
+	if _chat_fade_tween != null and _chat_fade_tween.is_valid():
+		_chat_fade_tween.kill()
 	chat_box_open = true
+	chat_box.editable = true
 	chat_box.text = ""
 	chat_box.visible = true
-	chat_box.modulate.a = 1.0
+	chat_box.modulate.a = CHAT_BOX_OPACITY
 	chat_box.grab_focus()
 	_chat_opened_at_ms = Time.get_ticks_msec()
 	_set_player_locked(true)
@@ -316,25 +331,40 @@ func _on_chat_submitted(text: String) -> void:
 	var trimmed := text.strip_edges()
 	chat_box_open = false
 	_set_player_locked(false)
-	var tw := create_tween()
-	tw.tween_property(chat_box, "modulate:a", 0.0, 2.0)
-	tw.tween_callback(func():
+	var player = get_tree().get_first_node_in_group("player")
+	if trimmed == "":
+		# Nothing was actually typed - close immediately instead of
+		# holding an empty box on screen for 3 seconds.
+		if player != null and player.has_method("cancel_chat_typing"):
+			player.cancel_chat_typing()
+		chat_box.visible = false
+		chat_box.modulate.a = CHAT_BOX_OPACITY
+		return
+	if player != null and player.has_method("send_chat_message"):
+		player.send_chat_message(trimmed)
+	# Stays fully readable for CHAT_BOX_HOLD_SECONDS after actually
+	# sending a message, THEN fades away - not an immediate fade the
+	# instant you hit Enter.
+	chat_box.editable = false
+	_chat_fade_tween = create_tween()
+	_chat_fade_tween.tween_interval(CHAT_BOX_HOLD_SECONDS)
+	_chat_fade_tween.tween_property(chat_box, "modulate:a", 0.0, CHAT_BOX_FADE_SECONDS)
+	_chat_fade_tween.tween_callback(func():
 		chat_box.visible = false
 		chat_box.text = ""
+		chat_box.editable = true
+		chat_box.modulate.a = CHAT_BOX_OPACITY
 	)
-	var player = get_tree().get_first_node_in_group("player")
-	if player != null and player.has_method("send_chat_message"):
-		if trimmed != "":
-			player.send_chat_message(trimmed)
-		elif player.has_method("cancel_chat_typing"):
-			player.cancel_chat_typing()
 
 # Called when Escape cancels the chat box instead of sending it.
 func _close_chat_box(cancelled: bool) -> void:
+	if _chat_fade_tween != null and _chat_fade_tween.is_valid():
+		_chat_fade_tween.kill()
 	chat_box_open = false
 	chat_box.visible = false
 	chat_box.text = ""
-	chat_box.modulate.a = 1.0
+	chat_box.editable = true
+	chat_box.modulate.a = CHAT_BOX_OPACITY
 	_set_player_locked(false)
 	if cancelled:
 		var player = get_tree().get_first_node_in_group("player")
