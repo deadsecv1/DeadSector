@@ -1032,6 +1032,25 @@ const CHANGELOG_CURRENT := [
 		"Added Prestige: once you hit the level cap, reset back to Level 1 in exchange for a real one-time Rubles and Skill Point bonus, so there's still somewhere to climb after 500.",
 		"Added a 5th raid map: Ironscrap Yard, an industrial scrapyard sector unlocking at Level 30, with its own guarded vault crate, extraction spread, and layout distinct from the other 4 sectors.",
 	]},
+	{"version": "3.56.0", "title": "Deeper Inventory, Clan System, and The Foundry", "notes": [
+		"Added real item footprints and 4 Specialized Cases (Medical, Gun, Armor, Key) for more deliberate Stash organization.",
+		"Added the Clan System: guildmates now visibly share your Hideout, and extraction grants a real loot-split bonus if you're in a guild.",
+		"Added a 6th raid map: The Foundry, unlocking at Level 40.",
+		"Dropped the autosave backstop timer from 60 seconds to 5 - the game already saves on every meaningful action, this just closes the gap faster if one's somehow missed.",
+	]},
+	{"version": "3.57.0", "title": "Guild Overhaul: Roles, Clan Wars, Battle Pass, and Guild Hall", "notes": [
+		"Guild is now a direct Main Menu button, not just tucked inside Social.",
+		"Guild members now show real Leader/Co-Leader/Member roles - founding your own guild makes you its Leader.",
+		"Added Clan Wars: a real 8v8 guild-vs-guild battle, unlocking once a day at 8 PM.",
+		"Added the Guild Battle Pass: a 20-tier reward track earned through Honor from Clan Wars, win or lose.",
+		"Added the Guild Hall: a no-damage hangout hub populated by your actual named guildmates.",
+		"Arena opponents no longer fixate on just you when you've got a teammate - they'll engage whoever's closest, same as your allies already do to them.",
+		"Arena opponents, allies, and Social Place NPCs now all show real character art instead of sometimes falling back to a plain vector body.",
+		"Fixed the Hunger bar rendering as what looked like a second Health bar - it now only shows once hunger's actually dropped.",
+		"Fixed Marketplace and Skill Tree sometimes silently doing nothing when clicked.",
+		"Removed the redundant Global Chat / Find a Team buttons from the Social screen - Enter-to-chat already covers this.",
+		"Double-clicking ammo or consumables in the Stash now sends them to Backpack Storage, and double-clicking them there sends them back.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
