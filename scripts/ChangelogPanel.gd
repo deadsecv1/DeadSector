@@ -1064,6 +1064,14 @@ const CHANGELOG_CURRENT := [
 		"Fixed a real bug that could block deployment entirely with a \"find ammo for your gun\" popup regardless of how much ammo you actually owned - the check was only ever looking at ammo picked up so far during the current raid, not what's sitting in your Stash or Backpack Storage.",
 		"Fixed Heavy Ammo sometimes showing green instead of purple - older Heavy Ammo saved before a past recolor never got its color corrected retroactively. It's fixed automatically the next time you load.",
 	]},
+	{"version": "3.57.3", "title": "Wipe, Ammo Gate Revision, Pause Menu, and Safe Pockets", "notes": [
+		"Fixed Wipe not actually resetting anything - it deleted your save but not its backup copy, which silently restored your whole character (including every Alpha/Beta reward claim) on the next launch. Wipe now genuinely restarts you like a fresh install, Character Creation and the Echo intro included.",
+		"The pre-raid ammo check now specifically requires the right ammo type in your Backpack Storage, not just anywhere you own it - equipping ammo into your Backpack Storage before deploying now actually matters.",
+		"Guild Hall's Escape key now opens the real Resume/Settings/Main Menu pause screen instead of jumping straight to Main Menu - and leaving a hangout that way no longer strips your equipped gear.",
+		"Safe Pockets now accept drags from the Stash and Backpack Storage, not just the in-raid Backpack.",
+		"Removed the 2 random guildmate NPCs that wandered the Hideout.",
+		"Global Chat background is more transparent now (30% opacity).",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
