@@ -74,6 +74,10 @@ func _check_external_art() -> void:
 		_art_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_art_rect.anchor_right = 1.0
 		_art_rect.anchor_bottom = 1.0
+		# Real icon art dropped here is small, chunky pixel art (reused
+		# straight from assets/weapons/) - the project's default Linear
+		# filter blurs that badly once stretched up to fill an icon slot.
+		_art_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		add_child(_art_rect)
 	_art_rect.texture = tex
 

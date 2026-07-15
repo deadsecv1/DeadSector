@@ -6217,11 +6217,14 @@ func equip_title(id: String) -> void:
 		save_game()
 
 # Defaults to true (not false) so a genuinely fresh install - no save file
-# at all - never triggers this one-time "welcome back from the Tech Test"
-# transition mail; load_game() explicitly overwrites this back to false
-# for any save that already existed before this field did, preserving the
-# one legitimate case: an actual pre-existing player catching up on it once.
-var tech_test_mail_sent: bool = true
+# Every character gets the one-time "welcome back from the Tech Test"
+# mail once, including a genuinely fresh/wiped one - explicit direction,
+# overriding the previous "existing saves only" restriction (which
+# defaulted this to true specifically so a brand-new character would
+# never trigger it - that meant Wipe, once it correctly started
+# deleting the save AND its backup, permanently lost tech-tester
+# eligibility for a character that should keep getting it).
+var tech_test_mail_sent: bool = false
 
 func _maybe_send_tech_test_mail() -> void:
 	if tech_test_mail_sent:
@@ -6394,6 +6397,11 @@ func move_backpack_storage_item_to_stash(index: int) -> bool:
 	backpack_storage.remove_at(index)
 	_add_to_stash(item)
 	save_game()
+	# Stash.gd only redraws its grids in response to this signal (or its
+	# own drag-drop calling refresh() directly, which double-click never
+	# does) - without it, the move was real but invisible until some
+	# unrelated drag elsewhere forced a redraw.
+	equipped_changed.emit()
 	return true
 
 # Moves an item OUT of the Stash and into Backpack Storage, auto-placed
@@ -6416,6 +6424,8 @@ func move_stash_item_to_backpack_storage(index: int) -> bool:
 	item["grid_y"] = cell.y
 	backpack_storage.append(item)
 	save_game()
+	# See move_backpack_storage_item_to_stash() above - same reason.
+	equipped_changed.emit()
 	return true
 
 # Moves an item from the Stash into Backpack Storage at a specific dropped
