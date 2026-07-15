@@ -1018,9 +1018,29 @@ func _try_merge_ammo_stack(items: Array, item: Dictionary) -> bool:
 
 # Total rounds of `ammo_type` currently sitting in the Backpack - this
 # IS the reserve ammo number now, not a separate hidden counter.
+#
+# Checks all three places ammo can actually be sitting: carried_loot
+# (found/looted so far THIS raid), backpack_storage, and stash_items
+# (owned ammo that was never moved into Backpack Storage). Originally
+# this only checked carried_loot, which is empty at the moment a raid
+# is chosen (nothing seeds it pre-raid) and only ever gains anything
+# from in-raid pickups - meaning the pre-raid "no ammo" gate in
+# MapSelect.gd was structurally unable to ever pass, blocking every
+# player who owned ammo but hadn't yet found more of it mid-raid, and
+# reload itself had nothing real to draw from either. backpack_storage
+# and stash_items are both untouched by end_run()'s death/loss cleanup
+# (unlike equipped_items), so counting them here doesn't put a whole
+# ammo stockpile at risk of being lost on death - it's exactly as safe
+# as it already was sitting in the Stash.
 func get_backpack_ammo_amount(ammo_type: String) -> int:
 	var total := 0
 	for item in carried_loot:
+		if item.get("consumable_type", "") == "ammo" and item.get("ammo_type", "") == ammo_type:
+			total += int(item.get("ammo_amount", 0))
+	for item in backpack_storage:
+		if item.get("consumable_type", "") == "ammo" and item.get("ammo_type", "") == ammo_type:
+			total += int(item.get("ammo_amount", 0))
+	for item in stash_items:
 		if item.get("consumable_type", "") == "ammo" and item.get("ammo_type", "") == ammo_type:
 			total += int(item.get("ammo_amount", 0))
 	return total
@@ -1028,22 +1048,28 @@ func get_backpack_ammo_amount(ammo_type: String) -> int:
 # Deducts up to `amount` rounds of `ammo_type` from Backpack ammo stacks
 # (used by reload) - removes a stack entirely once it hits 0. Returns
 # how much was actually available/deducted, which may be less than asked.
+# Drains carried_loot first (already "in hand" from this raid), then
+# backpack_storage, then stash_items - see get_backpack_ammo_amount()
+# above for why all three are in play now.
 func consume_backpack_ammo(ammo_type: String, amount: int) -> int:
 	var remaining := amount
-	var i := 0
-	while i < carried_loot.size() and remaining > 0:
-		var item: Dictionary = carried_loot[i]
-		if item.get("consumable_type", "") == "ammo" and item.get("ammo_type", "") == ammo_type:
-			var have: int = int(item.get("ammo_amount", 0))
-			var taken: int = min(have, remaining)
-			remaining -= taken
-			var left: int = have - taken
-			if left <= 0:
-				carried_loot.remove_at(i)
-				continue
-			item["ammo_amount"] = left
-			item["name"] = "%s x%d" % [item.get("base_name", "%s Ammo" % ammo_type.capitalize()), left]
-		i += 1
+	for pool in [carried_loot, backpack_storage, stash_items]:
+		var i := 0
+		while i < pool.size() and remaining > 0:
+			var item: Dictionary = pool[i]
+			if item.get("consumable_type", "") == "ammo" and item.get("ammo_type", "") == ammo_type:
+				var have: int = int(item.get("ammo_amount", 0))
+				var taken: int = min(have, remaining)
+				remaining -= taken
+				var left: int = have - taken
+				if left <= 0:
+					pool.remove_at(i)
+					continue
+				item["ammo_amount"] = left
+				item["name"] = "%s x%d" % [item.get("base_name", "%s Ammo" % ammo_type.capitalize()), left]
+			i += 1
+		if remaining <= 0:
+			break
 	return amount - remaining
 
 # Which weapon family each weapon type draws from - pistols and Thorns
@@ -7263,6 +7289,13 @@ func load_game() -> void:
 		for action in KEYBIND_DEFAULTS.keys():
 			if loaded_keybinds.has(action):
 				keybinds[action] = int(loaded_keybinds[action])
+	# Ammo rarity/slot fixed BEFORE the grid-overlap repair below - repair
+	# can relocate items between stash_items/backpack_storage, and doing
+	# that first left freshly-relocated items still holding their stale
+	# rarity for one more save/load cycle before this function's next run
+	# finally caught them too. Fixing the fields first means whichever
+	# array an item ends up in after repair, it's already correct.
+	_migrate_stale_ammo_items()
 	_repair_overlapping_grid_items()
 	_migrate_stash_eggs_to_hatchery()
 	if recovered_interrupted_run:
@@ -7273,6 +7306,36 @@ func load_game() -> void:
 # still sitting in the Stash from before this change - sweep them into
 # the Hatchery once, right after loading, so every save ends up in the
 # same "eggs never sit in the Stash" state going forward.
+# Ammo items saved from before the #52 recolor (commit 4e6ed64) still
+# carry their old "slot": "consumable" / rarity ("uncommon" for Heavy,
+# etc.) baked in - items already in a save were never retroactively
+# touched by that change, only newly-created ones. Left alone, an old
+# Heavy Ammo stack renders green (uncommon) forever instead of purple
+# (epic), sitting right next to freshly-looted purple Heavy Ammo. Fixes
+# the slot/rarity in place, once, on every load - amount/position are
+# untouched, so nothing about what the player owns actually changes.
+func _migrate_stale_ammo_items() -> void:
+	var fixed := false
+	for pool in [stash_items, backpack_storage, carried_loot]:
+		for item in pool:
+			if item.get("consumable_type", "") != "ammo":
+				continue
+			var canonical: Dictionary = {}
+			for pool_item in AMMO_POOL:
+				if pool_item.get("ammo_type", "") == item.get("ammo_type", ""):
+					canonical = pool_item
+					break
+			if canonical.is_empty():
+				continue
+			if item.get("slot", "") != "ammo":
+				item["slot"] = "ammo"
+				fixed = true
+			if item.get("rarity", "") != canonical.get("rarity", ""):
+				item["rarity"] = canonical.get("rarity", "")
+				fixed = true
+	if fixed:
+		save_game()
+
 func _migrate_stash_eggs_to_hatchery() -> void:
 	var moved := false
 	var i := stash_items.size() - 1
