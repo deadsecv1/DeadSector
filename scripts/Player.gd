@@ -969,18 +969,33 @@ func _shoot() -> void:
 			var tt_dir := Vector2(cos(tt_angle), sin(tt_angle))
 			_spawn_bullet(tt_dir, 0.5)
 	elif is_top_tier_weapon:
-		# Exotic/Multiversal weapons fire a real multi-projectile burst
-		# instead of one shot - a tighter spread than a shotgun (this is
-		# about the weapon being exceptional, not a close-range weapon
-		# type), with each projectile still hitting for close to full
-		# damage rather than a shotgun's per-pellet split.
+		# Exotic/Multiversal/Divine weapons fire a real multi-projectile
+		# burst instead of one shot - a tighter spread than a shotgun (this
+		# is about the weapon being exceptional, not a close-range weapon
+		# type). Per-projectile damage used to stay at a near-full 0.85x
+		# regardless of burst_count, which meant 3-5 projectiles landed
+		# 2.55x-4.25x a single shot's damage from the burst alone - before
+		# an alpha_cannon/railgun icon_key's own pierce+chain (see Bullet.gd)
+		# stacks another ~1-2x on top in a crowd. That's exactly the kind of
+		# multi-projectile-plus-high-stat overtuning the shotgun (5 pellets
+		# at 0.32x, "1.6x total on a full hit") and the Tech Tester's
+		# Sidearm (3 shots at 0.5x, "1.5x total") were both explicitly
+		# tuned down to avoid - this was the one multi-projectile case that
+		# never got the same treatment. Scaling the multiplier by 1/count
+		# keeps the total near a shotgun's own 1.6x ceiling regardless of
+		# how many projectiles the RNG rolls, so the burst still reads as
+		# "this weapon is exceptional" without multiplying out of control -
+		# especially once pierce+chain stacks on top for the archetypes
+		# that also get it.
 		var burst_count: int = randi_range(3, 5)
 		const TOP_TIER_SPREAD_RADIANS := 0.14
+		const TOP_TIER_TOTAL_DAMAGE_MULT := 1.6
+		var burst_damage_mult: float = TOP_TIER_TOTAL_DAMAGE_MULT / float(burst_count)
 		for i in range(burst_count):
 			var t2: float = (float(i) / float(burst_count - 1)) - 0.5 if burst_count > 1 else 0.0
 			var burst_angle: float = base_angle + t2 * TOP_TIER_SPREAD_RADIANS
 			var burst_dir := Vector2(cos(burst_angle), sin(burst_angle))
-			_spawn_bullet(burst_dir, 0.85)
+			_spawn_bullet(burst_dir, burst_damage_mult)
 	else:
 		_spawn_bullet(base_dir, 1.0)
 

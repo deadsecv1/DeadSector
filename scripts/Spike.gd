@@ -20,6 +20,11 @@ const GRENADE_SCENE := preload("res://scenes/Grenade.tscn")
 func _ready() -> void:
 	is_boss = true
 	super._ready()
+	# Spike's aura/grenade/bullet damage never went through attack_damage at
+	# all, so unlike every regular enemy (and Spike's own HP, right above
+	# this), none of it used to scale with player progression - fixed by
+	# applying the same rate attack_damage scales at.
+	spike_damage = int(round(spike_damage * enemy_scale_factor * BOSS_DAMAGE_MULT))
 	add_to_group("boss")
 	add_to_group("spike")
 	scale = Vector2(2.3, 2.3)
@@ -97,7 +102,7 @@ func _throw_grenade_at_player() -> void:
 	get_tree().current_scene.add_child(g)
 	g.global_position = global_position
 	g.target_position = player.global_position
-	g.damage = 80
+	g.damage = int(round(80 * enemy_scale_factor * BOSS_DAMAGE_MULT))
 	g.radius = 95.0
 	g.is_enemy_grenade = true
 
@@ -107,7 +112,7 @@ func _shoot() -> void:
 	var bullet = BULLET_SCENE.instantiate()
 	bullet.direction = (player.global_position - muzzle.global_position).normalized()
 	bullet.is_enemy_bullet = true
-	bullet.damage = 36
+	bullet.damage = int(round(36 * enemy_scale_factor * BOSS_DAMAGE_MULT))
 	get_tree().current_scene.add_child(bullet)
 	bullet.global_position = muzzle.global_position
 	bullet.modulate = Color(0.78, 0.25, 0.95, 1)

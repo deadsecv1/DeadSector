@@ -21,6 +21,16 @@ signal died
 @export var loot_drop_chance: float = 0.4
 @export var attack_damage: int = 20
 
+# Set inside _ready() from GameManager.get_enemy_scaling_factor() - exposed
+# so boss subclasses (Spike, Rattles) can scale their own special-attack
+# damage (spike aura, thrown bones, grenades, custom bullets) the same way
+# attack_damage already scales below. Bosses don't route those attacks
+# through attack_damage at all, so without this they'd stay exactly as
+# threatening at Level 1 as at max Skill Tree investment while their own
+# HP keeps scaling up to compensate for the player's growing damage output.
+var enemy_scale_factor: float = 1.0
+const BOSS_DAMAGE_MULT := 1.1 # same rate regular attack_damage scales at
+
 # The "Real Player" variant: a visually distinct, tougher enemy classified
 # as a real player. Always drops Dog Tags on death.
 @export var is_real_player: bool = false
@@ -108,6 +118,7 @@ func _ready() -> void:
 	_apply_spawn_jitter()
 	_try_load_external_sprite()
 	var scale_factor: float = GameManager.get_enemy_scaling_factor()
+	enemy_scale_factor = scale_factor
 	# Baseline difficulty bump - independent of the skill-progression
 	# scaling above, which starts at 1.0 for a fresh character. Enemies
 	# were dying too fast and hitting too soft; more HP means fights

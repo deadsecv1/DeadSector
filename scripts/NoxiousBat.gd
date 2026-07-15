@@ -47,7 +47,11 @@ func _shoot() -> void:
 	var bullet = BULLET_SCENE.instantiate()
 	bullet.direction = (player.global_position - muzzle.global_position).normalized()
 	bullet.is_enemy_bullet = true
-	bullet.damage = 12
+	# attack_damage (12 baseline, set on the scene node) already gets scaled
+	# with player progression by Enemy.gd's _ready() the same as every other
+	# regular enemy - this used to hardcode a flat 12 that ignored that
+	# entirely, so the bat stopped mattering at all once a player leveled up.
+	bullet.damage = attack_damage
 	get_tree().current_scene.add_child(bullet)
 	bullet.global_position = muzzle.global_position
 	bullet.modulate = Color(0.65, 0.2, 0.85, 1)

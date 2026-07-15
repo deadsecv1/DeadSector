@@ -19,6 +19,10 @@ const GRENADE_SCENE := preload("res://scenes/Grenade.tscn")
 func _ready() -> void:
 	is_boss = true
 	super._ready()
+	# Same fix as Spike.gd - bone_count/grenade/bullet damage never went
+	# through attack_damage, so none of it used to scale with player
+	# progression even though Rattles' own HP, right above, already does.
+	bone_damage = int(round(bone_damage * enemy_scale_factor * BOSS_DAMAGE_MULT))
 	add_to_group("boss")
 	add_to_group("rattles")
 	scale = Vector2(2.4, 2.4)
@@ -88,7 +92,7 @@ func _throw_bone_at_player() -> void:
 	get_tree().current_scene.add_child(g)
 	g.global_position = global_position
 	g.target_position = player.global_position
-	g.damage = 90
+	g.damage = int(round(90 * enemy_scale_factor * BOSS_DAMAGE_MULT))
 	g.radius = 95.0
 	g.is_enemy_grenade = true
 
@@ -98,7 +102,7 @@ func _shoot() -> void:
 	var bullet = BULLET_SCENE.instantiate()
 	bullet.direction = (player.global_position - muzzle.global_position).normalized()
 	bullet.is_enemy_bullet = true
-	bullet.damage = 42
+	bullet.damage = int(round(42 * enemy_scale_factor * BOSS_DAMAGE_MULT))
 	get_tree().current_scene.add_child(bullet)
 	bullet.global_position = muzzle.global_position
 	bullet.modulate = Color(0.92, 0.9, 0.8, 1)

@@ -1094,6 +1094,11 @@ const CHANGELOG_CURRENT := [
 		"The Select Sector screen's 5 map cards now each show a real icon (matching the same one used on the Data screen's Maps tab) and a themed bordered card with hover feedback, instead of plain unstyled buttons with colored text only.",
 		"The Day/Night raid screen now actually shows which Sector you're about to deploy into - it used to just say \"SELECT RAID\" with no indication at all of the map you'd already chosen.",
 	]},
+	{"version": "3.61.0", "title": "Balance Pass: Top-Tier Weapon Burst, Boss Damage Scaling", "notes": [
+		"Exotic/Multiversal/Divine weapons (The Prototype among them) fire 3-5 projectiles per trigger pull, and each one used to hit for a near-full 85% of the weapon's damage regardless of how many fired - meaning the burst alone dealt 2.55x-4.25x a single shot's damage before an alpha_cannon/railgun's own pierce-and-chain stacked another 1-2x on top in a crowd. Rebalanced so the burst's total damage stays fixed at 1.6x a single shot (matching the same ceiling shotguns and the Tech Tester's Sidearm were already tuned to) regardless of how many projectiles the burst happens to roll - still hits noticeably harder than a normal weapon, just no longer 3-4x on top of everything else stacking in.",
+		"Spike's and Rattles' boss-specific attacks (spike/bone aura, thrown grenades, their custom bullets) never scaled with player progression at all, unlike their own HP (which already scales up to 4.15x) and every regular enemy's damage - fixed so their damage now scales at the same rate everything else does, since a maxed-out character was taking a trivial fraction of their max HP per hit from either boss by the time their HP pools got big enough to actually take a while to kill.",
+		"The Noxious Bat's bullet damage was hardcoded and ignored its own (correctly-scaling) attack stat entirely, so it stopped mattering at all past the earliest levels - fixed to use the same scaling stat every other regular enemy already does.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

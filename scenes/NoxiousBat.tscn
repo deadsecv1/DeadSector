@@ -25,6 +25,7 @@ use_external_sprite = false
 script = ExtResource("1")
 scale = Vector2(0.85, 0.85)
 speed = 155.0
+attack_damage = 12
 max_health = 115
 detection_range = 500.0
 attack_range = 300.0
