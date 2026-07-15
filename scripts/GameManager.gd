@@ -2488,6 +2488,8 @@ const MAP_CATALOG := {
 	"boneclock": {"name": "Boneclock", "icon_key": "map_boneclock_icon", "color": Color(0.8, 0.75, 0.55, 1), "desc": "A dead town locked behind Level 10 - pavement streets, a gas station, the Skeleton Cave, and Rattles' Bone Clocktower. Only reachable at night from Overgrowth's discovery quest chain."},
 	"void_trench": {"name": "Void Trench", "icon_key": "map_void_trench_icon", "color": Color(0.65, 0.4, 0.95, 1), "desc": "A fractured, purple-lit rift zone locked behind Level 20 - a deep central trench splits the map. Pulse Spires scramble your flashlight, Spore Clouds blind anyone who shoots them carelessly, Irradiated Puddles slow and damage, and Unstable Rifts hit hard but drop real loot if you collapse them. Rift Wraiths and Marauders patrol the ruins around the Neon Plaza, the Research Bio-Dome, and the Smuggling Bay."},
 	"graveyard": {"name": "The Graveyard", "icon_key": "map_graveyard_icon", "color": Color(0.65, 0.68, 0.7, 1), "desc": "An overgrown, foggy pet cemetery at midnight, locked until you've earned the Loom-weaver. Rows of headstones, rusted gates, and shattered stone angels. Two Spectral Bowls let you defend against waves of shadow-beasts and pacify the survivor into a companion - extract with it alive to keep it."},
+	"ironscrap": {"name": "Ironscrap Yard", "icon_key": "map_ironscrap_icon", "color": Color(0.72, 0.5, 0.32, 1), "desc": "An industrial scrapyard sector locked behind Level 30 - rusted machinery and towering scrap piles, with its own guarded vault crate and an extraction spread distinct from every other sector."},
+	"the_foundry": {"name": "The Foundry", "icon_key": "map_foundry_icon", "color": Color(0.85, 0.42, 0.2, 1), "desc": "A gutted industrial furnace complex locked behind Level 40 - genuinely tight corridors instead of another open industrial sprawl. The best salvage in the Sector waits at the end of the most dangerous one."},
 }
 
 # --- Weapon Compendium: every distinct named gun in the game, hand-
@@ -2576,6 +2578,162 @@ const WEAPON_CATALOG := {
 	"judgments_reach": {"name": "Judgment's Reach", "icon_key": "sniper", "rarity": "divine", "value": 13000, "stat_type": "damage", "stat_value": 189.0, "desc": "Chills, staggers, and drops nearly anything in the Sector in a single shot. The scope shows the kill before you've even pulled the trigger."},
 	# --- Tech Test exclusive: boosts fire rate instead of raw damage. ---
 	"tech_testers_sidearm": {"name": "Tech Tester's Sidearm", "icon_key": "pistol", "rarity": "legendary", "value": 400, "stat_type": "fire_rate", "stat_value": 0.03, "desc": "A memento from the Tech Test, before Dead Sector was even in Alpha. Trades raw damage for a genuinely absurd fire rate.", "beta_only": true},
+}
+
+# --- Armor Compendium: every distinct named piece of gear across the
+# head/body/boots/backpack/accessory/helmet_attachment slots, same
+# hand-curated/decoupled-from-balance spirit as WEAPON_CATALOG above -
+# editing this can never change drop rates or in-raid stats. Deliberately
+# excludes the ~160 procedurally-flavored names in FLEA_MARKET_EXTRA_POOL
+# (Afterhours/Cutrate/Sundered/etc.) for the same reason WEAPON_CATALOG
+# excludes that pool's flavor guns (Bleak Palm Piece and the like) - those
+# are randomized flavor text on a shared mechanical archetype, not a
+# distinct named item worth a compendium entry of its own.
+const ARMOR_CATALOG := {
+	# --- Body ---
+	"field_vest": {"name": "Field Vest", "slot": "body", "icon_key": "chestplate", "rarity": "common", "value": 45, "stat_type": "max_health", "stat_value": 16.2, "desc": "Cheap ballistic weave stitched into a work jacket. Better than nothing, barely."},
+	"padded_jacket": {"name": "Padded Jacket", "slot": "body", "icon_key": "chestplate", "rarity": "common", "value": 40, "stat_type": "max_health", "stat_value": 14.9, "desc": "Layered padding under denim. Stops a stray fragment and not much else."},
+	"denim_jacket": {"name": "Denim Jacket", "slot": "body", "icon_key": "chestplate", "rarity": "common", "value": 30, "stat_type": "max_health", "stat_value": 12.2, "desc": "Just a jacket. The pockets do more work than the fabric does."},
+	"patchwork_vest": {"name": "Patchwork Vest", "slot": "body", "icon_key": "chestplate", "rarity": "common", "value": 33, "stat_type": "max_health", "stat_value": 10.8, "desc": "Scraps of three other vests, sewn into one. Ugly, and it holds."},
+	"kevlar_vest": {"name": "Kevlar Vest", "slot": "body", "icon_key": "chestplate", "rarity": "uncommon", "value": 85, "stat_type": "max_health", "stat_value": 27.0, "desc": "Real ballistic weave under the label, for once - a genuine step up from scrap."},
+	"trench_coat": {"name": "Trench Coat", "slot": "body", "icon_key": "chestplate", "rarity": "uncommon", "value": 78, "stat_type": "speed", "stat_value": 13.5, "desc": "Long enough to hide a rifle under, light enough to still move fast in."},
+	"outriders_vest": {"name": "Outrider's Vest", "slot": "body", "icon_key": "chestplate", "rarity": "uncommon", "value": 82, "stat_type": "speed", "stat_value": 12.2, "desc": "Built for operators who'd rather outrun trouble than absorb it."},
+	"trauma_kit_rig": {"name": "Trauma Kit", "slot": "body", "icon_key": "medkit", "rarity": "uncommon", "value": 80, "stat_type": "max_health", "stat_value": 27.0, "desc": "Dr. Reyes' own field rig, worn under a jacket - doubles as armor between patients."},
+	"crafted_vest": {"name": "Crafted Vest", "slot": "body", "icon_key": "chestplate", "rarity": "uncommon", "value": 90, "stat_type": "max_health", "stat_value": 22.0, "desc": "Hand-assembled at the Hideout workbench from whatever plate scraps were on hand."},
+	"reinforced_plate": {"name": "Reinforced Plate", "slot": "body", "icon_key": "chestplate", "rarity": "rare", "value": 120, "stat_type": "max_health", "stat_value": 37.8, "desc": "A proper ceramic insert behind the padding. Raiders stop underestimating you in this."},
+	"bulwark_plate": {"name": "Bulwark Plate", "slot": "body", "icon_key": "chestplate", "rarity": "rare", "value": 128, "stat_type": "max_health", "stat_value": 40.5, "desc": "Heavier than it looks, and it shows in how little gets through."},
+	"deadbolt_plate": {"name": "Deadbolt Plate", "slot": "body", "icon_key": "chestplate", "rarity": "rare", "value": 122, "stat_type": "max_health", "stat_value": 39.2, "desc": "Locked-shut plating that doesn't flex. Neither do the ribs underneath it."},
+	"ghost_cloak": {"name": "Ghost Cloak", "slot": "body", "icon_key": "chestplate", "rarity": "rare", "value": 150, "stat_type": "speed", "stat_value": 15.0, "desc": "Echo's own design - light enough to move like you're not really there."},
+	"field_surgery_rig": {"name": "Field Surgery Rig", "slot": "body", "icon_key": "medkit", "rarity": "rare", "value": 150, "stat_type": "max_health", "stat_value": 47.2, "desc": "Dr. Reyes' premium rig - half medical kit, half genuine plating."},
+	"trauma_surgeons_coat": {"name": "Trauma Surgeon's Coat", "slot": "body", "icon_key": "chestplate", "rarity": "rare", "value": 190, "stat_type": "max_health", "stat_value": 56.7, "desc": "What Dr. Reyes wears on the bad days - built to take a hit meant for someone else."},
+	"riot_armor": {"name": "Riot Armor", "slot": "body", "icon_key": "chestplate", "rarity": "rare", "value": 130, "stat_type": "max_health", "stat_value": 40.5, "desc": "Standard Quartermaster stock for anyone expecting a doorway fight."},
+	"barterers_vest": {"name": "Barterer's Vest", "slot": "body", "icon_key": "chestplate", "rarity": "rare", "value": 140, "stat_type": "max_health", "stat_value": 32.0, "desc": "Never bought outright - only ever traded for, piece by piece."},
+	"juggernaut_plate": {"name": "Juggernaut Plate", "slot": "body", "icon_key": "chestplate", "rarity": "epic", "value": 230, "stat_type": "max_health", "stat_value": 56.7, "desc": "Heavy enough to slow you down, and you still don't care."},
+	"ironclad_vest": {"name": "Ironclad Vest", "slot": "body", "icon_key": "chestplate", "rarity": "epic", "value": 235, "stat_type": "max_health", "stat_value": 60.8, "desc": "Plate stacked on plate. Whatever hit this before you didn't get through."},
+	"aegis_plate": {"name": "Aegis Plate", "slot": "body", "icon_key": "chestplate", "rarity": "epic", "value": 245, "stat_type": "max_health", "stat_value": 64.8, "desc": "Named for what it does - stands between you and everything else."},
+	"warlord_rig": {"name": "Warlord Rig", "slot": "body", "icon_key": "chestplate", "rarity": "epic", "value": 220, "stat_type": "damage", "stat_value": 6.0, "desc": "Salvaged off the Warden Gauntlet's boss - somehow it hits harder just being worn."},
+	"sprockets_rig": {"name": "Sprocket's Rig", "slot": "body", "icon_key": "chestplate", "rarity": "epic", "value": 240, "stat_type": "max_health", "stat_value": 35.0, "desc": "Sprocket's own masterwork build - over-engineered, over-armored, exactly his style."},
+	"surveyors_coat": {"name": "Surveyor's Coat", "slot": "body", "icon_key": "chestplate", "rarity": "epic", "value": 200, "stat_type": "speed", "stat_value": 18.0, "desc": "The Cartographer's field coat - made for covering ground, not holding it."},
+	"beastmasters_coat": {"name": "Beastmaster's Coat", "slot": "body", "icon_key": "chestplate", "rarity": "epic", "value": 320, "stat_type": "max_health", "stat_value": 56.7, "desc": "Stitched from hide too tough to be anything but a Salvaged Beasts trophy."},
+	"riot_carapace": {"name": "Riot Carapace", "slot": "body", "icon_key": "chestplate", "rarity": "epic", "value": 420, "stat_type": "armor", "stat_value": 18.0, "desc": "A Loot Bag exclusive - full riot-rated plating nobody sells over the counter."},
+	"warlords_greatcoat": {"name": "Warlord's Greatcoat", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 320, "stat_type": "max_health", "stat_value": 60.8, "desc": "A warlord's own coat, looted rather than issued. Fits like it was made to intimidate."},
+	"bastion_vest": {"name": "Bastion Vest", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 290, "stat_type": "max_health", "stat_value": 56.7, "desc": "Legendary-tier plating built around one idea: don't go down."},
+	"bastion_plate": {"name": "Bastion Plate", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 620, "stat_type": "armor", "stat_value": 26.0, "desc": "The Bastion line's heaviest build - a Loot Bag exclusive, and it feels like it."},
+	"nano_weave_vest": {"name": "Nano-Weave Vest", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 250, "stat_type": "max_health", "stat_value": 60.8, "desc": "Woven fiber the Scrapper swears is \"basically nanotech.\" It works, whatever it is."},
+	"hollow_vein_plate": {"name": "Hollow Vein Plate", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 330, "stat_type": "max_health", "stat_value": 64.8, "desc": "Bloodline event gear, with veins of something dark running through the plating."},
+	"alpha_predator_plate": {"name": "Alpha Predator Plate", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 460, "stat_type": "max_health", "stat_value": 81.0, "desc": "Salvaged Beasts' apex trophy build. Whatever it came from was already the top of its food chain."},
+	"alpha_pioneers_rig": {"name": "Alpha Pioneer's Rig", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 500, "stat_type": "speed", "stat_value": 22.0, "desc": "Handed out only during the Alpha. Nobody still playing got this one the normal way.", "alpha_only": true},
+	"veterans_plate": {"name": "Veteran's Plate", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 450, "stat_type": "max_health", "stat_value": 50.0, "desc": "Tech Test veteran gear - a memento from before Dead Sector was even in Alpha.", "beta_only": true},
+	"veil_of_the_tide": {"name": "Veil of the Tide", "slot": "body", "icon_key": "chestplate", "rarity": "mythic", "value": 600, "stat_type": "max_health", "stat_value": 74.2, "desc": "Spectral Tide event gear, damp and cold no matter how long you wear it."},
+	"ironclad_bulwark": {"name": "Ironclad Bulwark", "slot": "body", "icon_key": "chestplate", "rarity": "mythic", "value": 480, "stat_type": "max_health", "stat_value": 78.3, "desc": "Mythic-tier plating - a Loot Bag exclusive, worth every bit of the odds against pulling it."},
+	"sentinels_ward": {"name": "Sentinel's Ward", "slot": "body", "icon_key": "chestplate", "rarity": "mythic", "value": 480, "stat_type": "max_health", "stat_value": 58.0, "desc": "A Blueprint build - research it once, craft it as many times as the materials allow."},
+	"harvesters_aegis": {"name": "Harvester's Aegis", "slot": "body", "icon_key": "chestplate", "rarity": "mythic", "value": 550, "stat_type": "max_health", "stat_value": 70.0, "desc": "The Reaper's own reward for finishing a contract most operators don't survive."},
+	"shroud_of_the_tide": {"name": "Shroud of the Tide", "slot": "body", "icon_key": "chestplate", "rarity": "exotic", "value": 920, "stat_type": "max_health", "stat_value": 87.8, "desc": "Exotic-tier Spectral Tide gear. Nobody's fully explained why it never quite dries."},
+	"eclipse_ward": {"name": "Eclipse Ward", "slot": "body", "icon_key": "chestplate", "rarity": "exotic", "value": 780, "stat_type": "max_health", "stat_value": 91.8, "desc": "A Loot Bag's rarest pull in the body slot. Exotic-tier, and it looks the part."},
+	"reality_fracture_plate": {"name": "Reality Fracture Plate", "slot": "body", "icon_key": "chestplate", "rarity": "multiversal", "value": 1900, "stat_type": "max_health", "stat_value": 121.5, "desc": "Spectral Tide's ceiling reward. Plating that shouldn't hold together, and somehow does."},
+	"infinity_ward_plate": {"name": "Infinity Ward Plate", "slot": "body", "icon_key": "chestplate", "rarity": "multiversal", "value": 4800, "stat_type": "max_health", "stat_value": 162.0, "desc": "Multiversal-tier body armor - the highest health bonus a chestplate can roll."},
+	"empyrean_aegis": {"name": "Empyrean Aegis", "slot": "body", "icon_key": "chestplate", "rarity": "divine", "value": 11000, "stat_type": "max_health", "stat_value": 243.0, "desc": "Divine-tier, a 0.01% Undertow crate roll. The single best chestplate in the Sector."},
+	# --- Head ---
+	"steel_helm": {"name": "Steel Helm", "slot": "head", "icon_key": "helmet", "rarity": "common", "value": 40, "stat_type": "max_health", "stat_value": 13.5, "desc": "A dented shell over a foam liner. Stops the first hit, mostly."},
+	"riot_helmet": {"name": "Riot Helmet", "slot": "head", "icon_key": "helmet", "rarity": "common", "value": 42, "stat_type": "max_health", "stat_value": 12.2, "desc": "Riot-surplus, visor long since cracked off. Still better than bare skull."},
+	"scout_cap": {"name": "Scout Cap", "slot": "head", "icon_key": "helmet", "rarity": "common", "value": 32, "stat_type": "max_health", "stat_value": 10.8, "desc": "Barely armor at all, but it keeps the rain off while you scout ahead."},
+	"cracked_visor_helm": {"name": "Cracked Visor Helm", "slot": "head", "icon_key": "helmet", "rarity": "common", "value": 36, "stat_type": "max_health", "stat_value": 10.8, "desc": "The visor's split clean across. Doesn't stop it from taking a hit for you."},
+	"recon_helmet": {"name": "Recon Helmet", "slot": "head", "icon_key": "helmet", "rarity": "uncommon", "value": 80, "stat_type": "max_health", "stat_value": 24.3, "desc": "Lighter shell, better padding. Built for operators who plan to move a lot."},
+	"watchmans_helm": {"name": "Watchman's Helm", "slot": "head", "icon_key": "helmet", "rarity": "uncommon", "value": 76, "stat_type": "loot_sense", "stat_value": 0.0, "desc": "A built-in glint filter that makes loot easier to spot from a distance."},
+	"combat_helmet_mk2": {"name": "Combat Helmet Mk2", "slot": "head", "icon_key": "helmet", "rarity": "uncommon", "value": 100, "stat_type": "max_health", "stat_value": 33.8, "desc": "The Quartermaster's standard-issue upgrade over the Mk1 nobody kept."},
+	"makeshift_helmet": {"name": "Makeshift Helmet", "slot": "head", "icon_key": "helmet", "rarity": "uncommon", "value": 65, "stat_type": "max_health", "stat_value": 17.0, "desc": "Assembled at the Hideout workbench - not pretty, but it's yours."},
+	"crafted_gas_mask": {"name": "Crafted Gas Mask", "slot": "head", "icon_key": "gas_mask", "rarity": "uncommon", "value": 60, "stat_type": "max_health", "stat_value": 6.0, "desc": "Workbench-built filtration - lets you walk the Radiation Zone without flinching.", "grants_radiation_immunity": true},
+	"vanguard_helmet": {"name": "Vanguard Helmet", "slot": "head", "icon_key": "helmet", "rarity": "rare", "value": 125, "stat_type": "max_health", "stat_value": 40.5, "desc": "Front-line rated. Whoever wore it before you clearly walked in first."},
+	"hounds_helm": {"name": "Hound's Helm", "slot": "head", "icon_key": "helmet", "rarity": "rare", "value": 118, "stat_type": "loot_sense", "stat_value": 0.0, "desc": "A tracker's helm, tuned to pick out loot the way a hound picks out a scent."},
+	"gas_mask": {"name": "Gas Mask", "slot": "head", "icon_key": "gas_mask", "rarity": "rare", "value": 90, "stat_type": "max_health", "stat_value": 8.0, "desc": "A genuine sealed filtration mask. The Radiation Zone stops being a threat in this.", "grants_radiation_immunity": true},
+	"warden_helm": {"name": "Warden Helm", "slot": "head", "icon_key": "helmet", "rarity": "epic", "value": 210, "stat_type": "max_health", "stat_value": 51.3, "desc": "Named after Overgrowth's boss - built like it expects to take a hit from something huge."},
+	"oracle_visor": {"name": "Oracle Visor", "slot": "head", "icon_key": "helmet", "rarity": "epic", "value": 220, "stat_type": "loot_sense", "stat_value": 0.0, "desc": "A heads-up overlay that all but points at the good loot before you see it."},
+	"aegis_faceguard": {"name": "Aegis Faceguard", "slot": "head", "icon_key": "helmet", "rarity": "epic", "value": 400, "stat_type": "armor", "stat_value": 14.0, "desc": "A Loot Bag exclusive faceguard, rated for a hit most helmets wouldn't shrug off."},
+	"salvaged_skull_helm": {"name": "Salvaged Skull Helm", "slot": "head", "icon_key": "helmet", "rarity": "epic", "value": 280, "stat_type": "max_health", "stat_value": 40.5, "desc": "Reinforced with bone from something that used to be much bigger than you."},
+	"hollow_cowl": {"name": "Hollow Cowl", "slot": "head", "icon_key": "helmet", "rarity": "epic", "value": 230, "stat_type": "max_health", "stat_value": 43.2, "desc": "Spectral Tide event gear. The hood never quite sits still, even indoors."},
+	"juggernaut_helm": {"name": "Juggernaut Helm", "slot": "head", "icon_key": "helmet", "rarity": "legendary", "value": 300, "stat_type": "max_health", "stat_value": 54.0, "desc": "The Juggernaut line's helmet half - a Loot Bag exclusive built to match the plate."},
+	"crimson_wraith_cowl": {"name": "Crimson Wraith Cowl", "slot": "head", "icon_key": "helmet", "rarity": "legendary", "value": 320, "stat_type": "max_health", "stat_value": 56.7, "desc": "Bloodline event gear, stained a red that never quite washes out."},
+	"menagerie_crown": {"name": "Menagerie Crown", "slot": "head", "icon_key": "helmet", "rarity": "legendary", "value": 440, "stat_type": "loot_sense", "stat_value": 0.0, "desc": "Salvaged Beasts' own crown, worked from trophies of everything you've hunted."},
+	"reapers_mark": {"name": "Reaper's Mark", "slot": "head", "icon_key": "helmet", "rarity": "legendary", "value": 400, "stat_type": "damage", "stat_value": 10.0, "desc": "The Reaper's personal mark, handed down only at the end of his hardest contract."},
+	"phantom_visor": {"name": "Phantom Visor", "slot": "head", "icon_key": "helmet", "rarity": "mythic", "value": 450, "stat_type": "max_health", "stat_value": 74.2, "desc": "Mythic-tier headgear that reads on a scanner as barely there at all."},
+	"oracle_crown": {"name": "Oracle Crown", "slot": "head", "icon_key": "helmet", "rarity": "mythic", "value": 440, "stat_type": "max_health", "stat_value": 52.0, "desc": "A Blueprint build - the Oracle line's crowning piece, researched rather than looted."},
+	"sentinels_crown": {"name": "Sentinel's Crown", "slot": "head", "icon_key": "helmet", "rarity": "mythic", "value": 460, "stat_type": "max_health", "stat_value": 70.2, "desc": "The Sentinel line's mythic-tier crown - a Loot Bag exclusive built to outlast a siege."},
+	"wraithbone_helm": {"name": "Wraithbone Helm", "slot": "head", "icon_key": "helmet", "rarity": "mythic", "value": 480, "stat_type": "max_health", "stat_value": 78.3, "desc": "The barrel looks carved from bone. So does this. Neither came from anything friendly."},
+	"war_crown": {"name": "War Crown", "slot": "head", "icon_key": "helmet", "rarity": "mythic", "value": 300, "stat_type": "max_health", "stat_value": 67.5, "desc": "The Scrapper's finest reforge - a genuine crown, if you don't ask where the metal came from."},
+	"crown_of_hollow_souls": {"name": "Crown of Hollow Souls", "slot": "head", "icon_key": "helmet", "rarity": "mythic", "value": 580, "stat_type": "max_health", "stat_value": 67.5, "desc": "Spectral Tide event gear. Wearing it feels like more than one person is watching through your eyes."},
+	"void_touched_helm": {"name": "Void-Touched Helm", "slot": "head", "icon_key": "helmet", "rarity": "exotic", "value": 760, "stat_type": "max_health", "stat_value": 86.4, "desc": "A Loot Bag's rarest headgear pull. It hums faintly, and never quite stops."},
+	"early_access_visor": {"name": "Early Access Visor", "slot": "head", "icon_key": "helmet", "rarity": "exotic", "value": 500, "stat_type": "vision_range", "stat_value": 40.0, "desc": "Handed out only during the Tech Test, before Dead Sector even reached Alpha.", "beta_only": true},
+	"eternum_visor": {"name": "Eternum Visor", "slot": "head", "icon_key": "helmet", "rarity": "multiversal", "value": 4700, "stat_type": "max_health", "stat_value": 148.5, "desc": "Multiversal-tier headgear - the highest health bonus a helmet can roll."},
+	"crown_of_ascendance": {"name": "Crown of Ascendance", "slot": "head", "icon_key": "helmet", "rarity": "divine", "value": 10500, "stat_type": "max_health", "stat_value": 216.0, "desc": "Divine-tier, a 0.01% Undertow crate roll. The single best helmet in the Sector."},
+	# --- Boots ---
+	"worn_boots": {"name": "Worn Boots", "slot": "boots", "icon_key": "boots", "rarity": "common", "value": 35, "stat_type": "speed", "stat_value": 16.2, "desc": "Soles worn thin from however many Sectors came before this one."},
+	"runners_sneakers": {"name": "Runner's Sneakers", "slot": "boots", "icon_key": "boots", "rarity": "common", "value": 37, "stat_type": "speed", "stat_value": 17.6, "desc": "Light, fast, and not built for a fight - which is exactly the point."},
+	"duct_taped_boots": {"name": "Duct-Taped Boots", "slot": "boots", "icon_key": "boots", "rarity": "common", "value": 28, "stat_type": "speed", "stat_value": 12.2, "desc": "More tape than boot at this point, but the soles still grip."},
+	"combat_boots": {"name": "Combat Boots", "slot": "boots", "icon_key": "boots", "rarity": "uncommon", "value": 70, "stat_type": "speed", "stat_value": 27.0, "desc": "Standard-issue and built for it. No surprises, just real mileage."},
+	"sprinters_wraps": {"name": "Sprinter's Wraps", "slot": "boots", "icon_key": "boots", "rarity": "uncommon", "value": 74, "stat_type": "speed", "stat_value": 28.4, "desc": "Wrapped tight for speed over protection - built for outrunning a fight, not winning one."},
+	"scavenger_boots": {"name": "Scavenger Boots", "slot": "boots", "icon_key": "boots", "rarity": "uncommon", "value": 55, "stat_type": "speed", "stat_value": 18.0, "desc": "Hideout workbench boots, built for covering a Sector fast between loot runs."},
+	"marching_boots": {"name": "Marching Boots", "slot": "boots", "icon_key": "boots", "rarity": "uncommon", "value": 90, "stat_type": "speed", "stat_value": 29.7, "desc": "The Quartermaster's standard pair. Broken in already - somehow that's part of the pitch."},
+	"sentinel_boots": {"name": "Sentinel Boots", "slot": "boots", "icon_key": "boots", "rarity": "rare", "value": 90, "stat_type": "speed", "stat_value": 29.7, "desc": "Named for the enemy that holds ground - these are built for the opposite."},
+	"falcon_boots": {"name": "Falcon Boots", "slot": "boots", "icon_key": "boots", "rarity": "rare", "value": 95, "stat_type": "speed", "stat_value": 32.4, "desc": "Light as a bird's and about as quiet on a rooftop."},
+	"ridgeline_boots": {"name": "Ridgeline Boots", "slot": "boots", "icon_key": "boots", "rarity": "rare", "value": 92, "stat_type": "speed", "stat_value": 31.1, "desc": "Grippy soles built for uneven ground - the kind every Sector has plenty of."},
+	"blitz_boots": {"name": "Blitz Boots", "slot": "boots", "icon_key": "boots", "rarity": "epic", "value": 190, "stat_type": "speed", "stat_value": 43.2, "desc": "Built for closing distance before the other side even clocks you moving."},
+	"wraithwalker_boots": {"name": "Wraithwalker Boots", "slot": "boots", "icon_key": "boots", "rarity": "epic", "value": 200, "stat_type": "speed", "stat_value": 45.9, "desc": "Barely make a sound on pavement, gravel, or broken glass."},
+	"wisp_step_boots": {"name": "Wisp-Step Boots", "slot": "boots", "icon_key": "boots", "rarity": "epic", "value": 220, "stat_type": "speed", "stat_value": 40.5, "desc": "Spectral Tide event gear - your footsteps trail a faint drifting light."},
+	"pack_leaders_hide": {"name": "Pack Leader's Hide", "slot": "boots", "icon_key": "boots", "rarity": "epic", "value": 300, "stat_type": "speed", "stat_value": 32.4, "desc": "Worked from a Salvaged Beasts trophy hide - built to move like whatever it came from."},
+	"marauders_boots": {"name": "Marauder's Boots", "slot": "boots", "icon_key": "boots", "rarity": "legendary", "value": 260, "stat_type": "speed", "stat_value": 43.2, "desc": "A Loot Bag exclusive, taken off an enemy that closed distance faster than you'd like."},
+	"gutter_runner_boots": {"name": "Gutter Runner Boots", "slot": "boots", "icon_key": "boots", "rarity": "legendary", "value": 300, "stat_type": "speed", "stat_value": 51.3, "desc": "Bloodline event gear - built for operators who live in the spaces between fights."},
+	"founders_boots": {"name": "Founder's Boots", "slot": "boots", "icon_key": "boots", "rarity": "legendary", "value": 380, "stat_type": "speed", "stat_value": 24.0, "desc": "Handed out only during the Tech Test, before Dead Sector even reached Alpha.", "beta_only": true},
+	"ghostwalker_boots": {"name": "Ghostwalker Boots", "slot": "boots", "icon_key": "boots", "rarity": "mythic", "value": 400, "stat_type": "speed", "stat_value": 60.8, "desc": "A Blueprint build - and once you've felt the speed, you'll want it researched twice."},
+	"quicksilver_treads": {"name": "Quicksilver Treads", "slot": "boots", "icon_key": "boots", "rarity": "mythic", "value": 410, "stat_type": "speed", "stat_value": 48.0, "desc": "Another Blueprint result. The soles genuinely shimmer when you move fast enough."},
+	"quickstep_boots": {"name": "Quickstep Boots", "slot": "boots", "icon_key": "boots", "rarity": "mythic", "value": 420, "stat_type": "speed", "stat_value": 56.7, "desc": "Mythic-tier footwear - a Loot Bag exclusive built for operators who never plan to stand still."},
+	"starfall_treads": {"name": "Starfall Treads", "slot": "boots", "icon_key": "boots", "rarity": "exotic", "value": 740, "stat_type": "speed", "stat_value": 74.2, "desc": "A Loot Bag's rarest boots pull. Every step leaves a trail that fades a second too slow."},
+	"chronoshift_boots": {"name": "Chronoshift Boots", "slot": "boots", "icon_key": "boots", "rarity": "multiversal", "value": 4600, "stat_type": "speed", "stat_value": 121.5, "desc": "Multiversal-tier boots - the highest speed bonus footwear can roll."},
+	# --- Backpack ---
+	"salvaged_pack": {"name": "Salvaged Pack", "slot": "backpack", "icon_key": "backpack", "rarity": "common", "value": 50, "stat_type": "max_health", "stat_value": 20.2, "desc": "Patched together from three other bags. Somehow still holds a full load."},
+	"canvas_pack": {"name": "Canvas Pack", "slot": "backpack", "icon_key": "backpack", "rarity": "common", "value": 42, "stat_type": "max_health", "stat_value": 16.2, "desc": "Plain canvas over a steel frame. Nothing special, and it doesn't need to be."},
+	"scrappers_satchel": {"name": "Scrapper's Satchel", "slot": "backpack", "icon_key": "backpack", "rarity": "common", "value": 40, "stat_type": "max_health", "stat_value": 13.5, "desc": "Small, light, and exactly what a first raid actually needs."},
+	"ranger_pack": {"name": "Ranger Pack", "slot": "backpack", "icon_key": "backpack", "rarity": "uncommon", "value": 75, "stat_type": "fire_rate", "stat_value": 0.0, "desc": "A quick-draw rig built to shave a beat off every reload."},
+	"prospectors_pack": {"name": "Prospector's Pack", "slot": "backpack", "icon_key": "backpack", "rarity": "uncommon", "value": 79, "stat_type": "loot_sense", "stat_value": 0.0, "desc": "Extra pockets and a trained eye baked right into the straps."},
+	"reinforced_backpack": {"name": "Reinforced Backpack", "slot": "backpack", "icon_key": "backpack", "rarity": "uncommon", "value": 80, "stat_type": "max_health", "stat_value": 20.0, "desc": "Hideout workbench build - a steel frame welded onto a civilian pack."},
+	"scavvers_pack": {"name": "Scavver's Pack", "slot": "backpack", "icon_key": "backpack", "rarity": "uncommon", "value": 85, "stat_type": "max_health", "stat_value": 24.3, "desc": "The Scavenger's own trade stock - built to survive getting shot at while full."},
+	"salvagers_satchel": {"name": "Salvager's Satchel", "slot": "backpack", "icon_key": "backpack", "rarity": "rare", "value": 100, "stat_type": "loot_sense", "stat_value": 0.0, "desc": "The Scavenger's premium rig, tuned for operators who never come back empty-handed."},
+	"void_pack": {"name": "Void Pack", "slot": "backpack", "icon_key": "backpack", "rarity": "epic", "value": 225, "stat_type": "max_health", "stat_value": 54.0, "desc": "Pulled from something that came out of Void Trench and didn't need it anymore."},
+	"quartermasters_rig": {"name": "Quartermaster's Rig", "slot": "backpack", "icon_key": "backpack", "rarity": "epic", "value": 380, "stat_type": "ammo_reserve", "stat_value": 60.0, "desc": "A Loot Bag exclusive built around one job: carrying more ammo than anyone needs, until they do."},
+	"logistics_pack": {"name": "Logistics Pack", "slot": "backpack", "icon_key": "backpack", "rarity": "legendary", "value": 560, "stat_type": "ammo_reserve", "stat_value": 90.0, "desc": "Legendary-tier ammo hauling, straight off a supply run that never made it back to base."},
+	"reavers_harness": {"name": "Reaver's Harness", "slot": "backpack", "icon_key": "backpack", "rarity": "legendary", "value": 310, "stat_type": "loot_sense", "stat_value": 0.0, "desc": "Bloodline event gear, built to strip a Sector clean before anyone else gets there."},
+	"reapers_cloak": {"name": "Reaper's Cloak", "slot": "backpack", "icon_key": "backpack", "rarity": "mythic", "value": 460, "stat_type": "max_health", "stat_value": 50.0, "desc": "A Blueprint build named for the same Reaper who hands out contracts nobody else will take."},
+	# --- Accessory ---
+	"bent_copper_ring": {"name": "Bent Copper Ring", "slot": "accessory", "icon_key": "ring", "rarity": "common", "value": 38, "stat_type": "speed", "stat_value": 8.1, "desc": "Bent out of shape and still slides on fine. Barely does anything, but it's free real estate."},
+	"lucky_charm": {"name": "Lucky Charm", "slot": "accessory", "icon_key": "ring", "rarity": "uncommon", "value": 65, "stat_type": "speed", "stat_value": 18.9, "desc": "Nobody can explain why it works. It just does, so nobody's taking it off."},
+	"tactical_gloves": {"name": "Tactical Gloves", "slot": "accessory", "icon_key": "ring", "rarity": "uncommon", "value": 72, "stat_type": "fire_rate", "stat_value": 0.0, "desc": "Grippy enough to shave real time off every trigger pull."},
+	"copper_loop": {"name": "Copper Loop", "slot": "accessory", "icon_key": "ring", "rarity": "uncommon", "value": 70, "stat_type": "max_health", "stat_value": 21.6, "desc": "Cheap metal, oddly effective. Nobody's figured out why it holds a charge."},
+	"utility_belt": {"name": "Utility Belt", "slot": "accessory", "icon_key": "ring", "rarity": "uncommon", "value": 70, "stat_type": "speed", "stat_value": 16.0, "desc": "Workbench-built - just enough extra pouches to move a little lighter."},
+	"adrenaline_shot": {"name": "Adrenaline Shot", "slot": "accessory", "icon_key": "medkit", "rarity": "uncommon", "value": 70, "stat_type": "speed", "stat_value": 20.2, "desc": "Dr. Reyes doesn't ask why you need it this badly. She just sells it."},
+	"iv_drip_rig": {"name": "IV Drip Rig", "slot": "accessory", "icon_key": "medkit", "rarity": "uncommon", "value": 65, "stat_type": "health_regen", "stat_value": 0.4, "desc": "A slow, steady line that keeps you patched up between fights."},
+	"recon_pauldrons": {"name": "Recon Pauldrons", "slot": "accessory", "icon_key": "ring", "rarity": "uncommon", "value": 95, "stat_type": "speed", "stat_value": 21.6, "desc": "Shoulder rig built for scouting ahead of the rest of the squad."},
+	"frag_grenade_belt": {"name": "Frag Grenade Belt", "slot": "accessory", "icon_key": "grenade", "rarity": "uncommon", "value": 90, "stat_type": "damage", "stat_value": 13.5, "desc": "The Scavenger's own belt rig, built to keep a frag within easy reach."},
+	"smoke_canister_rig": {"name": "Smoke Canister Rig", "slot": "accessory", "icon_key": "grenade", "rarity": "uncommon", "value": 100, "stat_type": "fire_rate", "stat_value": 0.0, "desc": "Quick-release canisters, rigged for a fast follow-up shot the moment the smoke clears."},
+	"hollowpoint_ring": {"name": "Hollowpoint Ring", "slot": "accessory", "icon_key": "ring", "rarity": "rare", "value": 130, "stat_type": "damage", "stat_value": 10.8, "desc": "Cast from melted-down rounds. Somehow that superstition turned out to be true."},
+	"signal_flare_pack": {"name": "Signal Flare Pack", "slot": "accessory", "icon_key": "flare", "rarity": "rare", "value": 110, "stat_type": "speed", "stat_value": 24.3, "desc": "The Scavenger's flare rig - light enough that carrying it barely slows you down."},
+	"demolition_charge_belt": {"name": "Demolition Charge Belt", "slot": "accessory", "icon_key": "grenade", "rarity": "rare", "value": 140, "stat_type": "damage", "stat_value": 18.9, "desc": "Rigged with enough charge to make the Scavenger nervous just selling it to you."},
+	"bandolier_rig": {"name": "Bandolier Rig", "slot": "accessory", "icon_key": "ring", "rarity": "rare", "value": 340, "stat_type": "ammo_reserve", "stat_value": 45.0, "desc": "A Loot Bag exclusive - crossed belts of extra rounds for whoever's still shooting at the end."},
+	"specter_ring": {"name": "Specter Ring", "slot": "accessory", "icon_key": "ring", "rarity": "epic", "value": 215, "stat_type": "speed", "stat_value": 37.8, "desc": "Cold to the touch no matter how long you've had it on."},
+	"sovereigns_signet": {"name": "Sovereign's Signet", "slot": "accessory", "icon_key": "ring", "rarity": "epic", "value": 230, "stat_type": "damage", "stat_value": 16.2, "desc": "Whoever wore this first clearly wasn't used to losing."},
+	"feral_claw_gauntlets": {"name": "Feral Claw Gauntlets", "slot": "accessory", "icon_key": "hard_plate", "rarity": "epic", "value": 260, "stat_type": "fire_rate", "stat_value": 0.0, "desc": "Salvaged Beasts trophy gear - the claws are real, and they're not yours."},
+	"ghostlight_ring": {"name": "Ghostlight Ring", "slot": "accessory", "icon_key": "ring", "rarity": "epic", "value": 235, "stat_type": "speed", "stat_value": 36.5, "desc": "Spectral Tide event gear - it glows faintest right when you need to move fastest."},
+	"nightfall_cloak": {"name": "Nightfall Cloak", "slot": "accessory", "icon_key": "watch", "rarity": "legendary", "value": 280, "stat_type": "speed", "stat_value": 40.5, "desc": "A Loot Bag exclusive - worn dark enough to disappear the second the sun goes down."},
+	"hunters_cloak": {"name": "Hunter's Cloak", "slot": "accessory", "icon_key": "watch", "rarity": "legendary", "value": 270, "stat_type": "speed", "stat_value": 37.8, "desc": "Built for stalking something that doesn't know it's already being hunted."},
+	"titans_grip": {"name": "Titan's Grip", "slot": "accessory", "icon_key": "ring", "rarity": "mythic", "value": 430, "stat_type": "fire_rate", "stat_value": 0.05, "desc": "A Blueprint build. Every shot after the first comes out faster than it should."},
+	"heart_of_the_sector": {"name": "Heart of the Sector", "slot": "accessory", "icon_key": "ring", "rarity": "mythic", "value": 350, "stat_type": "speed", "stat_value": 54.0, "desc": "The Scrapper's proudest reforge. It beats faster the longer you're out in a raid."},
+	"voidwalkers_cloak": {"name": "Voidwalker's Cloak", "slot": "accessory", "icon_key": "watch", "rarity": "exotic", "value": 750, "stat_type": "speed", "stat_value": 67.5, "desc": "A Loot Bag's rarest accessory pull, pulled loose from something Void Trench swallowed."},
+	"bloodline_sigil": {"name": "Bloodline Sigil", "slot": "accessory", "icon_key": "watch", "rarity": "exotic", "value": 900, "stat_type": "speed", "stat_value": 64.8, "desc": "Bloodline event gear - it pulses in time with something that isn't your own heartbeat."},
+	# --- Helmet Attachments ---
+	"tac_visor": {"name": "Tac Visor", "slot": "helmet_attachment", "icon_key": "visor", "rarity": "uncommon", "value": 60, "stat_type": "loot_sense", "stat_value": 0.0, "desc": "A slim overlay that clips onto any helmet, tuned to flag loot at a glance."},
+	"comms_headset": {"name": "Comms Headset", "slot": "helmet_attachment", "icon_key": "headset", "rarity": "uncommon", "value": 65, "stat_type": "fire_rate", "stat_value": 0.0, "desc": "Squad comms wired straight into a faster trigger response."},
+	"combat_visor": {"name": "Combat Visor", "slot": "helmet_attachment", "icon_key": "visor", "rarity": "uncommon", "value": 75, "stat_type": "loot_sense", "stat_value": 0.0, "desc": "The Quartermaster's upgraded overlay - sharper glint detection than the base Tac Visor."},
+	"squad_headset": {"name": "Squad Headset", "slot": "helmet_attachment", "icon_key": "headset", "rarity": "uncommon", "value": 80, "stat_type": "fire_rate", "stat_value": 0.0, "desc": "The Quartermaster's premium comms rig - clearer chatter, faster reactions."},
+	"nightvision_goggles": {"name": "Nightvision Goggles", "slot": "helmet_attachment", "icon_key": "nightvision_goggles", "rarity": "rare", "value": 140, "stat_type": "max_health", "stat_value": 6.8, "desc": "Flips a night raid into something you can actually see coming.", "grants_nightvision": true},
+	"issued_nightvision": {"name": "Issued Nightvision", "slot": "helmet_attachment", "icon_key": "nightvision_goggles", "rarity": "rare", "value": 170, "stat_type": "max_health", "stat_value": 8.1, "desc": "The Quartermaster's issued pair - sturdier housing than anything you'll find in the field.", "grants_nightvision": true},
 }
 
 # --- Key Compendium: every door key that actually exists in the game
@@ -5541,6 +5699,12 @@ func reset_character() -> void:
 	# including one that started over this way - see the class-level
 	# default on tech_test_mail_sent itself for the same reasoning.
 	tech_test_mail_sent = false
+	# Same reasoning as tech_test_mail_sent above - a genuinely new
+	# character always gets its first newsletter immediately (last_
+	# newsletter_day starts at -1), so a wiped one should too. Without
+	# this, whatever day the newsletter last sent on before the wipe
+	# stuck around and blocked a new one until the next calendar day.
+	last_newsletter_day = -1
 	alpha_rewards_claimed = false
 	has_seen_welcome = false
 	player_level = 1
@@ -5572,6 +5736,15 @@ func reset_character() -> void:
 	player_trait = "adrenaline_junkie"
 	player_particle_trail = "none"
 	save_game()
+	# _maybe_send_welcome_mail()/_maybe_send_tech_test_mail()/_maybe_send_
+	# daily_newsletter() only ever run from _ready() - a real app boot.
+	# Delete Character resets their gating flags above but is an in-place
+	# wipe with no app restart, so without calling them here directly a
+	# freshly wiped character's mailbox stayed empty until the next time
+	# the game actually launched.
+	_maybe_send_welcome_mail()
+	_maybe_send_tech_test_mail()
+	_maybe_send_daily_newsletter()
 
 func apply_background_bonus(bg_id: String) -> void:
 	match bg_id:
@@ -7896,6 +8069,69 @@ func move_backpack_storage_to_pocket(backpack_index: int, pocket_index: int) -> 
 	equipped_changed.emit()
 	save_game()
 	return true
+
+# Drag-out-of-pocket variants: place the removed item at the EXACT cell the
+# player dropped it on, same reasoning as the unequip_to_*_cell() family
+# above - PocketSlot.gd used to only support emptying a pocket to whatever
+# the next free cell happened to be (via remove_from_pocket()), with no way
+# to drag it out at all.
+func remove_from_pocket_to_stash_cell(pocket_index: int, gx: int, gy: int) -> void:
+	if pocket_index < 0 or pocket_index >= safe_pockets.size():
+		return
+	var item = safe_pockets[pocket_index]
+	if item == null:
+		return
+	safe_pockets[pocket_index] = null
+	if _footprint_overlaps(stash_items, gx, gy, get_item_footprint(item).x, get_item_footprint(item).y):
+		var cell := _next_free_cell_in(stash_items, false, get_item_footprint(item))
+		gx = cell.x
+		gy = cell.y
+	item["grid_x"] = gx
+	item["grid_y"] = gy
+	stash_items.append(item)
+	pockets_changed.emit()
+	equipped_changed.emit()
+	save_game()
+
+func remove_from_pocket_to_backpack_storage_cell(pocket_index: int, gx: int, gy: int) -> void:
+	if pocket_index < 0 or pocket_index >= safe_pockets.size():
+		return
+	var item = safe_pockets[pocket_index]
+	if item == null:
+		return
+	var fp := get_item_footprint(item)
+	if _footprint_overlaps(backpack_storage, gx, gy, fp.x, fp.y):
+		var cell := _next_free_cell_backpack_storage(fp)
+		if cell.x < 0:
+			toast_requested.emit("Backpack storage is full")
+			return
+		gx = cell.x
+		gy = cell.y
+	safe_pockets[pocket_index] = null
+	item["grid_x"] = gx
+	item["grid_y"] = gy
+	backpack_storage.append(item)
+	pockets_changed.emit()
+	equipped_changed.emit()
+	save_game()
+
+func remove_from_pocket_to_carried_cell(pocket_index: int, gx: int, gy: int) -> void:
+	if pocket_index < 0 or pocket_index >= safe_pockets.size():
+		return
+	var item = safe_pockets[pocket_index]
+	if item == null:
+		return
+	safe_pockets[pocket_index] = null
+	if _footprint_overlaps(carried_loot, gx, gy, get_item_footprint(item).x, get_item_footprint(item).y):
+		var cell := _next_free_cell_in(carried_loot, true, get_item_footprint(item))
+		gx = cell.x
+		gy = cell.y
+	item["grid_x"] = gx
+	item["grid_y"] = gy
+	carried_loot.append(item)
+	carried_value += int(item.get("value", 0))
+	pockets_changed.emit()
+	equipped_changed.emit()
 
 # Public wrapper so UI code (search-in-progress tile) can preview where a
 # new item will land in the Backpack grid without adding it yet.

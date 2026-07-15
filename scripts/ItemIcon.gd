@@ -147,6 +147,10 @@ func _draw() -> void:
 			_draw_map_void_trench_icon()
 		"map_graveyard_icon":
 			_draw_map_graveyard_icon()
+		"map_ironscrap_icon":
+			_draw_map_ironscrap_icon()
+		"map_foundry_icon":
+			_draw_map_foundry_icon()
 		"visor":
 			_draw_visor()
 		"headset":
@@ -620,6 +624,33 @@ func _draw_map_graveyard_icon() -> void:
 	draw_colored_polygon(headstone, stone)
 	draw_line(_p(0.5, 0.42), _p(0.5, 0.58), Color(0.3, 0.32, 0.34, icon_color.a), size.x * 0.025)
 	draw_line(_p(0.42, 0.5), _p(0.58, 0.5), Color(0.3, 0.32, 0.34, icon_color.a), size.x * 0.025)
+
+# Ironscrap Yard - a jagged stack of scrap-metal plates, rust-toned to
+# match the map's scrapyard theme - distinct from Boneclock's bone-white
+# and The Foundry's furnace-orange despite all three reading "industrial."
+func _draw_map_ironscrap_icon() -> void:
+	var rust := Color(0.72, 0.5, 0.32, icon_color.a)
+	var rust_dark := Color(0.5, 0.34, 0.22, icon_color.a)
+	var plate_a := PackedVector2Array([_p(0.16, 0.78), _p(0.62, 0.7), _p(0.7, 0.82), _p(0.22, 0.9)])
+	draw_colored_polygon(plate_a, rust_dark)
+	var plate_b := PackedVector2Array([_p(0.24, 0.6), _p(0.78, 0.52), _p(0.84, 0.66), _p(0.3, 0.74)])
+	draw_colored_polygon(plate_b, rust)
+	var plate_c := PackedVector2Array([_p(0.3, 0.42), _p(0.7, 0.36), _p(0.76, 0.5), _p(0.34, 0.56)])
+	draw_colored_polygon(plate_c, rust_dark)
+	draw_circle(_p(0.4, 0.46), size.x * 0.02, Color(0.2, 0.15, 0.1, icon_color.a))
+	draw_circle(_p(0.62, 0.58), size.x * 0.02, Color(0.2, 0.15, 0.1, icon_color.a))
+
+# The Foundry - a smokestack silhouette with a glowing furnace vent low on
+# the tower and two drifting smoke puffs above.
+func _draw_map_foundry_icon() -> void:
+	var iron := Color(0.28, 0.24, 0.22, icon_color.a)
+	var tower := PackedVector2Array([_p(0.38, 0.94), _p(0.38, 0.3), _p(0.62, 0.3), _p(0.62, 0.94)])
+	draw_colored_polygon(tower, iron)
+	var glow := Color(1.0, 0.5, 0.15, 0.9)
+	draw_rect(Rect2(_p(0.44, 0.72), Vector2(size.x * 0.12, size.y * 0.1)), glow)
+	var smoke := Color(0.6, 0.58, 0.56, icon_color.a * 0.7)
+	draw_circle(_p(0.44, 0.2), size.x * 0.07, smoke)
+	draw_circle(_p(0.58, 0.1), size.x * 0.06, smoke)
 
 func _draw_visor() -> void:
 	# A slim curved tactical visor strip.

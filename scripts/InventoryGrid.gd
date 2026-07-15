@@ -88,6 +88,12 @@ func _can_drop_data(_pos: Vector2, data) -> bool:
 	# (freshly-searched loot not yet claimed).
 	if source == "carried" and data_source == "vicinity":
 		return true
+	# A Safe Pocket can be dragged out into any of the three main grids -
+	# Stash/Backpack Storage on the out-of-raid screen, or the in-raid
+	# Backpack - same as an equip slot dragging out, just without a
+	# slot-type restriction (Pockets accept any item).
+	if data_source == "pocket" and (source == "stash" or source == "backpack_storage" or source == "carried"):
+		return true
 	# Stash and Backpack Storage can freely swap items between each other -
 	# that's the whole point of stocking the backpack ahead of a raid.
 	if source == "stash" and data_source == "backpack_storage":
@@ -123,6 +129,10 @@ func _drop_data(pos: Vector2, data) -> void:
 		var case_items: Array = GameManager.get_case_storage(_case_type_of(data_source))
 		if index >= 0 and index < case_items.size():
 			fp = GameManager.get_item_footprint(case_items[index])
+	elif data_source == "pocket":
+		var pocket_index_fp: int = int(data.get("pocket_index", -1))
+		if pocket_index_fp >= 0 and pocket_index_fp < GameManager.safe_pockets.size() and GameManager.safe_pockets[pocket_index_fp] != null:
+			fp = GameManager.get_item_footprint(GameManager.safe_pockets[pocket_index_fp])
 	var gx := int(clamp(floor(pos.x / _cell()), 0, max(_cols() - fp.x, 0)))
 	var gy := int(clamp(floor(pos.y / _cell()), 0, max(_rows() - fp.y, 0)))
 	if data_source == "vicinity":
@@ -149,6 +159,14 @@ func _drop_data(pos: Vector2, data) -> void:
 	elif _is_case_source(data_source) and source == "stash":
 		# Moving from a Case back into the Stash.
 		GameManager.move_case_item_to_stash_cell(_case_type_of(data_source), index, gx, gy)
+	elif data_source == "pocket":
+		var pocket_index: int = int(data.get("pocket_index", -1))
+		if source == "stash":
+			GameManager.remove_from_pocket_to_stash_cell(pocket_index, gx, gy)
+		elif source == "backpack_storage":
+			GameManager.remove_from_pocket_to_backpack_storage_cell(pocket_index, gx, gy)
+		else:
+			GameManager.remove_from_pocket_to_carried_cell(pocket_index, gx, gy)
 	elif source == "stash":
 		if index < 0 or index >= GameManager.stash_items.size():
 			return

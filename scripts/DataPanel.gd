@@ -16,6 +16,7 @@ const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
 @onready var contracts_tab: Button = $VBox/TabRow/ContractsTab
 @onready var traders_tab: Button = $VBox/TabRow/TradersTab
 @onready var weapons_tab: Button = $VBox/TabRow/WeaponsTab
+@onready var armor_tab: Button = $VBox/TabRow/ArmorTab
 @onready var keys_tab: Button = $VBox/TabRow/KeysTab
 @onready var list: VBoxContainer = $VBox/ListScroll/List
 @onready var close_button: Button = $VBox/CloseButton
@@ -45,6 +46,7 @@ func _ready() -> void:
 	contracts_tab.pressed.connect(func(): _switch_tab("contracts"))
 	traders_tab.pressed.connect(func(): _switch_tab("traders"))
 	weapons_tab.pressed.connect(func(): _switch_tab("weapons"))
+	armor_tab.pressed.connect(func(): _switch_tab("armor"))
 	keys_tab.pressed.connect(func(): _switch_tab("keys"))
 	_build_context_menu()
 
@@ -68,6 +70,7 @@ func _switch_tab(tab: String) -> void:
 	contracts_tab.disabled = (tab == "contracts")
 	traders_tab.disabled = (tab == "traders")
 	weapons_tab.disabled = (tab == "weapons")
+	armor_tab.disabled = (tab == "armor")
 	keys_tab.disabled = (tab == "keys")
 	refresh()
 
@@ -106,6 +109,9 @@ func refresh() -> void:
 		"weapons":
 			for id in GameManager.WEAPON_CATALOG.keys():
 				list.add_child(_make_weapon_row(id))
+		"armor":
+			for id in GameManager.ARMOR_CATALOG.keys():
+				list.add_child(_make_armor_row(id))
 		"keys":
 			for id in GameManager.KEY_CATALOG.keys():
 				list.add_child(_make_key_row(id))
@@ -530,6 +536,66 @@ func _make_weapon_row(id: String) -> Control:
 		"rarity_label": GameManager.get_rarity_label(rarity),
 		"lines": [str(data.get("desc", "")), stat_line, "Value: %d Rubles" % int(data.get("value", 0))],
 		"projectile_style": data.get("icon_key", "pistol"),
+	})
+	return row
+
+# --- Armor tab: every named piece of gear across the head/body/boots/
+# backpack/accessory/helmet_attachment slots, same treatment as the
+# Weapons tab (deduplicated, always shows its real icon and name, no
+# discovery-gating). Stat line reuses ItemTooltip's own stat formatter
+# so the wording matches exactly what a hover tooltip shows in-raid.
+func _make_armor_row(id: String) -> Control:
+	var data: Dictionary = GameManager.ARMOR_CATALOG[id]
+	var rarity: String = data.get("rarity", "common")
+	var rarity_color: Color = GameManager.get_rarity_color(rarity)
+	var built := _make_row_base()
+	var row: Control = built["row"]
+	var hbox: HBoxContainer = built["hbox"]
+
+	var icon_box := PanelContainer.new()
+	icon_box.custom_minimum_size = Vector2(56, 56)
+	var icon_sb := StyleBoxFlat.new()
+	icon_sb.bg_color = Color(rarity_color.r, rarity_color.g, rarity_color.b, 0.18)
+	icon_sb.border_color = rarity_color
+	icon_sb.set_border_width_all(1)
+	icon_sb.set_corner_radius_all(4)
+	icon_box.add_theme_stylebox_override("panel", icon_sb)
+	var icon = ItemIconScene.instantiate()
+	icon.icon_key = data.get("icon_key", "chestplate")
+	icon.icon_color = rarity_color
+	icon.custom_minimum_size = Vector2(48, 48)
+	icon_box.add_child(icon)
+	hbox.add_child(icon_box)
+
+	var info := VBoxContainer.new()
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var name_row := HBoxContainer.new()
+	name_row.add_theme_constant_override("separation", 8)
+	var name_lbl := Label.new()
+	name_lbl.text = str(data.get("name", "?"))
+	name_lbl.add_theme_font_size_override("font_size", 16)
+	name_lbl.add_theme_color_override("font_color", rarity_color)
+	name_row.add_child(name_lbl)
+	var slot_lbl := Label.new()
+	slot_lbl.text = "%s  //  %s" % [str(data.get("slot", "")).capitalize(), GameManager.get_rarity_label(rarity)]
+	slot_lbl.add_theme_font_size_override("font_size", 11)
+	slot_lbl.modulate = Color(1, 1, 1, 0.6)
+	name_row.add_child(slot_lbl)
+	info.add_child(name_row)
+	var desc_lbl := Label.new()
+	desc_lbl.text = str(data.get("desc", ""))
+	desc_lbl.add_theme_font_size_override("font_size", 12)
+	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
+	desc_lbl.modulate = Color(1, 1, 1, 0.8)
+	info.add_child(desc_lbl)
+	hbox.add_child(info)
+
+	var stat_line: String = ItemTooltip._format_stat(str(data.get("stat_type", "")), data.get("stat_value", 0.0))
+	_wire_inspect(row, {
+		"title": data.get("name", "?"), "title_color": rarity_color,
+		"icon_key": data.get("icon_key", "chestplate"), "icon_color": rarity_color,
+		"rarity_label": "%s  //  %s" % [str(data.get("slot", "")).capitalize(), GameManager.get_rarity_label(rarity)],
+		"lines": [str(data.get("desc", ""))] + ([stat_line] if stat_line != "" else []) + ["Value: %d Rubles" % int(data.get("value", 0))],
 	})
 	return row
 

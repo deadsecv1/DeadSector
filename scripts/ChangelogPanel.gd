@@ -1083,6 +1083,13 @@ const CHANGELOG_CURRENT := [
 		"Removed the separate Wipe button from the Main Menu - Delete Character now covers the exact same ground.",
 		"More Safe Pocket fixes: moving an item into a pocket from the in-raid Backpack, or from the Stash screen, now updates every affected grid instantly instead of leaving a ghost tile behind.",
 	]},
+	{"version": "3.59.0", "title": "Armor Compendium, Pocket Drag-Out, and Mail/Icon Fixes", "notes": [
+		"The \"real gun icon\" pistol-family weapons got in 3.57.4 turned out to be a nearly blank rectangle, not an actual gun - reverted to the existing hand-drawn vector pistol icon, which reads far more clearly at inventory size. Fixes the Tech Tester's Sidearm and every other pistol-type weapon, in both the inventory grid and the equipped weapon doll.",
+		"Fixed Delete Character's mail regrant from 3.58.0 not actually taking effect without restarting the game - the Welcome/Tech Test/Newsletter mail only ever re-sent at the next full launch, so a freshly wiped character's mailbox stayed empty (and the newsletter stayed blocked until the next calendar day) until then. Now regrants immediately, no restart needed.",
+		"Safe Pockets can now be dragged OUT onto the Stash, Backpack Storage, or in-raid Backpack, landing at the exact cell you drop them on - previously the only way out was a single click. That click now requires a double-click instead, matching the double-click-to-move convention used everywhere else in the inventory.",
+		"Added Ironscrap Yard and The Foundry to the Data screen's Maps tab - both have existed as real raid destinations since 3.55.0/3.56.0 but were never added to the compendium.",
+		"Added a full Armor tab to the Data screen - every named piece of head/body/boots/backpack/accessory/attachment gear in the game, the same reference treatment Weapons already had.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
