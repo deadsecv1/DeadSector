@@ -3326,6 +3326,13 @@ var is_arena_match: bool = false
 var last_arena_kills: int = 0
 var last_arena_rank_points_gained: int = 0
 
+# One-shot handoff from ArenaModeChoice.gd's 1v1/2v2 pick to
+# ArenaMatchmaking.gd - 0 means "no explicit choice made", which falls
+# back to the original random 4v4-7v7 squad roll (defensive fallback in
+# case ArenaMatchmaking.tscn is ever reached by a path other than the
+# mode-choice screen).
+var arena_queued_team_size: int = 0
+
 # One-shot handoff from a Recruit-channel invite's Join flow
 # (GlobalChatBox.gd) to whichever raid map scene loads next - a list of
 # simulated {name, portrait, rank_full_idx, level, ...} entries (same

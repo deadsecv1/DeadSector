@@ -14,7 +14,11 @@ var _team_size: int = 1
 
 func _ready() -> void:
 	GameManager.set_default_cursor()
-	_team_size = randi_range(4, 7)
+	if GameManager.arena_queued_team_size > 0:
+		_team_size = GameManager.arena_queued_team_size
+		GameManager.arena_queued_team_size = 0
+	else:
+		_team_size = randi_range(4, 7)
 	mode_label.text = "Finding a %dv%d match..." % [_team_size, _team_size]
 	spinner.draw.connect(_draw_spinner)
 	set_process(true)

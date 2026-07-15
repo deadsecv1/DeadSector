@@ -114,6 +114,12 @@ func _make_tier_row(tier: int, reward: Dictionary) -> Control:
 	desc_lbl.modulate = Color(1, 1, 1, 0.75)
 	name_vbox.add_child(desc_lbl)
 
+	var completion_lbl := Label.new()
+	completion_lbl.text = _completion_text(tier, claimed, is_next)
+	completion_lbl.add_theme_font_size_override("font_size", 11)
+	completion_lbl.modulate = Color(0.85, 0.8, 0.6, 0.7)
+	name_vbox.add_child(completion_lbl)
+
 	var status_lbl := Label.new()
 	status_lbl.custom_minimum_size = Vector2(90, 0)
 	status_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -159,6 +165,13 @@ func _populate_reward_icon(slot: Control, reward: Dictionary) -> void:
 			icon.anchor_right = 1.0
 			icon.anchor_bottom = 1.0
 			slot.add_child(icon)
+
+func _completion_text(tier: int, claimed: bool, is_next: bool) -> String:
+	if claimed:
+		return "Completed"
+	if is_next:
+		return "%d / %d Stones" % [GameManager.milestone_progress, GameManager.MILESTONE_STONES_PER_TIER]
+	return "Locked until Milestone %d is claimed (%d Stones each)" % [tier - 1, GameManager.MILESTONE_STONES_PER_TIER]
 
 func _reward_text(reward: Dictionary) -> String:
 	match reward.get("type", ""):

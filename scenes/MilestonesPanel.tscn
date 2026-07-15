@@ -59,6 +59,13 @@ custom_minimum_size = Vector2(0, 22)
 size_flags_horizontal = 3
 show_percentage = false
 
+[node name="HintLabel" type="Label" parent="VBox"]
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(1, 1, 1, 0.6)
+horizontal_alignment = 1
+autowrap_mode = 2
+text = "Earn Stones from successful extractions, Arena match wins, and real-player kills."
+
 [node name="TierScroll" type="ScrollContainer" parent="VBox"]
 size_flags_vertical = 3
 

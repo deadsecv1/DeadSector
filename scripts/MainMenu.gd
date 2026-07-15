@@ -215,7 +215,7 @@ func _ready() -> void:
 	arena_panel.closed.connect(func(): _close_panel(arena_panel))
 	arena_panel.matchmake_requested.connect(func():
 		_close_panel(arena_panel)
-		Transition.change_scene("res://scenes/ArenaMatchmaking.tscn")
+		Transition.change_scene("res://scenes/ArenaModeChoice.tscn")
 	)
 	arena_panel.find_team_requested.connect(func():
 		_close_panel(arena_panel)
