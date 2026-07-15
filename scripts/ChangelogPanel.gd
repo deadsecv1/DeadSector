@@ -1125,6 +1125,9 @@ const CHANGELOG_CURRENT := [
 		"Clicking a dot opens a menu for that slot showing every attachment that exists for it - Buy one straight with Rubles if you don't own one, or Equip a spare already sitting in your Backpack/Stash. Attachments used to only ever come from loot with no way to buy one directly.",
 		"Added a Skins button right in the inspection screen, opening the same skin browser as the right-click menu, scoped to that weapon - no need to close out and reopen the context menu just to check its skins.",
 	]},
+	{"version": "3.65.1", "title": "Hotfix: Skin Consistency", "notes": [
+		"An equipped skin now shows consistently everywhere its item can appear - the Hotbar, Safe Pockets, the in-raid Backpack inventory, and the little drag-preview icon when picking an item up off your character doll - instead of reverting to a plain rarity color in those specific spots while showing correctly everywhere else.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

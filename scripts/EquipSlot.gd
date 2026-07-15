@@ -149,16 +149,16 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	var preview := PanelContainer.new()
 	preview.custom_minimum_size = Vector2(48, 48)
 	preview.modulate.a = 0.9
-	var rarity_color: Color = GameManager.get_rarity_color(current_item.get("rarity", "common"))
+	var display_color: Color = GameManager.get_display_color(current_item)
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.1, 0.1, 0.1, 0.9)
-	sb.border_color = rarity_color
+	sb.border_color = display_color
 	sb.set_border_width_all(2)
 	sb.set_corner_radius_all(4)
 	preview.add_theme_stylebox_override("panel", sb)
 	var item_icon = ItemIconScene.instantiate()
 	item_icon.icon_key = current_item.get("icon_key", "generic")
-	item_icon.icon_color = rarity_color
+	item_icon.icon_color = display_color
 	preview.add_child(item_icon)
 	preview.position = -preview.custom_minimum_size / 2.0
 	set_drag_preview(preview)

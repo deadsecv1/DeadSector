@@ -29,7 +29,7 @@ func _refresh() -> void:
 	else:
 		text = ""
 		tooltip_text = "%s\nSafe - protected even on death." % item.get("name", "?")
-		var rarity_color: Color = GameManager.get_rarity_color(item.get("rarity", "common"))
+		var rarity_color: Color = GameManager.get_display_color(item)
 		var sb := StyleBoxFlat.new()
 		sb.bg_color = Color(0.08, 0.16, 0.1, 0.95)
 		sb.border_color = Color(0.5, 0.95, 0.6, 1)
@@ -100,7 +100,7 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	var preview := PanelContainer.new()
 	preview.custom_minimum_size = Vector2(48, 48)
 	preview.modulate.a = 0.9
-	var rarity_color: Color = GameManager.get_rarity_color(item.get("rarity", "common"))
+	var rarity_color: Color = GameManager.get_display_color(item)
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.1, 0.1, 0.1, 0.9)
 	sb.border_color = rarity_color

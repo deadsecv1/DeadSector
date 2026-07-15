@@ -207,7 +207,7 @@ func _update_slot_visual(btn, slot_key: String, item) -> void:
 
 		var icon = ItemIconScene.instantiate()
 		icon.icon_key = item.get("icon_key", "generic")
-		icon.icon_color = rarity_color
+		icon.icon_color = GameManager.get_display_color(item)
 		icon.anchor_right = 1.0
 		icon.anchor_bottom = 1.0
 		icon.offset_left = icon_inset

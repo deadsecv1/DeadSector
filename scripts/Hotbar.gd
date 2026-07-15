@@ -74,7 +74,7 @@ func _refresh_slots() -> void:
 	var weapon = GameManager.equipped_items.get("weapon")
 	if weapon != null:
 		icons[0].icon_key = weapon.get("icon_key", "pistol")
-		icons[0].icon_color = GameManager.get_rarity_color(weapon.get("rarity", "common"))
+		icons[0].icon_color = GameManager.get_display_color(weapon)
 		slots[0].tooltip_text = weapon.get("name", "Weapon")
 	else:
 		icons[0].icon_key = "pistol"
@@ -93,7 +93,7 @@ func _refresh_slots() -> void:
 		if i < entries.size():
 			var item: Dictionary = entries[i]["item"]
 			icons[slot_index].icon_key = item.get("icon_key", "medkit")
-			icons[slot_index].icon_color = GameManager.get_rarity_color(item.get("rarity", "common"))
+			icons[slot_index].icon_color = GameManager.get_display_color(item)
 			icons[slot_index].visible = true
 			slots[slot_index].tooltip_text = item.get("name", "Item")
 		else:
