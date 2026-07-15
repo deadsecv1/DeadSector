@@ -139,6 +139,11 @@ func _ready() -> void:
 		elif slot == "backpack":
 			backpack_storage_popup.open()
 		elif slot in ["medical_case", "gun_case", "armor_case", "key_case"]:
+			# Same stale-index risk as Sort/Equip above, when opening a
+			# case removes the item from stash_items.
+			if source == "stash" and quick_sell_mode:
+				GameManager.toast_requested.emit("Finish or cancel Quick Sell first")
+				return
 			var case_type: String = slot.trim_suffix("_case")
 			GameManager.open_case_item(index, source, case_type)
 			refresh()
@@ -152,13 +157,28 @@ func _ready() -> void:
 			open_bag_panel.open_for(index, source, item)
 	)
 	item_context_menu.deposit_egg_requested.connect(func(index, _source, _item):
+		# Same stale-index risk as Sort/Equip above - depositing removes
+		# the egg from stash_items, shifting every later index down by one.
+		if quick_sell_mode:
+			GameManager.toast_requested.emit("Finish or cancel Quick Sell first")
+			return
 		if GameManager.deposit_egg_from_stash(index):
 			refresh()
 			GameManager.toast_requested.emit("Egg moved to the Hatchery - head to Salvaged Beasts to start it hatching.")
 		else:
 			GameManager.toast_requested.emit("Couldn't deposit that egg")
 	)
-	item_context_menu.attachments_requested.connect(func(index, source, _item): attachments_panel.open_for(index, source))
+	item_context_menu.attachments_requested.connect(func(index, source, _item):
+		# Same stale-index risk as Sort/Equip above - installing/removing
+		# an attachment removes the weapon from stash_items to reinsert it
+		# with the attachment applied, shifting every later index down by
+		# one. Simplest safe fix is just not letting the panel open at all
+		# mid-selection, same as every other stash_items-mutating action.
+		if source == "stash" and quick_sell_mode:
+			GameManager.toast_requested.emit("Finish or cancel Quick Sell first")
+			return
+		attachments_panel.open_for(index, source)
+	)
 	item_context_menu.rotate_requested.connect(func(index, source, _item):
 		if GameManager.rotate_item(index, source):
 			refresh()

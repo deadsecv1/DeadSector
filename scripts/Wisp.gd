@@ -20,6 +20,17 @@ func _ready() -> void:
 	modulate.a = 0.9
 
 func die() -> void:
+	# Same is_dead guard base Enemy.gd's die() has - lost by overriding
+	# die() entirely. Without it, a shotgun/burst weapon's several bullets
+	# landing in the same frame (queue_free() doesn't remove the node until
+	# end-of-frame) could each independently re-emit wisp_died, and
+	# SoulRealm.gd's wave-clear counter only expects exactly one emit per
+	# real death - a double-emit from one overkilled Wisp could end a
+	# Commune wave (or trigger the Wave 20 finale) while real Wisps are
+	# still alive.
+	if is_dead:
+		return
+	is_dead = true
 	wisp_died.emit()
 	var souls_amount: int = randi_range(3, 8)
 	GameManager.add_currency("souls", souls_amount)

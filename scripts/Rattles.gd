@@ -52,6 +52,15 @@ func _build_bone_ring() -> void:
 		add_child(bone)
 		bone_nodes.append(bone)
 
+# Same override Spike.gd has, for the same reason: the base AI stops
+# advancing at 60% of attack_range (258px here, since Rattles doesn't
+# override attack_range), fine for a normal enemy, but Rattles' bone ring
+# only actually damages within bone_radius+16 (~94px). Without this,
+# Rattles never closes to melee range on its own - it just hangs back
+# taking free shots and throwing bones forever.
+func _hold_distance() -> float:
+	return bone_radius * 0.4
+
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	_spin_bones(delta)
@@ -115,6 +124,15 @@ func _shoot() -> void:
 # Boss kill: guaranteed 2 Exotics + 5 Mythics + blueprint + attachments +
 # a big pile of extra loot and currency.
 func die() -> void:
+	# Same is_dead guard base Enemy.gd's die() has - lost by overriding
+	# die() entirely. Without it, a shotgun/burst weapon's several bullets
+	# landing on Rattles in the same frame (queue_free() doesn't remove the
+	# node until end-of-frame) could each independently re-run this whole
+	# function, re-rolling and re-granting the entire guaranteed boss
+	# reward (2 Exotics + 5 Mythics + currency) multiple times for one kill.
+	if is_dead:
+		return
+	is_dead = true
 	died.emit()
 	GameManager.notify_event("kill_enemy")
 	GameManager.notify_event("kill_rattles")

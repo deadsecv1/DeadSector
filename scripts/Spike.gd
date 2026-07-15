@@ -125,6 +125,15 @@ func _shoot() -> void:
 # Boss kill: guaranteed Exotic + 2 Mythics + blueprint + attachments +
 # a big pile of extra loot and currency - a real reward for the fight.
 func die() -> void:
+	# Same is_dead guard base Enemy.gd's die() has - lost by overriding
+	# die() entirely. Without it, a shotgun/burst weapon's several bullets
+	# landing on Spike in the same frame (queue_free() doesn't remove the
+	# node until end-of-frame) could each independently re-run this whole
+	# function, re-rolling and re-granting the entire guaranteed boss
+	# reward (Exotic + 2 Mythics + currency) multiple times for one kill.
+	if is_dead:
+		return
+	is_dead = true
 	died.emit()
 	GameManager.notify_event("kill_enemy")
 	GameManager.record_kill()

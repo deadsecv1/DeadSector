@@ -11,11 +11,33 @@ const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
 
 @onready var card_row: HBoxContainer = $VBox/CardRow
 
+# Transition.change_scene() fades out over 0.5s before actually swapping
+# scenes, and the fade overlay is deliberately click-through
+# (mouse_filter = IGNORE in Transition.gd) - without this guard, a second
+# click on the same or a different card during that window called
+# apply_arena_loadout_preset() again, which re-snapshots CURRENT
+# equipped_items as "the real loadout to restore later" - the second
+# snapshot captures the first preset's gear instead of the player's
+# actual gear, permanently losing it (and granting a duplicate ammo
+# stack) once the match ends and the snapshot gets restored.
+var _choice_made: bool = false
+
 func _input(event: InputEvent) -> void:
 	if GlobalChatBox.chat_box_open:
 		return
 	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
 		get_viewport().set_input_as_handled()
+		# Same cleanup TheGrid.gd's own _return_to_main_menu() does -
+		# generate_clan_war_match() sets is_arena_match/is_clan_war true
+		# and burns the day's Clan War attempt before the player ever
+		# reaches this screen, so backing out here with Escape (instead of
+		# picking a preset) used to leave both flags stuck true - the next
+		# completely unrelated raid would then misread them as an Arena
+		# match (wrong end screen, wrong stone reward, undeserved guild
+		# honor, and no gear lost on death).
+		GameManager.end_arena_loadout_if_active()
+		GameManager.is_arena_match = false
+		GameManager.is_clan_war = false
 		Transition.change_scene_instant("res://scenes/MainMenu.tscn")
 
 func _ready() -> void:
@@ -136,5 +158,8 @@ func _make_gear_icon(item: Dictionary) -> Control:
 	return box
 
 func _choose_preset(preset_id: String) -> void:
+	if _choice_made:
+		return
+	_choice_made = true
 	GameManager.apply_arena_loadout_preset(preset_id)
 	Transition.change_scene("res://scenes/TheGrid.tscn")

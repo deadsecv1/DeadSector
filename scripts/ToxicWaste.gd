@@ -12,6 +12,16 @@ func _ready() -> void:
 	mask.color = Color(0.35, 0.5, 0.15, 1)
 
 func die() -> void:
+	# Overriding die() entirely (for the custom gas-mask-chance loot) means
+	# this class never inherited base Enemy.gd's is_dead guard - a shotgun's
+	# 5 pellets (or a top-tier weapon's 3-5 shot burst) landing in the same
+	# physics frame, before queue_free() actually removes this node, could
+	# each independently trigger a full die() call, re-rolling loot/currency
+	# every extra time. Setting is_dead here restores the same guard
+	# take_damage() already checks.
+	if is_dead:
+		return
+	is_dead = true
 	died.emit()
 	GameManager.notify_event("kill_enemy")
 	GameManager.record_kill()

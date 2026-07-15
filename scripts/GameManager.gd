@@ -5652,7 +5652,16 @@ func reset_character() -> void:
 	gun_case_storage = []
 	armor_case_storage = []
 	key_case_storage = []
-	equipped_items = {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null, "backpack": null}
+	# Missing "helmet_attachment" here (present in the class-level default
+	# at the top of the file) used to silently lock that whole gear slot
+	# for the rest of the session after a Delete Character/Wipe - every
+	# equip/unequip function gates on equipped_items.has(slot), a key-
+	# existence check, so a dropped key (not null - genuinely absent)
+	# made Tac Visor/Comms Headset/Nightvision Goggles/etc uneqippable
+	# through any UI path, with no error feedback, until the next full
+	# app relaunch resupplied the missing key.
+	equipped_items = {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null, "backpack": null, "helmet_attachment": null}
+	has_shown_chat_keybind_hint = false
 	player_loadout_presets = [null, null, null]
 	player_guild_id = ""
 	player_guild_name = ""
@@ -8226,17 +8235,25 @@ func get_gauntlet_weapon_type_label(item: Dictionary) -> String:
 
 func get_item_footprint(item: Dictionary) -> Vector2i:
 	var slot: String = item.get("slot", "")
+	var fp := Vector2i(1, 1)
 	if slot == "weapon":
 		match item.get("icon_key", ""):
 			"sniper":
-				return Vector2i(3, 1)
+				fp = Vector2i(3, 1)
 			"rifle", "shotgun", "railgun":
-				return Vector2i(2, 1)
+				fp = Vector2i(2, 1)
 			_:
-				return Vector2i(1, 1)
-	if slot == "body":
-		return Vector2i(2, 2)
-	return Vector2i(1, 1)
+				fp = Vector2i(1, 1)
+	elif slot == "body":
+		fp = Vector2i(2, 2)
+	# rotate_item() below only ever flips this flag - every consumer of an
+	# item's footprint (tile sizing, drag-drop placement math, overlap
+	# checks) reads it through this one function, so checking "rotated"
+	# here is the only place that needs to, and Rotate actually does
+	# something now instead of silently flipping an inert flag.
+	if item.get("rotated", false):
+		return Vector2i(fp.y, fp.x)
+	return fp
 
 # Rotates an item 90 degrees (swaps its footprint width/height) if the
 # rotated footprint actually fits at its current grid position without
@@ -8254,7 +8271,12 @@ func rotate_item(index: int, source: String) -> bool:
 	var new_fp := Vector2i(current_fp.y, current_fp.x)
 	var gx := int(it.get("grid_x", 0))
 	var gy := int(it.get("grid_y", 0))
-	if gx + new_fp.x > GRID_COLS:
+	# GRID_COLS (8) is the carried Backpack's width - the Stash is 11 wide
+	# (STASH_GRID_COLS), so this unconditionally used the wrong, narrower
+	# limit for stash-side items, wrongly refusing valid rotations for
+	# anything sitting in the Stash grid's rightmost ~3 columns.
+	var max_cols: int = STASH_GRID_COLS if source == "stash" else GRID_COLS
+	if gx + new_fp.x > max_cols:
 		return false
 	if _footprint_overlaps(items, gx, gy, new_fp.x, new_fp.y, it):
 		return false

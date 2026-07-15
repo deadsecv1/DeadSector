@@ -99,12 +99,24 @@ func setup(p_index: int, p_item: Dictionary, p_source: String = "stash") -> void
 	var icon = ItemIconScene.instantiate()
 	icon.icon_key = item.get("icon_key", "generic")
 	icon.icon_color = GameManager.get_display_color(item)
-	icon.position = Vector2(3, 3)
-	icon.size = Vector2(fp.x * _cell() - 6, fp.y * _cell() - 6)
 	icon.stretch_to_fill = true
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon.set_spin_for_item(item)
 	icon.set_tag_for_item(item)
+	if item.get("rotated", false):
+		# fp is already the swapped (rotated) footprint the tile itself is
+		# sized to - size the icon to the ORIGINAL unrotated proportions
+		# instead and spin the control 90 degrees around its own center, so
+		# the art actually rotates instead of squishing/stretching to fill
+		# a box shaped for the opposite orientation.
+		var unrotated_size := Vector2(fp.y * _cell() - 6, fp.x * _cell() - 6)
+		icon.size = unrotated_size
+		icon.pivot_offset = unrotated_size / 2.0
+		icon.position = size / 2.0 - unrotated_size / 2.0
+		icon.rotation = PI / 2.0
+	else:
+		icon.position = Vector2(3, 3)
+		icon.size = Vector2(fp.x * _cell() - 6, fp.y * _cell() - 6)
 	add_child(icon)
 
 	if CASE_SLOTS.has(item.get("slot", "")):
@@ -297,6 +309,19 @@ var _last_click_time_ms: int = -999999
 const DOUBLE_CLICK_WINDOW_MS := 400
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
+	# Quick Sell tracks stash_items indices while items are selected -
+	# dragging a DIFFERENT tile out to equip/Backpack Storage/a Safe Pocket
+	# mid-selection removes an item from that same array, shifting every
+	# later index down by one, so a confirmed sale could hit whatever item
+	# now sits at a stale index instead of what was actually selected (the
+	# double-click branch below already guarded its own auto-equip against
+	# this; plain drags fell through and built working drag data anyway).
+	# Returning null here without setting did_drag still lets a click with
+	# a little incidental drift fall through to _gui_input()'s release
+	# handler below, which is what actually emits quick_sell_toggled - so
+	# selecting items for Quick Sell still works exactly as before.
+	if quick_sell_mode:
+		return null
 	# Double-click detection lives here rather than on the mouse-release
 	# event in _gui_input - Godot calls _get_drag_data() on essentially
 	# any motion during a press, and a fast double-click's second click
