@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/Marauder.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ItemIcon.gd" id="2"]
 
 [sub_resource type="CircleShape2D" id="1"]
 radius = 20.0
@@ -101,7 +102,44 @@ show_percentage = false
 modulate = Color(1, 0.3, 0.25, 1)
 theme_override_styles/background = SubResource("StyleBoxFlat_hpbg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_hpfill")
+[node name="HelmetIcon" type="Control" parent="Visuals"]
+visible = false
+position = Vector2(-7, -14)
+size = Vector2(14, 14)
+mouse_filter = 2
+script = ExtResource("2")
+icon_key = "helmet"
+
+[node name="AccessoryIcon" type="Control" parent="Visuals"]
+visible = false
+position = Vector2(2, -4)
+size = Vector2(11, 11)
+mouse_filter = 2
+script = ExtResource("2")
+icon_key = "ring"
+
+[node name="BackpackIcon" type="Control" parent="Visuals"]
+visible = false
+position = Vector2(-6.5, 1.5)
+size = Vector2(13, 13)
+mouse_filter = 2
+script = ExtResource("2")
+icon_key = "backpack"
+
+[node name="BootsIcon" type="Control" parent="Visuals"]
+visible = false
+position = Vector2(-6, 12)
+size = Vector2(12, 10)
+mouse_filter = 2
+script = ExtResource("2")
+icon_key = "boots"
+
 [node name="GunPivot" type="Node2D" parent="Visuals"]
+
+[node name="ExternalGunSprite" type="Sprite2D" parent="Visuals/GunPivot"]
+position = Vector2(16, 14)
+scale = Vector2(3, 3)
+visible = false
 
 [node name="GunVisual" type="Node2D" parent="Visuals/GunPivot"]
 

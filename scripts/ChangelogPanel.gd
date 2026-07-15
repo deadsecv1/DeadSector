@@ -1114,6 +1114,12 @@ const CHANGELOG_CURRENT := [
 		"Doubled Arena Rank rewards (Rubles, Artifacts, Alloys, Skill Points) across all 6 ranks, with most ranks' Loot Bags raised a rarity step.",
 		"Doubled Bloodline's and Salvaged Beasts' Ruble/Blood Shard/Ticket reward formulas, the Gauntlet's per-level Blood Shard grant and its level-5 finale payout, and the Bitcoin Farm's per-cycle payout.",
 	]},
+	{"version": "3.64.0", "title": "Gear Now Actually Shows Up On Your Character (and Theirs)", "notes": [
+		"Equipping a Helmet, Backpack, or Accessory now shows a real icon for that specific item (a gas mask looks like a gas mask, a watch looks like a watch, a grenade rig looks like a grenade rig) instead of the same flat colored blob every time - the same art already used for that item in your inventory grid, just worn on the character.",
+		"Body armor and Boots previously showed no visual change at all once real player art shipped (assets/player.png quietly made the old torso/leg recoloring dead code) - fixed: Body now tints your whole character toward its rarity color, and Boots gets the same real per-item icon treatment as the other slots.",
+		"Real Player enemies (raid operators and Arena opponents) now visibly wear a rolled-up gear loadout of their own - helmet, body tint, backpack, accessory, boots, and a real weapon (correctly scaled and using the same weapon sprite art you get) instead of every single one looking like an identical fixed green-vest raider. Arena opponents specifically wear the same loadout already shown for them on the Current Teams panel.",
+		"Real Player enemies also now sometimes bring a cosmetic pet along - purely for looks, no stat effect either way.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

@@ -46,12 +46,6 @@ position = Vector2(5.5, 17.5)
 color = Color(0.16, 0.16, 0.2, 1)
 polygon = PackedVector2Array(-2.5, -4.5, 2.5, -4.5, 2.5, 4.5, -2.5, 4.5)
 
-[node name="BackpackShape" type="Polygon2D" parent="Visuals"]
-visible = false
-position = Vector2(0, 2)
-color = Color(0.3, 0.24, 0.12, 1)
-polygon = PackedVector2Array(-9, -10, 9, -10, 11, 12, -11, 12)
-
 [node name="TorsoOutline" type="Line2D" parent="Visuals"]
 points = PackedVector2Array(13, 0, 11.26, 7.5, 6.5, 12.99, 0, 15, -6.5, 12.99, -11.26, 7.5, -13, 0, -11.26, -7.5, -6.5, -12.99, 0, -15, 6.5, -12.99, 11.26, -7.5)
 closed = true
@@ -65,12 +59,6 @@ polygon = PackedVector2Array(13, 0, 11.26, 7.5, 6.5, 12.99, 0, 15, -6.5, 12.99, 
 [node name="ChestStrap" type="Polygon2D" parent="Visuals"]
 color = Color(0.12, 0.28, 0.5, 1)
 polygon = PackedVector2Array(-3, -13, 3, -13, 5, 13, -5, 13)
-
-[node name="AccessoryGlow" type="Polygon2D" parent="Visuals"]
-visible = false
-position = Vector2(9, 4)
-color = Color(1, 0.85, 0.3, 1)
-polygon = PackedVector2Array(3, 0, 0, 3, -3, 0, 0, -3)
 
 [node name="HeldItemIcon" type="Control" parent="Visuals"]
 visible = false
@@ -95,10 +83,37 @@ position = Vector2(-3, 0.5)
 color = Color(0.2, 0.13, 0.09, 1)
 polygon = PackedVector2Array(6, 0, 4.85, 3.53, 1.85, 5.71, -1.85, 5.71, -4.85, 3.53, -6, 0, -4.85, -3.53, -1.85, -5.71, 1.85, -5.71, 4.85, -3.53)
 
-[node name="Helmet" type="Polygon2D" parent="Visuals"]
+[node name="HelmetIcon" type="Control" parent="Visuals"]
 visible = false
-color = Color(0.3, 0.32, 0.34, 1)
-polygon = PackedVector2Array(9.5, 0, 7.68, 5.58, 2.94, 9.02, -2.94, 9.02, -7.68, 5.58, -9.5, 0, -7.68, -5.58, -2.94, -9.02, 2.94, -9.02, 7.68, -5.58)
+position = Vector2(-8, -16)
+size = Vector2(16, 16)
+mouse_filter = 2
+script = ExtResource("6")
+icon_key = "helmet"
+
+[node name="AccessoryIcon" type="Control" parent="Visuals"]
+visible = false
+position = Vector2(2.5, -4.5)
+size = Vector2(13, 13)
+mouse_filter = 2
+script = ExtResource("6")
+icon_key = "ring"
+
+[node name="BackpackIcon" type="Control" parent="Visuals"]
+visible = false
+position = Vector2(-7.5, 1.5)
+size = Vector2(15, 15)
+mouse_filter = 2
+script = ExtResource("6")
+icon_key = "backpack"
+
+[node name="BootsIcon" type="Control" parent="Visuals"]
+visible = false
+position = Vector2(-7, 13.5)
+size = Vector2(14, 11)
+mouse_filter = 2
+script = ExtResource("6")
+icon_key = "boots"
 
 [node name="GunPivot" type="Node2D" parent="Visuals"]
 

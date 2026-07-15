@@ -35,6 +35,13 @@ const BOSS_DAMAGE_MULT := 1.1 # same rate regular attack_damage scales at
 # as a real player. Always drops Dog Tags on death.
 @export var is_real_player: bool = false
 
+# Cosmetic-only loadout for a Real Player - same shape as GameManager's
+# equipped_items (slot -> item dict with icon_key/rarity). Never affects
+# stats. Left empty here and auto-rolled in _ready() via GameManager.
+# generate_random_enemy_gear() unless a spawner (e.g. TheGrid.gd's Arena
+# matchmaking) assigns a specific one first.
+var gear: Dictionary = {}
+
 # Set true on the Spike boss scene - ties into the "Kill Spike" quest.
 @export var is_boss: bool = false
 
@@ -90,6 +97,17 @@ const DASH_DURATION := 0.22
 @onready var chest_strap: Polygon2D = $Visuals/ChestStrap
 @onready var mask: Polygon2D = $Visuals/Mask
 @onready var cap: Polygon2D = $Visuals/Cap
+# Real Player-only overlays (gear icons, weapon sprite swap) live on
+# the base Enemy.tscn only - the 11 typed-monster subclasses below
+# are each their own independent .tscn copy (not Godot scene
+# inheritance) that never sets is_real_player, so they were never
+# given these nodes and would error resolving them at @onready
+# time otherwise.
+@onready var helmet_icon = get_node_or_null("Visuals/HelmetIcon")
+@onready var backpack_icon = get_node_or_null("Visuals/BackpackIcon")
+@onready var accessory_icon = get_node_or_null("Visuals/AccessoryIcon")
+@onready var boots_icon = get_node_or_null("Visuals/BootsIcon")
+@onready var external_gun_sprite: Sprite2D = get_node_or_null("Visuals/GunPivot/ExternalGunSprite")
 @onready var name_tag: Label = $Visuals/NameTag
 @onready var health_bar: ProgressBar = $Visuals/HealthBar
 
@@ -142,6 +160,10 @@ func _ready() -> void:
 		shoot_cooldown *= 0.7
 		_dash_timer = randf_range(4.0, 7.0)
 		add_to_group("real_player")
+		if gear.is_empty():
+			gear = GameManager.generate_random_enemy_gear()
+		_apply_gear_visuals()
+		_maybe_spawn_cosmetic_pet()
 	elif is_elite_guard:
 		_apply_random_raider_look()
 		# Tougher than a normal Raider so it's a real "should I risk this"
@@ -243,6 +265,108 @@ func _apply_real_player_look() -> void:
 		cap.visible = true
 	name_tag.visible = true
 	name_tag.text = _random_username()
+
+# Same rarity-tint curve Player.gd's _gear_tint() uses (no skin-color
+# check - skins are a player-only cosmetic purchase), so a Real Player
+# opponent visibly wearing a Legendary/Mythic piece reads the same way
+# your own character's gear does.
+func _gear_tint(item) -> Color:
+	if item == null:
+		return Color.WHITE
+	var rarity: String = String(item.get("rarity", "common"))
+	var mult: float = GameManager.get_rarity_multiplier(rarity)
+	var blend: float = clamp((mult - 1.0) / 9.0, 0.0, 1.0) * 0.6
+	return Color.WHITE.lerp(GameManager.get_rarity_color(rarity), blend)
+
+# --- Renders this Real Player's rolled `gear` loadout: an icon per slot
+# (same ItemIcon.gd art the inventory grid and Player.gd's own doll use)
+# plus a body-armor tint and a weapon scale/sprite swap, mirroring
+# Player.gd's _update_appearance()/_update_external_gun_sprite() convention
+# so an opponent's loadout actually shows up on them instead of every
+# Real Player looking like the same fixed green-vest operator regardless
+# of what they're "carrying".
+const GUN_SCALE_BY_ICON := {
+	"rifle": Vector2(1.35, 1.0), "sniper": Vector2(1.65, 1.0),
+	"flamethrower": Vector2(1.5, 1.2), "thorn": Vector2(1.2, 1.0),
+	"railgun": Vector2(1.7, 1.15), "alpha_cannon": Vector2(1.9, 1.3),
+}
+var _enemy_gun_sprite_cache: Dictionary = {}
+
+func _apply_gear_visuals() -> void:
+	var head_item = gear.get("head")
+	helmet_icon.visible = head_item != null
+	if helmet_icon.visible:
+		helmet_icon.icon_key = String(head_item.get("icon_key", "helmet"))
+		helmet_icon.icon_color = _gear_tint(head_item)
+		helmet_icon.queue_redraw()
+
+	var body_item = gear.get("body")
+	var body_tint: Color = _gear_tint(body_item)
+	if _using_external_sprite:
+		external_sprite.modulate = body_tint
+	else:
+		torso.modulate = body_tint
+
+	var boots_item = gear.get("boots")
+	boots_icon.visible = boots_item != null
+	if boots_icon.visible:
+		boots_icon.icon_key = String(boots_item.get("icon_key", "boots"))
+		boots_icon.icon_color = _gear_tint(boots_item)
+		boots_icon.queue_redraw()
+
+	var backpack_item = gear.get("backpack")
+	backpack_icon.visible = backpack_item != null
+	if backpack_icon.visible:
+		backpack_icon.icon_key = String(backpack_item.get("icon_key", "backpack"))
+		backpack_icon.icon_color = _gear_tint(backpack_item)
+		backpack_icon.queue_redraw()
+
+	var accessory_item = gear.get("accessory")
+	accessory_icon.visible = accessory_item != null
+	if accessory_item != null:
+		accessory_icon.icon_key = String(accessory_item.get("icon_key", "ring"))
+		accessory_icon.icon_color = _gear_tint(accessory_item)
+		accessory_icon.queue_redraw()
+
+	var weapon_item = gear.get("weapon")
+	var weapon_icon: String = String(weapon_item.get("icon_key", "pistol")) if weapon_item != null else "pistol"
+	gun_visual.scale = GUN_SCALE_BY_ICON.get(weapon_icon, Vector2(1.0, 1.0))
+	gun_visual.modulate = _gear_tint(weapon_item)
+	var path := "res://assets/weapons/%s.png" % weapon_icon
+	if ResourceLoader.exists(path):
+		if not _enemy_gun_sprite_cache.has(weapon_icon):
+			_enemy_gun_sprite_cache[weapon_icon] = load(path)
+		external_gun_sprite.texture = _enemy_gun_sprite_cache[weapon_icon]
+		external_gun_sprite.modulate = gun_visual.modulate
+		external_gun_sprite.visible = true
+		gun_visual.visible = false
+	else:
+		external_gun_sprite.visible = false
+		gun_visual.visible = true
+
+# A cosmetic-only companion so Real Player opponents occasionally show
+# up with a pet trailing them, same as a geared-up human player might.
+# Deliberately does NOT reuse Pet.tscn's own script behavior beyond
+# _ready() - Pet.gd's _physics_process() makes it follow whichever node
+# is in the "player" group and actually deals damage to nearby "enemy"-
+# group nodes, both very wrong for something hanging off an enemy, so
+# physics_process is disabled immediately and it's parented directly to
+# this enemy instead, which makes it follow for free via normal transform
+# inheritance and get freed automatically when this enemy does.
+const PET_SCENE := preload("res://scenes/Pet.tscn")
+const COSMETIC_PET_CHANCE := 0.3
+
+func _maybe_spawn_cosmetic_pet() -> void:
+	if randf() >= COSMETIC_PET_CHANCE:
+		return
+	var pet_ids: Array = GameManager.PET_CATALOG.keys()
+	if pet_ids.is_empty():
+		return
+	var pet = PET_SCENE.instantiate()
+	pet.pet_id = pet_ids[randi() % pet_ids.size()]
+	add_child(pet)
+	pet.position = Vector2(-34, 22)
+	pet.set_physics_process(false)
 
 # --- Optional external art: checks res://assets/enemy_<type>.png first
 # (set via enemy_type_id, e.g. "skeleton", "ghost") so different enemy

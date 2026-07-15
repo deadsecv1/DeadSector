@@ -129,9 +129,10 @@ func cancel_chat_typing() -> void:
 @onready var torso: Polygon2D = $Visuals/Torso
 @onready var head: Polygon2D = $Visuals/Head
 @onready var hair_cap: Polygon2D = $Visuals/HairCap
-@onready var helmet: Polygon2D = $Visuals/Helmet
-@onready var backpack_shape: Polygon2D = $Visuals/BackpackShape
-@onready var accessory_glow: Polygon2D = $Visuals/AccessoryGlow
+@onready var helmet_icon = $Visuals/HelmetIcon
+@onready var backpack_icon = $Visuals/BackpackIcon
+@onready var accessory_icon = $Visuals/AccessoryIcon
+@onready var boots_icon = $Visuals/BootsIcon
 @onready var held_item_icon = $Visuals/HeldItemIcon
 @onready var laser_line: Line2D = $LaserLine
 @onready var trajectory_line: Line2D = $TrajectoryLine
@@ -217,8 +218,8 @@ func _ready() -> void:
 # no code changes needed. Falls back to vector art if the file is missing.
 #
 # Only the base body shapes are hidden here - the gun and the
-# helmet/backpack/accessory overlays are separate pieces drawn on top
-# of the body, not replaced by it, so they keep working normally and
+# helmet/backpack/accessory/boots overlays are separate pieces drawn on
+# top of the body, not replaced by it, so they keep working normally and
 # still change dynamically with equipped weapon/gear.
 func _try_load_external_sprite() -> void:
 	var path := "res://assets/player.png"
@@ -441,15 +442,16 @@ func _recompute_ammo() -> void:
 		current_mag = min(current_mag, mag_size)
 	_update_ammo_display()
 
-# Changes how the character LOOKS based on what's currently equipped:
-# a helmet appears if Head is filled, torso/legs recolor for Body/Boots,
-# a pack appears on the back for Backpack, a small glow for Accessory, and
-# the gun barrel lengthens for a rifle-type Weapon. All done with the
-# existing vector shapes - no new art needed. If external art
-# (res://assets/player.png) is active, the base-body recolor is skipped
-# (there's no torso/legs to recolor - the sprite fills that role), but
-# the helmet/backpack/accessory/gun overlays are separate pieces drawn
-# on top of the body and keep updating normally either way.
+# Changes how the character LOOKS based on what's currently equipped: a
+# real icon (the same per-icon_key art ItemIcon.gd draws for the
+# inventory grid - helmet vs gas mask, ring vs watch vs grenade vs flare
+# vs hard_plate, etc.) overlays the head/backpack/accessory/boots spots,
+# torso/legs recolor for Body/Boots when there's no external body sprite,
+# and the gun barrel lengthens for a rifle-type Weapon. If external art
+# (res://assets/player.png) is active there's no torso/legs left to
+# recolor (the sprite fills that role), so Body instead tints the whole
+# sprite and Boots falls back to its own overlay icon like the other
+# slots - either way, every equipped slot stays visually represented.
 #
 # A purchased Skin (from the Store) always wins if one's equipped for
 # that icon_key - that's a deliberate player choice. Otherwise, gear
@@ -475,34 +477,65 @@ func _update_appearance() -> void:
 	var using_external: bool = external_sprite.visible
 
 	var head_item = equipped.get("head")
-	helmet.visible = head_item != null
-	hair_cap.visible = not helmet.visible and not using_external
-	helmet.modulate = _gear_tint(head_item, String(head_item.get("icon_key", "helmet"))) if head_item != null else Color.WHITE
+	helmet_icon.visible = head_item != null
+	hair_cap.visible = head_item == null and not using_external
+	if helmet_icon.visible:
+		helmet_icon.icon_key = String(head_item.get("icon_key", "helmet"))
+		helmet_icon.icon_color = _gear_tint(head_item, helmet_icon.icon_key)
+		helmet_icon.queue_redraw()
 
-	if not using_external:
-		var body_item = equipped.get("body")
+	# Body armor: recolors the vector torso directly when there's no real
+	# body sprite, or tints the whole external sprite when there is one -
+	# a Sprite2D has no separate "torso region" to recolor on its own, so
+	# without this branch equipping/unequipping body armor was silently a
+	# complete no-op visually once assets/player.png shipped (see boots
+	# below for the same problem solved the other way, via an overlay icon
+	# instead, since a color wash over the whole sprite wouldn't read as
+	# "boots changed").
+	var body_item = equipped.get("body")
+	var body_tint: Color = _gear_tint(body_item, String(body_item.get("icon_key", "chestplate"))) if body_item != null else Color.WHITE
+	if using_external:
+		external_sprite.modulate = body_tint
+	else:
+		external_sprite.modulate = Color.WHITE
 		torso.color = BODY_COLOR_ARMORED if body_item != null else BODY_COLOR_DEFAULT
-		torso.modulate = _gear_tint(body_item, String(body_item.get("icon_key", "chestplate"))) if body_item != null else Color.WHITE
+		torso.modulate = body_tint
 		torso.scale.x = 1.2 if GameManager.player_torso_style == "bulky" else (1.1 if GameManager.player_torso_style == "tactical" else 1.0)
 
-		var boots_item = equipped.get("boots")
-		var boots_on: bool = boots_item != null
-		var boots_tint: Color = _gear_tint(boots_item, String(boots_item.get("icon_key", "boots"))) if boots_on else Color.WHITE
+	var boots_item = equipped.get("boots")
+	var boots_on: bool = boots_item != null
+	var boots_tint: Color = _gear_tint(boots_item, String(boots_item.get("icon_key", "boots"))) if boots_on else Color.WHITE
+	if not using_external:
 		left_leg.color = LEG_COLOR_BOOTED if boots_on else LEG_COLOR_DEFAULT
 		right_leg.color = LEG_COLOR_BOOTED if boots_on else LEG_COLOR_DEFAULT
 		left_leg.modulate = boots_tint
 		right_leg.modulate = boots_tint
 
-	backpack_shape.visible = equipped.get("backpack") != null
-	if backpack_shape.visible:
-		var pack_scale: float = 1.3 if GameManager.player_backpack_style == "massive_pack" else (0.85 if GameManager.player_backpack_style == "sleek_rig" else 1.0)
-		backpack_shape.scale = Vector2(pack_scale, pack_scale)
+	boots_icon.visible = boots_on
+	if boots_icon.visible:
+		boots_icon.icon_key = String(boots_item.get("icon_key", "boots"))
+		boots_icon.icon_color = boots_tint
+		boots_icon.queue_redraw()
 
-	accessory_glow.visible = equipped.get("accessory") != null
-	if accessory_glow.visible:
+	backpack_icon.visible = equipped.get("backpack") != null
+	if backpack_icon.visible:
+		var backpack_item = equipped.get("backpack")
+		backpack_icon.icon_key = String(backpack_item.get("icon_key", "backpack"))
+		backpack_icon.icon_color = _gear_tint(backpack_item, backpack_icon.icon_key)
+		backpack_icon.queue_redraw()
+		var pack_scale: float = 1.3 if GameManager.player_backpack_style == "massive_pack" else (0.85 if GameManager.player_backpack_style == "sleek_rig" else 1.0)
+		backpack_icon.scale = Vector2(pack_scale, pack_scale)
+
+	accessory_icon.visible = equipped.get("accessory") != null
+	if accessory_icon.visible:
+		var accessory_item = equipped.get("accessory")
+		accessory_icon.icon_key = String(accessory_item.get("icon_key", "ring"))
 		var glow_idx: int = GameManager.player_glow_color_idx
 		if glow_idx >= 0 and glow_idx < GameManager.GLOW_COLORS.size():
-			accessory_glow.color = GameManager.GLOW_COLORS[glow_idx]["color"]
+			accessory_icon.icon_color = GameManager.GLOW_COLORS[glow_idx]["color"]
+		else:
+			accessory_icon.icon_color = _gear_tint(accessory_item, accessory_icon.icon_key)
+		accessory_icon.queue_redraw()
 
 	if weapon_icon == "rifle":
 		gun_visual.scale = Vector2(1.35, 1.0)

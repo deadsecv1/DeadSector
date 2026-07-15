@@ -2248,6 +2248,24 @@ func _roll_scav_loadout() -> void:
 			loadout[slot] = finalize_rolled_item(pool[randi() % pool.size()].duplicate(true))
 	scav_loadout = loadout
 
+# A cosmetic-only loadout for "Real Player" enemies (raid Real Players
+# and Arena opponents) so they visibly wear gear on their own character
+# instead of a fixed raider look, same idea as _roll_scav_loadout() above
+# but covering every slot Enemy.gd can now render (see _apply_gear_
+# visuals() in Enemy.gd). Purely for looks - never touches the real
+# player's own stats, and is never saved or granted as real loot.
+func generate_random_enemy_gear() -> Dictionary:
+	var rarity_pool := ["common", "uncommon", "uncommon", "rare"]
+	var rarity: String = rarity_pool[randi() % rarity_pool.size()]
+	var loadout := {}
+	for slot in ["weapon", "body", "head", "boots", "backpack", "accessory"]:
+		var pool: Array = ENEMY_LOOT_POOL.filter(func(i): return i.get("slot", "") == slot and i.get("rarity", "") == rarity)
+		if pool.is_empty():
+			pool = ENEMY_LOOT_POOL.filter(func(i): return i.get("slot", "") == slot)
+		if not pool.is_empty():
+			loadout[slot] = pool[randi() % pool.size()].duplicate(true)
+	return loadout
+
 func start_scav_run() -> void:
 	if scav_loadout.is_empty():
 		_roll_scav_loadout()

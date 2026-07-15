@@ -132,9 +132,17 @@ func _spawn_pet() -> void:
 func _spawn_opponents(team_size: int) -> void:
 	_opponents_remaining = team_size
 	var spots := _spread_positions(team_size, OPPONENT_BASE_X)
+	var roster: Array = GameManager.current_arena_match.get("team2", [])
 	for i in range(team_size):
 		var opponent = ENEMY_SCENE.instantiate()
 		opponent.is_real_player = true
+		# Same gear the Current Teams panel already shows for this roster
+		# slot, so the opponent you see standing there matches the loadout
+		# you scouted before the match started instead of rolling a fresh,
+		# unrelated one (Enemy.gd auto-rolls its own if this is empty, e.g.
+		# for a 1v1 where team2 has no gear-bearing entries at all).
+		if i < roster.size():
+			opponent.gear = roster[i].get("gear", {})
 		# died (not tree_exited) - tree_exited also fires on ordinary scene
 		# teardown (e.g. leaving via "Return to Main Menu" while an
 		# opponent is still alive), which used to be able to misfire a win.
