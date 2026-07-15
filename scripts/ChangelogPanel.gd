@@ -1099,6 +1099,14 @@ const CHANGELOG_CURRENT := [
 		"Spike's and Rattles' boss-specific attacks (spike/bone aura, thrown grenades, their custom bullets) never scaled with player progression at all, unlike their own HP (which already scales up to 4.15x) and every regular enemy's damage - fixed so their damage now scales at the same rate everything else does, since a maxed-out character was taking a trivial fraction of their max HP per hit from either boss by the time their HP pools got big enough to actually take a while to kill.",
 		"The Noxious Bat's bullet damage was hardcoded and ignored its own (correctly-scaling) attack stat entirely, so it stopped mattering at all past the earliest levels - fixed to use the same scaling stat every other regular enemy already does.",
 	]},
+	{"version": "3.62.0", "title": "Item Stat Fixes and a Full Rebalance Pass", "notes": [
+		"40+ named gear pieces (helmets, backpacks, accessories, attachments) with a Loot Sense or Fire Rate stat had a literal +0.00 placeholder value across every loot pool in the game - equipping any of them provided exactly zero of their advertised effect. Every one now carries a real value scaled by its own rarity.",
+		"Several quest rewards (Combat Boots, Reinforced Plate, Vanguard Helmet, a mythic Aegis Plate, and others) were stuck at roughly 74% of the value the same named item rolls at everywhere else in the game - fixed to match their canonical stats, and several more one-time rewards (Night Ops Boots, Sprocket's Rig, Warlord Rig, Reaper's Mark, Veteran's Plate) that were tuned well below their own stated rarity got a real boost to match.",
+		"The Prototype Rifle and Bloodfang Blade were both weaker than plain Epic-tier drops despite being Legendary - raised both, along with a genuinely stale Legendary weapon tier average across several other sources.",
+		"Found and fixed a duplicated-value copy-paste pair in the Loot Bag reward pool (a Head-slot Wraithbone Helm carrying an exact Body-slot item's numbers, and two differently-named Legendary rifles sharing identical stats), and a compressed Exotic tier that only cleared its own Mythic ceiling by 10-22% instead of the intended ~50%.",
+		"Rebalanced ~20 pricing outliers in the Flea Market's extra listings pool where an item's Ruble cost didn't track its own stat value the way every comparable item around it did.",
+		"The Weapon Data tab was quietly showing every event/Alpha/Blueprint-exclusive weapon's damage at about 74% of its real in-game value (a stale compendium copy that never tracked a past balance change) - now shows the real number.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
