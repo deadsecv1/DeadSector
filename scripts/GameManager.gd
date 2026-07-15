@@ -8364,6 +8364,16 @@ func end_run(success: bool) -> void:
 			stat_scav_extractions += 1
 		grant_stones(ARENA_WIN_STONES if is_arena_match else EXTRACTION_STONES)
 		add_score(40)
+		# "Split the loot" with your guild - simulated the same way every
+		# other social feature is (no real other players), framed as your
+		# own cut coming back rather than an actual shared pool. Isolated,
+		# self-contained addition - deliberately not touching any of this
+		# function's existing control flow given how sensitive it already is.
+		if player_guild_id != "" and carried_value > 0:
+			var guild_bonus: int = int(carried_value * 0.05)
+			if guild_bonus > 0:
+				add_currency("rubles", guild_bonus)
+				toast_requested.emit("%s sent over %d Rubles as your cut from their own runs" % [player_guild_name, guild_bonus])
 		# Extraction XP: bumped up across the board (was 20 base), plus a
 		# real Night Raid bonus on top - night raids are riskier (worse
 		# visibility, tougher odds) and should actually pay out more for

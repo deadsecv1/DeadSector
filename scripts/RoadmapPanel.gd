@@ -32,12 +32,12 @@ const ROADMAP := [
 	{"section": SECTION_LIVE, "date": "Jul 12", "title": "Draggable Windows", "desc": "Every popup window in the game can now be repositioned by its edges - Stash, Traders, Leaderboard, Mail, Global Chat, and everywhere else.", "icon": "compass"},
 	{"section": SECTION_LIVE, "date": "Jul 14", "title": "Prestige System", "desc": "Once you hit the level cap, reset back to Level 1 in exchange for a real Rubles and Skill Point bonus - a fresh climb with a reward for reaching the top.", "icon": "star"},
 	{"section": SECTION_LIVE, "date": "Jul 14", "title": "Deeper Inventory Overhaul", "desc": "Items now have real footprints in the grid - a sniper takes 3 tiles, body armor takes a 2x2 block, a pistol still fits in one. Specialized Cases (Medical, Gun, Armor, Key) are a rare find that permanently unlock their own dedicated sub-grid, decluttering your main Stash for good.", "icon": "gear"},
+	{"section": SECTION_LIVE, "date": "Jul 14", "title": "Clan System", "desc": "Your guildmates now actually share your Hideout - a couple of them wander the place with you between raids. Extract with anything worth carrying and one of them sends over a real cut of Rubles from their own runs.", "icon": "gear"},
 	# --- Coming soon. ---
 	{"section": SECTION_UPCOMING, "date": "Jul 18", "title": "Weekly Events", "desc": "Rotating modifiers - double loot weekends, blackout raids, and more.", "icon": "event"},
 	{"section": SECTION_UPCOMING, "date": "Jul 20", "title": "Weapon & Armor Durability", "desc": "Gear wears down with use, and a new Repairman in the Hideout lets you fix anything that's not already at full durability.", "icon": "gear"},
 	{"section": SECTION_UPCOMING, "date": "Jul 26", "title": "New Trader: The Fence", "desc": "A black-market dealer selling rare gear nobody asks questions about.", "icon": "money"},
 	{"section": SECTION_UPCOMING, "date": "Aug 04", "title": "PvP Extraction Mode", "desc": "Other squads are in the sector too. Not everyone's a raider.", "icon": "combat"},
-	{"section": SECTION_UPCOMING, "date": "Aug 22", "title": "Clan System", "desc": "Team up with friends, share a Hideout, split the loot.", "icon": "gear"},
 	{"section": SECTION_UPCOMING, "date": "Sep 01", "title": "New Boss: The Warden", "desc": "A second boss guarding a vault deep in a new district.", "icon": "boss"},
 	{"section": SECTION_UPCOMING, "date": "Sep 12", "title": "Vehicle Extraction", "desc": "Hot-wire a car and drive out instead of waiting on a chopper.", "icon": "vehicle"},
 	{"section": SECTION_UPCOMING, "date": "Sep 30", "title": "New Map: The Foundry", "desc": "An industrial district with tighter corridors and bigger risks.", "icon": "key"},
