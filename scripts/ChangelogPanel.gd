@@ -1072,6 +1072,11 @@ const CHANGELOG_CURRENT := [
 		"Removed the 2 random guildmate NPCs that wandered the Hideout.",
 		"Global Chat background is more transparent now (30% opacity).",
 	]},
+	{"version": "3.57.4", "title": "Instant Backpack Storage Refresh, Tech Test Mail, Pistol Icon", "notes": [
+		"Fixed double-clicking ammo/consumables into or out of Backpack Storage not visually updating until you dragged something else - the move always worked, the screen just didn't redraw until now.",
+		"The one-time Tech Test veteran reward mail now reaches every character, including a freshly wiped one - it was only ever intended for existing saves before.",
+		"Pistol-family weapons (including the Tech Tester's Sidearm) now show a real gun icon in your inventory instead of a plain vector shape.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
