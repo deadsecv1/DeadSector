@@ -2791,6 +2791,10 @@ const KEY_CATALOG := {
 	"house_b_key": {"name": "Blackthorn Estate Key", "icon_key": "key", "rarity": "rare", "value": 100, "desc": "Opens the Blackthorn Estate in Overgrowth. A rarer find than the Ashen House Key, guarding a rarer loot room."},
 	"gas_station_key": {"name": "Gas Station Key", "icon_key": "key", "rarity": "rare", "value": 100, "desc": "Opens the locked Gas Station in Boneclock. Skeletons and Ghouls patrol close enough to the pumps that finding one takes real work."},
 	"graveyard_key": {"name": "Graveyard Key", "icon_key": "key", "rarity": "legendary", "value": 0, "desc": "A cold iron key Midnight Bones handed you in the dark. Has to be in your Backpack Storage or a Safe Pocket - not just your Stash - to get through the Graveyard's gate."},
+	"trench_bunker_key": {"name": "Trench Bunker Key", "icon_key": "key", "rarity": "rare", "value": 100, "desc": "Opens the sealed bunker dug into Void Trench. Whoever built it wasn't expecting company."},
+	"foreman_shack_key": {"name": "Foreman's Shack Key", "icon_key": "key", "rarity": "rare", "value": 100, "desc": "Opens the Foreman's Shack in Ironscrap Yard. Scavengers say the old foreman never left."},
+	"foundry_office_key": {"name": "Foundry Office Key", "icon_key": "key", "rarity": "rare", "value": 100, "desc": "Opens the front office at The Foundry. Whatever's still locked in the safe wasn't worth the evacuation."},
+	"caretakers_cottage_key": {"name": "Caretaker's Cottage Key", "icon_key": "key", "rarity": "rare", "value": 100, "desc": "Opens the Caretaker's Cottage in the Graveyard. Somebody used to tend these grounds - not anymore."},
 }
 
 # --- Bloodline: a second limited-time-style event, separate from

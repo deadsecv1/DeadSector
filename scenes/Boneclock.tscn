@@ -34,34 +34,34 @@ script = ExtResource("1")
 
 [node name="Background" type="Node2D" parent="."]
 script = ExtResource("4")
-ground_size = Vector2(4000, 2800)
+ground_size = Vector2(5400, 3800)
 base_color = Color(0.22, 0.22, 0.24, 1)
 
 [node name="Atmosphere" type="Node2D" parent="."]
 z_index = 7
 script = ExtResource("13")
-area_size = Vector2(4000, 2800)
+area_size = Vector2(5400, 3800)
 
 [node name="BoneScatter" type="Node2D" parent="."]
 script = ExtResource("14")
-area_size = Vector2(3900, 2700)
-bone_count = 170
+area_size = Vector2(5300, 3700)
+bone_count = 210
 
 [node name="WallTop" parent="." instance=ExtResource("3")]
-position = Vector2(0, -1400)
-size = Vector2(3960, 40)
+position = Vector2(0, -1880)
+size = Vector2(5360, 40)
 
 [node name="WallBottom" parent="." instance=ExtResource("3")]
-position = Vector2(0, 1400)
-size = Vector2(3960, 40)
+position = Vector2(0, 1880)
+size = Vector2(5360, 40)
 
 [node name="WallLeft" parent="." instance=ExtResource("3")]
-position = Vector2(-2000, 0)
-size = Vector2(40, 2800)
+position = Vector2(-2680, 0)
+size = Vector2(40, 3800)
 
 [node name="WallRight" parent="." instance=ExtResource("3")]
-position = Vector2(2000, 0)
-size = Vector2(40, 2800)
+position = Vector2(2680, 0)
+size = Vector2(40, 3800)
 
 [node name="RoadMainH" type="Polygon2D" parent="."]
 position = Vector2(0, 0)
@@ -703,6 +703,24 @@ position = Vector2(1200, 400)
 
 [node name="Ghost5" parent="." instance=ExtResource("10")]
 position = Vector2(1600, 1100)
+
+[node name="Skeleton9" parent="." instance=ExtResource("9")]
+position = Vector2(2300, 0)
+
+[node name="Skeleton10" parent="." instance=ExtResource("9")]
+position = Vector2(-2300, 0)
+
+[node name="Ghost6" parent="." instance=ExtResource("10")]
+position = Vector2(0, -1650)
+
+[node name="Ghost7" parent="." instance=ExtResource("10")]
+position = Vector2(0, 1650)
+
+[node name="Ghoul4" parent="." instance=ExtResource("19")]
+position = Vector2(2100, -1500)
+
+[node name="Ghoul5" parent="." instance=ExtResource("19")]
+position = Vector2(-2100, 1500)
 
 [node name="Player" parent="." instance=ExtResource("2")]
 position = Vector2(-300, -250)

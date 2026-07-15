@@ -1128,6 +1128,11 @@ const CHANGELOG_CURRENT := [
 	{"version": "3.65.1", "title": "Hotfix: Skin Consistency", "notes": [
 		"An equipped skin now shows consistently everywhere its item can appear - the Hotbar, Safe Pockets, the in-raid Backpack inventory, and the little drag-preview icon when picking an item up off your character doll - instead of reverting to a plain rarity color in those specific spots while showing correctly everywhere else.",
 	]},
+	{"version": "3.66.0", "title": "Bigger Maps, More Houses, More Enemies", "notes": [
+		"Every Sector is noticeably bigger - Overgrowth, Boneclock, Void Trench, Ironscrap Yard, The Foundry, and the Graveyard all had their play area expanded (roughly 35% more space, and each of The Foundry's four corridors is a third longer), with more enemies and scenery scattered into the newly opened space so it doesn't feel emptier for being bigger.",
+		"Void Trench, Ironscrap Yard, The Foundry, and the Graveyard each had zero lootable houses - the other two Sectors' whole 'find the key, crack the vault' loop was missing entirely from 4 of 6 maps. Added one to each: the Trench Bunker, Foreman's Shack, Foundry Office, and Caretaker's Cottage, every one with its own key dropped by a guard planted nearby and a real vault chest.",
+		"Bushes now use real weathered sprite art (four variants, picked randomly per instance) instead of a flat 4-blob vector shape, same convention already used for barrels/crates/vehicles.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

@@ -11,30 +11,31 @@
 [ext_resource type="PackedScene" path="res://scenes/PostProcess.tscn" id="9"]
 [ext_resource type="PackedScene" path="res://scenes/Crate.tscn" id="10"]
 [ext_resource type="PackedScene" path="res://scenes/Barrel.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://scenes/House.tscn" id="12"]
 
 [node name="IronscrapYard" type="Node2D"]
 script = ExtResource("1")
 
 [node name="Background" type="Node2D" parent="."]
 script = ExtResource("4")
-ground_size = Vector2(3600, 2600)
+ground_size = Vector2(4800, 3500)
 base_color = Color(0.24, 0.21, 0.18, 1)
 
 [node name="WallTop" parent="." instance=ExtResource("3")]
-position = Vector2(0, -1300)
-size = Vector2(3560, 40)
+position = Vector2(0, -1730)
+size = Vector2(4760, 40)
 
 [node name="WallBottom" parent="." instance=ExtResource("3")]
-position = Vector2(0, 1300)
-size = Vector2(3560, 40)
+position = Vector2(0, 1730)
+size = Vector2(4760, 40)
 
 [node name="WallLeft" parent="." instance=ExtResource("3")]
-position = Vector2(-1800, 0)
-size = Vector2(40, 2600)
+position = Vector2(-2380, 0)
+size = Vector2(40, 3500)
 
 [node name="WallRight" parent="." instance=ExtResource("3")]
-position = Vector2(1800, 0)
-size = Vector2(40, 2600)
+position = Vector2(2380, 0)
+size = Vector2(40, 3500)
 
 [node name="Container1" parent="." instance=ExtResource("3")]
 position = Vector2(-900, -700)
@@ -191,6 +192,41 @@ position = Vector2(1550, 1100)
 is_paid = true
 unlock_cost = 750
 pickup_type = "car"
+
+[node name="ForemanShack" parent="." instance=ExtResource("12")]
+position = Vector2(100, 150)
+house_name = "Foreman's Shack"
+house_size = Vector2(360, 260)
+vault_width = 130.0
+wall_color = Color(0.4, 0.36, 0.3, 1)
+roof_color = Color(0.2, 0.17, 0.12, 1)
+key_id = "foreman_shack_key"
+key_label = "Foreman's Shack Key"
+chest_item_name = "Foreman's Sidearm"
+chest_value = 180
+chest_slot = "weapon"
+chest_stat_type = "damage"
+chest_stat_value = 16.0
+chest_icon_key = "shotgun"
+chest_rarity = "rare"
+grants_artifacts = 1
+
+[node name="ForemanShackGuard" parent="." instance=ExtResource("8")]
+position = Vector2(100, 350)
+drop_key_id = "foreman_shack_key"
+drop_key_label = "Foreman's Shack Key"
+
+[node name="Enemy9" parent="." instance=ExtResource("8")]
+position = Vector2(2100, 0)
+
+[node name="Enemy10" parent="." instance=ExtResource("8")]
+position = Vector2(-2100, 0)
+
+[node name="Enemy11" parent="." instance=ExtResource("8")]
+position = Vector2(0, 1550)
+
+[node name="Enemy12" parent="." instance=ExtResource("8")]
+position = Vector2(1900, -1500)
 
 [node name="HUD" parent="." instance=ExtResource("7")]
 

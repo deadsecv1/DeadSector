@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" path="res://scenes/UnstableRift.tscn" id="17"]
 [ext_resource type="PackedScene" path="res://scenes/Sentinel.tscn" id="18"]
 [ext_resource type="Script" path="res://scripts/RaidAmbience.gd" id="19"]
+[ext_resource type="PackedScene" path="res://scenes/House.tscn" id="20"]
 
 [node name="VoidTrench" type="Node2D"]
 script = ExtResource("1")
@@ -28,27 +29,27 @@ color = Color(0.3, 0.22, 0.42, 1)
 
 [node name="Ground" type="Node2D" parent="."]
 script = ExtResource("4")
-ground_size = Vector2(2600, 1700)
+ground_size = Vector2(3500, 2300)
 base_color = Color(0.16, 0.1, 0.22, 1)
 
 [node name="WallTop" parent="." instance=ExtResource("3")]
-position = Vector2(0, -850)
-size = Vector2(2600, 40)
+position = Vector2(0, -1130)
+size = Vector2(3460, 40)
 wall_color = Color(0.28, 0.16, 0.38, 1)
 
 [node name="WallBottom" parent="." instance=ExtResource("3")]
-position = Vector2(0, 850)
-size = Vector2(2600, 40)
+position = Vector2(0, 1130)
+size = Vector2(3460, 40)
 wall_color = Color(0.28, 0.16, 0.38, 1)
 
 [node name="WallLeft" parent="." instance=ExtResource("3")]
-position = Vector2(-1300, 0)
-size = Vector2(40, 1700)
+position = Vector2(-1730, 0)
+size = Vector2(40, 2300)
 wall_color = Color(0.28, 0.16, 0.38, 1)
 
 [node name="WallRight" parent="." instance=ExtResource("3")]
-position = Vector2(1300, 0)
-size = Vector2(40, 1700)
+position = Vector2(1730, 0)
+size = Vector2(40, 2300)
 wall_color = Color(0.28, 0.16, 0.38, 1)
 
 [node name="TrenchBody" type="Polygon2D" parent="."]
@@ -292,6 +293,18 @@ position = Vector2(-500, -650)
 [node name="RoamingMarauder3" parent="." instance=ExtResource("10")]
 position = Vector2(600, -300)
 
+[node name="RoamingWraith4" parent="." instance=ExtResource("9")]
+position = Vector2(1550, 0)
+
+[node name="RoamingWraith5" parent="." instance=ExtResource("9")]
+position = Vector2(-1550, -900)
+
+[node name="RoamingMarauder4" parent="." instance=ExtResource("10")]
+position = Vector2(0, 1000)
+
+[node name="RoamingSentinel1" parent="." instance=ExtResource("18")]
+position = Vector2(1500, 950)
+
 [node name="OpenFieldChest1" parent="." instance=ExtResource("6")]
 position = Vector2(-100, -450)
 item_name = "Fractured Plating"
@@ -311,6 +324,29 @@ stat_type = "speed"
 stat_value = 25.0
 icon_key = "boots"
 rarity = "rare"
+
+[node name="TrenchBunker" parent="." instance=ExtResource("20")]
+position = Vector2(300, -600)
+house_name = "Trench Bunker"
+house_size = Vector2(380, 280)
+vault_width = 140.0
+wall_color = Color(0.28, 0.16, 0.38, 1)
+roof_color = Color(0.12, 0.08, 0.16, 1)
+key_id = "trench_bunker_key"
+key_label = "Trench Bunker Key"
+chest_item_name = "Sealed Rift Cache"
+chest_value = 260
+chest_slot = "weapon"
+chest_stat_type = "damage"
+chest_stat_value = 22.0
+chest_icon_key = "railgun"
+chest_rarity = "epic"
+grants_artifacts = 2
+
+[node name="TrenchBunkerGuard" parent="." instance=ExtResource("10")]
+position = Vector2(300, -420)
+drop_key_id = "trench_bunker_key"
+drop_key_label = "Trench Bunker Key"
 
 [node name="Player" parent="." instance=ExtResource("2")]
 position = Vector2(0, -650)

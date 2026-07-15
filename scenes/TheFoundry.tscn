@@ -11,13 +11,14 @@
 [ext_resource type="PackedScene" path="res://scenes/PostProcess.tscn" id="9"]
 [ext_resource type="PackedScene" path="res://scenes/Crate.tscn" id="10"]
 [ext_resource type="PackedScene" path="res://scenes/Barrel.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://scenes/House.tscn" id="12"]
 
 [node name="TheFoundry" type="Node2D"]
 script = ExtResource("1")
 
 [node name="Background" type="Node2D" parent="."]
 script = ExtResource("4")
-ground_size = Vector2(2200, 2200)
+ground_size = Vector2(3000, 3000)
 base_color = Color(0.2, 0.17, 0.15, 1)
 
 [node name="HubNorthWest" parent="." instance=ExtResource("3")]
@@ -26,18 +27,18 @@ size = Vector2(180, 40)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="NorthArmWest" parent="." instance=ExtResource("3")]
-position = Vector2(-120, -700)
-size = Vector2(40, 800)
+position = Vector2(-120, -900)
+size = Vector2(40, 1200)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="NorthCap" parent="." instance=ExtResource("3")]
-position = Vector2(0, -1100)
+position = Vector2(0, -1500)
 size = Vector2(240, 40)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="NorthArmEast" parent="." instance=ExtResource("3")]
-position = Vector2(120, -700)
-size = Vector2(40, 800)
+position = Vector2(120, -900)
+size = Vector2(40, 1200)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="HubNorthEast" parent="." instance=ExtResource("3")]
@@ -51,18 +52,18 @@ size = Vector2(40, 180)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="EastArmNorth" parent="." instance=ExtResource("3")]
-position = Vector2(700, -120)
-size = Vector2(800, 40)
+position = Vector2(900, -120)
+size = Vector2(1200, 40)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="EastCap" parent="." instance=ExtResource("3")]
-position = Vector2(1100, 0)
+position = Vector2(1500, 0)
 size = Vector2(40, 240)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="EastArmSouth" parent="." instance=ExtResource("3")]
-position = Vector2(700, 120)
-size = Vector2(800, 40)
+position = Vector2(900, 120)
+size = Vector2(1200, 40)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="HubEastSouth" parent="." instance=ExtResource("3")]
@@ -76,18 +77,18 @@ size = Vector2(180, 40)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="SouthArmEast" parent="." instance=ExtResource("3")]
-position = Vector2(120, 700)
-size = Vector2(40, 800)
+position = Vector2(120, 900)
+size = Vector2(40, 1200)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="SouthCap" parent="." instance=ExtResource("3")]
-position = Vector2(0, 1100)
+position = Vector2(0, 1500)
 size = Vector2(240, 40)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="SouthArmWest" parent="." instance=ExtResource("3")]
-position = Vector2(-120, 700)
-size = Vector2(40, 800)
+position = Vector2(-120, 900)
+size = Vector2(40, 1200)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="HubSouthWest" parent="." instance=ExtResource("3")]
@@ -101,18 +102,18 @@ size = Vector2(40, 180)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="WestArmSouth" parent="." instance=ExtResource("3")]
-position = Vector2(-700, 120)
-size = Vector2(800, 40)
+position = Vector2(-900, 120)
+size = Vector2(1200, 40)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="WestCap" parent="." instance=ExtResource("3")]
-position = Vector2(-1100, 0)
+position = Vector2(-1500, 0)
 size = Vector2(40, 240)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="WestArmNorth" parent="." instance=ExtResource("3")]
-position = Vector2(-700, -120)
-size = Vector2(800, 40)
+position = Vector2(-900, -120)
+size = Vector2(1200, 40)
 wall_color = Color(0.32, 0.2, 0.16, 1)
 
 [node name="HubWestNorth" parent="." instance=ExtResource("3")]
@@ -130,22 +131,22 @@ color = Color(0.5, 0.5, 0.5, 1)
 position = Vector2(200, -200)
 
 [node name="NorthVaultChest" parent="." instance=ExtResource("6")]
-position = Vector2(0, -1030)
+position = Vector2(0, -1430)
 item_name = "Molten Vault Crate"
 base_value = 500
 rarity = "legendary"
 
 [node name="SouthChest" parent="." instance=ExtResource("6")]
-position = Vector2(0, 1000)
+position = Vector2(0, 1400)
 item_name = "Foundry Cache"
 base_value = 220
 rarity = "rare"
 
 [node name="EastChest" parent="." instance=ExtResource("6")]
-position = Vector2(1000, -40)
+position = Vector2(1400, -40)
 
 [node name="WestChest" parent="." instance=ExtResource("6")]
-position = Vector2(-1000, -40)
+position = Vector2(-1400, -40)
 
 [node name="Enemy1" parent="." instance=ExtResource("8")]
 position = Vector2(150, 150)
@@ -156,24 +157,30 @@ enemy_type_id = "real_player"
 position = Vector2(-150, -150)
 
 [node name="Enemy3" parent="." instance=ExtResource("8")]
-position = Vector2(0, -700)
+position = Vector2(0, -900)
 
 [node name="Enemy4" parent="." instance=ExtResource("8")]
-position = Vector2(0, -950)
+position = Vector2(0, -1350)
 is_real_player = true
 enemy_type_id = "real_player"
 
 [node name="Enemy5" parent="." instance=ExtResource("8")]
-position = Vector2(0, 700)
+position = Vector2(0, 900)
 
 [node name="Enemy6" parent="." instance=ExtResource("8")]
-position = Vector2(700, 0)
+position = Vector2(900, 0)
 
 [node name="Enemy7" parent="." instance=ExtResource("8")]
-position = Vector2(950, 0)
+position = Vector2(1350, 0)
 
 [node name="Enemy8" parent="." instance=ExtResource("8")]
-position = Vector2(-700, 0)
+position = Vector2(-900, 0)
+
+[node name="Enemy9" parent="." instance=ExtResource("8")]
+position = Vector2(-1350, 0)
+
+[node name="Enemy10" parent="." instance=ExtResource("8")]
+position = Vector2(0, 1350)
 
 [node name="Barrel1" parent="." instance=ExtResource("11")]
 position = Vector2(100, -100)
@@ -183,23 +190,46 @@ position = Vector2(-200, 100)
 box_size = 24.0
 
 [node name="Barrel2" parent="." instance=ExtResource("11")]
-position = Vector2(950, 60)
+position = Vector2(1350, 60)
 
 [node name="Barrel3" parent="." instance=ExtResource("11")]
-position = Vector2(-950, 60)
+position = Vector2(-1350, 60)
 
 [node name="ExtractionZoneFree" parent="." instance=ExtResource("5")]
-position = Vector2(0, 1050)
+position = Vector2(0, 1450)
 pickup_type = "helicopter"
 
 [node name="ExtractionZoneFree2" parent="." instance=ExtResource("5")]
-position = Vector2(-1000, 40)
+position = Vector2(-1400, 40)
 
 [node name="ExtractionZonePaid" parent="." instance=ExtResource("5")]
-position = Vector2(1000, 40)
+position = Vector2(1400, 40)
 is_paid = true
 unlock_cost = 900
 pickup_type = "car"
+
+[node name="FoundryOffice" parent="." instance=ExtResource("12")]
+position = Vector2(950, -950)
+house_name = "Foundry Office"
+house_size = Vector2(340, 260)
+vault_width = 130.0
+wall_color = Color(0.32, 0.2, 0.16, 1)
+roof_color = Color(0.16, 0.12, 0.1, 1)
+key_id = "foundry_office_key"
+key_label = "Foundry Office Key"
+chest_item_name = "Site Manager's Rifle"
+chest_value = 200
+chest_slot = "weapon"
+chest_stat_type = "damage"
+chest_stat_value = 18.0
+chest_icon_key = "rifle"
+chest_rarity = "rare"
+grants_artifacts = 1
+
+[node name="FoundryOfficeGuard" parent="." instance=ExtResource("8")]
+position = Vector2(950, -750)
+drop_key_id = "foundry_office_key"
+drop_key_label = "Foundry Office Key"
 
 [node name="HUD" parent="." instance=ExtResource("7")]
 
