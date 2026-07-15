@@ -1051,6 +1051,15 @@ const CHANGELOG_CURRENT := [
 		"Removed the redundant Global Chat / Find a Team buttons from the Social screen - Enter-to-chat already covers this.",
 		"Double-clicking ammo or consumables in the Stash now sends them to Backpack Storage, and double-clicking them there sends them back.",
 	]},
+	{"version": "3.57.1", "title": "Bug Fixes and Polish Pass", "notes": [
+		"DeathScreen no longer shows fake bullet-hit markers when you voluntarily exit to Main Menu - that's now clearly labeled as leaving the raid, not dying.",
+		"The \"no ammo\" popup now tells you exactly which ammo type your weapon needs.",
+		"Fixed the Guild Hall's Escape key also popping open the Pause Menu underneath.",
+		"Fixed Social Place and Guild Hall NPCs standing frozen near the center of the map instead of actually wandering around - also gave them idle look-around, a random weapon, occasional cosmetic gunfire, and speech bubbles when you get close.",
+		"The Hunger bar no longer floats above your head during a raid - check it in the Stash instead, next to your HP.",
+		"Removed the hover scale-up bounce from every button except the Main Menu's own - it was pushing buttons outside their panel in tighter windows like Rose's.",
+		"Plushies now opens centered and closes Rose's window behind it instead of stacking on top; trading shows the result in the same spot instead of a second popup, shows your latest Plushie Pet's icon and the full rarity odds, and the reveal now lists its real stat bonuses.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
