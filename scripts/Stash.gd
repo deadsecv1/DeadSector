@@ -25,6 +25,7 @@ const CHROME_BLACK := Color(0.05, 0.05, 0.05, 1.0)
 @onready var inventory_grid = $VBox/Panels/InventoryPanel/GridScroll/InventoryGridArea
 @onready var backpack_storage_grid = $VBox/Panels/BackpackStoragePanel/BackpackStorageGridArea
 @onready var backpack_storage_popup = $BackpackStoragePopup
+@onready var stats_button: Button = $VBox/Panels/CharacterPanel/PortraitArea/StatsButton
 @onready var head_slot = $VBox/Panels/CharacterPanel/PortraitArea/HeadSlot
 @onready var body_slot = $VBox/Panels/CharacterPanel/PortraitArea/BodySlot
 @onready var weapon_slot = $VBox/Panels/CharacterPanel/PortraitArea/WeaponSlot
@@ -53,6 +54,7 @@ const CHROME_BLACK := Color(0.05, 0.05, 0.05, 1.0)
 var slot_buttons: Dictionary = {}
 var quick_sell_mode: bool = false
 var quick_sell_selected: Array = []
+var stats_popup: PanelContainer = null
 
 func _input(event: InputEvent) -> void:
 	if GlobalChatBox.chat_box_open:
@@ -85,7 +87,8 @@ func _any_sub_panel_open() -> bool:
 	return tag_edit_panel.visible or inspect_panel.visible or skins_panel.visible \
 		or open_bag_panel.visible or attachments_panel.visible or pet_case_panel.visible \
 		or case_panel.visible \
-		or filter_popup.visible or backpack_storage_popup.visible or loadout_presets_panel.visible
+		or filter_popup.visible or backpack_storage_popup.visible or loadout_presets_panel.visible \
+		or (is_instance_valid(stats_popup) and stats_popup.visible)
 
 func _ready() -> void:
 	GameManager.set_default_cursor()
@@ -124,6 +127,15 @@ func _ready() -> void:
 	# Listening here directly (same pattern as InGameInventory.gd) means ANY
 	# equip/unequip, from anywhere, always keeps this screen in sync.
 	GameManager.equipped_changed.connect(refresh)
+	stats_button.pressed.connect(_open_stats_popup)
+	# Rebuilds in place rather than requiring the player to close/reopen -
+	# dragging a new item onto a doll slot while the popup is already open
+	# should update it immediately, same spirit as every other refresh
+	# hooked to this signal on this screen.
+	GameManager.equipped_changed.connect(func():
+		if is_instance_valid(stats_popup) and stats_popup.visible:
+			_open_stats_popup()
+	)
 	filter_button.pressed.connect(func(): filter_popup.visible = true)
 	filter_cancel_button.pressed.connect(func(): filter_popup.visible = false)
 	_build_filter_popup()
@@ -443,7 +455,11 @@ func _update_slot_visual(btn, slot_key: String, item) -> void:
 
 		var icon = ItemIconScene.instantiate()
 		icon.icon_key = item.get("icon_key", "generic")
-		icon.icon_color = rarity_color
+		# Every other place an equipped skin shows (inventory tiles, the
+		# Inspect popup, the actual in-raid gun sprite) reads this instead
+		# of the flat rarity color - the character doll was the one place
+		# that never got wired up, so an equipped skin never showed here.
+		icon.icon_color = GameManager.get_display_color(item)
 		icon.anchor_right = 1.0
 		icon.anchor_bottom = 1.0
 		icon.offset_left = icon_inset
@@ -586,3 +602,96 @@ func _build_filter_popup() -> void:
 			refresh()
 		)
 		filter_grid.add_child(btn)
+
+# Rebuilds fresh every time (same pattern DataPanel.gd's inspect popup
+# uses) rather than mutating an existing tree in place - simplest way to
+# guarantee it never shows stale numbers after a re-equip.
+func _open_stats_popup() -> void:
+	if is_instance_valid(stats_popup):
+		stats_popup.queue_free()
+	var stats: Dictionary = GameManager.get_display_stats()
+
+	stats_popup = PanelContainer.new()
+	stats_popup.z_index = 250
+	stats_popup.custom_minimum_size = Vector2(280, 0)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.06, 0.06, 0.08, 0.98)
+	sb.border_color = Color(0.6, 0.85, 0.95, 1)
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(8)
+	sb.set_content_margin_all(14)
+	stats_popup.add_theme_stylebox_override("panel", sb)
+	stats_popup.anchor_left = 0.5
+	stats_popup.anchor_top = 0.5
+	stats_popup.anchor_right = 0.5
+	stats_popup.anchor_bottom = 0.5
+	stats_popup.offset_left = -140
+	stats_popup.offset_right = 140
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	stats_popup.add_child(vbox)
+
+	var title := Label.new()
+	title.text = "CHARACTER STATS"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 18)
+	title.add_theme_color_override("font_color", Color(0.6, 0.85, 0.95, 1))
+	vbox.add_child(title)
+
+	var subtitle := Label.new()
+	subtitle.text = "Live totals from your equipped gear, Skill Tree, and Hideout upgrades."
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD
+	subtitle.add_theme_font_size_override("font_size", 11)
+	subtitle.modulate = Color(1, 1, 1, 0.55)
+	vbox.add_child(subtitle)
+
+	# Core stats always show, even at zero - a fresh character's baseline
+	# is exactly as real a "stat" as a maxed one. Secondary stats only show
+	# once they're actually non-zero, so a fresh loadout isn't a wall of
+	# "+0" rows for bonuses nothing equipped yet rolls.
+	_add_stat_row(vbox, "Max Health", "%d HP" % int(stats["max_health"]), true)
+	_add_stat_row(vbox, "Damage", "%d per hit" % int(stats["damage"]), true)
+	_add_stat_row(vbox, "Speed", "%d" % int(stats["speed"]), true)
+	_add_stat_row(vbox, "Fire Rate", "%.1f shots/sec" % stats["shots_per_sec"], true)
+	if stats["armor_pct"] > 0.0:
+		_add_stat_row(vbox, "Armor", "-%s%% damage taken" % snapped(stats["armor_pct"], 0.1), false)
+	if stats["crit_chance"] > 0.0:
+		_add_stat_row(vbox, "Crit Chance", "+%s%%" % snapped(stats["crit_chance"] * 100.0, 0.1), false)
+	if stats["loot_sense"] > 0.0:
+		_add_stat_row(vbox, "Loot Sense", "+%s%% Gear Drop Chance" % snapped(stats["loot_sense"] * 100.0, 0.1), false)
+	if stats["health_regen"] > 0.0:
+		_add_stat_row(vbox, "Health Regen", "+%s HP/s" % snapped(stats["health_regen"], 0.1), false)
+	if stats["vision_range"] > 460.0:
+		_add_stat_row(vbox, "Vision Range", "%d" % int(stats["vision_range"]), false)
+	if stats["reload_bonus"] > 0.0:
+		_add_stat_row(vbox, "Reload Speed", "-%ss" % snapped(stats["reload_bonus"], 0.01), false)
+	if stats["ammo_reserve_bonus"] > 0.0:
+		_add_stat_row(vbox, "Ammo Reserve", "+%d" % int(stats["ammo_reserve_bonus"]), false)
+
+	var close_btn := Button.new()
+	close_btn.text = "Close"
+	close_btn.custom_minimum_size = Vector2(0, 36)
+	close_btn.pressed.connect(func():
+		stats_popup.visible = false
+		stats_popup.queue_free()
+	)
+	vbox.add_child(close_btn)
+
+	add_child(stats_popup)
+
+func _add_stat_row(vbox: VBoxContainer, label_text: String, value_text: String, is_core: bool) -> void:
+	var row := HBoxContainer.new()
+	var lbl := Label.new()
+	lbl.text = label_text
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl.add_theme_font_size_override("font_size", 13)
+	lbl.modulate = Color(1, 1, 1, 0.8 if is_core else 0.65)
+	row.add_child(lbl)
+	var val := Label.new()
+	val.text = value_text
+	val.add_theme_font_size_override("font_size", 13)
+	val.add_theme_color_override("font_color", Color(0.6, 0.95, 0.7, 1) if is_core else Color(1, 1, 1, 0.85))
+	row.add_child(val)
+	vbox.add_child(row)

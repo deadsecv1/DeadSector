@@ -3163,6 +3163,32 @@ func get_hideout_bonus(stat_type: String) -> float:
 			total += float(u.level) * float(u.per_level)
 	return total
 
+# Mirrors Player.gd's _recompute_stats() formulas exactly, so the Stash
+# screen's Stats panel can show accurate live numbers without needing an
+# actual Player instance (there isn't one outside a raid). Base constants
+# (100 HP, 10 damage, 220 speed, 0.25s cooldown, 460 vision) are duplicated
+# from Player.gd's own @export defaults rather than shared - keep both in
+# sync if either ever changes.
+func get_display_stats() -> Dictionary:
+	var max_health: int = 100 + int(get_equipped_bonus("max_health") + get_upgrade_bonus("max_health") + get_hideout_bonus("max_health"))
+	var damage: int = 10 + int(get_equipped_bonus("damage") + get_upgrade_bonus("damage") + get_upgrade_bonus("melee_damage") + get_hideout_bonus("damage"))
+	var speed: float = 220.0 + get_equipped_bonus("speed") + get_upgrade_bonus("speed") + get_hideout_bonus("speed")
+	var shoot_cooldown: float = max(0.08, 0.25 - get_equipped_bonus("fire_rate") - get_upgrade_bonus("fire_rate"))
+	var health_regen: float = get_equipped_bonus("health_regen") + get_upgrade_bonus("health_regen") + get_hideout_bonus("health_regen")
+	var vision_range: float = 460.0 + get_equipped_bonus("vision_range") + get_upgrade_bonus("vision_range")
+	var crit_chance: float = get_equipped_bonus("crit_chance") + get_upgrade_bonus("crit_chance")
+	var loot_sense: float = get_equipped_bonus("loot_sense") + get_upgrade_bonus("loot_sense")
+	var armor_pct: float = clamp(get_equipped_bonus("armor"), 0.0, 60.0)
+	var reload_bonus: float = get_equipped_bonus("reload_speed") + get_upgrade_bonus("reload_speed") + get_hideout_bonus("reload_speed")
+	var ammo_reserve_bonus: float = get_equipped_bonus("ammo_reserve") + get_upgrade_bonus("ammo_reserve")
+	return {
+		"max_health": max_health, "damage": damage, "speed": speed,
+		"shots_per_sec": 1.0 / shoot_cooldown, "health_regen": health_regen,
+		"vision_range": vision_range, "crit_chance": crit_chance,
+		"loot_sense": loot_sense, "armor_pct": armor_pct,
+		"reload_bonus": reload_bonus, "ammo_reserve_bonus": ammo_reserve_bonus,
+	}
+
 # Currently equipped items, one per slot.
 var equipped_items: Dictionary = {
 	"head": null,
