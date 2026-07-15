@@ -27,6 +27,8 @@ extends Control
 @onready var social_button: Button = $SocialButton
 @onready var social_panel: Panel = $SocialPanel
 @onready var guild_panel: Panel = $GuildPanel
+@onready var guild_menu_button: Button = $GuildButton
+@onready var guild_battle_pass_panel: Panel = $GuildBattlePassPanel
 @onready var data_button: Button = $DataButton
 @onready var data_panel: Panel = $DataPanel
 @onready var leaderboard_button: Button = $LeaderboardButton
@@ -86,6 +88,7 @@ var _last_top3_names: Array = []
 # Arena's "Leaderboard" entry point - its closed handler needs to know
 # which one to return to (bare Main Menu vs back to the Arena panel).
 var _leaderboard_opened_from_arena: bool = false
+var _guild_opened_from_social: bool = false
 
 const QUOTES := [
 	"THE SECTOR DOES NOT FORGIVE",
@@ -135,12 +138,28 @@ func _ready() -> void:
 	social_button.pressed.connect(func(): _open_panel(social_panel))
 	social_panel.closed.connect(func(): _close_panel(social_panel))
 	social_panel.guild_requested.connect(func():
+		_guild_opened_from_social = true
 		_close_panel(social_panel)
+		_open_panel(guild_panel)
+	)
+	guild_menu_button.pressed.connect(func():
+		_guild_opened_from_social = false
 		_open_panel(guild_panel)
 	)
 	guild_panel.closed.connect(func():
 		guild_panel.visible = false
-		_open_panel(social_panel)
+		if _guild_opened_from_social:
+			_open_panel(social_panel)
+		else:
+			_set_main_buttons_visible(true)
+	)
+	guild_panel.battle_pass_requested.connect(func():
+		_close_panel(guild_panel)
+		_open_panel(guild_battle_pass_panel)
+	)
+	guild_battle_pass_panel.closed.connect(func():
+		guild_battle_pass_panel.visible = false
+		_open_panel(guild_panel)
 	)
 	data_button.pressed.connect(func(): _open_panel(data_panel))
 	data_panel.closed.connect(func(): _close_panel(data_panel))
@@ -309,7 +328,7 @@ func _ambient_popups_suppressed() -> bool:
 		leaderboard_rewards_panel, rank_percentiles_panel, salvaged_beasts_panel, my_pets_panel,
 		bloodline_panel, delete_confirm_panel, wipe_confirm_panel, changelog_panel,
 		flea_market_panel, mail_panel, alpha_rewards_panel, feedback_panel, welcome_panel, update_spotlight_panel,
-		milestones_panel, guild_panel,
+		milestones_panel, guild_panel, guild_battle_pass_panel,
 	]
 	for p in panels:
 		if is_instance_valid(p) and p.visible:
@@ -481,6 +500,7 @@ func _set_main_buttons_visible(vis: bool) -> void:
 	whats_new_button.visible = vis
 	arena_button.visible = vis
 	milestones_button.visible = vis
+	guild_menu_button.visible = vis
 
 func _show_random_quote() -> void:
 	var idx := randi() % QUOTES.size()

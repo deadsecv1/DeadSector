@@ -3,6 +3,7 @@ const DraggablePanelScript := preload("res://scripts/DraggablePanel.gd")
 const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
 
 signal closed
+signal battle_pass_requested
 
 const ACCENT := Color(0.85, 0.65, 1.0, 1)
 const CARD_BG := Color(0.09, 0.08, 0.11, 0.92)
@@ -96,10 +97,14 @@ func _build_membership_view() -> Control:
 	vbox.add_child(roster_eyebrow)
 
 	var names: Array = GameManager.get_guild_member_names(GameManager.player_guild_id)
-	var you_row := _member_row("%s (You)" % (GameManager.player_name if GameManager.player_name != "" else "You"), true)
-	vbox.add_child(you_row)
-	for member_name in names:
-		vbox.add_child(_member_row(str(member_name), false))
+	var you_label := "%s (You)" % (GameManager.player_name if GameManager.player_name != "" else "You")
+	vbox.add_child(_member_row(you_label, GameManager.get_player_guild_role(), true))
+	for i in range(names.size()):
+		vbox.add_child(_member_row(str(names[i]), GameManager.get_guild_member_role(i), false))
+
+	vbox.add_child(_build_clan_wars_card())
+	vbox.add_child(_build_battle_pass_card())
+	vbox.add_child(_build_social_place_button())
 
 	var leave_button := Button.new()
 	leave_button.text = "Leave Guild"
@@ -112,7 +117,7 @@ func _build_membership_view() -> Control:
 
 	return vbox
 
-func _member_row(member_name: String, is_you: bool) -> Control:
+func _member_row(member_name: String, role: String, is_you: bool) -> Control:
 	var row := PanelContainer.new()
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.06, 0.06, 0.07, 0.85)
@@ -124,13 +129,117 @@ func _member_row(member_name: String, is_you: bool) -> Control:
 	sb.content_margin_top = 5
 	sb.content_margin_bottom = 5
 	row.add_theme_stylebox_override("panel", sb)
+
+	var hbox := HBoxContainer.new()
+	row.add_child(hbox)
+
 	var lbl := Label.new()
 	lbl.text = member_name
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lbl.add_theme_font_size_override("font_size", 12)
 	if is_you:
 		lbl.add_theme_color_override("font_color", ACCENT)
-	row.add_child(lbl)
+	hbox.add_child(lbl)
+
+	if role != "":
+		var role_lbl := Label.new()
+		role_lbl.text = role
+		role_lbl.add_theme_font_size_override("font_size", 11)
+		role_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4, 1) if role != "Member" else MUTED)
+		hbox.add_child(role_lbl)
+
 	return row
+
+# --- Clan Wars: a daily-gated, bigger guild-vs-guild battle. Reuses the
+# exact same Arena battle flow (ArenaLoadoutChoice -> TheGrid ->
+# ArenaVictory/Defeat) via GameManager.generate_clan_war_match(), which
+# sets is_arena_match/is_clan_war and rosters both sides from guild
+# member names instead of the Arena leaderboard.
+func _build_clan_wars_card() -> Control:
+	var c := _make_card()
+	var card: PanelContainer = c["card"]
+	var inner: VBoxContainer = c["body"]
+
+	var eyebrow := Label.new()
+	eyebrow.text = "CLAN WARS"
+	eyebrow.add_theme_font_size_override("font_size", 11)
+	eyebrow.add_theme_color_override("font_color", ACCENT)
+	inner.add_child(eyebrow)
+
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	inner.add_child(row)
+
+	var status_lbl := Label.new()
+	status_lbl.text = GameManager.clan_war_status_text()
+	status_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	status_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
+	status_lbl.add_theme_font_size_override("font_size", 11)
+	row.add_child(status_lbl)
+
+	var available := GameManager.clan_war_available()
+	var start_button := Button.new()
+	start_button.text = "Fight" if available else "Locked"
+	start_button.disabled = not available
+	start_button.custom_minimum_size = Vector2(70, 32)
+	start_button.pressed.connect(func():
+		GameManager.generate_clan_war_match()
+		Transition.change_scene("res://scenes/ArenaLoadoutChoice.tscn")
+	)
+	row.add_child(start_button)
+
+	return card
+
+# --- Guild Battle Pass: a permanent tier track earned through Clan War
+# Honor (win or lose - see GameManager.end_run()). Same visual shape as
+# the tier progress row on the Milestones panel, condensed to fit here.
+func _build_battle_pass_card() -> Control:
+	var c := _make_card()
+	var card: PanelContainer = c["card"]
+	var inner: VBoxContainer = c["body"]
+
+	var eyebrow := Label.new()
+	eyebrow.text = "GUILD BATTLE PASS"
+	eyebrow.add_theme_font_size_override("font_size", 11)
+	eyebrow.add_theme_color_override("font_color", ACCENT)
+	inner.add_child(eyebrow)
+
+	var tier_row := HBoxContainer.new()
+	tier_row.add_theme_constant_override("separation", 8)
+	inner.add_child(tier_row)
+
+	var tier_lbl := Label.new()
+	tier_lbl.text = "Tier %d / %d" % [GameManager.guild_battle_pass_tier, GameManager.GUILD_BATTLE_PASS_MAX_TIER]
+	tier_lbl.custom_minimum_size = Vector2(90, 0)
+	tier_lbl.add_theme_font_size_override("font_size", 12)
+	tier_row.add_child(tier_lbl)
+
+	var bar := ProgressBar.new()
+	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bar.show_percentage = false
+	bar.custom_minimum_size = Vector2(0, 18)
+	bar.max_value = GameManager.GUILD_HONOR_PER_TIER
+	bar.value = GameManager.guild_battle_pass_progress
+	tier_row.add_child(bar)
+
+	var open_button := Button.new()
+	open_button.text = "View Rewards"
+	open_button.custom_minimum_size = Vector2(0, 30)
+	open_button.pressed.connect(func():
+		battle_pass_requested.emit()
+	)
+	inner.add_child(open_button)
+
+	return card
+
+func _build_social_place_button() -> Button:
+	var btn := Button.new()
+	btn.text = "Visit Guild Hall"
+	btn.custom_minimum_size = Vector2(0, 36)
+	btn.pressed.connect(func():
+		Transition.change_scene("res://scenes/GuildSocialPlace.tscn")
+	)
+	return btn
 
 func _build_roster_picker() -> Control:
 	var vbox := VBoxContainer.new()

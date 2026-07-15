@@ -183,4 +183,5 @@ func _return_to_main_menu() -> void:
 	# Arena Loadout Preset they picked, and is_arena_match stuck true.
 	GameManager.end_arena_loadout_if_active()
 	GameManager.is_arena_match = false
+	GameManager.is_clan_war = false
 	Transition.change_scene_instant("res://scenes/MainMenu.tscn")

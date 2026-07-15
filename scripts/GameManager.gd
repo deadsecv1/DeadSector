@@ -446,6 +446,7 @@ func get_currency(currency: String) -> int:
 		"tickets": return salvaged_beasts_tickets
 		"skill_points": return skill_points
 		"stones": return stones
+		"honor": return guild_honor
 		_: return 0
 
 func add_currency(currency: String, amount: int) -> void:
@@ -459,6 +460,7 @@ func add_currency(currency: String, amount: int) -> void:
 		"tickets": salvaged_beasts_tickets += amount
 		"skill_points": skill_points += amount
 		"stones": stones += amount
+		"honor": guild_honor += amount
 		"souls":
 			souls += amount
 			if souls >= 500:
@@ -5395,6 +5397,10 @@ func reset_character() -> void:
 	battle_pass_progress = 0
 	milestone_tier = 0
 	milestone_progress = 0
+	guild_honor = 0
+	guild_battle_pass_tier = 0
+	guild_battle_pass_progress = 0
+	last_clan_war_day = -1
 	gauntlet_best_level = 0
 	engrams = []
 	salvaged_beasts_tickets = 0
@@ -6794,6 +6800,8 @@ func save_game() -> void:
 		"gauntlet_best_level": gauntlet_best_level, "engrams": engrams,
 		"battle_pass_tier": battle_pass_tier, "battle_pass_progress": battle_pass_progress,
 		"milestone_tier": milestone_tier, "milestone_progress": milestone_progress,
+		"guild_honor": guild_honor, "guild_battle_pass_tier": guild_battle_pass_tier,
+		"guild_battle_pass_progress": guild_battle_pass_progress, "last_clan_war_day": last_clan_war_day,
 		"has_shown_chat_keybind_hint": has_shown_chat_keybind_hint,
 		"monthly_pass_owned": monthly_pass_owned, "double_xp_owned": double_xp_owned,
 		"fast_hatching_owned": fast_hatching_owned,
@@ -6988,6 +6996,10 @@ func load_game() -> void:
 	battle_pass_progress = int(parsed.get("battle_pass_progress", 0))
 	milestone_tier = int(parsed.get("milestone_tier", 0))
 	milestone_progress = int(parsed.get("milestone_progress", 0))
+	guild_honor = int(parsed.get("guild_honor", 0))
+	guild_battle_pass_tier = int(parsed.get("guild_battle_pass_tier", 0))
+	guild_battle_pass_progress = int(parsed.get("guild_battle_pass_progress", 0))
+	last_clan_war_day = int(parsed.get("last_clan_war_day", -1))
 	has_shown_chat_keybind_hint = bool(parsed.get("has_shown_chat_keybind_hint", false))
 	monthly_pass_owned = bool(parsed.get("monthly_pass_owned", false))
 	double_xp_owned = bool(parsed.get("double_xp_owned", false))
@@ -8236,6 +8248,169 @@ func get_guild_member_names(guild_id: String, count: int = 6) -> Array:
 		pool[j] = tmp
 	return pool.slice(0, min(count, pool.size()))
 
+# Roles within the simulated member list above - purely a display label,
+# same seeded-by-index determinism as the roster itself (index 0 is
+# always "Leader" for a given guild, index 1 always "Co-Leader", etc.),
+# so revisiting the same guild always shows the same org chart.
+func get_guild_member_role(index: int) -> String:
+	if index == 0:
+		return "Leader"
+	elif index == 1:
+		return "Co-Leader"
+	return "Member"
+
+# The player's own role: founding a guild makes you its Leader by
+# definition (there's no one else who could be); joining one of the
+# fixed preset guilds makes you a rank-and-file Member alongside its
+# simulated roster, which already has its own Leader/Co-Leader per
+# get_guild_member_role() above.
+func get_player_guild_role() -> String:
+	if player_guild_id == "":
+		return ""
+	return "Leader" if player_guild_is_custom else "Member"
+
+# --- Clan Wars: a bigger, one-a-day guild-vs-guild battle. Unlocks daily
+# at CLAN_WAR_UNLOCK_HOUR (real wall-clock time, not in-game time) and
+# goes on cooldown for the rest of that calendar day once played -
+# mirrors the day-index gate _maybe_send_daily_newsletter() already uses
+# elsewhere, extended with an hour check since that one only ever needed
+# day granularity.
+const CLAN_WAR_UNLOCK_HOUR := 20  # 8 PM local time
+const CLAN_WAR_TEAM_SIZE := 8
+const CLAN_WAR_WIN_HONOR := 40
+const CLAN_WAR_PARTICIPATION_HONOR := 15
+var last_clan_war_day: int = -1
+var is_clan_war: bool = false
+
+func _current_day_index() -> int:
+	return int(_flea_now() / 86400.0)
+
+func _current_hour() -> int:
+	return int(Time.get_datetime_dict_from_unix_time(_flea_now()).get("hour", 0))
+
+func clan_war_available() -> bool:
+	if player_guild_id == "":
+		return false
+	if _current_day_index() <= last_clan_war_day:
+		return false
+	return _current_hour() >= CLAN_WAR_UNLOCK_HOUR
+
+# Status text for the Clan Wars button - three possible states: no
+# guild yet, already fought today (waiting for tomorrow's unlock), or
+# still waiting for today's unlock hour to arrive.
+func clan_war_status_text() -> String:
+	if player_guild_id == "":
+		return "Join a guild to unlock Clan Wars"
+	if _current_day_index() <= last_clan_war_day:
+		return "Clan Wars: already fought today - resets at %d:00 PM" % (CLAN_WAR_UNLOCK_HOUR - 12)
+	if _current_hour() < CLAN_WAR_UNLOCK_HOUR:
+		return "Clan Wars: unlocks at %d:00 PM" % (CLAN_WAR_UNLOCK_HOUR - 12)
+	return "Clan Wars: READY"
+
+# Picks a rival guild from the fixed roster to fight - any preset guild
+# other than the player's own (a custom guild never collides with the
+# preset list at all, so every preset is fair game there).
+func _pick_clan_war_rival_id() -> String:
+	var candidates: Array = []
+	for g in GUILD_ROSTER:
+		if g.get("id", "") != player_guild_id:
+			candidates.append(g.get("id", ""))
+	if candidates.is_empty():
+		return GUILD_ROSTER[0].get("id", "")
+	return candidates[randi() % candidates.size()]
+
+# Builds current_arena_match the same shape generate_arena_match() does
+# (TheGrid.gd/ArenaAlly.gd don't need to know the difference), just
+# rostered from guild members instead of the Arena leaderboard, and
+# bigger - team_index/role metadata isn't needed here since ArenaAlly.gd
+# only ever reads team1[team_index]["name"].
+func generate_clan_war_match() -> void:
+	var team_size := CLAN_WAR_TEAM_SIZE
+	var team1 := [{
+		"name": player_name if player_name != "" else "You", "portrait": player_portrait_id if player_portrait_id != "" else "portrait_1",
+		"is_player": true, "level": player_level, "gear": equipped_items, "title": equipped_title, "badges": owned_badges,
+		"arena_rank": get_arena_rank_display_name(), "arena_color": get_arena_rank_tier().get("color", Color.WHITE),
+	}]
+	for member_name in get_guild_member_names(player_guild_id, team_size - 1):
+		team1.append({
+			"name": member_name, "portrait": "portrait_1", "is_player": false,
+			"level": player_level, "gear": {}, "title": "", "badges": [],
+			"arena_rank": "Guildmate", "arena_color": Color(0.85, 0.65, 1.0, 1),
+		})
+	var rival_id := _pick_clan_war_rival_id()
+	var rival: Dictionary = get_guild_roster_entry(rival_id)
+	var team2 := []
+	for member_name in get_guild_member_names(rival_id, team_size):
+		team2.append({
+			"name": member_name, "portrait": "portrait_1", "is_player": false,
+			"level": player_level, "gear": {}, "title": "", "badges": [],
+			"arena_rank": str(rival.get("tag", "?")), "arena_color": Color(0.9, 0.4, 0.4, 1),
+		})
+	current_arena_match = {"team_size": team_size, "team1": team1, "team2": team2, "rival_guild_name": rival.get("name", "Rival Guild")}
+	is_arena_match = true
+	is_clan_war = true
+	last_clan_war_day = _current_day_index()
+	save_game()
+
+# --- Guild Battle Pass: a permanent (non-seasonal) tier track earned
+# through Honor, same "flat cost per tier, hand-authored named rewards"
+# shape as the Milestones track above - Honor comes from Clan Wars
+# (win or lose, see end_run()) rather than raid/Arena activity, so it's
+# a genuinely separate progression track, not just Milestones reskinned.
+var guild_battle_pass_tier: int = 0
+var guild_battle_pass_progress: int = 0
+var guild_honor: int = 0
+const GUILD_HONOR_PER_TIER := 60
+const GUILD_BATTLE_PASS_MAX_TIER := 20
+
+const GUILD_BATTLE_PASS_TIER_DATA := [
+	{"name": "Guild Recruit", "type": "rubles", "amount": 200},
+	{"name": "First Blood", "type": "xp", "amount": 200},
+	{"name": "Squad Tactics", "type": "skill_points", "amount": 1},
+	{"name": "Banner Bearer", "type": "rubles", "amount": 350},
+	{"name": "War Footing", "type": "lootbag", "bag_tier": "common"},
+	{"name": "Guild Regular", "type": "rubles", "amount": 500},
+	{"name": "Line Holder", "type": "xp", "amount": 300},
+	{"name": "War Veteran", "type": "skill_points", "amount": 1},
+	{"name": "Guild Officer", "type": "rubles", "amount": 700},
+	{"name": "Clan War Specialist", "type": "lootbag", "bag_tier": "rare"},
+	{"name": "Frontline Regular", "type": "rubles", "amount": 900},
+	{"name": "War Tactician", "type": "xp", "amount": 450},
+	{"name": "Guild Champion", "type": "skill_points", "amount": 2},
+	{"name": "Clan War Veteran", "type": "rubles", "amount": 1200},
+	{"name": "Shield of the Guild", "type": "lootbag", "bag_tier": "rare"},
+	{"name": "War Elite", "type": "rubles", "amount": 1500},
+	{"name": "Guild Vanguard", "type": "xp", "amount": 600},
+	{"name": "Clan War Legend", "type": "skill_points", "amount": 2},
+	{"name": "Guild Hero", "type": "lootbag", "bag_tier": "epic"},
+	{"name": "Founder's Honor", "type": "lootbag", "bag_tier": "legendary"},
+]
+
+func grant_guild_honor(amount: int) -> void:
+	if amount <= 0:
+		return
+	add_currency("honor", amount)
+	if guild_battle_pass_tier >= GUILD_BATTLE_PASS_MAX_TIER:
+		return
+	guild_battle_pass_progress += amount
+	while guild_battle_pass_progress >= GUILD_HONOR_PER_TIER and guild_battle_pass_tier < GUILD_BATTLE_PASS_MAX_TIER:
+		guild_battle_pass_progress -= GUILD_HONOR_PER_TIER
+		_advance_guild_battle_pass_tier()
+
+func _advance_guild_battle_pass_tier() -> void:
+	guild_battle_pass_tier += 1
+	var tier_data: Dictionary = GUILD_BATTLE_PASS_TIER_DATA[guild_battle_pass_tier - 1]
+	match tier_data.get("type", ""):
+		"rubles":
+			add_currency("rubles", int(tier_data.get("amount", 0)))
+		"xp":
+			grant_xp(int(tier_data.get("amount", 0)))
+		"skill_points":
+			add_currency("skill_points", int(tier_data.get("amount", 0)))
+		"lootbag":
+			_add_to_stash(make_loot_bag(str(tier_data.get("bag_tier", "rare"))))
+	toast_requested.emit("Guild tier reached: %s!" % str(tier_data.get("name", "Tier %d" % guild_battle_pass_tier)))
+
 # --- Equip / unequip: mid-run (Backpack, uses carried_loot). Reverts on
 # death via run_start_equipped_snapshot; becomes permanent on extraction. ---
 
@@ -8393,6 +8568,8 @@ func end_run(success: bool) -> void:
 		if is_scav_run:
 			stat_scav_extractions += 1
 		grant_stones(ARENA_WIN_STONES if is_arena_match else EXTRACTION_STONES)
+		if is_clan_war:
+			grant_guild_honor(CLAN_WAR_WIN_HONOR)
 		add_score(40)
 		# "Split the loot" with your guild - simulated the same way every
 		# other social feature is (no real other players), framed as your
@@ -8444,6 +8621,8 @@ func end_run(success: bool) -> void:
 	else:
 		stat_deaths += 1
 		grant_xp(8)
+		if is_clan_war:
+			grant_guild_honor(CLAN_WAR_PARTICIPATION_HONOR)
 		var dying_player = get_tree().get_first_node_in_group("player")
 		last_death_info = {
 			"attacker_name": str(dying_player.get("last_attacker_name")) if dying_player != null and dying_player.get("last_attacker_name") != null else "",
@@ -8496,6 +8675,7 @@ func end_run(success: bool) -> void:
 	selected_recruit = ""
 	var was_arena_match := is_arena_match
 	is_arena_match = false
+	is_clan_war = false
 	var next_scene_path: String
 	if was_arena_match:
 		next_scene_path = "res://scenes/ArenaVictory.tscn" if success else "res://scenes/ArenaDefeat.tscn"
