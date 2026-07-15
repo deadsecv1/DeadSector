@@ -1215,6 +1215,34 @@ func remove_attachment_from_item(weapon_item: Dictionary, att_slot: String, dest
 	equipped_changed.emit()
 	return true
 
+# Buys a fresh attachment straight from ATTACHMENT_POOL with Rubles and
+# installs it immediately - the Weapon Inspection screen's per-slot hotspot
+# menu is the only place this is called from. Attachments were previously
+# loot-only (roll_attachment(), never purchasable), so this is a genuinely
+# new acquisition path, not a rewire of an existing one. Any attachment
+# already installed in that slot gets swapped back out into dest_array,
+# same as install_attachment_on_item()/remove_attachment_from_item() above.
+func buy_attachment_for_weapon(weapon_item: Dictionary, pool_entry: Dictionary, dest_array: Array, is_carried: bool) -> bool:
+	var cost: int = int(pool_entry.get("value", 0))
+	if not spend_currency("rubles", cost):
+		toast_requested.emit("Not enough Rubles for that attachment")
+		return false
+	var att_slot: String = pool_entry.get("attachment_slot", "")
+	var attachments := get_weapon_attachments_for(weapon_item)
+	var current = attachments.get(att_slot)
+	if current != null:
+		var cell := _next_free_cell_in(dest_array, is_carried)
+		current["grid_x"] = cell.x
+		current["grid_y"] = cell.y
+		dest_array.append(current)
+		if is_carried:
+			carried_value += int(current.get("value", 0))
+	attachments[att_slot] = pool_entry.duplicate(true)
+	equipped_changed.emit()
+	toast_requested.emit("Purchased and installed %s" % pool_entry.get("name", "Attachment"))
+	notify_event("equip_attachment")
+	return true
+
 # Removes and returns a carried item (used when consuming a hotbar item).
 func consume_carried_item(index: int) -> Dictionary:
 	if index < 0 or index >= carried_loot.size():

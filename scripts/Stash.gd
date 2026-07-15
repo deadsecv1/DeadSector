@@ -49,7 +49,7 @@ const CHROME_BLACK := Color(0.05, 0.05, 0.05, 1.0)
 @onready var skins_panel = $SkinsPanel
 @onready var open_bag_panel = $OpenLootBagPanel
 @onready var pet_case_panel = $PetCasePanel
-@onready var attachments_panel = $AttachmentsPanel
+@onready var weapon_inspection_panel = $WeaponInspectionPanel
 
 var slot_buttons: Dictionary = {}
 var quick_sell_mode: bool = false
@@ -85,7 +85,7 @@ func _input(event: InputEvent) -> void:
 
 func _any_sub_panel_open() -> bool:
 	return tag_edit_panel.visible or inspect_panel.visible or skins_panel.visible \
-		or open_bag_panel.visible or attachments_panel.visible or pet_case_panel.visible \
+		or open_bag_panel.visible or weapon_inspection_panel.visible or pet_case_panel.visible \
 		or case_panel.visible \
 		or filter_popup.visible or backpack_storage_popup.visible or loadout_presets_panel.visible \
 		or (is_instance_valid(stats_popup) and stats_popup.visible)
@@ -189,7 +189,7 @@ func _ready() -> void:
 		if source == "stash" and quick_sell_mode:
 			GameManager.toast_requested.emit("Finish or cancel Quick Sell first")
 			return
-		attachments_panel.open_for(index, source)
+		weapon_inspection_panel.open_for(index, source)
 	)
 	item_context_menu.rotate_requested.connect(func(index, source, _item):
 		if GameManager.rotate_item(index, source):
@@ -244,7 +244,8 @@ func _ready() -> void:
 		elif ctype == "food":
 			GameManager.toast_requested.emit("You're not hungry outside a raid - nothing to restore right now.")
 	)
-	attachments_panel.closed.connect(func(): attachments_panel.visible = false; refresh())
+	weapon_inspection_panel.closed.connect(func(): weapon_inspection_panel.visible = false; refresh())
+	weapon_inspection_panel.skins_requested.connect(func(item): skins_panel.open_for(item))
 	inspect_panel.closed.connect(func(): inspect_panel.visible = false)
 	skins_panel.closed.connect(func(): skins_panel.visible = false)
 	open_bag_panel.closed.connect(func(): open_bag_panel.visible = false)

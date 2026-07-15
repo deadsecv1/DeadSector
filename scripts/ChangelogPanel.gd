@@ -1120,6 +1120,11 @@ const CHANGELOG_CURRENT := [
 		"Real Player enemies (raid operators and Arena opponents) now visibly wear a rolled-up gear loadout of their own - helmet, body tint, backpack, accessory, boots, and a real weapon (correctly scaled and using the same weapon sprite art you get) instead of every single one looking like an identical fixed green-vest raider. Arena opponents specifically wear the same loadout already shown for them on the Current Teams panel.",
 		"Real Player enemies also now sometimes bring a cosmetic pet along - purely for looks, no stat effect either way.",
 	]},
+	{"version": "3.65.0", "title": "Weapon Inspection Screen", "notes": [
+		"The Attachments button now opens a real inspection screen - your weapon shown large (real art if it has any, tinted to its rarity/skin same as everywhere else), with a clickable dot over each of its 5 attachment slots (Scope, Barrel, Laser, Magazine, Grip).",
+		"Clicking a dot opens a menu for that slot showing every attachment that exists for it - Buy one straight with Rubles if you don't own one, or Equip a spare already sitting in your Backpack/Stash. Attachments used to only ever come from loot with no way to buy one directly.",
+		"Added a Skins button right in the inspection screen, opening the same skin browser as the right-click menu, scoped to that weapon - no need to close out and reopen the context menu just to check its skins.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

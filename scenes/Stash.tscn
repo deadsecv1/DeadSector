@@ -5,7 +5,6 @@
 [ext_resource type="Script" path="res://scripts/EquipSlot.gd" id="3"]
 [ext_resource type="Script" path="res://scripts/CharacterPortrait.gd" id="4"]
 [ext_resource type="Script" path="res://scripts/ItemContextMenu.gd" id="5"]
-[ext_resource type="Script" path="res://scripts/WeaponAttachmentsPanel.gd" id="10"]
 [ext_resource type="Script" path="res://scripts/InspectPanel.gd" id="6"]
 [ext_resource type="Script" path="res://scripts/SkinsPanel.gd" id="7"]
 [ext_resource type="Script" path="res://scripts/OpenLootBagPanel.gd" id="8"]
@@ -16,6 +15,7 @@
 [ext_resource type="PackedScene" path="res://scenes/TagEditPanel.tscn" id="14"]
 [ext_resource type="PackedScene" path="res://scenes/LoadoutPresetsPanel.tscn" id="15"]
 [ext_resource type="PackedScene" path="res://scenes/CasePanel.tscn" id="16"]
+[ext_resource type="Script" path="res://scripts/WeaponInspectionPanel.gd" id="17"]
 
 [sub_resource type="StyleBoxFlat" id="DollBackdropStyle"]
 bg_color = Color(0.05, 0.07, 0.06, 0.9)
@@ -361,64 +361,90 @@ custom_minimum_size = Vector2(200, 50)
 theme_override_font_sizes/font_size = 20
 text = "Back"
 
-[node name="AttachmentsPanel" type="Panel" parent="."]
+[node name="WeaponInspectionPanel" type="Panel" parent="."]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -230.0
-offset_top = -200.0
-offset_right = 230.0
-offset_bottom = 200.0
+offset_left = -260.0
+offset_top = -230.0
+offset_right = 260.0
+offset_bottom = 230.0
 visible = false
-script = ExtResource("10")
+script = ExtResource("17")
 
-[node name="Backdrop" type="ColorRect" parent="AttachmentsPanel"]
-anchor_left = 0.0
-anchor_top = 0.0
+[node name="Backdrop" type="ColorRect" parent="WeaponInspectionPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.05, 0.08, 0.05, 0.97)
 
-[node name="DystoBG" type="Control" parent="AttachmentsPanel"]
+[node name="DystoBG" type="Control" parent="WeaponInspectionPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
-modulate = Color(0.6, 1.0, 0.65, 1)
+modulate = Color(0.6, 0.9, 0.6, 1)
 script = ExtResource("9")
 
-[node name="VBox" type="VBoxContainer" parent="AttachmentsPanel"]
-anchor_left = 0.0
-anchor_top = 0.0
+[node name="VBox" type="VBoxContainer" parent="WeaponInspectionPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 16.0
-offset_right = -20.0
-offset_bottom = -16.0
-theme_override_constants/separation = 10
+offset_left = 16.0
+offset_top = 14.0
+offset_right = -16.0
+offset_bottom = -14.0
+theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="AttachmentsPanel/VBox"]
+[node name="TitleLabel" type="Label" parent="WeaponInspectionPanel/VBox"]
 theme_override_font_sizes/font_size = 20
 horizontal_alignment = 1
 theme_override_colors/font_color = Color(0.6, 0.9, 0.6, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
 theme_override_constants/outline_size = 3
-text = "WEAPON ATTACHMENTS"
+text = "Weapon Name"
 
-[node name="WeaponLabel" type="Label" parent="AttachmentsPanel/VBox"]
-theme_override_font_sizes/font_size = 14
+[node name="RarityLabel" type="Label" parent="WeaponInspectionPanel/VBox"]
+theme_override_font_sizes/font_size = 13
 horizontal_alignment = 1
-modulate = Color(1, 1, 1, 0.75)
-text = "No weapon selected."
+text = "Rarity"
 
-[node name="SlotList" type="VBoxContainer" parent="AttachmentsPanel/VBox"]
+[node name="Showcase" type="Panel" parent="WeaponInspectionPanel/VBox"]
+custom_minimum_size = Vector2(480, 200)
 size_flags_vertical = 3
-theme_override_constants/separation = 8
+clip_contents = true
 
-[node name="CloseButton" type="Button" parent="AttachmentsPanel/VBox"]
+[node name="ExternalArt" type="TextureRect" parent="WeaponInspectionPanel/VBox/Showcase"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -80.0
+offset_right = 180.0
+offset_bottom = 80.0
+texture_filter = 1
+expand_mode = 1
+stretch_mode = 5
+visible = false
+
+[node name="HintLabel" type="Label" parent="WeaponInspectionPanel/VBox"]
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.6)
+text = "Click a dot on the weapon to browse attachments for that slot."
+
+[node name="ButtonRow" type="HBoxContainer" parent="WeaponInspectionPanel/VBox"]
+theme_override_constants/separation = 10
+
+[node name="SkinsButton" type="Button" parent="WeaponInspectionPanel/VBox/ButtonRow"]
 custom_minimum_size = Vector2(0, 44)
-theme_override_font_sizes/font_size = 16
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "Skins"
+
+[node name="CloseButton" type="Button" parent="WeaponInspectionPanel/VBox/ButtonRow"]
+custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
 text = "Close"
 
 [node name="ItemContextMenu" type="Panel" parent="."]
