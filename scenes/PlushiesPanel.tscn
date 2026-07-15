@@ -1,18 +1,19 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/PlushiesPanel.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/DystopianHoverButton.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/ItemIcon.gd" id="4"]
 
 [node name="PlushiesPanel" type="Panel"]
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = 250.0
-offset_top = -150.0
-offset_right = 550.0
-offset_bottom = 150.0
+offset_left = -190.0
+offset_top = -215.0
+offset_right = 190.0
+offset_bottom = 215.0
 visible = false
 script = ExtResource("1")
 
@@ -52,6 +53,34 @@ autowrap_mode = 2
 modulate = Color(1, 1, 1, 0.7)
 text = "Hand over a Plushie for a shot at a brand new pet."
 
+[node name="OwnedRow" type="HBoxContainer" parent="VBox"]
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="OwnedIconSlot" type="Control" parent="VBox/OwnedRow"]
+custom_minimum_size = Vector2(48, 48)
+
+[node name="Icon" type="Control" parent="VBox/OwnedRow/OwnedIconSlot"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("4")
+icon_key = "generic"
+icon_color = Color(1, 1, 1, 1)
+
+[node name="OwnedLabel" type="Label" parent="VBox/OwnedRow"]
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 2
+custom_minimum_size = Vector2(200, 0)
+text = "You don't have a Plushie Pet yet."
+
+[node name="OddsLabel" type="Label" parent="VBox"]
+theme_override_font_sizes/font_size = 9
+horizontal_alignment = 1
+autowrap_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.85, 0.6, 1)
+text = "..."
+
 [node name="Spacer" type="Control" parent="VBox"]
 size_flags_vertical = 3
 
@@ -61,6 +90,7 @@ theme_override_font_sizes/font_size = 14
 text = "Trade Plushie for Plushie Pet"
 autowrap_mode = 2
 script = ExtResource("3")
+scale_on_hover = false
 
 [node name="Glow" type="ColorRect" parent="VBox/TradeButton"]
 show_behind_parent = true
@@ -77,6 +107,7 @@ custom_minimum_size = Vector2(0, 40)
 theme_override_font_sizes/font_size = 14
 text = "Close"
 script = ExtResource("3")
+scale_on_hover = false
 
 [node name="Glow" type="ColorRect" parent="VBox/CloseButton"]
 show_behind_parent = true

@@ -321,7 +321,7 @@ func _close_pause() -> void:
 func _on_exit_requested() -> void:
 	pause_menu.close()
 	get_tree().paused = false
-	GameManager.end_run(false)
+	GameManager.end_run(false, true)
 
 func _set_player_locked(locked: bool) -> void:
 	var player = get_tree().get_first_node_in_group("player")

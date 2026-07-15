@@ -27,6 +27,7 @@ const HIT_PARTS := [
 @onready var title_label: Label = $Panel/VBox/Title
 @onready var killed_by_button: Button = $Panel/VBox/KilledByRow/KilledByButton
 @onready var loot_label: Label = $Panel/VBox/LootLabel
+@onready var mannequin_row: Control = $Panel/VBox/MannequinRow
 @onready var mannequin: Control = $Panel/VBox/MannequinRow/MannequinHolder/Mannequin
 @onready var hit_list: VBoxContainer = $Panel/VBox/MannequinRow/HitList
 @onready var continue_button: Button = $Panel/VBox/ContinueButton
@@ -46,11 +47,20 @@ func _ready() -> void:
 	context_menu_host.add_child(context_menu)
 
 	var info: Dictionary = GameManager.last_death_info
-	title_label.text = "TIME EXPIRED" if bool(info.get("timed_out", false)) else "YOU DIED"
+	var was_voluntary: bool = bool(info.get("voluntary_exit", false))
+	if was_voluntary:
+		title_label.text = "RAID ABANDONED"
+	elif bool(info.get("timed_out", false)):
+		title_label.text = "TIME EXPIRED"
+	else:
+		title_label.text = "YOU DIED"
 
 	var attacker: String = str(info.get("attacker_name", ""))
 	var weapon: String = str(info.get("attacker_weapon", ""))
-	if attacker == "":
+	if was_voluntary:
+		killed_by_button.text = "You left the raid"
+		killed_by_button.disabled = true
+	elif attacker == "":
 		killed_by_button.text = "Killed by the Sector itself"
 		killed_by_button.disabled = true
 	else:
@@ -64,10 +74,15 @@ func _ready() -> void:
 
 	loot_label.text = "Lost %d loot." % int(info.get("loot_value", 0))
 
-	_roll_hits()
-	_build_hit_list()
-	mannequin.draw.connect(_draw_mannequin)
-	mannequin.queue_redraw()
+	# No real combat happened on a voluntary exit - skip the hit-location
+	# mannequin entirely instead of rolling fake bullet marks for a fight
+	# that never occurred.
+	mannequin_row.visible = not was_voluntary
+	if not was_voluntary:
+		_roll_hits()
+		_build_hit_list()
+		mannequin.draw.connect(_draw_mannequin)
+		mannequin.queue_redraw()
 
 	continue_button.pressed.connect(_on_continue)
 

@@ -47,6 +47,17 @@ func show_pet(instance_id: String) -> void:
 	if data.is_empty():
 		return
 	visible = true
+	# Same runtime anchor-collapse bug documented elsewhere (Flea Market,
+	# Mail, Milestones, Plushies) - force the designed centered layout
+	# back explicitly instead of trusting the .tscn-authored anchors.
+	anchor_left = 0.5
+	anchor_top = 0.5
+	anchor_right = 0.5
+	anchor_bottom = 0.5
+	offset_left = -190.0
+	offset_top = -215.0
+	offset_right = 190.0
+	offset_bottom = 215.0
 	var pet_color: Color = data.get("color", Color.WHITE)
 	var rarity: String = data.get("rarity", "rare")
 
@@ -72,7 +83,10 @@ func show_pet(instance_id: String) -> void:
 	name_label.add_theme_color_override("font_color", pet_color)
 	rarity_label.text = GameManager.get_rarity_label(rarity).to_upper()
 	rarity_label.add_theme_color_override("font_color", pet_color)
-	buff_label.text = "PLUSHIE BUFF - exceptional stats, and Rose's personal touch."
+	var instance: Dictionary = GameManager.owned_pet_instances.get(instance_id, {})
+	var trait_data: Dictionary = GameManager.get_trait_data(instance.get("trait", ""))
+	var stat_text := PetTooltip._pet_stat_text(data, trait_data)
+	buff_label.text = "PLUSHIE BUFF - %s, and Rose's personal touch." % (stat_text if stat_text != "" else "exceptional stats")
 	odds_label.text = GameManager.get_plushie_pet_odds_text()
 
 	Sfx.play_crate_open()

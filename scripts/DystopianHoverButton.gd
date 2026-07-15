@@ -9,6 +9,12 @@ extends Button
 
 @export var idle_text: String = ""
 @export var hover_text: String = ""
+# Main Menu buttons keep the scale bounce; everywhere else (Rose's
+# panel, Plushies, the reveal popup, ...) it was pushing buttons
+# outside their own panel's bounds in tighter layouts - default true
+# so every existing MainMenu.tscn usage is untouched, explicitly set
+# false per-instance on the panels that shouldn't scale.
+@export var scale_on_hover: bool = true
 
 var hovering: bool = false
 var sparkles: Array = []
@@ -37,8 +43,9 @@ func _on_hover_start() -> void:
 	hovering = true
 	if hover_text != "":
 		text = hover_text
-	var tw := create_tween()
-	tw.tween_property(self, "scale", Vector2(1.18, 1.18), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	if scale_on_hover:
+		var tw := create_tween()
+		tw.tween_property(self, "scale", Vector2(1.18, 1.18), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	var gtw := create_tween()
 	gtw.tween_property(glow, "color:a", 0.55, 0.25)
 
@@ -46,8 +53,9 @@ func _on_hover_end() -> void:
 	hovering = false
 	if idle_text != "":
 		text = idle_text
-	var tw := create_tween()
-	tw.tween_property(self, "scale", Vector2(1.0, 1.0), 0.18).set_trans(Tween.TRANS_QUAD)
+	if scale_on_hover:
+		var tw := create_tween()
+		tw.tween_property(self, "scale", Vector2(1.0, 1.0), 0.18).set_trans(Tween.TRANS_QUAD)
 	var gtw := create_tween()
 	gtw.tween_property(glow, "color:a", 0.0, 0.3)
 

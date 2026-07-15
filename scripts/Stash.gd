@@ -33,6 +33,7 @@ const CHROME_BLACK := Color(0.05, 0.05, 0.05, 1.0)
 @onready var backpack_slot = $VBox/Panels/CharacterPanel/PortraitArea/BackpackSlot
 @onready var helmet_attachment_slot = $VBox/Panels/CharacterPanel/PortraitArea/HelmetAttachmentSlot
 @onready var hp_label: Label = $VBox/Panels/CharacterPanel/HPLabel
+@onready var hunger_label: Label = $VBox/Panels/CharacterPanel/HungerLabel
 @onready var back_button: Button = $VBox/BackButton
 @onready var item_context_menu = $ItemContextMenu
 @onready var tag_edit_panel = $TagEditPanel
@@ -265,6 +266,12 @@ func refresh() -> void:
 	# raid, updating live as gear changes.
 	var max_health: int = 100 + int(GameManager.get_equipped_bonus("max_health") + GameManager.get_upgrade_bonus("max_health") + GameManager.get_hideout_bonus("max_health"))
 	hp_label.text = "%d HP" % max_health
+	# Hunger is a raid-only mechanic (Player.gd decays it live during a
+	# raid, resetting to full every time one starts) - there's no
+	# persisted value to show outside one, so this is always "Full" here,
+	# same spirit as the HP figure above being a formula, not a live
+	# mid-raid number.
+	hunger_label.text = "Hunger: Full"
 
 	for child in backpack_storage_grid.get_children():
 		child.queue_free()

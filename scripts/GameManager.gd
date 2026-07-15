@@ -4657,6 +4657,18 @@ const PLUSHIE_PET_RARITY_WEIGHTS := {
 # "here's what you're working with" table, not just flavor text.
 const PLUSHIE_PET_TIER_ORDER := ["rare", "epic", "legendary", "mythic", "exotic", "multiversal", "divine", "godforged"]
 
+# The most recently obtained plushie pet instance, if any - Dictionary
+# insertion order is preserved in GDScript, so the last "plushie_"-
+# prefixed key encountered is the newest one. Used by PlushiesPanel to
+# show what you currently have without needing a separate "current
+# plushie pet" var to keep in sync.
+func get_latest_plushie_pet_instance_id() -> String:
+	var latest_id := ""
+	for id in owned_pet_instances.keys():
+		if str(id).begins_with("plushie_"):
+			latest_id = id
+	return latest_id
+
 func get_plushie_pet_odds_text() -> String:
 	var lines: Array = []
 	for tier in PLUSHIE_PET_TIER_ORDER:
@@ -8535,7 +8547,7 @@ func _check_ghost_extraction() -> void:
 			toast_requested.emit("The Ghost has followed you home - he's in the Hideout now.")
 		notify_event("extract_with_ghost")
 
-func end_run(success: bool) -> void:
+func end_run(success: bool, voluntary: bool = false) -> void:
 	if run_over:
 		return
 	run_over = true
@@ -8625,10 +8637,11 @@ func end_run(success: bool) -> void:
 			grant_guild_honor(CLAN_WAR_PARTICIPATION_HONOR)
 		var dying_player = get_tree().get_first_node_in_group("player")
 		last_death_info = {
-			"attacker_name": str(dying_player.get("last_attacker_name")) if dying_player != null and dying_player.get("last_attacker_name") != null else "",
-			"attacker_weapon": str(dying_player.get("last_attacker_weapon")) if dying_player != null and dying_player.get("last_attacker_weapon") != null else "",
+			"attacker_name": "" if voluntary else (str(dying_player.get("last_attacker_name")) if dying_player != null and dying_player.get("last_attacker_name") != null else ""),
+			"attacker_weapon": "" if voluntary else (str(dying_player.get("last_attacker_weapon")) if dying_player != null and dying_player.get("last_attacker_weapon") != null else ""),
 			"loot_value": carried_value,
 			"timed_out": run_timed_out,
+			"voluntary_exit": voluntary,
 		}
 		# A death means you lose whatever you had equipped, full stop -
 		# except Character Bound items (the Alpha/Tech Test exclusives),

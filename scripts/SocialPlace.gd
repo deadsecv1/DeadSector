@@ -79,11 +79,17 @@ func _spawn_pet() -> void:
 func _spawn_npc() -> void:
 	var npc = ENEMY_SCENE.instantiate()
 	npc.set_script(NPC_SCRIPT)
-	add_child(npc)
-	npc.global_position = Vector2(
+	# Position must be set BEFORE add_child() - add_child() on a node
+	# already in a live tree runs the new script's _ready() synchronously,
+	# and SocialPlaceNpc.gd captures "origin" from global_position right
+	# there. Setting position after add_child() was too late: origin
+	# always ended up (0,0) (this node's own default), so every NPC
+	# idle-wandered around world center instead of its real spawn point.
+	npc.position = Vector2(
 		randf_range(-SPAWN_SPREAD.x, SPAWN_SPREAD.x),
 		randf_range(-SPAWN_SPREAD.y, SPAWN_SPREAD.y),
 	)
+	add_child(npc)
 	var lifetime: float = randf_range(NPC_LIFETIME_MIN, NPC_LIFETIME_MAX)
 	_npc_despawn_at_ms[npc] = Time.get_ticks_msec() + int(lifetime * 1000.0)
 

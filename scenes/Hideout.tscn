@@ -1199,6 +1199,7 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 14
 text = "Plushies"
 script = ExtResource("50")
+scale_on_hover = false
 
 [node name="Glow" type="ColorRect" parent="HideoutUI/RosePanel/VBox/MenuRow/GivePlushieButton"]
 show_behind_parent = true
@@ -1216,6 +1217,7 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 14
 text = "Lore"
 script = ExtResource("50")
+scale_on_hover = false
 
 [node name="Glow" type="ColorRect" parent="HideoutUI/RosePanel/VBox/MenuRow/LoreButton"]
 show_behind_parent = true
@@ -1263,6 +1265,7 @@ theme_override_font_sizes/font_size = 14
 text = "Back to Topics"
 visible = false
 script = ExtResource("50")
+scale_on_hover = false
 
 [node name="Glow" type="ColorRect" parent="HideoutUI/RosePanel/VBox/LoreBackButton"]
 show_behind_parent = true
@@ -1280,6 +1283,7 @@ theme_override_font_sizes/font_size = 14
 text = "Back"
 visible = false
 script = ExtResource("50")
+scale_on_hover = false
 
 [node name="Glow" type="ColorRect" parent="HideoutUI/RosePanel/VBox/BackButton"]
 show_behind_parent = true
@@ -1296,6 +1300,7 @@ custom_minimum_size = Vector2(0, 40)
 theme_override_font_sizes/font_size = 14
 text = "Close"
 script = ExtResource("50")
+scale_on_hover = false
 
 [node name="Glow" type="ColorRect" parent="HideoutUI/RosePanel/VBox/CloseButton"]
 show_behind_parent = true

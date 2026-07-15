@@ -483,8 +483,6 @@ func _on_hover_enter() -> void:
 		_hover_particles.visible = true
 	if _hover_glow_trace != null:
 		_hover_glow_trace.glow_boost = 1.0
-	var tw := create_tween()
-	tw.tween_property(self, "scale", Vector2(1.12, 1.12), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _on_hover_exit() -> void:
 	_hovered = false
@@ -494,8 +492,6 @@ func _on_hover_exit() -> void:
 	if _hover_glow_trace != null:
 		_hover_glow_trace.glow_boost = 0.0
 	var tw := create_tween()
-	tw.set_parallel(true)
-	tw.tween_property(self, "scale", Vector2(1.0, 1.0), 0.12)
 	tw.tween_property(self, "rotation", 0.0, 0.12)
 
 func _process(delta: float) -> void:

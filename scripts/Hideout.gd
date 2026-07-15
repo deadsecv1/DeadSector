@@ -123,8 +123,18 @@ func _ready() -> void:
 	rose_panel.plushies_requested.connect(_open_plushies)
 	rose_panel.menu_shown.connect(_close_plushies)
 	plushies_panel.closed.connect(_close_plushies)
-	plushies_panel.plushie_given.connect(func(instance_id: String): plushie_reveal.show_pet(instance_id))
-	plushie_reveal.closed.connect(func(): plushie_reveal.visible = false)
+	# Reveal replaces Plushies in the same screen slot instead of
+	# stacking on top of it (both panels now share the same anchors/
+	# offsets) - hide one exactly as the other appears, so it reads as
+	# one window updating rather than a new one opening.
+	plushies_panel.plushie_given.connect(func(instance_id: String):
+		plushies_panel.visible = false
+		plushie_reveal.show_pet(instance_id)
+	)
+	plushie_reveal.closed.connect(func():
+		plushie_reveal.visible = false
+		plushies_panel.open()
+	)
 	gamble_panel.closed.connect(_close_gamble)
 	sleep_yes.pressed.connect(_on_sleep_confirm_yes)
 	sleep_no.pressed.connect(_on_sleep_confirm_no)
@@ -322,18 +332,19 @@ func _open_rose() -> void:
 # Opened from the "Plushies" button INSIDE Rose's own panel - Rose's
 # window stays open behind it (she switches to her own "let's trade"
 # line, see RosePanel._show_plushie_talk()) instead of being hidden, so
-# there's no caller state that ever needs restoring: closing the trade
-# window or hitting Rose's Back button just leaves her window exactly
-# where it already was. Input was already locked when Rose opened, so
-# this doesn't need to lock it again.
+# Closes Rose's own window instead of leaving it stacked underneath -
+# Plushies now reads as its own screen, not a popup layered over her
+# dialogue. Closing Plushies (below) brings Rose back.
 func _open_plushies() -> void:
+	rose_panel.visible = false
 	plushies_panel.open()
 
-# Also closes the reveal popup if it's still up - both are downstream
-# of Rose's own window, which is left untouched here on purpose.
+# Also closes the reveal popup if it's still up. Returns to Rose's own
+# window rather than leaving the player at a bare Hideout.
 func _close_plushies() -> void:
 	plushies_panel.visible = false
 	plushie_reveal.visible = false
+	rose_panel.visible = true
 
 func _open_gamble() -> void:
 	if sleeping or _any_panel_open():

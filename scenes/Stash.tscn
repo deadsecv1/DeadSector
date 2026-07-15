@@ -310,6 +310,12 @@ theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.95, 0.35, 0.35, 1)
 text = "100 HP"
 
+[node name="HungerLabel" type="Label" parent="VBox/Panels/CharacterPanel"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.9, 0.55, 0.12, 1)
+text = "Hunger: Full"
+
 [node name="LoadoutsButton" type="Button" parent="VBox/Panels/CharacterPanel"]
 custom_minimum_size = Vector2(0, 36)
 theme_override_font_sizes/font_size = 13

@@ -35,15 +35,11 @@ func _on_hover_enter() -> void:
 	_hovered = true
 	_wiggle_time = 0.0
 	set_process(true)
-	var tw := create_tween()
-	tw.tween_property(self, "scale", Vector2(1.1, 1.1), 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _on_hover_exit() -> void:
 	_hovered = false
 	set_process(false)
 	var tw := create_tween()
-	tw.set_parallel(true)
-	tw.tween_property(self, "scale", Vector2(1.0, 1.0), 0.12)
 	tw.tween_property(self, "rotation", 0.0, 0.12)
 
 func _process(delta: float) -> void:

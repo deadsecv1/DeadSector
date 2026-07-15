@@ -29,6 +29,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
 		get_viewport().set_input_as_handled()
+		# HUD's own Pause Menu polls Escape independently in its _process()
+		# (which runs after this _unhandled_input, same frame) - without
+		# suppressing it here it still opens on the same keypress, racing
+		# the pending scene change. Same fix TheGrid.gd/SocialPlace.gd use.
+		hud.suppress_escape_this_frame = true
 		Transition.change_scene_instant("res://scenes/MainMenu.tscn")
 
 func _spawn_pet() -> void:
@@ -46,8 +51,11 @@ func _spawn_guildmates() -> void:
 		npc.set_script(NPC_SCRIPT)
 		npc.member_name = str(names[i])
 		npc.role = GameManager.get_guild_member_role(i)
-		add_child(npc)
-		npc.global_position = Vector2(
+		# Position must be set BEFORE add_child() - see SocialPlace.gd's
+		# _spawn_npc() for why (add_child() runs _ready() synchronously,
+		# which captures "origin" from global_position immediately).
+		npc.position = Vector2(
 			randf_range(-SPAWN_SPREAD.x, SPAWN_SPREAD.x),
 			randf_range(-SPAWN_SPREAD.y, SPAWN_SPREAD.y),
 		)
+		add_child(npc)

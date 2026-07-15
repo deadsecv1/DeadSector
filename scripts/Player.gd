@@ -206,6 +206,11 @@ func _ready() -> void:
 	health_bar.update_health(health, max_health)
 	hunger = MAX_HUNGER
 	hunger_bar.update_hunger(hunger, MAX_HUNGER)
+	# The world-space bar read as a second HP bar stacked under the real
+	# one - Hunger is still tracked and still decays during a raid same
+	# as before, it's just no longer drawn above the character's head;
+	# Stash's own Hunger line is the only place it's shown now.
+	hunger_bar.visible = false
 
 # --- Optional external art: if res://assets/player.png exists, use it
 # instead of the built-in vector body. Drop your own art there any time -
