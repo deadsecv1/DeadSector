@@ -5285,6 +5285,7 @@ const MAP_SCENES := {
 	"void_trench": "res://scenes/VoidTrench.tscn",
 	"graveyard": "res://scenes/Graveyard.tscn",
 	"ironscrap": "res://scenes/IronscrapYard.tscn",
+	"the_foundry": "res://scenes/TheFoundry.tscn",
 }
 
 var character_created: bool = false
