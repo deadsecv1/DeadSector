@@ -62,6 +62,35 @@ indicate a real problem:
   in it and in `Stash.gd`'s doll-slot code succeeds, and the error still
   appears with all of that code fully instrumented and traced clean.)
 
+A headless boot only proves the scene parses and runs without error — it says
+nothing about whether a *visual* change (new icon, card styling, layout)
+actually looks right, since `--headless` has no real rendering pipeline (a
+`get_viewport().get_texture()` capture attempt under `--headless` silently
+produces nothing). For visual/UI changes, verify with an actual rendered
+screenshot instead, using a throwaway test scene:
+
+```gdscript
+# scratch_test/screenshot.gd — delete the whole scratch_test/ folder when done
+extends Node
+func _ready() -> void:
+	get_window().size = Vector2i(1280, 800)
+	var inst = load("res://scenes/Foo.tscn").instantiate()
+	add_child(inst)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://scratch_test/shot.png")
+	get_tree().quit()
+```
+
+Run it **without** `--headless` (`"<godot exe path>" --path . scratch_test/Screenshot.tscn`) —
+this is a real GPU-rendered window, not headless, so it only works because
+this is a local dev machine with a display/GPU actually present. It renders
+correctly and self-closes via `get_tree().quit()` without needing anyone to
+interact with it. Reimport (`--import`) after adding the test scene/script
+before running it. Then view the saved PNG directly with the Read tool (crop
+with Pillow first if you need to zoom into a small detail).
+
 ## Art pipeline: fallback-to-real-art convention
 
 Most drawable entities (Enemy, Car, Barrel, Crate, DebrisStash, Wall, ...)
