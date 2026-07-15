@@ -1,5 +1,9 @@
 extends Control
 
+const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
+
+@onready var vbox: VBoxContainer = $VBox
+@onready var title_label: Label = $VBox/Title
 @onready var day_button: Button = $VBox/DayButton
 @onready var night_button: Button = $VBox/NightButton
 @onready var day_time_label: Label = $VBox/DayTimeLabel
@@ -15,10 +19,41 @@ func _input(event: InputEvent) -> void:
 
 func _ready() -> void:
 	GameManager.set_default_cursor()
+	_add_map_header()
 	day_button.pressed.connect(func(): _start_raid(false))
 	night_button.pressed.connect(func(): _start_raid(true))
 	back_button.pressed.connect(func(): Transition.change_scene_instant("res://scenes/MapChoice.tscn"))
 	_update_time()
+
+# This screen used to just say "SELECT RAID" with no indication of which
+# Sector you were actually about to deploy into - GameManager.selected_map
+# was already set by MapChoice.tscn, just never shown here. Reuses the same
+# icon_key/color/name MAP_CATALOG already defines for the Data screen's
+# Maps tab, so the map reads consistently everywhere it shows up.
+func _add_map_header() -> void:
+	var map_data: Dictionary = GameManager.MAP_CATALOG.get(GameManager.selected_map, {})
+	if map_data.is_empty():
+		return
+	var map_color: Color = map_data.get("color", Color(0.6, 0.75, 1.0, 1))
+
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 10)
+	vbox.add_child(row)
+	vbox.move_child(row, 0)
+
+	var icon = ItemIconScene.instantiate()
+	icon.icon_key = map_data.get("icon_key", "generic")
+	icon.icon_color = map_color
+	icon.custom_minimum_size = Vector2(32, 32)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(icon)
+
+	var name_lbl := Label.new()
+	name_lbl.text = str(map_data.get("name", "")).to_upper()
+	name_lbl.add_theme_font_size_override("font_size", 18)
+	name_lbl.add_theme_color_override("font_color", map_color)
+	row.add_child(name_lbl)
 
 func _process(_delta: float) -> void:
 	_update_time()

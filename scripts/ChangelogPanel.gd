@@ -1090,6 +1090,10 @@ const CHANGELOG_CURRENT := [
 		"Added Ironscrap Yard and The Foundry to the Data screen's Maps tab - both have existed as real raid destinations since 3.55.0/3.56.0 but were never added to the compendium.",
 		"Added a full Armor tab to the Data screen - every named piece of head/body/boots/backpack/accessory/attachment gear in the game, the same reference treatment Weapons already had.",
 	]},
+	{"version": "3.60.0", "title": "Map Select Polish", "notes": [
+		"The Select Sector screen's 5 map cards now each show a real icon (matching the same one used on the Data screen's Maps tab) and a themed bordered card with hover feedback, instead of plain unstyled buttons with colored text only.",
+		"The Day/Night raid screen now actually shows which Sector you're about to deploy into - it used to just say \"SELECT RAID\" with no indication at all of the map you'd already chosen.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
