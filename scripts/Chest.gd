@@ -89,6 +89,10 @@ func _start_search() -> void:
 	var loot_hound_bonus: float = 0.08 if GameManager.player_trait == "loot_hound" else 0.0
 	if randf() < 0.05 + loot_hound_bonus:
 		rolled_items.append(GameManager.roll_blueprint())
+	if randf() < 0.05 + loot_hound_bonus:
+		var specialized_case: Dictionary = GameManager.roll_specialized_case()
+		if not specialized_case.is_empty():
+			rolled_items.append(specialized_case)
 	if randf() < 0.5:
 		rolled_items.append(GameManager.roll_attachment())
 	if randf() < 0.5:

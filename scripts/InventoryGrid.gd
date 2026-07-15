@@ -15,10 +15,19 @@ const COLS_STASH := 11
 var stash_controller = null  # set by the owning controller; must expose refresh()
 var source: String = "stash"
 
+# Specialized Case sources are "case_medical"/"case_gun"/"case_armor"/
+# "case_key" - same small grid for all four, just backed by a different
+# storage array (see GameManager's CASE_TYPES/_case_storage()).
+static func _is_case_source(s: String) -> bool:
+	return s.begins_with("case_")
+
+static func _case_type_of(s: String) -> String:
+	return s.substr(5)
+
 func _cell() -> float:
 	if source == "stash":
 		return CELL_STASH
-	if source == "backpack_storage":
+	if source == "backpack_storage" or _is_case_source(source):
 		return CELL_BACKPACK_STORAGE
 	return CELL_CARRIED
 
@@ -27,6 +36,8 @@ func _cols() -> int:
 		return COLS_STASH
 	if source == "backpack_storage":
 		return GameManager.BACKPACK_STORAGE_COLS
+	if _is_case_source(source):
+		return GameManager.CASE_STORAGE_COLS
 	return COLS_CARRIED
 
 func _ready() -> void:
@@ -43,6 +54,8 @@ func _rows() -> int:
 		return GameManager.get_stash_grid_rows()
 	elif source == "backpack_storage":
 		return GameManager.BACKPACK_STORAGE_ROWS
+	elif _is_case_source(source):
+		return GameManager.CASE_STORAGE_ROWS
 	return GameManager.get_grid_rows()
 
 func _draw() -> void:
@@ -67,8 +80,8 @@ func _can_drop_data(_pos: Vector2, data) -> bool:
 			return true
 		# On the Stash screen, doll slots are tagged "stash" but should
 		# also be able to drop straight onto the Backpack Storage panel
-		# sitting right next to it.
-		if source == "backpack_storage" and equip_source == "stash":
+		# (or an unlocked Case panel) sitting right next to it.
+		if (source == "backpack_storage" or _is_case_source(source)) and equip_source == "stash":
 			return true
 		return false
 	# The Backpack grid also accepts drags coming from the Vicinity panel
@@ -80,6 +93,13 @@ func _can_drop_data(_pos: Vector2, data) -> bool:
 	if source == "stash" and data_source == "backpack_storage":
 		return true
 	if source == "backpack_storage" and data_source == "stash":
+		return true
+	# Same idea for Stash <-> an unlocked Case - the actual category check
+	# (does this item belong in THIS case) happens in GameManager, so a
+	# non-matching drop is simply rejected there rather than refused here.
+	if source == "stash" and _is_case_source(data_source):
+		return true
+	if _is_case_source(source) and data_source == "stash":
 		return true
 	return false
 
@@ -99,6 +119,10 @@ func _drop_data(pos: Vector2, data) -> void:
 		fp = GameManager.get_item_footprint(GameManager.carried_loot[index])
 	elif data_source == "backpack_storage" and index >= 0 and index < GameManager.backpack_storage.size():
 		fp = GameManager.get_item_footprint(GameManager.backpack_storage[index])
+	elif _is_case_source(data_source):
+		var case_items: Array = GameManager.get_case_storage(_case_type_of(data_source))
+		if index >= 0 and index < case_items.size():
+			fp = GameManager.get_item_footprint(case_items[index])
 	var gx := int(clamp(floor(pos.x / _cell()), 0, max(_cols() - fp.x, 0)))
 	var gy := int(clamp(floor(pos.y / _cell()), 0, max(_rows() - fp.y, 0)))
 	if data_source == "vicinity":
@@ -109,6 +133,8 @@ func _drop_data(pos: Vector2, data) -> void:
 			GameManager.unequip_to_stash_cell(equip_slot, gx, gy)
 		elif source == "backpack_storage":
 			GameManager.unequip_to_backpack_storage_cell(equip_slot, gx, gy)
+		elif _is_case_source(source):
+			GameManager.unequip_to_case_cell(_case_type_of(source), equip_slot, gx, gy)
 		else:
 			GameManager.unequip_to_carried_cell(equip_slot, gx, gy)
 	elif data_source == "stash" and source == "backpack_storage":
@@ -117,12 +143,20 @@ func _drop_data(pos: Vector2, data) -> void:
 	elif data_source == "backpack_storage" and source == "stash":
 		# Moving from Backpack Storage back into the Stash.
 		GameManager.move_backpack_storage_item_to_stash_cell(index, gx, gy)
+	elif data_source == "stash" and _is_case_source(source):
+		# Moving from the Stash into an unlocked Case.
+		GameManager.move_stash_item_to_case_cell(_case_type_of(source), index, gx, gy)
+	elif _is_case_source(data_source) and source == "stash":
+		# Moving from a Case back into the Stash.
+		GameManager.move_case_item_to_stash_cell(_case_type_of(data_source), index, gx, gy)
 	elif source == "stash":
 		if index < 0 or index >= GameManager.stash_items.size():
 			return
 		GameManager.move_item_to_cell(index, gx, gy)
 	elif source == "backpack_storage":
 		GameManager.move_backpack_storage_item_to_cell(index, gx, gy)
+	elif _is_case_source(source):
+		GameManager.move_case_item_to_cell(_case_type_of(source), index, gx, gy)
 	else:
 		if index < 0 or index >= GameManager.carried_loot.size():
 			return

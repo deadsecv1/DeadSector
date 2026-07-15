@@ -37,7 +37,7 @@ var _hover_glow_trace: Control = null
 func _cell() -> float:
 	if source == "stash":
 		return CELL_STASH
-	if source == "backpack_storage":
+	if source == "backpack_storage" or source.begins_with("case_"):
 		return CELL_BACKPACK_STORAGE
 	return CELL_CARRIED
 

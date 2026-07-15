@@ -1476,6 +1476,28 @@ func open_vicinity_loot_bag(index: int) -> Dictionary:
 	notify_event("open_loot_bag")
 	return contents
 
+const CASE_ITEM_DATA := {
+	"medical": {"name": "Medical Case", "value": 180, "desc": "A dedicated case for medical supplies. Opening it clears space in your Stash for good - every bandage and MRE gets its own home from here on."},
+	"gun": {"name": "Gun Case", "value": 220, "desc": "A padded case built for weapons. Opening it clears space in your Stash for good - every gun gets its own home from here on."},
+	"armor": {"name": "Armor Case", "value": 200, "desc": "A reinforced case for protective gear. Opening it clears space in your Stash for good - every helmet, plate, and boot gets its own home from here on."},
+	"key": {"name": "Key Case", "value": 160, "desc": "A small case built to keep keys from getting lost in the shuffle. Opening it clears space in your Stash for good - every key gets its own home from here on."},
+}
+
+# Empty once all 4 are unlocked - nothing left to roll.
+func roll_specialized_case() -> Dictionary:
+	var missing: Array = []
+	for case_type in CASE_TYPES:
+		if not unlocked_cases.get(case_type, false):
+			missing.append(case_type)
+	if missing.is_empty():
+		return {}
+	var case_type: String = missing[randi() % missing.size()]
+	var data: Dictionary = CASE_ITEM_DATA[case_type]
+	return {
+		"name": data["name"], "value": data["value"], "slot": case_type + "_case",
+		"icon_key": "pet_case", "rarity": "epic", "desc": data["desc"],
+	}
+
 func roll_blueprint() -> Dictionary:
 	var result: Dictionary = BLUEPRINT_RESULTS[randi() % BLUEPRINT_RESULTS.size()]
 	return {
@@ -5379,6 +5401,11 @@ func reset_character() -> void:
 	_last_starter_pack_claim = -STARTER_PACK_COOLDOWN
 	stash_items = []
 	backpack_storage = []
+	unlocked_cases = {"medical": false, "gun": false, "armor": false, "key": false}
+	medical_case_storage = []
+	gun_case_storage = []
+	armor_case_storage = []
+	key_case_storage = []
 	equipped_items = {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null, "backpack": null}
 	player_loadout_presets = [null, null, null]
 	player_guild_id = ""
@@ -6376,6 +6403,183 @@ func grant_graveyard_key() -> void:
 		toast_requested.emit("Got the Graveyard Key! It's in your Backpack Storage.")
 	save_game()
 
+# --- Specialized Cases: Medical, Gun, Armor, and Key each get their own
+# small dedicated storage grid, found as lootable case items and opened
+# once (like Pet Case) to permanently unlock that category's own space,
+# decluttering the main Stash/Backpack of one specific item type for good.
+# One generalized set of functions below instead of 4 near-duplicated
+# copies of the Backpack Storage pattern above.
+const CASE_TYPES := ["medical", "gun", "armor", "key"]
+const CASE_STORAGE_COLS := 4
+const CASE_STORAGE_ROWS := 4
+
+var unlocked_cases: Dictionary = {"medical": false, "gun": false, "armor": false, "key": false}
+var medical_case_storage: Array = []
+var gun_case_storage: Array = []
+var armor_case_storage: Array = []
+var key_case_storage: Array = []
+
+func _case_storage(case_type: String) -> Array:
+	match case_type:
+		"medical": return medical_case_storage
+		"gun": return gun_case_storage
+		"armor": return armor_case_storage
+		"key": return key_case_storage
+	return []
+
+# Public accessor for callers outside GameManager (InventoryGrid.gd, panel
+# scripts) - _case_storage() above is this file's own internal shorthand.
+func get_case_storage(case_type: String) -> Array:
+	return _case_storage(case_type)
+
+func _set_case_storage(case_type: String, arr: Array) -> void:
+	match case_type:
+		"medical": medical_case_storage = arr
+		"gun": gun_case_storage = arr
+		"armor": armor_case_storage = arr
+		"key": key_case_storage = arr
+
+func case_accepts_item(case_type: String, item: Dictionary) -> bool:
+	var slot: String = item.get("slot", "")
+	match case_type:
+		"medical": return slot == "consumable"
+		"gun": return slot == "weapon"
+		"armor": return slot == "head" or slot == "body" or slot == "boots"
+		"key": return slot == "key"
+	return false
+
+func unlock_case(case_type: String) -> void:
+	if unlocked_cases.get(case_type, false):
+		return
+	unlocked_cases[case_type] = true
+	toast_requested.emit("%s Case unlocked - it now has its own dedicated storage." % case_type.capitalize())
+	save_game()
+
+# Consumes the physical case item (a one-time unlock, not a reusable
+# container like Pet Case) and unlocks that category's dedicated storage.
+func open_case_item(index: int, source: String, case_type: String) -> void:
+	var items: Array = stash_items if source == "stash" else carried_loot
+	if index < 0 or index >= items.size():
+		return
+	items.remove_at(index)
+	unlock_case(case_type)
+
+func _next_free_case_cell(case_type: String, footprint: Vector2i = Vector2i(1, 1), ignore_item = null) -> Vector2i:
+	var items := _case_storage(case_type)
+	var max_x: int = max(CASE_STORAGE_COLS - footprint.x + 1, 1)
+	var max_y: int = max(CASE_STORAGE_ROWS - footprint.y + 1, 1)
+	for y in range(max_y):
+		for x in range(max_x):
+			if not _footprint_overlaps(items, x, y, footprint.x, footprint.y, ignore_item):
+				return Vector2i(x, y)
+	return Vector2i(-1, -1)
+
+func move_stash_item_to_case_cell(case_type: String, index: int, gx: int, gy: int) -> void:
+	if index < 0 or index >= stash_items.size():
+		return
+	var item: Dictionary = stash_items[index]
+	if not case_accepts_item(case_type, item):
+		toast_requested.emit("That doesn't belong in the %s Case" % case_type.capitalize())
+		return
+	var items := _case_storage(case_type)
+	var fp := get_item_footprint(item)
+	if _footprint_overlaps(items, gx, gy, fp.x, fp.y):
+		var cell := _next_free_case_cell(case_type, fp)
+		if cell.x < 0:
+			toast_requested.emit("%s Case is full" % case_type.capitalize())
+			return
+		gx = cell.x
+		gy = cell.y
+	stash_items.remove_at(index)
+	item["grid_x"] = gx
+	item["grid_y"] = gy
+	items.append(item)
+	_set_case_storage(case_type, items)
+	save_game()
+
+func move_case_item_to_stash_cell(case_type: String, index: int, gx: int, gy: int) -> void:
+	var items := _case_storage(case_type)
+	if index < 0 or index >= items.size():
+		return
+	var item: Dictionary = items[index]
+	var fp := get_item_footprint(item)
+	if _footprint_overlaps(stash_items, gx, gy, fp.x, fp.y):
+		var cell := _next_free_cell_in(stash_items, false, fp)
+		gx = cell.x
+		gy = cell.y
+	items.remove_at(index)
+	_set_case_storage(case_type, items)
+	item["grid_x"] = gx
+	item["grid_y"] = gy
+	stash_items.append(item)
+	save_game()
+
+func move_case_item_to_cell(case_type: String, index: int, x: int, y: int) -> void:
+	var items := _case_storage(case_type)
+	if index < 0 or index >= items.size():
+		return
+	var item: Dictionary = items[index]
+	var fp := get_item_footprint(item)
+	x = clamp(x, 0, max(CASE_STORAGE_COLS - fp.x, 0))
+	y = clamp(y, 0, max(CASE_STORAGE_ROWS - fp.y, 0))
+	if _footprint_overlaps(items, x, y, fp.x, fp.y, item):
+		var fallback := _next_free_case_cell(case_type, fp, item)
+		if fallback.x >= 0:
+			item["grid_x"] = fallback.x
+			item["grid_y"] = fallback.y
+		return
+	item["grid_x"] = x
+	item["grid_y"] = y
+
+func unequip_to_case_cell(case_type: String, slot: String, gx: int, gy: int) -> void:
+	if not equipped_items.has(slot):
+		return
+	var item = equipped_items[slot]
+	if item == null:
+		return
+	if not case_accepts_item(case_type, item):
+		toast_requested.emit("That doesn't belong in the %s Case" % case_type.capitalize())
+		return
+	var items := _case_storage(case_type)
+	var fp := get_item_footprint(item)
+	if _footprint_overlaps(items, gx, gy, fp.x, fp.y):
+		var cell := _next_free_case_cell(case_type, fp)
+		if cell.x < 0:
+			toast_requested.emit("%s Case is full" % case_type.capitalize())
+			return
+		gx = cell.x
+		gy = cell.y
+	equipped_items[slot] = null
+	item["grid_x"] = gx
+	item["grid_y"] = gy
+	items.append(item)
+	_set_case_storage(case_type, items)
+	equipped_changed.emit()
+	save_game()
+
+func _repair_case_storage_overlaps() -> void:
+	for case_type in CASE_TYPES:
+		var original: Array = _case_storage(case_type)
+		var placed: Array = []
+		var needs_fix: Array = []
+		for it in original:
+			var gx := int(it.get("grid_x", -1))
+			var gy := int(it.get("grid_y", -1))
+			var fp := get_item_footprint(it)
+			var out_of_bounds: bool = gx < 0 or gy < 0 or gx + fp.x > CASE_STORAGE_COLS or gy + fp.y > CASE_STORAGE_ROWS
+			if out_of_bounds or _footprint_overlaps(placed, gx, gy, fp.x, fp.y):
+				needs_fix.append(it)
+			else:
+				placed.append(it)
+		for it in needs_fix:
+			var fp := get_item_footprint(it)
+			var cell := _next_free_case_cell(case_type, fp)
+			if cell.x >= 0:
+				it["grid_x"] = cell.x
+				it["grid_y"] = cell.y
+			placed.append(it)
+		_set_case_storage(case_type, placed)
+
 # Recognizes the key whether it's sitting in Backpack Storage (the
 # intended permanent home for it) or in a Safe Pocket - a pocket
 # protects an item through death exactly like Backpack Storage does,
@@ -6640,6 +6844,11 @@ func save_game() -> void:
 		"equipped_chat_background": equipped_chat_background,
 		"feedback_submissions": feedback_submissions,
 		"backpack_storage": backpack_storage,
+		"unlocked_cases": unlocked_cases,
+		"medical_case_storage": medical_case_storage,
+		"gun_case_storage": gun_case_storage,
+		"armor_case_storage": armor_case_storage,
+		"key_case_storage": key_case_storage,
 		"has_seen_welcome": has_seen_welcome,
 		"achievement_flag_multiversal_pull": achievement_flag_multiversal_pull,
 		"achievement_flag_close_call": achievement_flag_close_call,
@@ -6942,6 +7151,23 @@ func load_game() -> void:
 	var loaded_backpack_storage = parsed.get("backpack_storage", null)
 	if typeof(loaded_backpack_storage) == TYPE_ARRAY:
 		backpack_storage = loaded_backpack_storage
+	var loaded_unlocked_cases = parsed.get("unlocked_cases", null)
+	if typeof(loaded_unlocked_cases) == TYPE_DICTIONARY:
+		for case_type in unlocked_cases.keys():
+			if loaded_unlocked_cases.has(case_type):
+				unlocked_cases[case_type] = bool(loaded_unlocked_cases[case_type])
+	var loaded_medical_case = parsed.get("medical_case_storage", null)
+	if typeof(loaded_medical_case) == TYPE_ARRAY:
+		medical_case_storage = loaded_medical_case
+	var loaded_gun_case = parsed.get("gun_case_storage", null)
+	if typeof(loaded_gun_case) == TYPE_ARRAY:
+		gun_case_storage = loaded_gun_case
+	var loaded_armor_case = parsed.get("armor_case_storage", null)
+	if typeof(loaded_armor_case) == TYPE_ARRAY:
+		armor_case_storage = loaded_armor_case
+	var loaded_key_case = parsed.get("key_case_storage", null)
+	if typeof(loaded_key_case) == TYPE_ARRAY:
+		key_case_storage = loaded_key_case
 	# A Scav Run or Arena Loadout that was still active when the game last
 	# closed (quit, crash, forced shutdown) never reached its normal
 	# end_*_if_active() call, so the real gear/pet underneath is only
@@ -7012,15 +7238,56 @@ func _migrate_stash_eggs_to_hatchery() -> void:
 func _repair_overlapping_grid_items() -> void:
 	_repair_grid_list(stash_items, false)
 	_repair_grid_list(carried_loot, true)
+	_repair_backpack_storage_overlaps()
+	_repair_case_storage_overlaps()
+
+# Same idea as _repair_grid_list, but backpack_storage's own free-cell
+# finder (_next_free_cell_backpack_storage) reads the live backpack_storage
+# array directly instead of taking one as a parameter, so this rebuilds it
+# incrementally instead - each already-validated item goes back in before
+# the next fix is looked up, so the finder only ever sees positions already
+# confirmed clear. Needed once real (non-1x1) item footprints landed -
+# without this, a save from before that change could have two items
+# sitting at positions that only started overlapping once one of them
+# grew past a single cell.
+func _repair_backpack_storage_overlaps() -> void:
+	# Unlike the stash/carried_loot grids, backpack storage has no overflow
+	# concept (_next_free_cell_backpack_storage returns (-1,-1) when truly
+	# full instead of extending downward), so both axes are a hard bound.
+	var original: Array = backpack_storage
+	var placed: Array = []
+	var needs_fix: Array = []
+	for it in original:
+		var gx := int(it.get("grid_x", -1))
+		var gy := int(it.get("grid_y", -1))
+		var fp := get_item_footprint(it)
+		var out_of_bounds: bool = gx < 0 or gy < 0 or gx + fp.x > BACKPACK_STORAGE_COLS or gy + fp.y > BACKPACK_STORAGE_ROWS
+		if out_of_bounds or _footprint_overlaps(placed, gx, gy, fp.x, fp.y):
+			needs_fix.append(it)
+		else:
+			placed.append(it)
+	backpack_storage = placed
+	for it in needs_fix:
+		var fp := get_item_footprint(it)
+		var cell := _next_free_cell_backpack_storage(fp)
+		if cell.x >= 0:
+			it["grid_x"] = cell.x
+			it["grid_y"] = cell.y
+		backpack_storage.append(it)
 
 func _repair_grid_list(items: Array, is_backpack: bool) -> void:
+	# Columns are a hard cap; rows legitimately are not (_next_free_cell_in
+	# extends into invisible "overflow" rows on a full grid rather than
+	# ever losing an item), so only the column bound is checked here.
+	var cols: int = GRID_COLS if is_backpack else STASH_GRID_COLS
 	var placed: Array = []
 	var needs_fix: Array = []
 	for it in items:
 		var gx := int(it.get("grid_x", -1))
 		var gy := int(it.get("grid_y", -1))
 		var fp := get_item_footprint(it)
-		if _footprint_overlaps(placed, gx, gy, fp.x, fp.y):
+		var out_of_bounds: bool = gx < 0 or gy < 0 or gx + fp.x > cols
+		if out_of_bounds or _footprint_overlaps(placed, gx, gy, fp.x, fp.y):
 			needs_fix.append(it)
 		else:
 			placed.append(it)
@@ -7501,7 +7768,18 @@ func get_gauntlet_weapon_type_label(item: Dictionary) -> String:
 		return ""
 	return "MELEE WEAPON" if is_gauntlet_item_melee(item) else "PROJECTILE WEAPON"
 
-func get_item_footprint(_item: Dictionary) -> Vector2i:
+func get_item_footprint(item: Dictionary) -> Vector2i:
+	var slot: String = item.get("slot", "")
+	if slot == "weapon":
+		match item.get("icon_key", ""):
+			"sniper":
+				return Vector2i(3, 1)
+			"rifle", "shotgun", "railgun":
+				return Vector2i(2, 1)
+			_:
+				return Vector2i(1, 1)
+	if slot == "body":
+		return Vector2i(2, 2)
 	return Vector2i(1, 1)
 
 # Rotates an item 90 degrees (swaps its footprint width/height) if the

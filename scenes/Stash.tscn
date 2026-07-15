@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/Stash.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/InventoryGrid.gd" id="2"]
@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" path="res://scenes/BackpackStoragePopup.tscn" id="13"]
 [ext_resource type="PackedScene" path="res://scenes/TagEditPanel.tscn" id="14"]
 [ext_resource type="PackedScene" path="res://scenes/LoadoutPresetsPanel.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://scenes/CasePanel.tscn" id="16"]
 
 [sub_resource type="StyleBoxFlat" id="DollBackdropStyle"]
 bg_color = Color(0.05, 0.07, 0.06, 0.9)
@@ -313,6 +314,30 @@ text = "100 HP"
 custom_minimum_size = Vector2(0, 36)
 theme_override_font_sizes/font_size = 13
 text = "PMC Loadouts"
+
+[node name="MedicalCaseButton" type="Button" parent="VBox/Panels/CharacterPanel"]
+visible = false
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 12
+text = "Medical Case"
+
+[node name="GunCaseButton" type="Button" parent="VBox/Panels/CharacterPanel"]
+visible = false
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 12
+text = "Gun Case"
+
+[node name="ArmorCaseButton" type="Button" parent="VBox/Panels/CharacterPanel"]
+visible = false
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 12
+text = "Armor Case"
+
+[node name="KeyCaseButton" type="Button" parent="VBox/Panels/CharacterPanel"]
+visible = false
+custom_minimum_size = Vector2(0, 32)
+theme_override_font_sizes/font_size = 12
+text = "Key Case"
 
 [node name="BackButton" type="Button" parent="VBox"]
 custom_minimum_size = Vector2(200, 50)
@@ -739,3 +764,5 @@ text = "Cancel"
 [node name="TagEditPanel" parent="." instance=ExtResource("14")]
 
 [node name="LoadoutPresetsPanel" parent="." instance=ExtResource("15")]
+
+[node name="CasePanel" parent="." instance=ExtResource("16")]

@@ -94,18 +94,19 @@ func open_for(index: int, source: String, item: Dictionary, at_position: Vector2
 	var is_pet_case: bool = item.get("slot", "") == "pet_case"
 	var is_backpack_item: bool = item.get("slot", "") == "backpack"
 	var is_egg: bool = item.get("slot", "") == "egg"
+	var is_specialized_case: bool = item.get("slot", "") in ["medical_case", "gun_case", "armor_case", "key_case"]
 	equip_button.text = "Equip"
-	equip_button.visible = not is_bag and not is_pet_case and not is_egg
+	equip_button.visible = not is_bag and not is_pet_case and not is_egg and not is_specialized_case
 	inspect_button.visible = true
 	# Available from both the in-raid Backpack and the Stash. There's no
 	# live HP/Hunger to restore outside a raid, so Stash.gd's own
 	# use_requested handler gives an explanatory toast instead of
 	# applying an effect there - see Stash.gd for that path.
 	use_button.visible = source in ["carried", "stash"] and item.get("consumable_type", "") in ["heal", "food"]
-	attachments_button.visible = show_attachments_option and not is_bag and not is_pet_case and item.get("slot", "") == "weapon"
-	skins_button.visible = not is_bag and not is_pet_case and not is_egg and GameManager.get_skins_for(item.get("icon_key", "")).size() > 0
-	open_bag_button.visible = is_bag or is_pet_case or is_backpack_item
-	open_bag_button.text = "Open" if (is_pet_case or is_backpack_item) else "Open Bag"
+	attachments_button.visible = show_attachments_option and not is_bag and not is_pet_case and not is_specialized_case and item.get("slot", "") == "weapon"
+	skins_button.visible = not is_bag and not is_pet_case and not is_egg and not is_specialized_case and GameManager.get_skins_for(item.get("icon_key", "")).size() > 0
+	open_bag_button.visible = is_bag or is_pet_case or is_backpack_item or is_specialized_case
+	open_bag_button.text = "Open Bag" if is_bag else "Open"
 	deposit_egg_button.visible = is_egg and source == "stash"
 	var fp := GameManager.get_item_footprint(item)
 	rotate_button.visible = (source == "stash" or source == "carried") and fp.x != fp.y

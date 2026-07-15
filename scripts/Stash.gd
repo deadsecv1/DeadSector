@@ -38,6 +38,11 @@ const CHROME_BLACK := Color(0.05, 0.05, 0.05, 1.0)
 @onready var tag_edit_panel = $TagEditPanel
 @onready var loadouts_button: Button = $VBox/Panels/CharacterPanel/LoadoutsButton
 @onready var loadout_presets_panel = $LoadoutPresetsPanel
+@onready var medical_case_button: Button = $VBox/Panels/CharacterPanel/MedicalCaseButton
+@onready var gun_case_button: Button = $VBox/Panels/CharacterPanel/GunCaseButton
+@onready var armor_case_button: Button = $VBox/Panels/CharacterPanel/ArmorCaseButton
+@onready var key_case_button: Button = $VBox/Panels/CharacterPanel/KeyCaseButton
+@onready var case_panel = $CasePanel
 @onready var inspect_panel = $InspectPanel
 @onready var skins_panel = $SkinsPanel
 @onready var open_bag_panel = $OpenLootBagPanel
@@ -78,6 +83,7 @@ func _input(event: InputEvent) -> void:
 func _any_sub_panel_open() -> bool:
 	return tag_edit_panel.visible or inspect_panel.visible or skins_panel.visible \
 		or open_bag_panel.visible or attachments_panel.visible or pet_case_panel.visible \
+		or case_panel.visible \
 		or filter_popup.visible or backpack_storage_popup.visible or loadout_presets_panel.visible
 
 func _ready() -> void:
@@ -126,10 +132,21 @@ func _ready() -> void:
 	item_context_menu.inspect_requested.connect(func(item): inspect_panel.open_for(item))
 	item_context_menu.skins_requested.connect(func(item): skins_panel.open_for(item))
 	item_context_menu.open_bag_requested.connect(func(index, source, item):
-		if item.get("slot", "") == "pet_case":
+		var slot: String = item.get("slot", "")
+		if slot == "pet_case":
 			pet_case_panel.open()
-		elif item.get("slot", "") == "backpack":
+		elif slot == "backpack":
 			backpack_storage_popup.open()
+		elif slot in ["medical_case", "gun_case", "armor_case", "key_case"]:
+			var case_type: String = slot.trim_suffix("_case")
+			GameManager.open_case_item(index, source, case_type)
+			refresh()
+			case_panel.set_case_type(case_type)
+			case_panel.open()
+			medical_case_button.visible = GameManager.unlocked_cases.get("medical", false)
+			gun_case_button.visible = GameManager.unlocked_cases.get("gun", false)
+			armor_case_button.visible = GameManager.unlocked_cases.get("armor", false)
+			key_case_button.visible = GameManager.unlocked_cases.get("key", false)
 		else:
 			open_bag_panel.open_for(index, source, item)
 	)
@@ -152,6 +169,15 @@ func _ready() -> void:
 	tag_edit_panel.saved.connect(refresh)
 	loadouts_button.pressed.connect(func(): loadout_presets_panel.open())
 	loadout_presets_panel.closed.connect(func(): loadout_presets_panel.visible = false)
+	medical_case_button.visible = GameManager.unlocked_cases.get("medical", false)
+	gun_case_button.visible = GameManager.unlocked_cases.get("gun", false)
+	armor_case_button.visible = GameManager.unlocked_cases.get("armor", false)
+	key_case_button.visible = GameManager.unlocked_cases.get("key", false)
+	medical_case_button.pressed.connect(func(): case_panel.set_case_type("medical"); case_panel.open())
+	gun_case_button.pressed.connect(func(): case_panel.set_case_type("gun"); case_panel.open())
+	armor_case_button.pressed.connect(func(): case_panel.set_case_type("armor"); case_panel.open())
+	key_case_button.pressed.connect(func(): case_panel.set_case_type("key"); case_panel.open())
+	case_panel.closed.connect(func(): case_panel.visible = false)
 	item_context_menu.equip_requested.connect(func(index, source, _item):
 		if source == "stash":
 			# Equipping removes the item from stash_items, shifting every
