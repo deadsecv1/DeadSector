@@ -1077,6 +1077,12 @@ const CHANGELOG_CURRENT := [
 		"The one-time Tech Test veteran reward mail now reaches every character, including a freshly wiped one - it was only ever intended for existing saves before.",
 		"Pistol-family weapons (including the Tech Tester's Sidearm) now show a real gun icon in your inventory instead of a plain vector shape.",
 	]},
+	{"version": "3.58.0", "title": "Backpack Storage Now Comes With You, Delete Character Is a Full Restart", "notes": [
+		"Backpack Storage now actually travels with you into a raid - anything in it shows up in your in-raid Backpack, and if you die, you lose it, same as everything else you're carrying. Safe Pockets are still the one place that's always protected no matter what.",
+		"Delete Character now acts as a complete wipe, done instantly without restarting the game - it drops you right back at Echo's opening cutscene and Character Creation, and the Welcome, Tech Test, and Alpha Rewards mail all become claimable again.",
+		"Removed the separate Wipe button from the Main Menu - Delete Character now covers the exact same ground.",
+		"More Safe Pocket fixes: moving an item into a pocket from the in-raid Backpack, or from the Stash screen, now updates every affected grid instantly instead of leaving a ghost tile behind.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
