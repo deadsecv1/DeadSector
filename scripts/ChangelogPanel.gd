@@ -1060,6 +1060,10 @@ const CHANGELOG_CURRENT := [
 		"Removed the hover scale-up bounce from every button except the Main Menu's own - it was pushing buttons outside their panel in tighter windows like Rose's.",
 		"Plushies now opens centered and closes Rose's window behind it instead of stacking on top; trading shows the result in the same spot instead of a second popup, shows your latest Plushie Pet's icon and the full rarity odds, and the reveal now lists its real stat bonuses.",
 	]},
+	{"version": "3.57.2", "title": "Critical Fix: Pre-Raid Ammo Check", "notes": [
+		"Fixed a real bug that could block deployment entirely with a \"find ammo for your gun\" popup regardless of how much ammo you actually owned - the check was only ever looking at ammo picked up so far during the current raid, not what's sitting in your Stash or Backpack Storage.",
+		"Fixed Heavy Ammo sometimes showing green instead of purple - older Heavy Ammo saved before a past recolor never got its color corrected retroactively. It's fixed automatically the next time you load.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
