@@ -3556,6 +3556,31 @@ func begin_raid_session() -> void:
 	raid_quests_completed.clear()
 	in_social_hub = false
 	MenuMusic.stop_menu_music()
+	_seed_carried_loot_from_backpack_storage()
+
+# Backpack Storage is what you've actually loaded up to bring - moving
+# it into carried_loot here (right as a normal PMC/Scav raid begins) is
+# what makes it show up in the in-raid Backpack UI, and it's now
+# subject to the exact same fate as anything else you find during the
+# raid: banked to the Stash on a successful extraction, lost outright
+# on death. Safe Pockets remain the one deliberate exception - dragging
+# something there BEFORE or DURING a raid keeps it regardless of how
+# the run ends. Deliberately not called from Arena's entry (its own
+# temp ammo/loadout swap is a separate, standardized system that
+# shouldn't touch the player's real Backpack Storage) or Gauntlet
+# (crafted level loot, not player-supplied).
+func _seed_carried_loot_from_backpack_storage() -> void:
+	var remaining: Array = []
+	for item in backpack_storage:
+		if is_carried_full():
+			remaining.append(item)
+			continue
+		var cell := _next_free_cell_in(carried_loot, true, get_item_footprint(item))
+		item["grid_x"] = cell.x
+		item["grid_y"] = cell.y
+		carried_loot.append(item)
+		carried_value += int(item.get("value", 0))
+	backpack_storage = remaining
 
 # --- Leaderboard season rewards: a preview/showcase of what each rank
 # band would earn (not yet a real claim flow - there's no live server
@@ -5460,6 +5485,10 @@ func reset_character() -> void:
 	_last_starter_pack_claim = -STARTER_PACK_COOLDOWN
 	stash_items = []
 	backpack_storage = []
+	safe_pockets = [null, null]
+	carried_loot = []
+	carried_value = 0
+	vicinity_items = []
 	unlocked_cases = {"medical": false, "gun": false, "armor": false, "key": false}
 	medical_case_storage = []
 	gun_case_storage = []
@@ -5507,13 +5536,11 @@ func reset_character() -> void:
 	mail_messages = []
 	_mail_counter = 0
 	welcome_mail_sent = false
-	# Deliberately NOT reset to false: the "From Tech Test to Alpha" mail is a
-	# one-time historical transition gift for saves that genuinely existed
-	# before Dead Sector left its Tech Test period. A character reset isn't
-	# that - it's a fresh start well after that transition already happened,
-	# so it shouldn't re-grant a huge "welcome back, veteran" mail every time
-	# someone deletes and remakes a character.
-	tech_test_mail_sent = true
+	# Explicit direction: Delete Character now doubles as a full wipe, and
+	# every character should get the Tech Test veteran mail once,
+	# including one that started over this way - see the class-level
+	# default on tech_test_mail_sent itself for the same reasoning.
+	tech_test_mail_sent = false
 	alpha_rewards_claimed = false
 	has_seen_welcome = false
 	player_level = 1
@@ -7804,19 +7831,27 @@ func move_vicinity_to_pocket(vicinity_index: int, pocket_index: int) -> bool:
 	pockets_changed.emit()
 	return true
 
-func remove_from_pocket(pocket_index: int) -> bool:
+func remove_from_pocket(pocket_index: int, context_source: String = "carried") -> bool:
 	if pocket_index < 0 or pocket_index >= safe_pockets.size():
 		return false
 	var item = safe_pockets[pocket_index]
 	if item == null:
 		return false
 	safe_pockets[pocket_index] = null
-	var cell := _next_free_cell_in(carried_loot)
-	item["grid_x"] = cell.x
-	item["grid_y"] = cell.y
-	carried_loot.append(item)
-	carried_value += int(item.get("value", 0))
+	if context_source == "stash":
+		# The Stash screen has no meaningful use for carried_loot at all
+		# outside a raid - the old unconditional carried_loot.append()
+		# effectively made the item vanish from view until the player's
+		# next raid, where it would mysteriously show up in the Backpack.
+		_add_to_stash(item)
+	else:
+		var cell := _next_free_cell_in(carried_loot)
+		item["grid_x"] = cell.x
+		item["grid_y"] = cell.y
+		carried_loot.append(item)
+		carried_value += int(item.get("value", 0))
 	pockets_changed.emit()
+	equipped_changed.emit()
 	return true
 
 # Stash/Backpack Storage counterparts to move_carried_to_pocket() above -
@@ -7837,6 +7872,11 @@ func move_stash_to_pocket(stash_index: int, pocket_index: int) -> bool:
 	if old != null:
 		_add_to_stash(old)
 	pockets_changed.emit()
+	# Stash.gd only redraws in response to equipped_changed (its own
+	# drag-drop calls refresh() directly, which a pocket-slot drop never
+	# does) - without this the source tile stayed visible as a ghost
+	# until some unrelated action forced a redraw.
+	equipped_changed.emit()
 	save_game()
 	return true
 
@@ -7853,6 +7893,7 @@ func move_backpack_storage_to_pocket(backpack_index: int, pocket_index: int) -> 
 		if not add_to_backpack_storage(old):
 			_add_to_stash(old)
 	pockets_changed.emit()
+	equipped_changed.emit()
 	save_game()
 	return true
 

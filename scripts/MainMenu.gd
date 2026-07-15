@@ -44,10 +44,6 @@ extends Control
 @onready var delete_confirm_panel: Panel = $DeleteConfirmPanel
 @onready var delete_confirm_button: Button = $DeleteConfirmPanel/VBox/ButtonRow/ConfirmButton
 @onready var delete_cancel_button: Button = $DeleteConfirmPanel/VBox/ButtonRow/CancelButton
-@onready var wipe_button: Button = $VBoxContainer/WipeButton
-@onready var wipe_confirm_panel: Panel = $WipeConfirmPanel
-@onready var wipe_confirm_button: Button = $WipeConfirmPanel/VBox/ButtonRow/ConfirmButton
-@onready var wipe_cancel_button: Button = $WipeConfirmPanel/VBox/ButtonRow/CancelButton
 @onready var changelog_button: Button = $ChangelogButton
 @onready var changelog_panel: Panel = $ChangelogPanel
 @onready var flea_market_button: Button = $VBoxContainer/FleaMarketButton
@@ -122,14 +118,12 @@ func _ready() -> void:
 	delete_confirm_button.pressed.connect(func():
 		GameManager.reset_character()
 		delete_confirm_panel.visible = false
-		Transition.change_scene_instant("res://scenes/CharacterCreation.tscn")
-	)
-	wipe_button.pressed.connect(func(): wipe_confirm_panel.visible = true)
-	wipe_cancel_button.pressed.connect(func(): wipe_confirm_panel.visible = false)
-	wipe_confirm_button.pressed.connect(func():
-		GameManager.wipe_everything()
-		OS.set_restart_on_exit(true)
-		get_tree().quit()
+		# Full restart-the-story flow now, not straight to Character
+		# Creation - Delete Character doubles as an in-place Wipe
+		# (explicit direction), so it should feel like booting the game
+		# for the very first time: the Echo cutscene first, which itself
+		# already chains into Character Creation when it finishes.
+		Transition.change_scene_instant("res://scenes/LoreIntro.tscn")
 	)
 	changelog_button.pressed.connect(func(): _open_panel(changelog_panel))
 	changelog_panel.closed.connect(func(): _close_panel(changelog_panel))
@@ -326,7 +320,7 @@ func _ambient_popups_suppressed() -> bool:
 		quest_panel, roadmap_panel, stats_panel, achievements_panel, battle_pass_panel,
 		store_panel, social_panel, data_panel, leaderboard_panel,
 		leaderboard_rewards_panel, rank_percentiles_panel, salvaged_beasts_panel, my_pets_panel,
-		bloodline_panel, delete_confirm_panel, wipe_confirm_panel, changelog_panel,
+		bloodline_panel, delete_confirm_panel, changelog_panel,
 		flea_market_panel, mail_panel, alpha_rewards_panel, feedback_panel, welcome_panel, update_spotlight_panel,
 		milestones_panel, guild_panel, guild_battle_pass_panel,
 	]

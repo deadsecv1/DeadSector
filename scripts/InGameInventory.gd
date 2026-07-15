@@ -48,6 +48,7 @@ func _ready() -> void:
 	sort_button.pressed.connect(func(): GameManager.sort_carried(); refresh())
 	GameManager.vicinity_changed.connect(refresh)
 	GameManager.equipped_changed.connect(refresh)
+	GameManager.pockets_changed.connect(refresh)
 	for key in slot_buttons.keys():
 		var btn = slot_buttons[key]
 		btn.source = "carried"

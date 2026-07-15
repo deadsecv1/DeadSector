@@ -7,6 +7,11 @@ extends Button
 signal dropped
 
 @export var pocket_index: int = 0
+# Which grid an emptied pocket should return its item to when clicked -
+# "carried" for the in-raid HUD (the original/default behavior), "stash"
+# for the out-of-raid Stash screen, which has no meaningful use for
+# carried_loot at all outside a raid.
+@export var context_source: String = "carried"
 
 func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -46,7 +51,7 @@ func _refresh() -> void:
 
 func _on_pressed() -> void:
 	if GameManager.safe_pockets[pocket_index] != null:
-		GameManager.remove_from_pocket(pocket_index)
+		GameManager.remove_from_pocket(pocket_index, context_source)
 		dropped.emit()
 
 const ACCEPTED_SOURCES := ["carried", "vicinity", "stash", "backpack_storage"]

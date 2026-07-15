@@ -273,6 +273,7 @@ theme_override_font_sizes/font_size = 8
 text = "Empty"
 script = ExtResource("13")
 pocket_index = 0
+context_source = "stash"
 
 [node name="PocketSlot2" type="Button" parent="VBox/Panels/CharacterPanel/PortraitArea"]
 offset_left = 340.0
@@ -283,6 +284,7 @@ theme_override_font_sizes/font_size = 8
 text = "Empty"
 script = ExtResource("13")
 pocket_index = 1
+context_source = "stash"
 
 [node name="BootsSlot" type="Button" parent="VBox/Panels/CharacterPanel/PortraitArea"]
 offset_left = 150.0
