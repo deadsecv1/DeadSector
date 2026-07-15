@@ -79,7 +79,7 @@ func _handle_throw(delta: float) -> void:
 	if player == null or not is_instance_valid(player):
 		return
 	throw_timer -= delta
-	if throw_timer <= 0.0 and global_position.distance_to(player.global_position) <= detection_range and _has_line_of_sight_to_player():
+	if throw_timer <= 0.0 and global_position.distance_to(player.global_position) <= detection_range and _has_line_of_sight_to(player):
 		_throw_bone_at_player()
 		throw_timer = throw_cooldown
 

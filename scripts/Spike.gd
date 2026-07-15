@@ -88,7 +88,7 @@ func _handle_grenade(delta: float) -> void:
 	if player == null or not is_instance_valid(player):
 		return
 	grenade_timer -= delta
-	if grenade_timer <= 0.0 and global_position.distance_to(player.global_position) <= detection_range and _has_line_of_sight_to_player():
+	if grenade_timer <= 0.0 and global_position.distance_to(player.global_position) <= detection_range and _has_line_of_sight_to(player):
 		_throw_grenade_at_player()
 		grenade_timer = grenade_cooldown
 

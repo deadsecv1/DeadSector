@@ -28,8 +28,6 @@
 [ext_resource type="PackedScene" path="res://scenes/UpdateSpotlightPanel.tscn" id="90"]
 [ext_resource type="PackedScene" path="res://scenes/LeaderboardRewardsPanel.tscn" id="60"]
 [ext_resource type="PackedScene" path="res://scenes/RankPercentilesPanel.tscn" id="62"]
-[ext_resource type="PackedScene" path="res://scenes/GlobalChatPanel.tscn" id="63"]
-[ext_resource type="PackedScene" path="res://scenes/FindTeamPanel.tscn" id="64"]
 [ext_resource type="PackedScene" path="res://scenes/GuildPanel.tscn" id="161"]
 [ext_resource type="Script" path="res://scripts/MenuCinematicRotator.gd" id="65"]
 [ext_resource type="Script" path="res://scripts/OvergrowthFogVignette.gd" id="66"]
@@ -1514,16 +1512,6 @@ theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
 theme_override_constants/outline_size = 4
 text = "SOCIAL"
 
-[node name="GlobalChatButton" type="Button" parent="SocialPanel/Margin/VBox/TitleRow"]
-custom_minimum_size = Vector2(110, 36)
-theme_override_font_sizes/font_size = 13
-text = "Global Chat"
-
-[node name="FindTeamButton" type="Button" parent="SocialPanel/Margin/VBox/TitleRow"]
-custom_minimum_size = Vector2(110, 36)
-theme_override_font_sizes/font_size = 13
-text = "Find a Team"
-
 [node name="GuildButton" type="Button" parent="SocialPanel/Margin/VBox/TitleRow"]
 custom_minimum_size = Vector2(90, 36)
 theme_override_font_sizes/font_size = 13
@@ -1903,10 +1891,6 @@ text = "Close"
 [node name="LeaderboardRewardsPanel" parent="." instance=ExtResource("60")]
 
 [node name="RankPercentilesPanel" parent="." instance=ExtResource("62")]
-
-[node name="GlobalChatPanel" parent="." instance=ExtResource("63")]
-
-[node name="FindTeamPanel" parent="." instance=ExtResource("64")]
 
 [node name="GuildPanel" parent="." instance=ExtResource("161")]
 

@@ -2,8 +2,6 @@ extends Panel
 const DraggablePanelScript := preload("res://scripts/DraggablePanel.gd")
 
 signal closed
-signal global_chat_requested
-signal find_team_requested
 signal guild_requested
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -29,8 +27,6 @@ const MUTED := Color(1, 1, 1, 0.6)
 
 @onready var profile_box: VBoxContainer = $Margin/VBox/Scroll/ProfileBox
 @onready var close_button: Button = $Margin/VBox/CloseButton
-@onready var global_chat_button: Button = $Margin/VBox/TitleRow/GlobalChatButton
-@onready var find_team_button: Button = $Margin/VBox/TitleRow/FindTeamButton
 @onready var guild_button: Button = $Margin/VBox/TitleRow/GuildButton
 @onready var chat_bg_button: Button = $Margin/VBox/ChatBgButton
 
@@ -40,48 +36,17 @@ func _ready() -> void:
 	visible = false
 	DraggablePanelScript.apply(self)
 	close_button.pressed.connect(func(): closed.emit())
-	global_chat_button.pressed.connect(func(): global_chat_requested.emit())
-	find_team_button.pressed.connect(func(): find_team_requested.emit())
 	guild_button.pressed.connect(func(): guild_requested.emit())
 	chat_bg_button.pressed.connect(_on_chat_bg_pressed)
 	_refresh_chat_bg_button()
 	_refresh_guild_button()
-	_style_global_chat_button()
+	_style_guild_button()
 
-# Global Chat was sitting there with no stylebox of its own - just the
-# bare default theme button, which reads as almost invisible against the
+# Guild was sitting there with no stylebox of its own - just the bare
+# default theme button, which reads as almost invisible against the
 # TitleRow next to the big "SOCIAL" heading. Give it a real outline in
-# the panel's own accent color so it's obviously a clickable button.
-func _style_global_chat_button() -> void:
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(ACCENT.r, ACCENT.g, ACCENT.b, 0.12)
-	sb.border_color = ACCENT
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(5)
-	global_chat_button.add_theme_stylebox_override("normal", sb)
-	var hover_sb := sb.duplicate()
-	hover_sb.bg_color = Color(ACCENT.r, ACCENT.g, ACCENT.b, 0.28)
-	global_chat_button.add_theme_stylebox_override("hover", hover_sb)
-	var pressed_sb := sb.duplicate()
-	pressed_sb.bg_color = Color(ACCENT.r, ACCENT.g, ACCENT.b, 0.4)
-	global_chat_button.add_theme_stylebox_override("pressed", pressed_sb)
-	global_chat_button.add_theme_color_override("font_color", ACCENT)
-
-	var team_accent := Color(0.45, 0.8, 1.0, 1)
-	var tsb := StyleBoxFlat.new()
-	tsb.bg_color = Color(team_accent.r, team_accent.g, team_accent.b, 0.12)
-	tsb.border_color = team_accent
-	tsb.set_border_width_all(2)
-	tsb.set_corner_radius_all(5)
-	find_team_button.add_theme_stylebox_override("normal", tsb)
-	var thover_sb := tsb.duplicate()
-	thover_sb.bg_color = Color(team_accent.r, team_accent.g, team_accent.b, 0.28)
-	find_team_button.add_theme_stylebox_override("hover", thover_sb)
-	var tpressed_sb := tsb.duplicate()
-	tpressed_sb.bg_color = Color(team_accent.r, team_accent.g, team_accent.b, 0.4)
-	find_team_button.add_theme_stylebox_override("pressed", tpressed_sb)
-	find_team_button.add_theme_color_override("font_color", team_accent)
-
+# its own accent color so it's obviously a clickable button.
+func _style_guild_button() -> void:
 	var guild_accent := Color(0.85, 0.65, 1.0, 1)
 	var gsb := StyleBoxFlat.new()
 	gsb.bg_color = Color(guild_accent.r, guild_accent.g, guild_accent.b, 0.12)

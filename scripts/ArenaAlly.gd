@@ -51,6 +51,7 @@ const CHAT_LINES := [
 @onready var mask: Polygon2D = $Visuals/Mask
 @onready var cap: Polygon2D = $Visuals/Cap
 @onready var name_tag: Label = $Visuals/NameTag
+@onready var external_sprite: Sprite2D = $Visuals/ExternalSprite
 
 func _ready() -> void:
 	add_to_group("arena_ally")
@@ -59,6 +60,7 @@ func _ready() -> void:
 	mask.visible = false
 	cap.visible = true
 	visuals.modulate = Color(0.8, 0.88, 1.05, 1)
+	_load_real_player_sprite()
 	var teammate: Dictionary = {}
 	var team1: Array = GameManager.current_arena_match.get("team1", [])
 	if team1.size() > team_index:
@@ -96,6 +98,26 @@ func _physics_process(delta: float) -> void:
 	else:
 		left_leg.position.y = 16
 		right_leg.position.y = 16
+
+# Same real_player art Enemy.gd's opponents use, applied by hand since
+# this script is set_script()'d onto an Enemy.tscn instance - it never
+# runs Enemy.gd's own _ready()/_try_load_external_sprite(). A slight
+# per-instance tint on the sprite itself (same trick SocialPlaceNpc.gd
+# uses on its vector parts) keeps a crowd of allies from looking like
+# perfect clones despite sharing one source image.
+func _load_real_player_sprite() -> void:
+	if not ResourceLoader.exists("res://assets/enemy_real_player.png"):
+		return
+	var tex: Texture2D = load("res://assets/enemy_real_player.png")
+	if tex == null:
+		return
+	external_sprite.texture = tex
+	external_sprite.visible = true
+	external_sprite.modulate = Color(randf_range(0.85, 1.15), randf_range(0.85, 1.15), randf_range(0.85, 1.15), 1)
+	for n in ["LeftLeg", "RightLeg", "Torso", "ChestStrap", "Head", "Mask", "Cap", "TorsoOutline", "HeadOutline"]:
+		var node = get_node_or_null("Visuals/" + n)
+		if node:
+			node.visible = false
 
 func _acquire_target() -> void:
 	var best: Node2D = null

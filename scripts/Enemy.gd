@@ -242,7 +242,13 @@ func _try_load_external_sprite() -> void:
 	if not use_external_sprite:
 		return
 	var path := "res://assets/enemy.png"
-	if enemy_type_id != "":
+	# Real Players (Arena opponents) have their own dedicated art -
+	# enemy_type_id is never set for them (they're not a typed monster),
+	# so without this they silently fell through to the generic raider
+	# sprite instead of the real_player-specific one that already ships.
+	if is_real_player and ResourceLoader.exists("res://assets/enemy_real_player.png"):
+		path = "res://assets/enemy_real_player.png"
+	elif enemy_type_id != "":
 		var typed_path := "res://assets/enemy_%s.png" % enemy_type_id
 		if ResourceLoader.exists(typed_path):
 			path = typed_path
@@ -274,25 +280,43 @@ func _player_in_smoke() -> bool:
 			return true
 	return false
 
-# A wall between the enemy and the player blocks BOTH detection and
+# A wall between the enemy and its target blocks BOTH detection and
 # shooting - previously enemies would chase/shoot through walls just
-# because the player was within range, even with no actual sightline.
-func _has_line_of_sight_to_player() -> bool:
+# because the target was within range, even with no actual sightline.
+func _has_line_of_sight_to(target: Node2D) -> bool:
 	var space_state := get_world_2d().direct_space_state
 	# Raycast from the muzzle, not the body center - the body center can
-	# have a clear line to the player while the muzzle (which swings
+	# have a clear line to the target while the muzzle (which swings
 	# around as the gun rotates to aim) doesn't, which was letting
 	# enemies "confirm" a shot and then immediately clip a wall/fence
 	# with the actual bullet. Falls back to body center if the muzzle
 	# isn't ready yet.
 	var origin: Vector2 = muzzle.global_position if is_instance_valid(muzzle) else global_position
-	var query := PhysicsRayQueryParameters2D.create(origin, player.global_position)
+	var query := PhysicsRayQueryParameters2D.create(origin, target.global_position)
 	query.exclude = [self]
 	var result := space_state.intersect_ray(query)
 	if result.is_empty():
 		return true
 	var collider = result.get("collider")
-	return collider == player or (collider != null and collider.is_in_group("player"))
+	return collider == target or (collider != null and (collider.is_in_group("player") or collider.is_in_group("arena_ally")))
+
+# In Arena matches, opponents shouldn't hard-fixate on the human player
+# alone while allies fight independently - picks whichever of {player,
+# every arena_ally} is currently nearest, so a 2v2/squad fight actually
+# spreads fire across the team instead of every opponent dogpiling one
+# person. Outside Arena, group "arena_ally" is always empty, so this
+# reduces to exactly the old player-only behavior.
+func _current_chase_target() -> Node2D:
+	var best: Node2D = player
+	var best_dist: float = global_position.distance_to(player.global_position) if player != null else INF
+	for a in get_tree().get_nodes_in_group("arena_ally"):
+		if not is_instance_valid(a):
+			continue
+		var d: float = global_position.distance_to(a.global_position)
+		if d < best_dist:
+			best_dist = d
+			best = a
+	return best
 
 var stunned_until_ms: int = 0
 
@@ -353,11 +377,12 @@ func _physics_process(delta: float) -> void:
 	# fired their gun. A gunshot is loud enough to give away exactly
 	# where you are regardless of cover - the bush only hides someone
 	# sitting still and quiet, not someone actively shooting from it.
-	var dist := global_position.distance_to(player.global_position)
+	var chase_target: Node2D = _current_chase_target()
+	var dist := global_position.distance_to(chase_target.global_position)
 
 	# effective_range is always <= detection_range below (stealth only ever
 	# shrinks it), so an enemy already further than that can never detect
-	# the player regardless of stealth - skip the smoke-zone group scan
+	# the target regardless of stealth - skip the smoke-zone group scan
 	# entirely once that's true instead of running it on every enemy every
 	# physics tick no matter the distance.
 	var can_detect: bool = false
@@ -365,20 +390,22 @@ func _physics_process(delta: float) -> void:
 		var effective_range := detection_range - GameManager.get_upgrade_bonus("stealth")
 		if GameManager.player_trait == "ghost_step":
 			effective_range *= 0.8
-		var is_hidden: bool = (player.in_bush or _player_in_smoke()) and not player.is_making_noise()
+		# Bush/smoke stealth only ever applies to the actual human player -
+		# arena allies have no stealth mechanic, so they're always "loud".
+		var is_hidden: bool = chase_target == player and (player.in_bush or _player_in_smoke()) and not player.is_making_noise()
 		if is_hidden:
 			effective_range = detection_range * 0.25 - GameManager.get_upgrade_bonus("stealth")
 		effective_range = max(effective_range, 60.0)
-		can_detect = dist <= effective_range and _has_line_of_sight_to_player()
+		can_detect = dist <= effective_range and _has_line_of_sight_to(chase_target)
 	if can_detect:
-		gun_pivot.look_at(player.global_position)
-		_turn_body_toward(player.global_position, delta)
+		gun_pivot.look_at(chase_target.global_position)
+		_turn_body_toward(chase_target.global_position, delta)
 		var target_velocity := Vector2.ZERO
 		if dist > _hold_distance():
-			target_velocity = (player.global_position - global_position).normalized() * speed
+			target_velocity = (chase_target.global_position - global_position).normalized() * speed
 		var lerp_rate := _ice_control_rate()
 		if is_real_player and _dash_active_time > 0.0:
-			target_velocity = (player.global_position - global_position).normalized() * speed * DASH_SPEED_MULT
+			target_velocity = (chase_target.global_position - global_position).normalized() * speed * DASH_SPEED_MULT
 			lerp_rate = 25.0
 		velocity = velocity.lerp(target_velocity, clamp(delta * lerp_rate, 0.0, 1.0))
 		move_and_slide()

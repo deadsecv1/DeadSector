@@ -363,20 +363,30 @@ func _gui_input(event: InputEvent) -> void:
 		context_menu_requested.emit(stash_index, source, item, get_global_mouse_position())
 
 # Double-click to equip - only makes sense for gear that actually goes
-# in an equip slot (weapon/head/body/boots/backpack/accessory); other
-# slot types (consumables, keys, valuables, etc.) just fall through and
-# do nothing here, same as trying to drag them onto a doll slot would.
+# in an equip slot (weapon/head/body/boots/backpack/accessory). Other
+# slot types (ammo/consumables) route between the Stash's main grid and
+# Backpack Storage instead (see below); anything else (keys, valuables,
+# etc.) still just falls through and does nothing, same as trying to
+# drag it onto a doll slot would.
 const EQUIPPABLE_SLOTS := ["weapon", "head", "body", "boots", "backpack", "accessory", "helmet_attachment"]
+const BACKPACK_ROUTABLE_SLOTS := ["ammo", "consumable"]
 
 func _double_click_equip() -> void:
-	if not EQUIPPABLE_SLOTS.has(item.get("slot", "")):
+	var slot: String = str(item.get("slot", ""))
+	if EQUIPPABLE_SLOTS.has(slot):
+		if source == "vicinity":
+			GameManager.vicinity_equip(stash_index)
+		elif source == "stash":
+			GameManager.equip_item(stash_index)
+		elif source == "backpack_storage":
+			GameManager.equip_from_backpack_storage(stash_index)
+		else:
+			GameManager.equip_from_carried(stash_index)
 		return
-	if source == "vicinity":
-		GameManager.vicinity_equip(stash_index)
-	elif source == "stash":
-		GameManager.equip_item(stash_index)
-	else:
-		GameManager.equip_from_carried(stash_index)
+	if source == "stash" and BACKPACK_ROUTABLE_SLOTS.has(slot):
+		GameManager.move_stash_item_to_backpack_storage(stash_index)
+	elif source == "backpack_storage":
+		GameManager.move_backpack_storage_item_to_stash(stash_index)
 
 # _get_drag_data() below catches a double-click whose SECOND press has
 # enough motion for Godot to call it at all - the common case, since a fast

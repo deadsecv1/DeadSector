@@ -22,6 +22,7 @@ var roam_timer: float = 0.0
 @onready var mask: Polygon2D = $Visuals/Mask
 @onready var cap: Polygon2D = $Visuals/Cap
 @onready var name_tag: Label = $Visuals/NameTag
+@onready var external_sprite: Sprite2D = $Visuals/ExternalSprite
 
 var walk_cycle: float = 0.0
 
@@ -36,10 +37,29 @@ func _ready() -> void:
 	chest_strap.color = Color(0.07, 0.17, 0.09, 1) * tint
 	mask.visible = false
 	cap.visible = true
+	_load_real_player_sprite(tint)
 	name_tag.visible = true
 	name_tag.text = GameManager.LEADERBOARD_NAMES[randi() % GameManager.LEADERBOARD_NAMES.size()]
 	name_tag.add_theme_color_override("font_color", Color(0.7, 0.9, 0.7, 1))
 	_pick_new_roam_target()
+
+# Same real_player art Enemy.gd's Arena opponents use - this script is
+# set_script()'d onto an Enemy.tscn instance, so it never runs Enemy.gd's
+# own _ready()/_try_load_external_sprite(). Reuses the same per-instance
+# tint already computed for the vector fallback so both paths stay in sync.
+func _load_real_player_sprite(tint: Color) -> void:
+	if not ResourceLoader.exists("res://assets/enemy_real_player.png"):
+		return
+	var tex: Texture2D = load("res://assets/enemy_real_player.png")
+	if tex == null:
+		return
+	external_sprite.texture = tex
+	external_sprite.visible = true
+	external_sprite.modulate = tint
+	for n in ["LeftLeg", "RightLeg", "Torso", "ChestStrap", "Head", "Mask", "Cap", "TorsoOutline", "HeadOutline"]:
+		var node = get_node_or_null("Visuals/" + n)
+		if node:
+			node.visible = false
 
 func _pick_new_roam_target() -> void:
 	var ang := randf_range(0.0, TAU)

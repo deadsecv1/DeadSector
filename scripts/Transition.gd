@@ -26,7 +26,11 @@ var _scene_cache: Dictionary = {}
 
 func get_cached_scene(path: String) -> PackedScene:
 	if not _scene_cache.has(path):
-		_scene_cache[path] = load(path)
+		var loaded = load(path)
+		if loaded == null:
+			push_error("Transition: failed to load scene at %s - not caching, will retry next call" % path)
+			return null
+		_scene_cache[path] = loaded
 	return _scene_cache[path]
 
 func _ready() -> void:
@@ -75,7 +79,15 @@ func change_scene(path: String, fade_out_dur: float = 0.5, fade_in_dur: float = 
 	# the maximum possible headroom going in, on top of the buffer
 	# itself already being sized with real margin.
 	MenuMusic._fill_buffer()
-	get_tree().change_scene_to_packed(get_cached_scene(path))
+	var packed := get_cached_scene(path)
+	if packed == null:
+		# Don't leave the lock stuck forever on a failed load - fade back
+		# in on the CURRENT scene instead of silently eating every future
+		# scene-change click.
+		await fade_in(fade_in_dur)
+		_is_transitioning = false
+		return
+	get_tree().change_scene_to_packed(packed)
 	await get_tree().process_frame
 	await fade_in(fade_in_dur)
 	_is_transitioning = false
@@ -89,6 +101,10 @@ func change_scene_instant(path: String) -> void:
 		return
 	_is_transitioning = true
 	MenuMusic._fill_buffer()
-	get_tree().change_scene_to_packed(get_cached_scene(path))
+	var packed := get_cached_scene(path)
+	if packed == null:
+		_is_transitioning = false
+		return
+	get_tree().change_scene_to_packed(packed)
 	await get_tree().process_frame
 	_is_transitioning = false

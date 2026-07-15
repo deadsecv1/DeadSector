@@ -7,8 +7,8 @@ extends Node2D
 var current: int = 100
 var max_val: int = 100
 
-const WIDTH := 36.0
-const HEIGHT := 5.0
+const WIDTH := 24.0
+const HEIGHT := 3.0
 const Y_OFFSET := -24.0
 
 func update_hunger(cur: int, mx: int) -> void:
@@ -18,6 +18,12 @@ func update_hunger(cur: int, mx: int) -> void:
 
 func _draw() -> void:
 	var pct: float = clamp(float(current) / float(max_val), 0.0, 1.0)
+	# Hidden while full - hunger decays slowly, so it sat at (or near) full
+	# for most of a raid, rendering as what looked like a second, permanent
+	# HP bar stacked right under the real one. Only actually needed once
+	# it's dropped enough to matter.
+	if pct >= 1.0:
+		return
 	var top_left := Vector2(-WIDTH / 2.0, Y_OFFSET)
 
 	draw_rect(Rect2(top_left, Vector2(WIDTH, HEIGHT)), Color(0, 0, 0, 0.65))

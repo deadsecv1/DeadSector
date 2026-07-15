@@ -6337,6 +6337,28 @@ func move_backpack_storage_item_to_stash(index: int) -> bool:
 	save_game()
 	return true
 
+# Moves an item OUT of the Stash and into Backpack Storage, auto-placed
+# at the next free cell - the double-click counterpart to
+# move_backpack_storage_item_to_stash() above (which does the same thing
+# in reverse), for ammo/consumables (non-equippable, so double-click-to-
+# equip doesn't apply to them) that a double-click in the Stash grid
+# should route into the backpack instead of doing nothing.
+func move_stash_item_to_backpack_storage(index: int) -> bool:
+	if index < 0 or index >= stash_items.size():
+		return false
+	var item: Dictionary = stash_items[index]
+	var fp := get_item_footprint(item)
+	var cell := _next_free_cell_backpack_storage(fp)
+	if cell.x < 0:
+		toast_requested.emit("Backpack storage is full")
+		return false
+	stash_items.remove_at(index)
+	item["grid_x"] = cell.x
+	item["grid_y"] = cell.y
+	backpack_storage.append(item)
+	save_game()
+	return true
+
 # Moves an item from the Stash into Backpack Storage at a specific dropped
 # cell - falls back to the next free cell if that one's already occupied,
 # instead of silently overlapping (and hiding) whatever's already there.

@@ -26,8 +26,6 @@ extends Control
 @onready var store_panel: Panel = $StorePanel
 @onready var social_button: Button = $SocialButton
 @onready var social_panel: Panel = $SocialPanel
-@onready var global_chat_panel: Panel = $GlobalChatPanel
-@onready var find_team_panel: Panel = $FindTeamPanel
 @onready var guild_panel: Panel = $GuildPanel
 @onready var data_button: Button = $DataButton
 @onready var data_panel: Panel = $DataPanel
@@ -136,22 +134,6 @@ func _ready() -> void:
 	achievements_panel.closed.connect(func(): _close_panel(achievements_panel))
 	social_button.pressed.connect(func(): _open_panel(social_panel))
 	social_panel.closed.connect(func(): _close_panel(social_panel))
-	social_panel.global_chat_requested.connect(func():
-		_close_panel(social_panel)
-		_open_panel(global_chat_panel)
-	)
-	global_chat_panel.closed.connect(func():
-		global_chat_panel.visible = false
-		_open_panel(social_panel)
-	)
-	social_panel.find_team_requested.connect(func():
-		_close_panel(social_panel)
-		_open_panel(find_team_panel)
-	)
-	find_team_panel.closed.connect(func():
-		find_team_panel.visible = false
-		_open_panel(social_panel)
-	)
 	social_panel.guild_requested.connect(func():
 		_close_panel(social_panel)
 		_open_panel(guild_panel)
@@ -323,7 +305,7 @@ func _process(delta: float) -> void:
 func _ambient_popups_suppressed() -> bool:
 	var panels: Array = [
 		quest_panel, roadmap_panel, stats_panel, achievements_panel, battle_pass_panel,
-		store_panel, social_panel, global_chat_panel, find_team_panel, data_panel, leaderboard_panel,
+		store_panel, social_panel, data_panel, leaderboard_panel,
 		leaderboard_rewards_panel, rank_percentiles_panel, salvaged_beasts_panel, my_pets_panel,
 		bloodline_panel, delete_confirm_panel, wipe_confirm_panel, changelog_panel,
 		flea_market_panel, mail_panel, alpha_rewards_panel, feedback_panel, welcome_panel, update_spotlight_panel,
@@ -365,21 +347,20 @@ func _check_leaderboard_podium_popup() -> void:
 			break
 	_last_top3_names = top3_names
 
-# A tiny "..." near the Global Chat entry point - the Social button on
-# the raw Main Menu, or the Global Chat button INSIDE the Social panel
-# once that's open (the Social button itself is covered by then). Never
-# shows at all while Global Chat itself is already open, or while any
-# other panel is covering the screen.
+# A tiny "..." near the Social button on the raw Main Menu, pointing at
+# the always-available Enter-to-chat GlobalChatBox. Never shows at all
+# while that chat is already open, or while any other panel is covering
+# the screen.
 func _show_chat_ping_popup() -> void:
-	if global_chat_panel.visible:
+	if GlobalChatBox.chat_box_open:
 		return
 	if not GameManager.has_shown_chat_keybind_hint:
 		GameManager.has_shown_chat_keybind_hint = true
 		GameManager.toast_requested.emit("Tip: press %s anytime for the full multi-channel chat" % OS.get_keycode_string(GameManager.get_keybind("chat")))
 	if social_panel.visible:
-		var target: Button = social_panel.global_chat_button
-		_show_ambient_popup(target, "...", Color(0.6, 0.8, 1.0, 1), "right")
-		_wiggle_button(target)
+		# Social no longer has its own Global Chat entry point to point
+		# at (GlobalChatBox is reachable directly via Enter from anywhere,
+		# Social panel or not) - nothing meaningful to wiggle here.
 		return
 	if _ambient_popups_suppressed():
 		return
