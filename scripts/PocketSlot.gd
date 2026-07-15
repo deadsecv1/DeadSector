@@ -49,17 +49,24 @@ func _on_pressed() -> void:
 		GameManager.remove_from_pocket(pocket_index)
 		dropped.emit()
 
+const ACCEPTED_SOURCES := ["carried", "vicinity", "stash", "backpack_storage"]
+
 func _can_drop_data(_pos: Vector2, data) -> bool:
 	if typeof(data) != TYPE_DICTIONARY:
 		return false
 	var data_source: String = data.get("source", "")
-	return data_source == "carried" or data_source == "vicinity"
+	return ACCEPTED_SOURCES.has(data_source)
 
 func _drop_data(_pos: Vector2, data) -> void:
 	var index = data.get("index", -1)
 	var data_source: String = data.get("source", "")
-	if data_source == "vicinity":
-		GameManager.move_vicinity_to_pocket(index, pocket_index)
-	else:
-		GameManager.move_carried_to_pocket(index, pocket_index)
+	match data_source:
+		"vicinity":
+			GameManager.move_vicinity_to_pocket(index, pocket_index)
+		"stash":
+			GameManager.move_stash_to_pocket(index, pocket_index)
+		"backpack_storage":
+			GameManager.move_backpack_storage_to_pocket(index, pocket_index)
+		_:
+			GameManager.move_carried_to_pocket(index, pocket_index)
 	dropped.emit()

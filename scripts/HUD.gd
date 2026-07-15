@@ -321,6 +321,10 @@ func _close_pause() -> void:
 func _on_exit_requested() -> void:
 	pause_menu.close()
 	get_tree().paused = false
+	if GameManager.in_social_hub:
+		GameManager.in_social_hub = false
+		Transition.change_scene_instant("res://scenes/MainMenu.tscn")
+		return
 	GameManager.end_run(false, true)
 
 func _set_player_locked(locked: bool) -> void:

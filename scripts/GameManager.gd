@@ -1019,19 +1019,21 @@ func _try_merge_ammo_stack(items: Array, item: Dictionary) -> bool:
 # Total rounds of `ammo_type` currently sitting in the Backpack - this
 # IS the reserve ammo number now, not a separate hidden counter.
 #
-# Checks all three places ammo can actually be sitting: carried_loot
-# (found/looted so far THIS raid), backpack_storage, and stash_items
-# (owned ammo that was never moved into Backpack Storage). Originally
-# this only checked carried_loot, which is empty at the moment a raid
-# is chosen (nothing seeds it pre-raid) and only ever gains anything
-# from in-raid pickups - meaning the pre-raid "no ammo" gate in
-# MapSelect.gd was structurally unable to ever pass, blocking every
-# player who owned ammo but hadn't yet found more of it mid-raid, and
-# reload itself had nothing real to draw from either. backpack_storage
-# and stash_items are both untouched by end_run()'s death/loss cleanup
-# (unlike equipped_items), so counting them here doesn't put a whole
-# ammo stockpile at risk of being lost on death - it's exactly as safe
-# as it already was sitting in the Stash.
+# Checks carried_loot (found/looted so far THIS raid) and
+# backpack_storage (ammo you deliberately loaded in before deploying) -
+# deliberately NOT stash_items, since the design is that Backpack
+# Storage is what you actually bring with you; ammo left sitting in
+# the main Stash grid doesn't count until it's moved into Backpack
+# Storage first. (An earlier version of this also counted stash_items,
+# which was more lenient but blurred that distinction - reverted per
+# explicit direction.) Originally this only checked carried_loot, which
+# is empty at the moment a raid is chosen (nothing seeds it pre-raid)
+# and only ever gains anything from in-raid pickups - meaning the
+# pre-raid "no ammo" gate in MapSelect.gd was structurally unable to
+# ever pass, blocking every player regardless of what they owned.
+# backpack_storage is untouched by end_run()'s death/loss cleanup
+# (unlike equipped_items), so counting it here doesn't put it at any
+# more risk than it already was sitting there between raids.
 func get_backpack_ammo_amount(ammo_type: String) -> int:
 	var total := 0
 	for item in carried_loot:
@@ -1040,20 +1042,17 @@ func get_backpack_ammo_amount(ammo_type: String) -> int:
 	for item in backpack_storage:
 		if item.get("consumable_type", "") == "ammo" and item.get("ammo_type", "") == ammo_type:
 			total += int(item.get("ammo_amount", 0))
-	for item in stash_items:
-		if item.get("consumable_type", "") == "ammo" and item.get("ammo_type", "") == ammo_type:
-			total += int(item.get("ammo_amount", 0))
 	return total
 
 # Deducts up to `amount` rounds of `ammo_type` from Backpack ammo stacks
 # (used by reload) - removes a stack entirely once it hits 0. Returns
 # how much was actually available/deducted, which may be less than asked.
 # Drains carried_loot first (already "in hand" from this raid), then
-# backpack_storage, then stash_items - see get_backpack_ammo_amount()
-# above for why all three are in play now.
+# backpack_storage - see get_backpack_ammo_amount() above for why
+# stash_items is deliberately excluded.
 func consume_backpack_ammo(ammo_type: String, amount: int) -> int:
 	var remaining := amount
-	for pool in [carried_loot, backpack_storage, stash_items]:
+	for pool in [carried_loot, backpack_storage]:
 		var i := 0
 		while i < pool.size() and remaining > 0:
 			var item: Dictionary = pool[i]
@@ -1080,7 +1079,7 @@ func consume_backpack_ammo(ammo_type: String, amount: int) -> int:
 # override this with their own "ammo_type" field (see
 # get_ammo_type_for_weapon_item) - this table is just the fallback.
 const WEAPON_AMMO_TYPE := {
-	"pistol": "light", "thorn": "light",
+	"pistol": "light", "thorn": "light", "sword": "light",
 	"rifle": "medium", "shotgun": "medium",
 	"sniper": "heavy", "railgun": "heavy", "flamethrower": "heavy", "alpha_cannon": "heavy",
 }
@@ -3020,6 +3019,13 @@ var equipped_items: Dictionary = {
 var run_over: bool = false
 var run_timed_out: bool = false
 
+# True while inside a safe, no-stakes hangout hub (currently just the
+# Guild Hall) that still uses the shared HUD/Pause Menu - lets HUD's
+# generic "Exit to Main Menu" skip end_run() entirely instead of
+# treating leaving a hangout as abandoning a raid (which would strip
+# equipped gear, exactly like a real voluntary raid exit does).
+var in_social_hub: bool = false
+
 # --- Player level/XP and lifetime stats, shown on the Character screen. ---
 signal xp_changed
 
@@ -3548,6 +3554,7 @@ var last_death_info: Dictionary = {}
 
 func begin_raid_session() -> void:
 	raid_quests_completed.clear()
+	in_social_hub = false
 	MenuMusic.stop_menu_music()
 
 # --- Leaderboard season rewards: a preview/showcase of what each rank
@@ -5668,6 +5675,14 @@ func wipe_everything() -> void:
 	var dir := DirAccess.open("user://")
 	if dir != null and dir.file_exists(SAVE_PATH.trim_prefix("user://")):
 		dir.remove(SAVE_PATH.trim_prefix("user://"))
+	# save_game()'s own rotate-backup write strategy guarantees a .bak
+	# file exists from ordinary play - deleting only the primary save
+	# left load_game() falling through to THAT on the next launch
+	# (exactly the "couldn't read the main save, restored from backup"
+	# path) and silently restoring the entire pre-wipe character,
+	# Wipe having visibly done nothing at all.
+	if dir != null and dir.file_exists(SAVE_BACKUP_PATH.trim_prefix("user://")):
+		dir.remove(SAVE_BACKUP_PATH.trim_prefix("user://"))
 	# Leaderboard rival stats were never actually written to the save
 	# file (only your own baseline was), so the restart that follows
 	# this already resets them naturally - clearing them directly here
@@ -7792,6 +7807,43 @@ func remove_from_pocket(pocket_index: int) -> bool:
 	carried_loot.append(item)
 	carried_value += int(item.get("value", 0))
 	pockets_changed.emit()
+	return true
+
+# Stash/Backpack Storage counterparts to move_carried_to_pocket() above -
+# PocketSlot.gd only used to accept drops sourced from "carried"/
+# "vicinity" (in-raid only), silently rejecting drags from the Stash
+# screen's own grids entirely. A displaced item goes back to whichever
+# container the new one came from, same rule the in-raid pair already
+# follows for carried_loot.
+func move_stash_to_pocket(stash_index: int, pocket_index: int) -> bool:
+	if stash_index < 0 or stash_index >= stash_items.size():
+		return false
+	if pocket_index < 0 or pocket_index >= safe_pockets.size():
+		return false
+	var item: Dictionary = stash_items[stash_index]
+	stash_items.remove_at(stash_index)
+	var old = safe_pockets[pocket_index]
+	safe_pockets[pocket_index] = item
+	if old != null:
+		_add_to_stash(old)
+	pockets_changed.emit()
+	save_game()
+	return true
+
+func move_backpack_storage_to_pocket(backpack_index: int, pocket_index: int) -> bool:
+	if backpack_index < 0 or backpack_index >= backpack_storage.size():
+		return false
+	if pocket_index < 0 or pocket_index >= safe_pockets.size():
+		return false
+	var item: Dictionary = backpack_storage[backpack_index]
+	backpack_storage.remove_at(backpack_index)
+	var old = safe_pockets[pocket_index]
+	safe_pockets[pocket_index] = item
+	if old != null:
+		if not add_to_backpack_storage(old):
+			_add_to_stash(old)
+	pockets_changed.emit()
+	save_game()
 	return true
 
 # Public wrapper so UI code (search-in-progress tile) can preview where a

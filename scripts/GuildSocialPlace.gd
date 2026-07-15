@@ -16,6 +16,7 @@ const SPAWN_SPREAD := Vector2(380.0, 300.0)
 
 func _ready() -> void:
 	GameManager.set_crosshair_cursor()
+	GameManager.in_social_hub = true
 	player.stats_ready.connect(hud.update_stats)
 	player.ammo_changed.connect(hud.update_ammo)
 	player._update_ammo_display()
@@ -23,18 +24,6 @@ func _ready() -> void:
 	player.health_changed.connect(hud._on_player_health_changed)
 	_spawn_pet()
 	_spawn_guildmates()
-
-func _unhandled_input(event: InputEvent) -> void:
-	if GlobalChatBox.chat_box_open:
-		return
-	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
-		get_viewport().set_input_as_handled()
-		# HUD's own Pause Menu polls Escape independently in its _process()
-		# (which runs after this _unhandled_input, same frame) - without
-		# suppressing it here it still opens on the same keypress, racing
-		# the pending scene change. Same fix TheGrid.gd/SocialPlace.gd use.
-		hud.suppress_escape_this_frame = true
-		Transition.change_scene_instant("res://scenes/MainMenu.tscn")
 
 func _spawn_pet() -> void:
 	if GameManager.equipped_pet == "":

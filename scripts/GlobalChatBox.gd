@@ -42,7 +42,7 @@ const ACCENT_COLOR := Color(0.6, 0.8, 1.0, 1.0)
 # Background-only alpha now (see root_style below) - this used to fade
 # the WHOLE window including message text via chat_root.modulate, the
 # only panel in the game that washed out its own text like that.
-const WINDOW_BG_ALPHA := 0.94
+const WINDOW_BG_ALPHA := 0.3
 const SEND_HOLD_SECONDS := 3.0
 const SEND_FADE_SECONDS := 1.0
 

@@ -1,7 +1,6 @@
 extends Node2D
 
 const RECRUIT_SCENE := preload("res://scenes/Recruit.tscn")
-const GuildmateNPCScript := preload("res://scripts/GuildmateNPC.gd")
 
 @onready var player = $Player
 @onready var gym_station = $GymStation
@@ -77,7 +76,6 @@ func _ready() -> void:
 	if GameManager.hideout_position_saved:
 		player.global_position = GameManager.hideout_player_position
 		GameManager.hideout_position_saved = false
-	_spawn_guildmates()
 	resume_button.pressed.connect(_close_pause)
 	main_menu_button.pressed.connect(func():
 		GameManager.save_game()
@@ -138,21 +136,6 @@ func _ready() -> void:
 	gamble_panel.closed.connect(_close_gamble)
 	sleep_yes.pressed.connect(_on_sleep_confirm_yes)
 	sleep_no.pressed.connect(_on_sleep_confirm_no)
-
-# "Sharing a Hideout" with your guild, simulated the same way every other
-# social feature in this game is (no real netcode) - up to 2 guildmates
-# wander near the player's spawn point purely for ambient company.
-func _spawn_guildmates() -> void:
-	if GameManager.player_guild_id == "":
-		return
-	var names: Array = GameManager.get_guild_member_names(GameManager.player_guild_id, 2)
-	var spots := [Vector2(-120, 100), Vector2(120, 100)]
-	for i in range(min(names.size(), spots.size())):
-		var mate = RECRUIT_SCENE.instantiate()
-		mate.set_script(GuildmateNPCScript)
-		mate.guildmate_name = str(names[i])
-		add_child(mate)
-		mate.global_position = player.global_position + spots[i]
 
 func _process(_delta: float) -> void:
 	if GameManager.rubles != _last_rubles or GameManager.junk != _last_junk or GameManager.artifacts != _last_artifacts or GameManager.alloys != _last_alloys:

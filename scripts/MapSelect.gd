@@ -57,7 +57,7 @@ func _show_no_ammo_popup(ammo_type: String) -> void:
 	vbox.add_child(title_lbl)
 
 	var msg_lbl := Label.new()
-	msg_lbl.text = "Your equipped weapon needs %s Ammo, and you have none in your Backpack - go back to the Stash and load some in." % ammo_type.capitalize()
+	msg_lbl.text = "Your equipped weapon needs %s Ammo in your Backpack Storage - go back to the Stash and move some in first." % ammo_type.capitalize()
 	msg_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
 	msg_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(msg_lbl)
