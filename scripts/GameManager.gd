@@ -6726,7 +6726,7 @@ func _maybe_send_welcome_mail() -> void:
 
 const SAVE_FORMAT_VERSION := 5
 var _autosave_timer: float = 0.0
-const AUTOSAVE_INTERVAL := 60.0
+const AUTOSAVE_INTERVAL := 5.0
 
 func _process(delta: float) -> void:
 	_trader_rotation_timer += delta
