@@ -110,9 +110,9 @@ func _on_wave_cleared() -> void:
 func _on_final_wave_cleared() -> void:
 	wave_label.text = "ALL WAVES CLEARED"
 	prompt_label.text = "The Harvester is satisfied. Head to extraction when ready."
-	var bonus_souls := 800
+	var bonus_souls := 1600
 	GameManager.add_currency("souls", bonus_souls)
-	GameManager.grant_battle_pass_xp(300)
+	GameManager.grant_battle_pass_xp(600)
 	GameManager.notify_event("survive_wave_20_commune")
 	Notify.show_quest_toast("Wave 20 cleared! +%d Souls" % bonus_souls)
 	victory_overlay.visible = true

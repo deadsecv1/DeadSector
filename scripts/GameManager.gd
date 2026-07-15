@@ -539,24 +539,24 @@ func _generate_battle_pass_rewards() -> Array:
 		var roll: int = tier % 8
 		match roll:
 			0:
-				rewards.append({"type": "souls", "amount": int(20 + tier * 1.6)})
+				rewards.append({"type": "souls", "amount": int(40 + tier * 3.2)})
 			1:
-				rewards.append({"type": "rubles", "amount": int(120 + tier * 12)})
+				rewards.append({"type": "rubles", "amount": int(240 + tier * 24)})
 			2:
-				rewards.append({"type": "xp", "amount": int(60 + tier * 4)})
+				rewards.append({"type": "xp", "amount": int(120 + tier * 8)})
 			3:
 				var pool := _soul_pool_for_tier(tier)
 				var item: Dictionary = pool[rng.randi() % pool.size()].duplicate(true)
 				item["event_tag"] = EVENT_NAME
 				rewards.append({"type": "item", "data": item})
 			4:
-				rewards.append({"type": "skill_points", "amount": 1 + int(tier / 40.0)})
+				rewards.append({"type": "skill_points", "amount": 2 + int(tier / 25.0)})
 			5:
 				rewards.append({"type": "item", "data": AMMO_POOL[rng.randi() % AMMO_POOL.size()].duplicate(true)})
 			6:
 				rewards.append({"type": "item", "data": {"name": "Plushie", "value": 35, "slot": "plushie", "stat_type": "", "stat_value": 0.0, "icon_key": "plushie", "rarity": "common", "desc": "A soft, slightly-worn stuffed toy - somebody's favorite, once. Rose would probably know what to do with this."}})
 			_:
-				rewards.append({"type": "souls", "amount": int(12 + tier * 1.4)})
+				rewards.append({"type": "souls", "amount": int(24 + tier * 2.8)})
 	return rewards
 
 func grant_battle_pass_xp(amount: int) -> void:
@@ -625,30 +625,30 @@ const MILESTONE_STONES_PER_TIER := 50
 const MILESTONE_MAX_TIER := 24
 
 const MILESTONE_TIER_DATA := [
-	{"name": "First Extraction", "type": "rubles", "amount": 150},
-	{"name": "Blooded", "type": "rubles", "amount": 200},
-	{"name": "Scavenger", "type": "skill_points", "amount": 1},
-	{"name": "Marksman", "type": "rubles", "amount": 300},
-	{"name": "Silent Professional", "type": "xp", "amount": 150},
-	{"name": "Grid Contender", "type": "rubles", "amount": 400},
-	{"name": "Loadout Specialist", "type": "lootbag", "bag_tier": "common"},
-	{"name": "Extraction Veteran", "type": "rubles", "amount": 500},
-	{"name": "Real Threat", "type": "skill_points", "amount": 1},
-	{"name": "Grid Duelist", "type": "rubles", "amount": 650},
-	{"name": "Night Operator", "type": "xp", "amount": 250},
-	{"name": "Arena Regular", "type": "lootbag", "bag_tier": "rare"},
-	{"name": "Extraction Expert", "type": "rubles", "amount": 800},
-	{"name": "Sharpshooter", "type": "skill_points", "amount": 2},
-	{"name": "Grid Veteran", "type": "rubles", "amount": 1000},
-	{"name": "Field Tactician", "type": "xp", "amount": 350},
-	{"name": "Arena Contender", "type": "lootbag", "bag_tier": "rare"},
-	{"name": "Elite Extractor", "type": "rubles", "amount": 1300},
-	{"name": "Marked Hunter", "type": "skill_points", "amount": 2},
-	{"name": "Grid Champion", "type": "rubles", "amount": 1600},
-	{"name": "Operator of Note", "type": "xp", "amount": 500},
-	{"name": "Arena Elite", "type": "lootbag", "bag_tier": "epic"},
-	{"name": "Sector Veteran", "type": "rubles", "amount": 2000},
-	{"name": "Legend of the Grid", "type": "lootbag", "bag_tier": "legendary"},
+	{"name": "First Extraction", "type": "rubles", "amount": 300},
+	{"name": "Blooded", "type": "rubles", "amount": 400},
+	{"name": "Scavenger", "type": "skill_points", "amount": 2},
+	{"name": "Marksman", "type": "rubles", "amount": 600},
+	{"name": "Silent Professional", "type": "xp", "amount": 300},
+	{"name": "Grid Contender", "type": "rubles", "amount": 800},
+	{"name": "Loadout Specialist", "type": "lootbag", "bag_tier": "rare"},
+	{"name": "Extraction Veteran", "type": "rubles", "amount": 1000},
+	{"name": "Real Threat", "type": "skill_points", "amount": 2},
+	{"name": "Grid Duelist", "type": "rubles", "amount": 1300},
+	{"name": "Night Operator", "type": "xp", "amount": 500},
+	{"name": "Arena Regular", "type": "lootbag", "bag_tier": "epic"},
+	{"name": "Extraction Expert", "type": "rubles", "amount": 1600},
+	{"name": "Sharpshooter", "type": "skill_points", "amount": 4},
+	{"name": "Grid Veteran", "type": "rubles", "amount": 2000},
+	{"name": "Field Tactician", "type": "xp", "amount": 700},
+	{"name": "Arena Contender", "type": "lootbag", "bag_tier": "epic"},
+	{"name": "Elite Extractor", "type": "rubles", "amount": 2600},
+	{"name": "Marked Hunter", "type": "skill_points", "amount": 4},
+	{"name": "Grid Champion", "type": "rubles", "amount": 3200},
+	{"name": "Operator of Note", "type": "xp", "amount": 1000},
+	{"name": "Arena Elite", "type": "lootbag", "bag_tier": "legendary"},
+	{"name": "Sector Veteran", "type": "rubles", "amount": 4000},
+	{"name": "Legend of the Grid", "type": "lootbag", "bag_tier": "mythic"},
 ]
 
 func grant_stones(amount: int) -> void:
@@ -1683,7 +1683,7 @@ func craft_item(recipe_id: String) -> bool:
 # be claimed for a big Ruble payout.
 const BITCOIN_SLOT_COUNT := 4
 const BITCOIN_MINE_DURATION := 7200.0
-const BITCOIN_REWARD := 50000
+const BITCOIN_REWARD := 100000
 var bitcoin_gpu_slots: Array = [null, null, null, null]
 
 func count_carried_graphics_cards() -> int:
@@ -2983,9 +2983,9 @@ func _generate_bloodline_rewards() -> Array:
 			var pool := BLOODLINE_ITEM_POOL.filter(func(i): return i.get("rarity", "") == "legendary")
 			rewards.append({"type": "item", "data": pool[rng.randi() % pool.size()]})
 		elif tier % 3 == 0:
-			rewards.append({"type": "blood_shards", "amount": 20 + tier})
+			rewards.append({"type": "blood_shards", "amount": 40 + tier * 2})
 		else:
-			rewards.append({"type": "rubles", "amount": 400 + tier * 60})
+			rewards.append({"type": "rubles", "amount": 800 + tier * 120})
 	return rewards
 
 # Called when the player extracts after clearing a Gauntlet level -
@@ -2993,7 +2993,7 @@ func _generate_bloodline_rewards() -> Array:
 # level via get_gauntlet_difficulty().
 func complete_gauntlet_level(level: int) -> void:
 	gauntlet_best_level = max(gauntlet_best_level, level)
-	grant_blood_shards(30 + level * 15)
+	grant_blood_shards(60 + level * 30)
 	if level >= GAUNTLET_MAX_LEVEL:
 		# The big finale payout - several exclusive items plus a
 		# guaranteed pet, only obtainable by clearing all 5 levels.
@@ -3001,8 +3001,8 @@ func complete_gauntlet_level(level: int) -> void:
 			_add_to_stash(finalize_rolled_item(BLOODLINE_ITEM_POOL[randi() % BLOODLINE_ITEM_POOL.size()].duplicate(true)))
 		if not owned_pets.has(BLOODLINE_PET_ID):
 			owned_pets.append(BLOODLINE_PET_ID)
-		add_currency("rubles", 15000)
-		grant_blood_shards(200)
+		add_currency("rubles", 30000)
+		grant_blood_shards(400)
 	save_game()
 
 func get_gauntlet_difficulty(level: int) -> float:
@@ -3465,12 +3465,12 @@ const ARENA_RANK_POINT_THRESHOLDS := [0, 150, 450, 900, 1600, 2600]
 # a given Arena Rank is a real but much more attainable milestone than
 # a Leaderboard placement.
 const ARENA_REWARD_TIERS := [
-	{"label": "Initiate", "badge": "", "rubles": 500, "artifacts": 0, "alloys": 0, "skill_points": 0, "bags": []},
-	{"label": "Rival", "badge": "", "rubles": 3000, "artifacts": 10, "alloys": 10, "skill_points": 2, "bags": ["common"]},
-	{"label": "Duelist", "badge": "", "rubles": 8000, "artifacts": 25, "alloys": 25, "skill_points": 5, "bags": ["rare"]},
-	{"label": "Gladiator", "badge": "", "rubles": 18000, "artifacts": 50, "alloys": 50, "skill_points": 10, "bags": ["rare", "epic"]},
-	{"label": "Champion", "badge": "", "rubles": 40000, "artifacts": 100, "alloys": 100, "skill_points": 20, "bags": ["epic", "legendary"]},
-	{"label": "Grandmaster", "badge": "", "rubles": 90000, "artifacts": 250, "alloys": 250, "skill_points": 40, "bags": ["legendary", "mythic"]},
+	{"label": "Initiate", "badge": "", "rubles": 1000, "artifacts": 0, "alloys": 0, "skill_points": 0, "bags": []},
+	{"label": "Rival", "badge": "", "rubles": 6000, "artifacts": 20, "alloys": 20, "skill_points": 4, "bags": ["rare"]},
+	{"label": "Duelist", "badge": "", "rubles": 16000, "artifacts": 50, "alloys": 50, "skill_points": 10, "bags": ["epic"]},
+	{"label": "Gladiator", "badge": "", "rubles": 36000, "artifacts": 100, "alloys": 100, "skill_points": 20, "bags": ["epic", "legendary"]},
+	{"label": "Champion", "badge": "", "rubles": 80000, "artifacts": 200, "alloys": 200, "skill_points": 40, "bags": ["legendary", "mythic"]},
+	{"label": "Grandmaster", "badge": "", "rubles": 180000, "artifacts": 500, "alloys": 500, "skill_points": 80, "bags": ["mythic", "exotic"]},
 ]
 
 func get_arena_rank_index_for_points(points: int) -> int:
@@ -4685,9 +4685,9 @@ func _generate_salvaged_beasts_rewards() -> Array:
 		elif tier % 5 == 0:
 			rewards.append({"type": "egg", "rarity": "rare"})
 		elif tier % 3 == 0:
-			rewards.append({"type": "tickets", "amount": 15 + tier})
+			rewards.append({"type": "tickets", "amount": 30 + tier * 2})
 		else:
-			rewards.append({"type": "rubles", "amount": 300 + tier * 40})
+			rewards.append({"type": "rubles", "amount": 600 + tier * 80})
 	return rewards
 
 # A premium pet only obtainable from the Store - unlike the Hideout
@@ -8826,26 +8826,26 @@ const GUILD_HONOR_PER_TIER := 60
 const GUILD_BATTLE_PASS_MAX_TIER := 20
 
 const GUILD_BATTLE_PASS_TIER_DATA := [
-	{"name": "Guild Recruit", "type": "rubles", "amount": 200},
-	{"name": "First Blood", "type": "xp", "amount": 200},
-	{"name": "Squad Tactics", "type": "skill_points", "amount": 1},
-	{"name": "Banner Bearer", "type": "rubles", "amount": 350},
-	{"name": "War Footing", "type": "lootbag", "bag_tier": "common"},
-	{"name": "Guild Regular", "type": "rubles", "amount": 500},
-	{"name": "Line Holder", "type": "xp", "amount": 300},
-	{"name": "War Veteran", "type": "skill_points", "amount": 1},
-	{"name": "Guild Officer", "type": "rubles", "amount": 700},
-	{"name": "Clan War Specialist", "type": "lootbag", "bag_tier": "rare"},
-	{"name": "Frontline Regular", "type": "rubles", "amount": 900},
-	{"name": "War Tactician", "type": "xp", "amount": 450},
-	{"name": "Guild Champion", "type": "skill_points", "amount": 2},
-	{"name": "Clan War Veteran", "type": "rubles", "amount": 1200},
-	{"name": "Shield of the Guild", "type": "lootbag", "bag_tier": "rare"},
-	{"name": "War Elite", "type": "rubles", "amount": 1500},
-	{"name": "Guild Vanguard", "type": "xp", "amount": 600},
-	{"name": "Clan War Legend", "type": "skill_points", "amount": 2},
-	{"name": "Guild Hero", "type": "lootbag", "bag_tier": "epic"},
-	{"name": "Founder's Honor", "type": "lootbag", "bag_tier": "legendary"},
+	{"name": "Guild Recruit", "type": "rubles", "amount": 400},
+	{"name": "First Blood", "type": "xp", "amount": 400},
+	{"name": "Squad Tactics", "type": "skill_points", "amount": 2},
+	{"name": "Banner Bearer", "type": "rubles", "amount": 700},
+	{"name": "War Footing", "type": "lootbag", "bag_tier": "rare"},
+	{"name": "Guild Regular", "type": "rubles", "amount": 1000},
+	{"name": "Line Holder", "type": "xp", "amount": 600},
+	{"name": "War Veteran", "type": "skill_points", "amount": 2},
+	{"name": "Guild Officer", "type": "rubles", "amount": 1400},
+	{"name": "Clan War Specialist", "type": "lootbag", "bag_tier": "epic"},
+	{"name": "Frontline Regular", "type": "rubles", "amount": 1800},
+	{"name": "War Tactician", "type": "xp", "amount": 900},
+	{"name": "Guild Champion", "type": "skill_points", "amount": 4},
+	{"name": "Clan War Veteran", "type": "rubles", "amount": 2400},
+	{"name": "Shield of the Guild", "type": "lootbag", "bag_tier": "epic"},
+	{"name": "War Elite", "type": "rubles", "amount": 3000},
+	{"name": "Guild Vanguard", "type": "xp", "amount": 1200},
+	{"name": "Clan War Legend", "type": "skill_points", "amount": 4},
+	{"name": "Guild Hero", "type": "lootbag", "bag_tier": "legendary"},
+	{"name": "Founder's Honor", "type": "lootbag", "bag_tier": "mythic"},
 ]
 
 func grant_guild_honor(amount: int) -> void:

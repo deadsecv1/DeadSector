@@ -1107,6 +1107,13 @@ const CHANGELOG_CURRENT := [
 		"Rebalanced ~20 pricing outliers in the Flea Market's extra listings pool where an item's Ruble cost didn't track its own stat value the way every comparable item around it did.",
 		"The Weapon Data tab was quietly showing every event/Alpha/Blueprint-exclusive weapon's damage at about 74% of its real in-game value (a stale compendium copy that never tracked a past balance change) - now shows the real number.",
 	]},
+	{"version": "3.63.0", "title": "Progression Rewards Overhaul", "notes": [
+		"Doubled the Battle Pass's currency/XP payout formula across all 200 tiers, and doubled the Guild Battle Pass's hand-authored 20-tier reward list (Rubles, XP, Skill Points, and several tiers' Loot Bags bumped up a full rarity step).",
+		"Doubled the Battle Pass XP and bonus Souls granted for clearing all 20 Soul Realm waves - the only source of Battle Pass XP in the game.",
+		"Doubled every Milestone tier's Ruble/XP/Skill Point payout across all 24 tiers, with several tiers' Loot Bags raised a full rarity step.",
+		"Doubled Arena Rank rewards (Rubles, Artifacts, Alloys, Skill Points) across all 6 ranks, with most ranks' Loot Bags raised a rarity step.",
+		"Doubled Bloodline's and Salvaged Beasts' Ruble/Blood Shard/Ticket reward formulas, the Gauntlet's per-level Blood Shard grant and its level-5 finale payout, and the Bitcoin Farm's per-cycle payout.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
