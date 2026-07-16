@@ -122,7 +122,7 @@ func _shoot() -> void:
 	await get_tree().create_timer(shoot_cooldown).timeout
 	can_shoot = true
 
-# Boss kill: guaranteed Exotic + 2 Mythics + blueprint + attachments +
+# Boss kill: guaranteed 2 Exotics + Mythic + blueprint + attachments +
 # a big pile of extra loot and currency - a real reward for the fight.
 func die() -> void:
 	# Same is_dead guard base Enemy.gd's die() has - lost by overriding
@@ -130,7 +130,7 @@ func die() -> void:
 	# landing on Spike in the same frame (queue_free() doesn't remove the
 	# node until end-of-frame) could each independently re-run this whole
 	# function, re-rolling and re-granting the entire guaranteed boss
-	# reward (Exotic + 2 Mythics + currency) multiple times for one kill.
+	# reward (2 Exotics + Mythic + currency) multiple times for one kill.
 	if is_dead:
 		return
 	is_dead = true
@@ -145,7 +145,7 @@ func die() -> void:
 	items.append(GameManager.roll_attachment())
 	items.append(GameManager.roll_attachment())
 
-	# Guaranteed 1 Exotic + 2 Mythics from the top-tier gear pool.
+	# Guaranteed 2 Exotics + 1 Mythic from the top-tier gear pool.
 	var exotics: Array = []
 	var mythics: Array = []
 	for pool_item in GameManager.LOOT_BAG_GEAR_POOL:
@@ -153,11 +153,11 @@ func die() -> void:
 			exotics.append(pool_item)
 		elif pool_item.get("rarity", "") == "mythic":
 			mythics.append(pool_item)
-	if exotics.size() > 0:
-		items.append(GameManager.finalize_rolled_item(exotics[randi() % exotics.size()].duplicate(true)))
-	mythics.shuffle()
-	for i in range(min(2, mythics.size())):
-		items.append(GameManager.finalize_rolled_item(mythics[i].duplicate(true)))
+	exotics.shuffle()
+	for i in range(min(2, exotics.size())):
+		items.append(GameManager.finalize_rolled_item(exotics[i].duplicate(true)))
+	if mythics.size() > 0:
+		items.append(GameManager.finalize_rolled_item(mythics[randi() % mythics.size()].duplicate(true)))
 
 	# A big pile of extra random loot on top.
 	for i in range(5):

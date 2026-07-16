@@ -975,7 +975,7 @@ func _shoot() -> void:
 
 	var equipped_weapon = GameManager.equipped_items.get("weapon")
 	var weapon_rarity: String = str(equipped_weapon.get("rarity", "common")) if equipped_weapon != null else "common"
-	var is_top_tier_weapon: bool = weapon_rarity in ["exotic", "multiversal", "divine"]
+	var is_top_tier_weapon: bool = weapon_rarity in ["mythic", "multiversal", "divine"]
 	var is_tech_tester_sidearm: bool = weapon_icon == "pistol" and equipped_weapon != null and equipped_weapon.get("beta_only", false)
 
 	if weapon_icon == "shotgun":
@@ -1008,7 +1008,7 @@ func _shoot() -> void:
 			var tt_dir := Vector2(cos(tt_angle), sin(tt_angle))
 			_spawn_bullet(tt_dir, 0.5)
 	elif is_top_tier_weapon:
-		# Exotic/Multiversal/Divine weapons fire a real multi-projectile
+		# Mythic/Multiversal/Divine weapons fire a real multi-projectile
 		# burst instead of one shot - a tighter spread than a shotgun (this
 		# is about the weapon being exceptional, not a close-range weapon
 		# type). Per-projectile damage used to stay at a near-full 0.85x

@@ -15,7 +15,7 @@ var is_high_rarity: bool = false
 @onready var glow: Polygon2D = $Glow
 @onready var weapon_type_tag: Label = $WeaponTypeTag
 
-const HIGH_RARITIES := ["legendary", "mythic", "exotic", "multiversal"]
+const HIGH_RARITIES := ["legendary", "exotic", "mythic", "multiversal"]
 
 func setup(p_item: Dictionary) -> void:
 	item = p_item

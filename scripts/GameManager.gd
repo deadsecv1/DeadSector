@@ -42,8 +42,8 @@ const RARITY_TIERS := {
 	"rare": {"multiplier": 1.7, "color": Color(0.3, 0.55, 0.95, 1), "label": "Rare"},
 	"epic": {"multiplier": 2.2, "color": Color(0.65, 0.35, 0.95, 1), "label": "Epic"},
 	"legendary": {"multiplier": 3.0, "color": Color(1.0, 0.6, 0.1, 1), "label": "Legendary"},
-	"mythic": {"multiplier": 4.0, "color": Color(0.95, 0.15, 0.35, 1), "label": "Mythic"},
-	"exotic": {"multiplier": 6.0, "color": Color(0.85, 0.4, 0.85, 1), "label": "Exotic"},
+	"mythic": {"multiplier": 6.0, "color": Color(0.95, 0.15, 0.35, 1), "label": "Mythic"},
+	"exotic": {"multiplier": 4.0, "color": Color(0.85, 0.4, 0.85, 1), "label": "Exotic"},
 	"multiversal": {"multiplier": 10.0, "color": Color(0.95, 0.9, 0.5, 1), "label": "Multiversal"},
 	"divine": {"multiplier": 15.0, "color": Color(1.0, 0.98, 0.9, 1), "label": "Divine"},
 	"godforged": {"multiplier": 25.0, "color": Color(1.0, 0.8, 0.95, 1), "label": "Godforged"},
@@ -69,7 +69,7 @@ const EXOTIC_GRADIENT := [
 	Color(0.25, 0.65, 0.95, 0.3), Color(0.75, 0.35, 0.95, 0.3),
 ]
 
-# Mythic - a fiery red-orange-gold blend, sitting one tier below Exotic
+# Mythic - a fiery red-orange-gold blend, sitting one tier above Exotic
 # on the ladder and now visually distinct with its own gradient instead
 # of a single flat color.
 const MYTHIC_GRADIENT := [
@@ -539,9 +539,9 @@ func _soul_pool_for_tier(tier: int) -> Array:
 	if tier >= 198:
 		target_rarity = "multiversal"
 	elif tier >= 190:
-		target_rarity = "exotic"
-	elif tier >= 100:
 		target_rarity = "mythic"
+	elif tier >= 100:
+		target_rarity = "exotic"
 	var pool: Array = []
 	for pool_item in SOUL_ITEM_POOL:
 		if pool_item.get("rarity", "") == target_rarity:
@@ -1348,8 +1348,8 @@ const LOOT_BAG_TIERS := {
 	"rare": {"name": "Sturdy Loot Bag", "rarity": "rare", "value": 90},
 	"epic": {"name": "Armored Loot Bag", "rarity": "epic", "value": 120},
 	"legendary": {"name": "Reinforced Loot Bag", "rarity": "legendary", "value": 160},
-	"mythic": {"name": "Gilded Loot Bag", "rarity": "mythic", "value": 260},
-	"exotic": {"name": "Prismatic Loot Bag", "rarity": "exotic", "value": 420},
+	"mythic": {"name": "Prismatic Loot Bag", "rarity": "mythic", "value": 420},
+	"exotic": {"name": "Gilded Loot Bag", "rarity": "exotic", "value": 260},
 	"alpha": {"name": "Exclusive Alpha Chest", "rarity": "multiversal", "value": 2000},
 }
 
@@ -1383,9 +1383,9 @@ func make_loot_bag(tier: String = "common") -> Dictionary:
 func roll_loot_bag_tier() -> String:
 	var roll := randf()
 	if roll < 0.03:
-		return "exotic"
-	elif roll < 0.1:
 		return "mythic"
+	elif roll < 0.1:
+		return "exotic"
 	elif roll < 0.25:
 		return "legendary"
 	elif roll < 0.55:
@@ -1409,16 +1409,16 @@ func roll_loot_bag_contents(bag_tier: String = "common") -> Dictionary:
 			count = 3
 			currency_mult = 2.5
 		"mythic":
-			count = 3
-			currency_mult = 4.0
-		"exotic":
 			count = 4
 			currency_mult = 7.0
+		"exotic":
+			count = 3
+			currency_mult = 4.0
 	var items: Array = []
 	for i in range(count):
 		items.append(_roll_weighted_loot_bag_item(bag_tier))
 	# Higher-tier bags have a shot at a bonus egg on top of the usual gear.
-	var egg_chance: float = {"common": 0.0, "rare": 0.05, "epic": 0.08, "legendary": 0.12, "mythic": 0.2, "exotic": 0.3, "alpha": 0.9}.get(bag_tier, 0.0)
+	var egg_chance: float = {"common": 0.0, "rare": 0.05, "epic": 0.08, "legendary": 0.12, "mythic": 0.3, "exotic": 0.2, "alpha": 0.9}.get(bag_tier, 0.0)
 	if randf() < egg_chance:
 		var bag_egg := roll_pet_egg_drop(1.0)
 		if not bag_egg.is_empty():
@@ -1435,19 +1435,19 @@ func _roll_weighted_loot_bag_item(bag_tier: String = "common") -> Dictionary:
 	var tier := ""
 	match bag_tier:
 		"alpha":
-			tier = "multiversal" if roll < 0.35 else "exotic"
-		"exotic":
-			tier = "exotic" if roll < 0.55 else "mythic"
+			tier = "multiversal" if roll < 0.35 else "mythic"
 		"mythic":
+			tier = "mythic" if roll < 0.55 else "exotic"
+		"exotic":
 			if roll < 0.3:
-				tier = "exotic"
-			elif roll < 0.85:
 				tier = "mythic"
+			elif roll < 0.85:
+				tier = "exotic"
 			else:
 				tier = "legendary"
 		"legendary":
 			if roll < 0.08:
-				tier = "mythic"
+				tier = "exotic"
 			elif roll < 0.6:
 				tier = "legendary"
 			else:
@@ -1461,7 +1461,7 @@ func _roll_weighted_loot_bag_item(bag_tier: String = "common") -> Dictionary:
 				tier = "rare"
 		"epic":
 			if roll < 0.05:
-				tier = "mythic"
+				tier = "exotic"
 			elif roll < 0.3:
 				tier = "legendary"
 			elif roll < 0.75:
@@ -1470,9 +1470,9 @@ func _roll_weighted_loot_bag_item(bag_tier: String = "common") -> Dictionary:
 				tier = "rare"
 		_:
 			if roll < 0.04:
-				tier = "exotic"
-			elif roll < 0.14:
 				tier = "mythic"
+			elif roll < 0.14:
+				tier = "exotic"
 			elif roll < 0.34:
 				tier = "legendary"
 			elif roll < 0.64:
@@ -2158,8 +2158,8 @@ var TRADER_CATALOG := {
 			{"name": "Sturdy Loot Bag", "cost": 90, "value": 90, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "rare", "bag_tier": "rare"},
 			{"name": "Armored Loot Bag", "cost": 120, "value": 120, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "epic", "bag_tier": "epic"},
 			{"name": "Reinforced Loot Bag", "cost": 160, "value": 160, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "legendary", "bag_tier": "legendary"},
-			{"name": "Gilded Loot Bag", "cost": 260, "value": 260, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "mythic", "bag_tier": "mythic"},
-			{"name": "Prismatic Loot Bag", "cost": 420, "value": 420, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "exotic", "bag_tier": "exotic"},
+			{"name": "Gilded Loot Bag", "cost": 260, "value": 260, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "exotic", "bag_tier": "exotic"},
+			{"name": "Prismatic Loot Bag", "cost": 420, "value": 420, "slot": "lootbag", "stat_type": "", "stat_value": 0.0, "icon_key": "lootbag", "rarity": "mythic", "bag_tier": "mythic"},
 			{"name": "Combat Visor", "cost": 75, "value": 75, "slot": "helmet_attachment", "stat_type": "loot_sense", "stat_value": 0.012, "icon_key": "visor", "rarity": "uncommon"},
 			{"name": "Squad Headset", "cost": 80, "value": 80, "slot": "helmet_attachment", "stat_type": "fire_rate", "stat_value": 0.012, "icon_key": "headset", "rarity": "uncommon"},
 			{"name": "Issued Nightvision", "cost": 170, "value": 170, "slot": "helmet_attachment", "stat_type": "max_health", "stat_value": 8.1, "icon_key": "nightvision_goggles", "rarity": "rare", "grants_nightvision": true},
@@ -2952,7 +2952,7 @@ func get_gauntlet_equipped_bonus(stat_type: String) -> float:
 
 # The single highest-rarity equipped piece - used to drive the player's
 # visual tint/glow, so gearing up actually looks different mid-run.
-const RARITY_RANK := {"common": 0, "uncommon": 1, "rare": 2, "epic": 3, "legendary": 4, "mythic": 5, "exotic": 6, "multiversal": 7, "divine": 8, "godforged": 9, "monochrome": 10}
+const RARITY_RANK := {"common": 0, "uncommon": 1, "rare": 2, "epic": 3, "legendary": 4, "exotic": 5, "mythic": 6, "multiversal": 7, "divine": 8, "godforged": 9, "monochrome": 10}
 func get_gauntlet_best_equipped_rarity() -> String:
 	var best := "common"
 	var best_rank := -1
@@ -3353,7 +3353,7 @@ const RIVAL_GEAR_ICONS := {
 	"body": ["chestplate"], "weapon": ["pistol", "rifle", "shotgun", "sniper", "flamethrower", "thorn", "railgun"],
 	"boots": ["boots"], "accessory": ["ring", "watch"], "backpack": ["backpack"],
 }
-const RIVAL_RARITIES := ["uncommon", "rare", "epic", "legendary", "mythic", "exotic"]
+const RIVAL_RARITIES := ["uncommon", "rare", "epic", "legendary", "exotic", "mythic"]
 
 # Procedurally builds a big, varied roster of usernames instead of one
 # short hand-written list - mixed casing, some plain, some with an
@@ -3567,8 +3567,8 @@ const ARENA_REWARD_TIERS := [
 	{"label": "Rival", "badge": "", "rubles": 6000, "artifacts": 20, "alloys": 20, "skill_points": 4, "bags": ["rare"]},
 	{"label": "Duelist", "badge": "", "rubles": 16000, "artifacts": 50, "alloys": 50, "skill_points": 10, "bags": ["epic"]},
 	{"label": "Gladiator", "badge": "", "rubles": 36000, "artifacts": 100, "alloys": 100, "skill_points": 20, "bags": ["epic", "legendary"]},
-	{"label": "Champion", "badge": "", "rubles": 80000, "artifacts": 200, "alloys": 200, "skill_points": 40, "bags": ["legendary", "mythic"]},
-	{"label": "Grandmaster", "badge": "", "rubles": 180000, "artifacts": 500, "alloys": 500, "skill_points": 80, "bags": ["mythic", "exotic"]},
+	{"label": "Champion", "badge": "", "rubles": 80000, "artifacts": 200, "alloys": 200, "skill_points": 40, "bags": ["legendary", "exotic"]},
+	{"label": "Grandmaster", "badge": "", "rubles": 180000, "artifacts": 500, "alloys": 500, "skill_points": 80, "bags": ["exotic", "mythic"]},
 ]
 
 func get_arena_rank_index_for_points(points: int) -> int:
@@ -3872,10 +3872,10 @@ func _seed_carried_loot_from_backpack_storage() -> void:
 # tier - Top 1 should feel like an actual jackpot, Top 50 should still
 # feel worth doing but nowhere close.
 const LEADERBOARD_REWARD_TIERS := [
-	{"label": "Top 1", "badge": "rank_1_champion", "rubles": 1000000, "artifacts": 1000, "alloys": 1000, "skill_points": 150, "bags": ["alpha", "exotic", "exotic", "mythic"]},
-	{"label": "Top 2", "badge": "rank_2_elite", "rubles": 600000, "artifacts": 600, "alloys": 600, "skill_points": 90, "bags": ["exotic", "exotic", "mythic"]},
-	{"label": "Top 3", "badge": "rank_3_podium", "rubles": 400000, "artifacts": 400, "alloys": 400, "skill_points": 60, "bags": ["exotic", "mythic"]},
-	{"label": "Top 5", "badge": "", "rubles": 200000, "artifacts": 200, "alloys": 200, "skill_points": 35, "bags": ["mythic", "legendary"]},
+	{"label": "Top 1", "badge": "rank_1_champion", "rubles": 1000000, "artifacts": 1000, "alloys": 1000, "skill_points": 150, "bags": ["alpha", "mythic", "mythic", "exotic"]},
+	{"label": "Top 2", "badge": "rank_2_elite", "rubles": 600000, "artifacts": 600, "alloys": 600, "skill_points": 90, "bags": ["mythic", "mythic", "exotic"]},
+	{"label": "Top 3", "badge": "rank_3_podium", "rubles": 400000, "artifacts": 400, "alloys": 400, "skill_points": 60, "bags": ["mythic", "exotic"]},
+	{"label": "Top 5", "badge": "", "rubles": 200000, "artifacts": 200, "alloys": 200, "skill_points": 35, "bags": ["exotic", "legendary"]},
 	{"label": "Top 10", "badge": "", "rubles": 100000, "artifacts": 100, "alloys": 100, "skill_points": 20, "bags": ["legendary"]},
 	{"label": "Top 25", "badge": "", "rubles": 40000, "artifacts": 40, "alloys": 40, "skill_points": 10, "bags": ["rare"]},
 	{"label": "Top 50", "badge": "", "rubles": 15000, "artifacts": 15, "alloys": 15, "skill_points": 5, "bags": ["common"]},
@@ -4548,7 +4548,7 @@ var equipped_pet: String = ""
 # colors and stats for real variety without needing new art per pet.
 const EGG_HATCH_SECONDS := {
 	"common": 5.0, "uncommon": 12.0, "rare": 20.0, "epic": 40.0,
-	"legendary": 60.0, "mythic": 80.0, "exotic": 100.0, "multiversal": 120.0,
+	"legendary": 60.0, "mythic": 100.0, "exotic": 80.0, "multiversal": 120.0,
 }
 const EGG_PET_POOL := {
 	"common": [
@@ -4600,17 +4600,17 @@ const EGG_PET_POOL := {
 		{"id": "stormtalon", "name": "Stormtalon", "color": Color(0.3, 0.4, 0.85, 1), "icon_key": "pet_crow", "stat_type": "damage", "stat_value": 15.0, "speed_mult": 1.45},
 	],
 	"mythic": [
+		{"id": "genesis_hawk", "name": "Genesis Hawk", "color": Color(1.0, 0.85, 0.3, 1), "icon_key": "pet_crow", "stat_type": "damage", "stat_value": 20.0, "speed_mult": 1.5},
+		{"id": "riftlurker", "name": "Riftlurker", "color": Color(0.75, 0.3, 0.95, 1), "icon_key": "pet_lizard", "stat_type": "max_health", "stat_value": 55.0, "speed_mult": 1.3},
+		{"id": "starforged_cat", "name": "Starforged Cat", "color": Color(1.0, 0.9, 0.6, 1), "icon_key": "pet_cat", "stat_type": "fire_rate", "stat_value": 0.04, "speed_mult": 1.45},
+		{"id": "ironclad_drone", "name": "Ironclad Drone", "color": Color(0.6, 0.65, 0.7, 1), "icon_key": "pet_drone", "stat_type": "max_health", "stat_value": 65.0, "speed_mult": 1.2},
+	],
+	"exotic": [
 		{"id": "emberwolf", "name": "Emberwolf", "color": Color(1.0, 0.45, 0.1, 1), "icon_key": "pet_dog", "stat_type": "fire_rate", "stat_value": 0.05, "speed_mult": 1.45},
 		{"id": "spectralynx", "name": "Spectralynx", "color": Color(0.55, 0.85, 0.95, 1), "icon_key": "pet_cat", "stat_type": "speed", "stat_value": 28.0, "speed_mult": 1.6},
 		{"id": "chronowing", "name": "Chronowing", "color": Color(0.7, 0.55, 0.95, 1), "icon_key": "pet_bird", "stat_type": "reload_speed", "stat_value": 0.06, "speed_mult": 1.5},
 		{"id": "voidhound", "name": "Voidhound", "color": Color(0.2, 0.1, 0.35, 1), "icon_key": "pet_dog", "stat_type": "crit_chance", "stat_value": 0.055, "speed_mult": 1.5},
 		{"id": "aurorawing", "name": "Aurorawing", "color": Color(0.55, 0.95, 0.85, 1), "icon_key": "pet_bird", "stat_type": "max_health", "stat_value": 60.0, "speed_mult": 1.4},
-	],
-	"exotic": [
-		{"id": "genesis_hawk", "name": "Genesis Hawk", "color": Color(1.0, 0.85, 0.3, 1), "icon_key": "pet_crow", "stat_type": "damage", "stat_value": 20.0, "speed_mult": 1.5},
-		{"id": "riftlurker", "name": "Riftlurker", "color": Color(0.75, 0.3, 0.95, 1), "icon_key": "pet_lizard", "stat_type": "max_health", "stat_value": 55.0, "speed_mult": 1.3},
-		{"id": "starforged_cat", "name": "Starforged Cat", "color": Color(1.0, 0.9, 0.6, 1), "icon_key": "pet_cat", "stat_type": "fire_rate", "stat_value": 0.04, "speed_mult": 1.45},
-		{"id": "ironclad_drone", "name": "Ironclad Drone", "color": Color(0.6, 0.65, 0.7, 1), "icon_key": "pet_drone", "stat_type": "max_health", "stat_value": 65.0, "speed_mult": 1.2},
 	],
 	"multiversal": [
 		{"id": "paradox_pup", "name": "Paradox Pup", "color": Color(0.9, 0.3, 0.9, 1), "icon_key": "pet_dog", "stat_type": "damage", "stat_value": 26.0, "speed_mult": 1.7},
@@ -4649,8 +4649,8 @@ func roll_pet_egg_drop(chance: float = 0.12) -> Dictionary:
 	# 45% -> 28%, Multiversal 0.2% -> 1%, etc.) per request - eggs should
 	# have a real, felt chance at hatching into something good, not just
 	# a token 0.2% shot at the best tier.
-	var weights := {"common": 0.28, "uncommon": 0.22, "rare": 0.18, "epic": 0.14, "legendary": 0.09, "mythic": 0.05, "exotic": 0.025, "multiversal": 0.015}
-	for tier in ["common", "uncommon", "rare", "epic", "legendary", "mythic", "exotic", "multiversal"]:
+	var weights := {"common": 0.28, "uncommon": 0.22, "rare": 0.18, "epic": 0.14, "legendary": 0.09, "mythic": 0.025, "exotic": 0.05, "multiversal": 0.015}
+	for tier in ["common", "uncommon", "rare", "epic", "legendary", "exotic", "mythic", "multiversal"]:
 		cumulative += weights[tier]
 		if roll < cumulative:
 			return make_pet_egg(tier)
@@ -4714,7 +4714,7 @@ func collect_hatched_egg(slot_index: int) -> String:
 	var rarity: String = egg_hatching_slots[slot_index].get("rarity", "common")
 	egg_hatching_slots.remove_at(slot_index)
 	var instance_id := hatch_egg(rarity)
-	var ticket_reward := {"common": 5, "uncommon": 8, "rare": 12, "epic": 20, "legendary": 30, "mythic": 45, "exotic": 65, "multiversal": 100}
+	var ticket_reward := {"common": 5, "uncommon": 8, "rare": 12, "epic": 20, "legendary": 30, "mythic": 65, "exotic": 45, "multiversal": 100}
 	grant_salvaged_beasts_tickets(int(ticket_reward.get(rarity, 5)))
 	notify_event("hatch_egg_salvaged_beasts")
 	return instance_id
@@ -4995,13 +4995,13 @@ func _consume_one_plushie() -> bool:
 # Rose a Plushie is meant to be the best real shot at a top-tier pet in
 # the game, not just a slightly-nicer version of the same long odds.
 const PLUSHIE_PET_RARITY_WEIGHTS := {
-	"rare": 25.0, "epic": 28.0, "legendary": 26.0, "mythic": 14.0, "exotic": 5.5, "multiversal": 1.2, "divine": 0.3, "godforged": 0.0001,
+	"rare": 25.0, "epic": 28.0, "legendary": 26.0, "mythic": 5.5, "exotic": 14.0, "multiversal": 1.2, "divine": 0.3, "godforged": 0.0001,
 }
 
 # Same tier-ordering convention GamblePanel.gd uses for its own odds
 # readout - shared by the plushie trade result popup so it's a real
 # "here's what you're working with" table, not just flavor text.
-const PLUSHIE_PET_TIER_ORDER := ["rare", "epic", "legendary", "mythic", "exotic", "multiversal", "divine", "godforged"]
+const PLUSHIE_PET_TIER_ORDER := ["rare", "epic", "legendary", "exotic", "mythic", "multiversal", "divine", "godforged"]
 
 # The most recently obtained plushie pet instance, if any - Dictionary
 # insertion order is preserved in GDScript, so the last "plushie_"-
@@ -5477,7 +5477,7 @@ func get_egg_hatch_duration(rarity: String) -> float:
 # anything else's odds.
 const CRATE_COST := 500
 const CRATE_ODDS := {
-	"divine": 0.01, "multiversal": 0.66, "exotic": 6.62, "mythic": 13.25,
+	"divine": 0.01, "multiversal": 0.66, "exotic": 13.25, "mythic": 6.62,
 	"legendary": 19.87, "rare": 26.49, "common": 33.10,
 }
 
@@ -5511,7 +5511,7 @@ const MULTIVERSAL_ITEM_POOL := [
 func roll_crate_rarity() -> String:
 	var roll := randf() * 100.0
 	var cumulative := 0.0
-	for tier in ["divine", "multiversal", "exotic", "mythic", "legendary", "rare", "common"]:
+	for tier in ["divine", "multiversal", "mythic", "exotic", "legendary", "rare", "common"]:
 		cumulative += CRATE_ODDS[tier]
 		if roll < cumulative:
 			return tier
@@ -6528,7 +6528,7 @@ const FLEA_MARKET_OTHER_MAX_SECONDS := 5400.0 # 90 real minutes
 # real find, not the norm.
 const FLEA_MARKET_RARITY_WEIGHTS := {
 	"common": 24, "uncommon": 24, "rare": 18, "epic": 13,
-	"legendary": 10, "mythic": 6, "exotic": 4,
+	"legendary": 10, "mythic": 4, "exotic": 6,
 }
 
 # Fires whenever _check_flea_market() resolves a listing (sold/expired)
@@ -8814,7 +8814,7 @@ func _add_to_stash(item: Dictionary) -> void:
 
 # Re-lays out an item list into neat grid rows, grouped by rarity (best
 # first) then slot - used by the "Sort" button in the Stash/Backpack.
-const RARITY_SORT_ORDER := ["monochrome", "godforged", "divine", "multiversal", "exotic", "mythic", "legendary", "epic", "rare", "uncommon", "common"]
+const RARITY_SORT_ORDER := ["monochrome", "godforged", "divine", "multiversal", "mythic", "exotic", "legendary", "epic", "rare", "uncommon", "common"]
 
 func _sort_items_in_place(items: Array) -> void:
 	items.sort_custom(func(a, b):

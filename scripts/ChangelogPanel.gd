@@ -1163,6 +1163,10 @@ const CHANGELOG_CURRENT := [
 		"Added a live controller-connection status and button-mapping reference to Settings, so there's an actual way to check a controller is being read.",
 		"Shrunk the oversized Stats button on the Stash character doll.",
 	]},
+	{"version": "3.71.0", "title": "Monochrome Rarity, and Mythic Overtakes Exotic", "notes": [
+		"Alpha/Tech-Test exclusive gear (The Prototype, Tech Tester's Sidearm, Alpha Pioneer's Rig, Veteran's Plate, Early Access Visor, Founder's Boots) now has its own rarity, Monochrome, above Godforged - fixes dragging or equipping one showing its old color (like Legendary orange) instead of the white chrome look it always had in the Stash.",
+		"Swapped Exotic and Mythic's positions on the rarity ladder - Mythic is now the rarer of the two everywhere: sort order, loot bag/egg/crate/plushie/flea market odds, boss-kill guaranteed drops, and which weapons get the top-tier multi-projectile bonus.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

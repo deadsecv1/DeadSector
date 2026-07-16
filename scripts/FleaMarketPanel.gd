@@ -128,10 +128,9 @@ func refresh() -> void:
 	if _browse_category_filter != "":
 		others = others.filter(func(l): return str(l.get("item", {}).get("slot", "")) == _browse_category_filter)
 	if _browse_sort_by_rarity:
-		var rarity_order: Array = GameManager.RARITY_TIERS.keys()
 		others.sort_custom(func(a, b):
-			var ra: int = rarity_order.find(str(a.get("item", {}).get("rarity", "common")))
-			var rb: int = rarity_order.find(str(b.get("item", {}).get("rarity", "common")))
+			var ra: int = GameManager.RARITY_RANK.get(str(a.get("item", {}).get("rarity", "common")), 0)
+			var rb: int = GameManager.RARITY_RANK.get(str(b.get("item", {}).get("rarity", "common")), 0)
 			return ra > rb
 		)
 	if others.is_empty():

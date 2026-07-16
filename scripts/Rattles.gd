@@ -121,7 +121,7 @@ func _shoot() -> void:
 	await get_tree().create_timer(shoot_cooldown).timeout
 	can_shoot = true
 
-# Boss kill: guaranteed 2 Exotics + 5 Mythics + blueprint + attachments +
+# Boss kill: guaranteed 5 Exotics + 2 Mythics + blueprint + attachments +
 # a big pile of extra loot and currency.
 func die() -> void:
 	# Same is_dead guard base Enemy.gd's die() has - lost by overriding
@@ -129,7 +129,7 @@ func die() -> void:
 	# landing on Rattles in the same frame (queue_free() doesn't remove the
 	# node until end-of-frame) could each independently re-run this whole
 	# function, re-rolling and re-granting the entire guaranteed boss
-	# reward (2 Exotics + 5 Mythics + currency) multiple times for one kill.
+	# reward (5 Exotics + 2 Mythics + currency) multiple times for one kill.
 	if is_dead:
 		return
 	is_dead = true
@@ -152,11 +152,11 @@ func die() -> void:
 		elif pool_item.get("rarity", "") == "mythic":
 			mythics.append(pool_item)
 	exotics.shuffle()
-	for i in range(2):
+	for i in range(5):
 		if exotics.size() > 0:
 			items.append(GameManager.finalize_rolled_item(exotics[i % exotics.size()].duplicate(true)))
 	mythics.shuffle()
-	for i in range(5):
+	for i in range(2):
 		if mythics.size() > 0:
 			items.append(GameManager.finalize_rolled_item(mythics[i % mythics.size()].duplicate(true)))
 
