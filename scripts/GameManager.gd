@@ -7577,6 +7577,7 @@ func save_game() -> void:
 		"guild_battle_pass_progress": guild_battle_pass_progress, "last_clan_war_day": last_clan_war_day,
 		"guild_contract_start": guild_contract_start, "guild_contract_index": guild_contract_index,
 		"guild_contract_baseline": guild_contract_baseline, "guild_contract_claimed": guild_contract_claimed,
+		"daily_bounty_day": daily_bounty_day, "daily_bounty_slots": daily_bounty_slots,
 		"has_shown_chat_keybind_hint": has_shown_chat_keybind_hint,
 		"monthly_pass_owned": monthly_pass_owned, "double_xp_owned": double_xp_owned,
 		"fast_hatching_owned": fast_hatching_owned,
@@ -7781,6 +7782,9 @@ func load_game() -> void:
 	guild_contract_baseline = int(parsed.get("guild_contract_baseline", 0))
 	var loaded_guild_contract_claimed = parsed.get("guild_contract_claimed", [])
 	guild_contract_claimed = loaded_guild_contract_claimed if typeof(loaded_guild_contract_claimed) == TYPE_ARRAY else []
+	daily_bounty_day = int(parsed.get("daily_bounty_day", -1))
+	var loaded_daily_bounty_slots = parsed.get("daily_bounty_slots", [])
+	daily_bounty_slots = loaded_daily_bounty_slots if typeof(loaded_daily_bounty_slots) == TYPE_ARRAY else []
 	has_shown_chat_keybind_hint = bool(parsed.get("has_shown_chat_keybind_hint", false))
 	monthly_pass_owned = bool(parsed.get("monthly_pass_owned", false))
 	double_xp_owned = bool(parsed.get("double_xp_owned", false))
@@ -9520,6 +9524,89 @@ func claim_guild_contract_tier(tier_index: int) -> bool:
 	if reward.has("guild_honor"):
 		grant_guild_honor(int(reward["guild_honor"]))
 	toast_requested.emit("Guild Contract reward claimed!")
+	save_game()
+	return true
+
+# --- Daily Bounties: 3 small personal objectives, rerolled at a fixed
+# real-calendar-day boundary (Clan Wars/the daily newsletter's
+# _current_day_index() pattern - a hard day boundary, not "24h since
+# last claim" like Guild Contract's own rolling weekly window).
+# Progress tracking reuses Guild Contract's baseline-snapshot idea
+# (read an existing lifetime stat, remember its value when the bounty
+# was rolled, progress = current - baseline) for 3 concurrent slots
+# instead of one rotating one. Deliberately draws from stats Guild
+# Contract's own pool doesn't already use, so the two panels never show
+# the literal same objective at the same time.
+const DAILY_BOUNTY_TYPES := [
+	{"id": "quick_sale", "title": "Quick Sale", "desc": "Sell enough loot to make the trip worth it.", "stat": "stat_total_sold", "target": 8000, "icon": "money"},
+	{"id": "scav_run", "title": "Scav Run", "desc": "Extract as a Scav - low risk, still counts.", "stat": "stat_scav_extractions", "target": 2, "icon": "compass"},
+	{"id": "crate_pull", "title": "Crate Pull", "desc": "Try your luck at the Undertow's crates.", "stat": "stat_crates_opened", "target": 3, "icon": "gear"},
+	{"id": "blueprint_work", "title": "Blueprint Work", "desc": "Research something new at the Workbench.", "stat": "stat_blueprints_researched", "target": 1, "icon": "gear"},
+	{"id": "egg_hatch", "title": "Egg Hatch", "desc": "Hatch an Egg at Salvaged Beasts.", "stat": "stat_eggs_hatched", "target": 2, "icon": "event"},
+]
+const DAILY_BOUNTY_SLOT_COUNT := 3
+const DAILY_BOUNTY_REWARD := {"rubles": 3000, "skill_points": 8}
+const DAILY_BOUNTY_ALL_CLEAR_BONUS := {"rubles": 5000, "artifacts": 15}
+
+var daily_bounty_day: int = -1
+var daily_bounty_slots: Array = []
+
+func _ensure_daily_bounties_current() -> void:
+	var today := _current_day_index()
+	if daily_bounty_day == today:
+		return
+	daily_bounty_day = today
+	var indices: Array = range(DAILY_BOUNTY_TYPES.size())
+	indices.shuffle()
+	daily_bounty_slots = []
+	for i in range(min(DAILY_BOUNTY_SLOT_COUNT, indices.size())):
+		var type_index: int = indices[i]
+		daily_bounty_slots.append({
+			"type_index": type_index,
+			"baseline": int(get(DAILY_BOUNTY_TYPES[type_index]["stat"])),
+			"claimed": false,
+		})
+
+func get_daily_bounty_slots() -> Array:
+	_ensure_daily_bounties_current()
+	return daily_bounty_slots
+
+func get_daily_bounty_type(slot_index: int) -> Dictionary:
+	_ensure_daily_bounties_current()
+	return DAILY_BOUNTY_TYPES[int(daily_bounty_slots[slot_index]["type_index"])]
+
+func get_daily_bounty_progress(slot_index: int) -> int:
+	_ensure_daily_bounties_current()
+	var slot: Dictionary = daily_bounty_slots[slot_index]
+	var bounty_type: Dictionary = DAILY_BOUNTY_TYPES[slot["type_index"]]
+	return max(0, int(get(bounty_type["stat"])) - int(slot["baseline"]))
+
+func is_daily_bounty_complete(slot_index: int) -> bool:
+	return get_daily_bounty_progress(slot_index) >= int(get_daily_bounty_type(slot_index)["target"])
+
+func is_daily_bounty_claimed(slot_index: int) -> bool:
+	_ensure_daily_bounties_current()
+	return bool(daily_bounty_slots[slot_index]["claimed"])
+
+func claim_daily_bounty(slot_index: int) -> bool:
+	_ensure_daily_bounties_current()
+	if slot_index < 0 or slot_index >= daily_bounty_slots.size():
+		return false
+	if daily_bounty_slots[slot_index]["claimed"] or not is_daily_bounty_complete(slot_index):
+		return false
+	daily_bounty_slots[slot_index]["claimed"] = true
+	add_currency("rubles", int(DAILY_BOUNTY_REWARD["rubles"]))
+	add_currency("skill_points", int(DAILY_BOUNTY_REWARD["skill_points"]))
+	toast_requested.emit("Daily Bounty claimed!")
+	var all_claimed := true
+	for slot in daily_bounty_slots:
+		if not slot["claimed"]:
+			all_claimed = false
+			break
+	if all_claimed:
+		add_currency("rubles", int(DAILY_BOUNTY_ALL_CLEAR_BONUS["rubles"]))
+		add_currency("artifacts", int(DAILY_BOUNTY_ALL_CLEAR_BONUS["artifacts"]))
+		toast_requested.emit("All Daily Bounties complete - bonus awarded!")
 	save_game()
 	return true
 

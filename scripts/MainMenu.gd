@@ -57,6 +57,8 @@ extends Control
 @onready var alpha_rewards_panel: Panel = $AlphaRewardsPanel
 @onready var arena_button: Button = $ArenaButton
 @onready var arena_panel: Panel = $ArenaPanel
+@onready var daily_bounties_button: Button = $DailyBountiesButton
+@onready var daily_bounties_panel: Panel = $DailyBountiesPanel
 @onready var arena_find_team_panel: Panel = $ArenaFindTeamPanel
 @onready var arena_rewards_panel: Panel = $ArenaRewardsPanel
 @onready var arena_rank_rewards_panel: Panel = $ArenaRankRewardsPanel
@@ -237,7 +239,7 @@ func _ready() -> void:
 	exit_cancel_button.pressed.connect(func(): exit_confirm_panel.visible = false)
 	exit_confirm_button.pressed.connect(_on_exit)
 
-	for btn in [play_button, quests_button, traders_button, skill_tree_button, hideout_button, stash_button, settings_button, exit_button, roadmap_button, stats_button, changelog_button, social_button, achievements_button, flea_market_button, mail_button, feedback_button, whats_new_button, leaderboard_button, milestones_button]:
+	for btn in [play_button, quests_button, traders_button, skill_tree_button, hideout_button, stash_button, settings_button, exit_button, roadmap_button, stats_button, changelog_button, social_button, achievements_button, flea_market_button, mail_button, feedback_button, whats_new_button, leaderboard_button, milestones_button, season_button, daily_bounties_button]:
 		btn.mouse_entered.connect(_play_hover)
 
 	flea_market_button.pressed.connect(func(): _open_panel(flea_market_panel))
@@ -249,6 +251,8 @@ func _ready() -> void:
 	)
 	alpha_rewards_button.pressed.connect(func(): _open_panel(alpha_rewards_panel))
 	alpha_rewards_panel.closed.connect(func(): _close_panel(alpha_rewards_panel))
+	daily_bounties_button.pressed.connect(func(): _open_panel(daily_bounties_panel))
+	daily_bounties_panel.closed.connect(func(): _close_panel(daily_bounties_panel))
 	arena_button.pressed.connect(func(): _open_panel(arena_panel))
 	arena_panel.closed.connect(func(): _close_panel(arena_panel))
 	arena_panel.matchmake_requested.connect(func():
@@ -539,6 +543,8 @@ func _set_main_buttons_visible(vis: bool) -> void:
 	arena_button.visible = vis
 	milestones_button.visible = vis
 	guild_menu_button.visible = vis
+	season_button.visible = vis
+	daily_bounties_button.visible = vis
 
 func _show_random_quote() -> void:
 	var idx := randi() % QUOTES.size()
