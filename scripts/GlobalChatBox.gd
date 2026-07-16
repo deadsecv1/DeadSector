@@ -325,7 +325,9 @@ func _other_text_field_focused() -> bool:
 	return focus != null and focus != chat_input and (focus is LineEdit or focus is TextEdit)
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == GameManager.get_keybind("chat"):
+	var is_chat_key_press: bool = event is InputEventKey and event.pressed and not event.echo and event.keycode == GameManager.get_keybind("chat")
+	var is_chat_button_press: bool = event is InputEventJoypadButton and event.pressed and event.button_index == GameManager.JOYPAD_BUTTON_BINDINGS.get("chat", -1)
+	if is_chat_key_press or is_chat_button_press:
 		if not chat_box_open and not _is_cutscene_active() and not _other_text_field_focused():
 			get_viewport().set_input_as_handled()
 			_open_chat_box()
@@ -339,7 +341,9 @@ func _input(event: InputEvent) -> void:
 	# Traders, SkillTree, Settings, Hideout, the various "choice" screens,
 	# ...) don't respect "handled" automatically and each check
 	# GlobalChatBox.chat_box_open explicitly before acting on Escape.
-	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo and chat_box_open:
+	var is_escape_press: bool = (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed)
+	var is_pause_button_press: bool = event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_DPAD_UP
+	if (is_escape_press or is_pause_button_press) and chat_box_open:
 		get_viewport().set_input_as_handled()
 		_close_chat_box()
 	if event is InputEventMouseButton and event.pressed and chat_box_open:

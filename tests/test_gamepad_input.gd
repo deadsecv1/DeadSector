@@ -90,3 +90,12 @@ func test_joypad_helpers_are_safe_with_no_controller_connected() -> void:
 	assert_false(GameManager.is_shoot_pressed(), "is_shoot_pressed must stay false, not error, with no controller")
 	assert_false(GameManager.is_aim_down_sights_pressed(), "is_aim_down_sights_pressed must stay false, not error, with no controller")
 	assert_eq(GameManager.get_gamepad_aim_direction(), Vector2.ZERO, "get_gamepad_aim_direction must stay zero, not error, with no controller")
+	assert_false(GameManager.is_pause_pressed(), "is_pause_pressed must stay false, not error, with no controller")
+
+# Escape is a fixed system convention on keyboard, never routed through the
+# rebindable keybinds dictionary - is_pause_pressed() is its gamepad
+# equivalent, kept just as fixed (see every _process()'s esc_down check
+# across HUD/GauntletHUD/Hideout/SocialPlace/TheGrid).
+func test_pause_is_not_accidentally_bound_to_any_existing_keybind_action() -> void:
+	for action in GameManager.KEYBIND_DEFAULTS.keys():
+		assert_ne(GameManager.JOYPAD_BUTTON_BINDINGS.get(action, -1), JOY_BUTTON_DPAD_UP, "D-pad Up is reserved for pause/back - action '%s' should not also claim it" % action)

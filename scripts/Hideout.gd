@@ -149,7 +149,7 @@ func _process(_delta: float) -> void:
 	if reload_prompt.visible:
 		var mouse_pos := get_viewport().get_mouse_position()
 		reload_prompt.position = mouse_pos + Vector2(18, 18)
-	var esc_down := Input.is_key_pressed(KEY_ESCAPE)
+	var esc_down := Input.is_key_pressed(KEY_ESCAPE) or GameManager.is_pause_pressed()
 	if esc_down and not esc_was_down:
 		if GlobalChatBox.chat_box_open:
 			# GlobalChatBox polls Escape independently to close itself -

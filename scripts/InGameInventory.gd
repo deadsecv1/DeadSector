@@ -60,6 +60,7 @@ func _ready() -> void:
 		)
 
 func refresh() -> void:
+	GameManager.cancel_gamepad_hold_if_within(backpack_grid)
 	for child in backpack_grid.get_children():
 		child.queue_free()
 

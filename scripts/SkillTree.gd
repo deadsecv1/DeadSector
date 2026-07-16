@@ -107,7 +107,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventKey and event.keycode == KEY_TAB and event.pressed and not event.echo:
 		get_viewport().set_input_as_handled()
-	elif event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+	elif (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed):
 		get_viewport().set_input_as_handled()
 		Transition.change_scene_instant("res://scenes/MainMenu.tscn")
 

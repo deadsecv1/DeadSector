@@ -5,6 +5,10 @@ extends Button
 # time. Set by GauntletInventoryPanel._ready() right after instancing.
 var slot_name: String = ""
 
+func _gui_input(event: InputEvent) -> void:
+	if GameManager.handle_gamepad_slot_input(event, self):
+		accept_event()
+
 func _can_drop_data(_pos: Vector2, data) -> bool:
 	if typeof(data) != TYPE_DICTIONARY or data.get("source", "") != "gauntlet_carried":
 		return false

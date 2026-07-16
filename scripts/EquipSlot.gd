@@ -53,6 +53,9 @@ const DOUBLE_CLICK_WINDOW_MS := 400
 var _did_drag: bool = false
 
 func _gui_input(event: InputEvent) -> void:
+	if GameManager.handle_gamepad_slot_input(event, self):
+		accept_event()
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		accept_event()
 		if current_item != null:
@@ -124,44 +127,53 @@ func _show_click_popup(at_position: Vector2) -> void:
 func _get_drag_data(_at_position: Vector2) -> Variant:
 	if current_item == null:
 		return null
-	# Double-click-to-unequip detection lives here rather than on
-	# mouse-release, same reasoning as InventoryTile.gd - Godot calls
-	# _get_drag_data() on essentially any motion during a press, so a
-	# fast double-click's second click needs to be caught here to be
-	# reliable. A genuine single-press drag always still returns valid
-	# data below - only a confirmed double-click returns null, and only
-	# after unequipping is already done (which just triggered a doll
-	# refresh that may have invalidated this exact slot's state, so
-	# there's nothing safe left to build a drag preview from anyway).
-	var now_ms := Time.get_ticks_msec()
-	var is_double_click: bool = (now_ms - _last_click_time_ms) < DOUBLE_CLICK_WINDOW_MS
-	_last_click_time_ms = now_ms
-	if is_double_click:
-		_last_click_time_ms = -999999
-		if source == "stash":
-			GameManager.unequip_item(slot_name)
-		else:
-			GameManager.unequip_to_carried(slot_name)
-		dropped.emit()
-		return null
+	# A gamepad probe (see GameManager.try_gamepad_pickup_or_place) calls
+	# this directly, outside any real mouse gesture - skip straight to a
+	# plain pickup rather than the mouse-only double-click-to-unequip
+	# timing check below (which shares _last_click_time_ms with real mouse
+	# clicks and would misfire or get corrupted by a probe touching it) and
+	# the drag preview (set_drag_preview asserts the viewport is mid-mouse-
+	# drag, and would otherwise both spam an engine error and leak the
+	# never-parented preview Control).
+	if not GameManager.gamepad_probing_drag_data:
+		# Double-click-to-unequip detection lives here rather than on
+		# mouse-release, same reasoning as InventoryTile.gd - Godot calls
+		# _get_drag_data() on essentially any motion during a press, so a
+		# fast double-click's second click needs to be caught here to be
+		# reliable. A genuine single-press drag always still returns valid
+		# data below - only a confirmed double-click returns null, and only
+		# after unequipping is already done (which just triggered a doll
+		# refresh that may have invalidated this exact slot's state, so
+		# there's nothing safe left to build a drag preview from anyway).
+		var now_ms := Time.get_ticks_msec()
+		var is_double_click: bool = (now_ms - _last_click_time_ms) < DOUBLE_CLICK_WINDOW_MS
+		_last_click_time_ms = now_ms
+		if is_double_click:
+			_last_click_time_ms = -999999
+			if source == "stash":
+				GameManager.unequip_item(slot_name)
+			else:
+				GameManager.unequip_to_carried(slot_name)
+			dropped.emit()
+			return null
 
-	_did_drag = true
-	var preview := PanelContainer.new()
-	preview.custom_minimum_size = Vector2(48, 48)
-	preview.modulate.a = 0.9
-	var display_color: Color = GameManager.get_display_color(current_item)
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.1, 0.1, 0.1, 0.9)
-	sb.border_color = display_color
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(4)
-	preview.add_theme_stylebox_override("panel", sb)
-	var item_icon = ItemIconScene.instantiate()
-	item_icon.icon_key = current_item.get("icon_key", "generic")
-	item_icon.icon_color = display_color
-	preview.add_child(item_icon)
-	preview.position = -preview.custom_minimum_size / 2.0
-	set_drag_preview(preview)
+		_did_drag = true
+		var preview := PanelContainer.new()
+		preview.custom_minimum_size = Vector2(48, 48)
+		preview.modulate.a = 0.9
+		var display_color: Color = GameManager.get_display_color(current_item)
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(0.1, 0.1, 0.1, 0.9)
+		sb.border_color = display_color
+		sb.set_border_width_all(2)
+		sb.set_corner_radius_all(4)
+		preview.add_theme_stylebox_override("panel", sb)
+		var item_icon = ItemIconScene.instantiate()
+		item_icon.icon_key = current_item.get("icon_key", "generic")
+		item_icon.icon_color = display_color
+		preview.add_child(item_icon)
+		preview.position = -preview.custom_minimum_size / 2.0
+		set_drag_preview(preview)
 	return {"source": "equip", "equip_slot": slot_name, "equip_source": source}
 
 func _make_custom_tooltip(_for_text: String) -> Control:

@@ -48,7 +48,7 @@ const UPCOMING_ITEMS := [
 @onready var close_button: Button = $Box/VBox/CloseButton
 
 func _unhandled_input(event: InputEvent) -> void:
-	if visible and event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+	if visible and (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed):
 		get_viewport().set_input_as_handled()
 		closed.emit()
 

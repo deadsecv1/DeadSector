@@ -42,6 +42,20 @@ func _cols() -> int:
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(_cols() * _cell(), _rows() * _cell())
+	# Lets a gamepad player place a held item into this grid as a whole -
+	# individual empty cells have no Control of their own to focus, so the
+	# grid itself is the only reachable drop target for "move this into
+	# Backpack Storage/a Case" via a controller. It always lands via
+	# Vector2.ZERO, but every _drop_data() path below already falls back to
+	# the nearest free cell (or a same-size swap) whenever the naive target
+	# cell collides - the same safety net a sloppy mouse drop already relies
+	# on - so this never overlaps or loses an item, just can't aim at an
+	# exact empty cell the way a real mouse drag can.
+	focus_mode = Control.FOCUS_ALL
+
+func _gui_input(event: InputEvent) -> void:
+	if GameManager.handle_gamepad_slot_input(event, self):
+		accept_event()
 
 func recompute_size() -> void:
 	custom_minimum_size = Vector2(_cols() * _cell(), _rows() * _cell())

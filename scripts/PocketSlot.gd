@@ -61,6 +61,9 @@ var _last_click_time_ms: int = -999999
 var _did_drag: bool = false
 
 func _gui_input(event: InputEvent) -> void:
+	if GameManager.handle_gamepad_slot_input(event, self):
+		accept_event()
+		return
 	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT):
 		return
 	if event.pressed:
@@ -87,33 +90,41 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	var item = GameManager.safe_pockets[pocket_index] if pocket_index < GameManager.safe_pockets.size() else null
 	if item == null:
 		return null
-	var now_ms := Time.get_ticks_msec()
-	var is_double_click: bool = (now_ms - _last_click_time_ms) < DOUBLE_CLICK_WINDOW_MS
-	_last_click_time_ms = now_ms
-	if is_double_click:
-		_last_click_time_ms = -999999
-		GameManager.remove_from_pocket(pocket_index, context_source)
-		dropped.emit()
-		return null
+	# A gamepad probe (see GameManager.try_gamepad_pickup_or_place) calls
+	# this directly, outside any real mouse gesture - skip straight to a
+	# plain pickup rather than the mouse-only double-click-to-empty timing
+	# check below (which shares _last_click_time_ms with real mouse clicks)
+	# and the drag preview (set_drag_preview asserts the viewport is
+	# mid-mouse-drag, and would otherwise both spam an engine error and
+	# leak the never-parented preview Control).
+	if not GameManager.gamepad_probing_drag_data:
+		var now_ms := Time.get_ticks_msec()
+		var is_double_click: bool = (now_ms - _last_click_time_ms) < DOUBLE_CLICK_WINDOW_MS
+		_last_click_time_ms = now_ms
+		if is_double_click:
+			_last_click_time_ms = -999999
+			GameManager.remove_from_pocket(pocket_index, context_source)
+			dropped.emit()
+			return null
 
-	_did_drag = true
-	var preview := PanelContainer.new()
-	preview.custom_minimum_size = Vector2(48, 48)
-	preview.modulate.a = 0.9
-	var rarity_color: Color = GameManager.get_display_color(item)
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.1, 0.1, 0.1, 0.9)
-	sb.border_color = rarity_color
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(4)
-	preview.add_theme_stylebox_override("panel", sb)
-	var icon_scene := preload("res://scenes/ItemIcon.tscn")
-	var item_icon = icon_scene.instantiate()
-	item_icon.icon_key = item.get("icon_key", "generic")
-	item_icon.icon_color = rarity_color
-	preview.add_child(item_icon)
-	preview.position = -preview.custom_minimum_size / 2.0
-	set_drag_preview(preview)
+		_did_drag = true
+		var preview := PanelContainer.new()
+		preview.custom_minimum_size = Vector2(48, 48)
+		preview.modulate.a = 0.9
+		var rarity_color: Color = GameManager.get_display_color(item)
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(0.1, 0.1, 0.1, 0.9)
+		sb.border_color = rarity_color
+		sb.set_border_width_all(2)
+		sb.set_corner_radius_all(4)
+		preview.add_theme_stylebox_override("panel", sb)
+		var icon_scene := preload("res://scenes/ItemIcon.tscn")
+		var item_icon = icon_scene.instantiate()
+		item_icon.icon_key = item.get("icon_key", "generic")
+		item_icon.icon_color = rarity_color
+		preview.add_child(item_icon)
+		preview.position = -preview.custom_minimum_size / 2.0
+		set_drag_preview(preview)
 	return {"source": "pocket", "pocket_index": pocket_index}
 
 const ACCEPTED_SOURCES := ["carried", "vicinity", "stash", "backpack_storage"]

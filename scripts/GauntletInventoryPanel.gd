@@ -354,6 +354,7 @@ func refresh() -> void:
 	_hide_tooltip()
 	title_label.text = "CARRIED LOOT (%d)" % GameManager.carried_loot.size()
 	_refresh_doll()
+	GameManager.cancel_gamepad_hold_if_within(grid)
 	for c in grid.get_children():
 		c.queue_free()
 	if GameManager.carried_loot.is_empty():
@@ -431,6 +432,7 @@ func _make_tile(item: Dictionary, index: int) -> Control:
 	box.custom_minimum_size = Vector2(56, 56)
 	box.mouse_filter = Control.MOUSE_FILTER_STOP
 	box.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	box.focus_mode = Control.FOCUS_ALL
 	box.mouse_entered.connect(func(): _show_tooltip(item, "Right-click for options"))
 	box.mouse_exited.connect(_hide_tooltip)
 	var sb := StyleBoxFlat.new()

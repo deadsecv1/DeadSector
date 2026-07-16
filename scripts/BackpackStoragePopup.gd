@@ -10,7 +10,7 @@ const DraggablePanelScript := preload("res://scripts/DraggablePanel.gd")
 signal closed
 
 func _unhandled_input(event: InputEvent) -> void:
-	if visible and event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+	if visible and (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed):
 		get_viewport().set_input_as_handled()
 		closed.emit()
 
@@ -28,8 +28,10 @@ func _ready() -> void:
 func open() -> void:
 	visible = true
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
+	GameManager.cancel_gamepad_hold_if_within(grid)
 	for child in grid.get_children():
 		child.queue_free()
 	var TileScene := preload("res://scenes/InventoryTile.tscn")

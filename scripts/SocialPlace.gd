@@ -94,7 +94,7 @@ func _spawn_npc() -> void:
 	_npc_despawn_at_ms[npc] = Time.get_ticks_msec() + int(lifetime * 1000.0)
 
 func _process(delta: float) -> void:
-	var esc_down := Input.is_key_pressed(KEY_ESCAPE)
+	var esc_down := Input.is_key_pressed(KEY_ESCAPE) or GameManager.is_pause_pressed()
 	if esc_down and not _esc_was_down:
 		if _current_teams_was_open_at_frame_start:
 			# ArenaCurrentTeamsPanel already closed itself (and its closed

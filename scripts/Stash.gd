@@ -63,7 +63,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		GameManager.save_game()
 		Transition.change_scene_instant(GameManager.stash_return_scene)
-	elif event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+	elif (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed):
 		# FilterPopup is a bare Panel with no script of its own, so unlike
 		# every other sub-panel here it has no _unhandled_input() to fall
 		# through to - without this, Escape silently did nothing while it
@@ -276,10 +276,18 @@ func _ready() -> void:
 				GameManager.toast_requested.emit(EMPTY_SLOT_HINT.get(key, "Nothing equipped here yet"))
 		)
 	refresh()
+	GameManager.focus_first_control(self)
 
 signal item_context_menu_requested(index: int, source: String, item: Dictionary, at_position: Vector2)
 
 func refresh() -> void:
+	# A held gamepad pickup (see GameManager.try_gamepad_pickup_or_place)
+	# holds a reference to whichever tile it came from - rebuilding either
+	# grid below frees every tile in it, which would leave that reference
+	# dangling if it's one of the ones about to go. The item itself is
+	# never actually moved by picking it up, so canceling loses nothing.
+	GameManager.cancel_gamepad_hold_if_within(inventory_grid)
+	GameManager.cancel_gamepad_hold_if_within(backpack_storage_grid)
 	for child in inventory_grid.get_children():
 		child.queue_free()
 

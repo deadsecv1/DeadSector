@@ -4,7 +4,7 @@ const DraggablePanelScript := preload("res://scripts/DraggablePanel.gd")
 signal closed
 
 func _unhandled_input(event: InputEvent) -> void:
-	if visible and event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+	if visible and (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed):
 		get_viewport().set_input_as_handled()
 		closed.emit()
 
@@ -30,8 +30,10 @@ func open_for(rid: String) -> void:
 	visible = true
 	_build_slots()
 	refresh()
+	GameManager.focus_first_control(self)
 
 func _build_slots() -> void:
+	GameManager.cancel_gamepad_hold_if_within(slot_list)
 	for c in slot_list.get_children():
 		c.queue_free()
 	slot_buttons.clear()

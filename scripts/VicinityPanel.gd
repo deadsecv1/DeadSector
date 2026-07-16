@@ -30,6 +30,16 @@ func _ready() -> void:
 	GameManager.search_finished.connect(_on_search_finished)
 	GameManager.vicinity_changed.connect(refresh)
 	refresh()
+	# Lets a gamepad player drop a held carried/equipped item back into
+	# Vicinity (see GameManager.try_gamepad_pickup_or_place), same as
+	# dragging it out with a mouse - individual found-item tiles are their
+	# own pickup targets already (InventoryTile), this is just what makes
+	# the panel itself a valid PLACE target too.
+	focus_mode = Control.FOCUS_ALL
+
+func _gui_input(event: InputEvent) -> void:
+	if GameManager.handle_gamepad_slot_input(event, self):
+		accept_event()
 
 func _process(_delta: float) -> void:
 	var f_down := GameManager.is_action_pressed("interact")
@@ -58,6 +68,7 @@ func _on_search_finished() -> void:
 	refresh()
 
 func _draw_search_tiles() -> void:
+	GameManager.cancel_gamepad_hold_if_within(tiles_area)
 	for c in tiles_area.get_children():
 		c.queue_free()
 	if searching_items.is_empty():
@@ -101,6 +112,7 @@ func _draw_search_tiles() -> void:
 func refresh() -> void:
 	if GameManager.is_searching:
 		return
+	GameManager.cancel_gamepad_hold_if_within(tiles_area)
 	for c in tiles_area.get_children():
 		c.queue_free()
 

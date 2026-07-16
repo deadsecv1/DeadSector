@@ -32,7 +32,7 @@ var _esc_was_down: bool = false
 var _current_teams_was_open_at_frame_start: bool = false
 
 func _process(_delta: float) -> void:
-	var esc_down := Input.is_key_pressed(KEY_ESCAPE)
+	var esc_down := Input.is_key_pressed(KEY_ESCAPE) or GameManager.is_pause_pressed()
 	if esc_down and not _esc_was_down:
 		# HUD's own Escape handling is Input.is_key_pressed() polling in
 		# its own _process(), which reads raw hardware key state and has

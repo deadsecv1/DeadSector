@@ -56,8 +56,16 @@ func setup(p_index: int, p_item: Dictionary, p_source: String = "stash") -> void
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	pivot_offset = size / 2.0
+	focus_mode = Control.FOCUS_ALL
 	mouse_entered.connect(_on_hover_enter)
 	mouse_exited.connect(_on_hover_exit)
+	# A bare Control (unlike Button) has no built-in focus-ring rendering,
+	# so without this a gamepad player tabbing through tiles would have no
+	# visual indication of which one is focused - reusing the exact same
+	# wiggle/particles/glow hover reaction as focus feedback means it's
+	# never ambiguous whether the mouse or a controller is "over" a tile.
+	focus_entered.connect(_on_hover_enter)
+	focus_exited.connect(_on_hover_exit)
 	if source == "vicinity":
 		tooltip_text = "%s\n%s\nClick to stow in Backpack, or drag onto a slot to equip." % [item.get("name", "?"), _stat_text()]
 	else:
@@ -347,30 +355,39 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 		return null
 
 	did_drag = true
-	var fp: Vector2i = GameManager.get_item_footprint(item) if source != "vicinity" else Vector2i(1, 1)
-	var cell := _cell()
-	var preview := PanelContainer.new()
-	preview.custom_minimum_size = Vector2(fp.x * cell - 4, fp.y * cell - 4)
-	preview.modulate.a = 0.9
-	var rarity_color: Color = GameManager.get_rarity_color(item.get("rarity", "common"))
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.1, 0.1, 0.1, 0.9)
-	sb.border_color = rarity_color
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(4)
-	preview.add_theme_stylebox_override("panel", sb)
-	var icon = ItemIconScene.instantiate()
-	icon.icon_key = item.get("icon_key", "generic")
-	icon.icon_color = rarity_color
-	preview.add_child(icon)
-	# set_drag_preview positions the preview's top-left AT the cursor by
-	# default - offset it so the item appears centered under the cursor
-	# instead of trailing off to the bottom-right.
-	preview.position = -preview.custom_minimum_size / 2.0
-	set_drag_preview(preview)
+	# A gamepad-driven probe (see GameManager.try_gamepad_pickup_or_place)
+	# calls this same function directly, outside any real mouse-drag
+	# gesture - skip building/setting a preview then, since set_drag_preview
+	# hard-asserts the viewport is mid-drag and would otherwise both spam an
+	# engine error and leak the never-parented preview Control.
+	if not GameManager.gamepad_probing_drag_data:
+		var fp: Vector2i = GameManager.get_item_footprint(item) if source != "vicinity" else Vector2i(1, 1)
+		var cell := _cell()
+		var preview := PanelContainer.new()
+		preview.custom_minimum_size = Vector2(fp.x * cell - 4, fp.y * cell - 4)
+		preview.modulate.a = 0.9
+		var rarity_color: Color = GameManager.get_rarity_color(item.get("rarity", "common"))
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(0.1, 0.1, 0.1, 0.9)
+		sb.border_color = rarity_color
+		sb.set_border_width_all(2)
+		sb.set_corner_radius_all(4)
+		preview.add_theme_stylebox_override("panel", sb)
+		var icon = ItemIconScene.instantiate()
+		icon.icon_key = item.get("icon_key", "generic")
+		icon.icon_color = rarity_color
+		preview.add_child(icon)
+		# set_drag_preview positions the preview's top-left AT the cursor by
+		# default - offset it so the item appears centered under the cursor
+		# instead of trailing off to the bottom-right.
+		preview.position = -preview.custom_minimum_size / 2.0
+		set_drag_preview(preview)
 	return {"source": source, "index": stash_index}
 
 func _gui_input(event: InputEvent) -> void:
+	if GameManager.handle_gamepad_slot_input(event, self):
+		accept_event()
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			did_drag = false

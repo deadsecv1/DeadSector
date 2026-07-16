@@ -233,13 +233,14 @@ func _process(_delta: float) -> void:
 		inventory_panel.visible = not inventory_panel.visible
 		if inventory_panel.visible:
 			inventory_panel.refresh()
+			GameManager.focus_first_control(inventory_panel)
 		_set_player_locked(inventory_panel.visible)
 		GameManager.inventory_tab_open = inventory_panel.visible
 		_update_quest_panel_visibility()
 		_update_reload_prompt_visibility()
 	tab_was_down = tab_down
 
-	var esc_down := Input.is_key_pressed(KEY_ESCAPE)
+	var esc_down := Input.is_key_pressed(KEY_ESCAPE) or GameManager.is_pause_pressed()
 	if esc_down and not esc_was_down:
 		if GlobalChatBox.chat_box_open:
 			# GlobalChatBox polls Escape independently to close itself -
@@ -305,6 +306,7 @@ func _on_search_started(_items: Array, _duration: float) -> void:
 	if not inventory_panel.visible:
 		inventory_panel.visible = true
 		inventory_panel.refresh()
+		GameManager.focus_first_control(inventory_panel)
 		_set_player_locked(true)
 		GameManager.inventory_tab_open = true
 

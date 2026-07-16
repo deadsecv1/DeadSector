@@ -25,7 +25,7 @@ var _choice_made: bool = false
 func _input(event: InputEvent) -> void:
 	if GlobalChatBox.chat_box_open:
 		return
-	if event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+	if (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed):
 		get_viewport().set_input_as_handled()
 		# Same cleanup TheGrid.gd's own _return_to_main_menu() does -
 		# generate_clan_war_match() sets is_arena_match/is_clan_war true

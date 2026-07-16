@@ -25,6 +25,10 @@ func _on_pressed() -> void:
 		GameManager.unequip_recruit_item(recruit_id, slot_name)
 		changed.emit()
 
+func _gui_input(event: InputEvent) -> void:
+	if GameManager.handle_gamepad_slot_input(event, self):
+		accept_event()
+
 func _can_drop_data(_pos: Vector2, data) -> bool:
 	if typeof(data) != TYPE_DICTIONARY:
 		return false

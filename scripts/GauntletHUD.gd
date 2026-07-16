@@ -46,15 +46,16 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if death_screen.visible:
 		return
-	var tab_down := Input.is_key_pressed(KEY_TAB)
+	var tab_down := GameManager.is_action_pressed("inventory")
 	if tab_down and not tab_was_down and not pause_overlay.visible:
 		inventory_panel.visible = not inventory_panel.visible
 		if inventory_panel.visible:
 			inventory_panel.refresh()
+			GameManager.focus_first_control(inventory_panel)
 		get_tree().paused = inventory_panel.visible
 	tab_was_down = tab_down
 
-	var esc_down := Input.is_key_pressed(KEY_ESCAPE)
+	var esc_down := Input.is_key_pressed(KEY_ESCAPE) or GameManager.is_pause_pressed()
 	if esc_down and not esc_was_down:
 		if GlobalChatBox.chat_box_open:
 			# GlobalChatBox polls Escape independently to close itself -

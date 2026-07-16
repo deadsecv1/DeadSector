@@ -300,7 +300,7 @@ func _build_context_menu() -> void:
 	add_child(context_menu)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if visible and event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+	if visible and (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed):
 		get_viewport().set_input_as_handled()
 		closed.emit()
 	elif context_menu != null and context_menu.visible and event is InputEventMouseButton and event.pressed:

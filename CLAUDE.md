@@ -200,3 +200,100 @@ either function:
   designed values on some popup panels. Where this has been hit, the fix is
   to force the exact designed anchor + offset values in the panel's `open()`
   rather than trusting the `.tscn`-authored defaults.
+
+## Controller/gamepad support
+
+Full gamepad support is an ongoing, additive layer on top of the existing
+keyboard/mouse-only code — every call site keeps working unmodified for
+keyboard/mouse; gamepad checks are OR'd in alongside, never replacing the
+original. Single local player, device 0 only, no rebind UI for gamepad
+(keyboard rebinds already apply automatically — see below).
+
+**Core gameplay input** (`GameManager.gd`): `is_action_pressed(action)` is
+the drop-in replacement for `Input.is_key_pressed(get_keybind(action))` —
+checks keyboard first, then falls back to `JOYPAD_BUTTON_BINDINGS[action]`
+if the action has a gamepad mapping. `get_movement_vector()`,
+`is_shoot_pressed()`, `is_aim_down_sights_pressed()`,
+`get_gamepad_aim_direction()`, `is_hotbar_next/prev_pressed()` are bespoke
+siblings for things that aren't simple button binds (analog stick,
+mouse-button-as-trigger, stick-direction-as-aim-point). `_get_aim_point()`
+(on `Player.gd` and `GauntletPlayer.gd`) is the aim-direction synthesis:
+returns a point 1000 units out along the right stick's direction when
+pushed past deadzone, else falls back to `get_global_mouse_position()` — so
+every existing mouse-position-based aim/look_at/vision-cone call site works
+unmodified regardless of input device.
+
+`is_pause_pressed()` (D-pad Up) and the chat-open/close gamepad checks in
+`GlobalChatBox.gd` are deliberately **not** routed through
+`JOYPAD_BUTTON_BINDINGS`/`is_action_pressed()` — Escape and the chat toggle
+are fixed system conventions on keyboard too (never part of the rebindable
+`keybinds` dictionary), so their gamepad equivalents are kept just as fixed.
+
+**Every popup's "Escape closes this" handler** got the same one-line
+gamepad equivalent added (a project-wide sed sweep across 64 files,
+2026-07 — see git history if you need the exact commit). The pattern, if
+you're adding a new popup:
+```gdscript
+if visible and (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed):
+```
+Keep the whole OR'd expression in ONE set of parens like this — `and`
+binds tighter than `or` in GDScript, so splitting it into two separately-
+parenthesized clauses OR'd at the top level silently breaks whatever
+prefix condition (`visible and ...`) was meant to gate both of them.
+
+**Menu/inventory UI navigation** (`GameManager.gd`, foundation built for
+Stash, rolled out panel-by-panel from there — grep any of the files below
+for a template): every menu is built from plain Godot `Control`s, so
+navigation reuses Godot's own focus system rather than a parallel one.
+- `focus_first_control(container)` — call once when a panel/screen becomes
+  visible (its `open()`, or right after `.visible = true` for panels
+  toggled from outside) so a gamepad player has somewhere to start. Do
+  **not** call this from an always-present raid HUD element's `_ready()`
+  (`VicinityPanel`, `InGameInventory`) — that would steal focus from live
+  gameplay input. Call it instead at the exact moment the containing panel
+  actually opens (e.g. `HUD.gd`'s Tab-toggle and search-auto-open branches).
+- Any custom `Control`-based tile/slot (not already a `Button`, which
+  defaults to focusable) needs `focus_mode = Control.FOCUS_ALL` set
+  explicitly, or a gamepad player can never land focus on it.
+- `try_gamepad_pickup_or_place(control)` / `handle_gamepad_slot_input(event,
+  control)` are the controller-friendly stand-in for drag-and-drop — they
+  call a slot's own EXISTING `_get_drag_data()`/`_can_drop_data()`/
+  `_drop_data()`, the same three functions a real mouse drag already uses,
+  so there's no second copy of equip/move logic anywhere. Wire any new
+  drag-and-drop slot with:
+  ```gdscript
+  func _gui_input(event: InputEvent) -> void:
+      if GameManager.handle_gamepad_slot_input(event, self):
+          accept_event()
+  ```
+  A slot's `_get_drag_data()` that builds a real drag preview must skip
+  that (and the `set_drag_preview()` call) when
+  `GameManager.gamepad_probing_drag_data` is true — `set_drag_preview()`
+  hard-asserts the viewport is mid-mouse-drag, which is never true for a
+  gamepad-driven probe, and calling it anyway both spams an engine error
+  and leaks the never-parented preview Control. See `InventoryTile.gd`/
+  `EquipSlot.gd`/`PocketSlot.gd`/`GauntletLootTile.gd` for the guard shape.
+- A free-form Tarkov-style grid (`InventoryGrid.gd`) has no per-cell
+  Control to focus, so it's made focusable AS A WHOLE (`focus_mode` +
+  the same `_gui_input` hook) — a gamepad player can only drop "into this
+  grid" (landing wherever the existing collision-fallback logic already
+  picks, same safety net a sloppy mouse drop already relies on via
+  `_next_free_cell_*`/`_move_item_in`), not choose an exact empty cell.
+  This is an accepted, honest limitation, not a bug to work around.
+- `cancel_gamepad_hold_if_within(container)` — call at the top of any
+  `refresh()`/rebuild that frees a container's children, so a held gamepad
+  pickup never dangles a reference to a freed Control.
+- The "lifted" visual tint on whatever's currently held is centralized in
+  `GameManager` (`GAMEPAD_HELD_TINT`/`_reset_gamepad_held_visual()`) —
+  don't reimplement it per panel.
+
+**Known test-environment limitation** (see `tests/test_gamepad_input.gd`):
+`Input.parse_input_event()` for a joypad button/axis never updates
+`is_joy_button_pressed()`/`get_joy_axis()` in a headless/no-controller
+environment (confirmed by hand) — only keyboard simulation actually works
+that way in tests. Joypad-specific code paths are instead tested for what
+actually matters when no controller is connected: calm `false`/`0.0`,
+never an error. Directly constructing an `InputEventJoypadButton` and
+calling a node's `_unhandled_input()`/`_gui_input()` method with it
+directly DOES work reliably in tests, since it bypasses the global `Input`
+singleton entirely (see `tests/test_gamepad_popup_close.gd`).

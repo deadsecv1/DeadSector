@@ -6046,6 +6046,153 @@ func is_hotbar_next_pressed() -> bool:
 func is_hotbar_prev_pressed() -> bool:
 	return Input.is_joy_button_pressed(GAMEPAD_DEVICE, JOY_BUTTON_LEFT_SHOULDER)
 
+# Escape is a fixed system convention on keyboard (never routed through the
+# rebindable keybinds dictionary, see get_keybind()) - this is its gamepad
+# equivalent, kept just as fixed rather than added to JOYPAD_BUTTON_BINDINGS.
+# D-pad Up since every other face/shoulder/stick button on this list is
+# already claimed by something checked every frame during live gameplay.
+func is_pause_pressed() -> bool:
+	return Input.is_joy_button_pressed(GAMEPAD_DEVICE, JOY_BUTTON_DPAD_UP)
+
+# --- Gamepad UI navigation --------------------------------------------
+# Every menu/inventory screen in this game is built from plain Godot
+# Control nodes, which are ALREADY keyboard/gamepad-focusable out of the
+# box (Button's default focus_mode is FOCUS_ALL, and ui_up/down/left/
+# right/accept/cancel/focus_next/prev already carry engine-default
+# joypad bindings even though nothing here calls is_action_pressed -
+# see CLAUDE.md's Godot gotchas). What was actually missing was:
+# (1) nothing ever grabs initial focus when a panel opens, so there was
+# no starting point to navigate from, and (2) the whole inventory system
+# is built on drag-and-drop, which has no controller equivalent at all.
+
+# Flips based on whichever input device was used most recently, so a
+# panel's focus outline/hints only show up for someone actually using a
+# controller rather than being on-screen clutter for the vast majority
+# of players who don't have one connected. Read this rather than
+# `Input.get_connected_joypads()` alone - a connected controller sitting
+# untouched while the player uses mouse/keyboard shouldn't switch modes.
+var using_gamepad: bool = false
+signal input_device_changed(is_gamepad: bool)
+
+func _unhandled_input(event: InputEvent) -> void:
+	var was_gamepad := using_gamepad
+	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+		using_gamepad = true
+	elif event is InputEventMouseMotion or event is InputEventMouseButton or event is InputEventKey:
+		using_gamepad = false
+	if using_gamepad != was_gamepad:
+		input_device_changed.emit(using_gamepad)
+
+# Call when a panel becomes visible - grabs focus on the first focusable
+# descendant so ui_up/down/left/right/accept has somewhere to start from.
+# Safe to call even when nobody's using a gamepad (grabbing focus doesn't
+# do anything visible until a keyboard/gamepad input actually moves it).
+func focus_first_control(container: Control) -> void:
+	if container == null or not is_instance_valid(container):
+		return
+	var found := _find_first_focusable(container)
+	if found != null:
+		found.grab_focus()
+
+func _find_first_focusable(node: Node) -> Control:
+	if node is Control and node.focus_mode != Control.FOCUS_NONE and node.visible:
+		return node
+	for child in node.get_children():
+		var found := _find_first_focusable(child)
+		if found != null:
+			return found
+	return null
+
+# --- Gamepad inventory pickup/place: the controller-friendly stand-in
+# for drag-and-drop. Reuses each slot's EXISTING _get_drag_data()/
+# _can_drop_data()/_drop_data() - the same three functions the real
+# mouse drag gesture already calls - so this is purely an alternate way
+# to trigger them, not a second copy of the equip/move logic itself.
+# "Picking up" doesn't move anything yet (the item's still logically in
+# its original slot); "placing" is what actually calls _drop_data().
+var gamepad_held_data: Variant = null
+var gamepad_held_source: Control = null
+signal gamepad_hold_changed
+
+# Set for the duration of the _get_drag_data() call below so a slot's own
+# implementation can skip building/setting a real drag preview - Control.
+# set_drag_preview() hard-asserts the viewport is mid-mouse-drag
+# (ERR_FAIL_COND on !gui_is_dragging()), which is never true for a gamepad
+# press, so calling it here would both spam an engine error AND leak the
+# preview Control (the assert aborts before it's parented anywhere).
+var gamepad_probing_drag_data: bool = false
+
+# Call from a slot/tile's own gamepad-accept handler. Returns true if it
+# either picked something up or placed what was already held (whether or
+# not the drop was accepted - see gamepad_hold_changed for the outcome).
+func try_gamepad_pickup_or_place(control: Control) -> bool:
+	if gamepad_held_data == null:
+		if not control.has_method("_get_drag_data"):
+			return false
+		gamepad_probing_drag_data = true
+		var data = control._get_drag_data(Vector2.ZERO)
+		gamepad_probing_drag_data = false
+		if data == null:
+			return false
+		gamepad_held_data = data
+		gamepad_held_source = control
+		control.modulate = GAMEPAD_HELD_TINT
+		control.scale = GAMEPAD_HELD_SCALE
+		gamepad_hold_changed.emit()
+		toast_requested.emit("Picked up - move and press Accept to place, or Cancel to put it back")
+		return true
+	if control.has_method("_can_drop_data") and control._can_drop_data(Vector2.ZERO, gamepad_held_data):
+		control._drop_data(Vector2.ZERO, gamepad_held_data)
+		_reset_gamepad_held_visual()
+		gamepad_held_data = null
+		gamepad_held_source = null
+		gamepad_hold_changed.emit()
+		return true
+	toast_requested.emit("Can't place that there")
+	return true
+
+func cancel_gamepad_hold() -> void:
+	if gamepad_held_data == null:
+		return
+	_reset_gamepad_held_visual()
+	gamepad_held_data = null
+	gamepad_held_source = null
+	gamepad_hold_changed.emit()
+
+# A lifted look on whatever's currently held via gamepad, until it's placed
+# or canceled - centralized here (rather than duplicated per-panel) since
+# every slot type resets to the same neutral modulate/scale.
+const GAMEPAD_HELD_TINT := Color(1.3, 1.3, 0.85, 1.0)
+const GAMEPAD_HELD_SCALE := Vector2(1.08, 1.08)
+
+func _reset_gamepad_held_visual() -> void:
+	if is_instance_valid(gamepad_held_source):
+		gamepad_held_source.modulate = Color.WHITE
+		gamepad_held_source.scale = Vector2.ONE
+
+# Call from a panel's refresh()/rebuild right before freeing the tiles
+# inside `container` - a held gamepad pickup holds a direct Control
+# reference, which would otherwise dangle (or get its tint silently lost)
+# once that control is queue_free()'d without gamepad_hold_changed ever
+# firing to say so. Canceling loses nothing: picking up never actually
+# moves the item, just marks it as held.
+func cancel_gamepad_hold_if_within(container: Control) -> void:
+	if is_instance_valid(gamepad_held_source) and is_instance_valid(container) and container.is_ancestor_of(gamepad_held_source):
+		cancel_gamepad_hold()
+
+# One-line drop-in for a slot/tile's own _gui_input(event): handles
+# ui_accept (pick up/place) and ui_cancel (abandon a hold, only if THIS
+# control is the one currently holding - ui_cancel shouldn't steal focus-
+# less input from every other slot's hold). Returns true if it consumed
+# the event, so the caller knows to accept_event() and stop there.
+func handle_gamepad_slot_input(event: InputEvent, control: Control) -> bool:
+	if event.is_action_pressed("ui_accept"):
+		return try_gamepad_pickup_or_place(control)
+	if event.is_action_pressed("ui_cancel") and gamepad_held_source == control:
+		cancel_gamepad_hold()
+		return true
+	return false
+
 func _ready() -> void:
 	_setup_audio_buses()
 	_crosshair_texture = _make_crosshair_texture()
