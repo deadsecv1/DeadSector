@@ -21,7 +21,32 @@ extends Control
 @onready var inventory_bind_button: Button = $KeybindsView/InventoryRow/InventoryBindButton
 @onready var keybinds_back_button: Button = $KeybindsView/KeybindsBackButton
 
+@onready var interact_gamepad_bind_button: Button = $KeybindsView/InteractRow/InteractGamepadBindButton
+@onready var prone_gamepad_bind_button: Button = $KeybindsView/ProneRow/ProneGamepadBindButton
+@onready var jump_gamepad_bind_button: Button = $KeybindsView/JumpRow/JumpGamepadBindButton
+@onready var dash_gamepad_bind_button: Button = $KeybindsView/DashRow/DashGamepadBindButton
+@onready var nightvision_gamepad_bind_button: Button = $KeybindsView/NightvisionRow/NightvisionGamepadBindButton
+@onready var chat_gamepad_bind_button: Button = $KeybindsView/ChatRow/ChatGamepadBindButton
+@onready var inventory_gamepad_bind_button: Button = $KeybindsView/InventoryRow/InventoryGamepadBindButton
+
 var rebinding_action: String = ""
+var rebinding_gamepad_action: String = ""
+
+# Xbox-style naming, matching this screen's own existing button-mapping
+# reference text - Godot has no built-in "get joy button string" the way
+# OS.get_keycode_string() covers keyboard.
+const JOY_BUTTON_NAMES := {
+	JOY_BUTTON_A: "A", JOY_BUTTON_B: "B", JOY_BUTTON_X: "X", JOY_BUTTON_Y: "Y",
+	JOY_BUTTON_LEFT_SHOULDER: "LB", JOY_BUTTON_RIGHT_SHOULDER: "RB",
+	JOY_BUTTON_LEFT_STICK: "L-Stick", JOY_BUTTON_RIGHT_STICK: "R-Stick",
+	JOY_BUTTON_BACK: "Back", JOY_BUTTON_START: "Start", JOY_BUTTON_GUIDE: "Guide",
+	JOY_BUTTON_DPAD_UP: "D-Pad Up", JOY_BUTTON_DPAD_DOWN: "D-Pad Down",
+	JOY_BUTTON_DPAD_LEFT: "D-Pad Left", JOY_BUTTON_DPAD_RIGHT: "D-Pad Right",
+}
+# D-Pad Up is the fixed pause/back button everywhere in the game (see
+# CLAUDE.md) - reserved as this screen's gamepad-rebind cancel button
+# instead of Escape, and never assignable to an action.
+const GAMEPAD_REBIND_CANCEL_BUTTON := JOY_BUTTON_DPAD_UP
 
 func _input(event: InputEvent) -> void:
 	if rebinding_action != "" and event is InputEventKey and event.pressed and not event.echo:
@@ -37,9 +62,29 @@ func _input(event: InputEvent) -> void:
 		_refresh_keybind_labels()
 		rebinding_action = ""
 		return
+	if rebinding_gamepad_action != "" and event is InputEventJoypadButton and event.pressed:
+		get_viewport().set_input_as_handled()
+		if event.button_index == GAMEPAD_REBIND_CANCEL_BUTTON:
+			rebinding_gamepad_action = ""
+			_refresh_gamepad_bind_labels()
+			return
+		GameManager.set_joypad_binding(rebinding_gamepad_action, event.button_index)
+		_refresh_gamepad_bind_labels()
+		rebinding_gamepad_action = ""
+		return
 	if event is InputEventKey and event.keycode == KEY_TAB and event.pressed and not event.echo:
 		get_viewport().set_input_as_handled()
 	if (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed):
+		if rebinding_gamepad_action != "":
+			# A joypad-button press here would already have been caught
+			# and returned by the gamepad-rebind block above - this only
+			# still runs for a KEY_ESCAPE press while a gamepad rebind is
+			# active (reaching for the keyboard mid-rebind), so cancel
+			# that too instead of leaving the button stuck on "Press a
+			# button...".
+			rebinding_gamepad_action = ""
+			_refresh_gamepad_bind_labels()
+			return
 		if GlobalChatBox.chat_box_open:
 			return
 		get_viewport().set_input_as_handled()
@@ -60,6 +105,7 @@ func _ready() -> void:
 	vsync_toggle.button_pressed = GameManager.vsync_enabled
 	shake_toggle.button_pressed = GameManager.screen_shake_enabled
 	_refresh_keybind_labels()
+	_refresh_gamepad_bind_labels()
 	main_view.visible = true
 	keybinds_view.visible = false
 	GameManager.focus_first_control(main_view)
@@ -82,6 +128,14 @@ func _ready() -> void:
 	inventory_bind_button.pressed.connect(func(): _start_rebind("inventory", inventory_bind_button))
 	keybinds_back_button.pressed.connect(_show_main)
 
+	interact_gamepad_bind_button.pressed.connect(func(): _start_gamepad_rebind("interact", interact_gamepad_bind_button))
+	prone_gamepad_bind_button.pressed.connect(func(): _start_gamepad_rebind("prone", prone_gamepad_bind_button))
+	jump_gamepad_bind_button.pressed.connect(func(): _start_gamepad_rebind("jump", jump_gamepad_bind_button))
+	dash_gamepad_bind_button.pressed.connect(func(): _start_gamepad_rebind("dash", dash_gamepad_bind_button))
+	nightvision_gamepad_bind_button.pressed.connect(func(): _start_gamepad_rebind("nightvision", nightvision_gamepad_bind_button))
+	chat_gamepad_bind_button.pressed.connect(func(): _start_gamepad_rebind("chat", chat_gamepad_bind_button))
+	inventory_gamepad_bind_button.pressed.connect(func(): _start_gamepad_rebind("inventory", inventory_gamepad_bind_button))
+
 	_build_controller_section()
 
 func _show_keybinds() -> void:
@@ -94,6 +148,7 @@ func _show_main() -> void:
 	main_view.visible = true
 	GameManager.focus_first_control(main_view)
 	rebinding_action = ""
+	rebinding_gamepad_action = ""
 
 func _start_rebind(action: String, button: Button) -> void:
 	rebinding_action = action
@@ -107,6 +162,22 @@ func _refresh_keybind_labels() -> void:
 	nightvision_bind_button.text = OS.get_keycode_string(GameManager.get_keybind("nightvision"))
 	chat_bind_button.text = OS.get_keycode_string(GameManager.get_keybind("chat"))
 	inventory_bind_button.text = OS.get_keycode_string(GameManager.get_keybind("inventory"))
+
+func _start_gamepad_rebind(action: String, button: Button) -> void:
+	rebinding_gamepad_action = action
+	button.text = "Press a button..."
+
+func _joy_button_name(button_index: int) -> String:
+	return JOY_BUTTON_NAMES.get(button_index, "Button %d" % button_index)
+
+func _refresh_gamepad_bind_labels() -> void:
+	interact_gamepad_bind_button.text = _joy_button_name(GameManager.get_joypad_binding("interact"))
+	prone_gamepad_bind_button.text = _joy_button_name(GameManager.get_joypad_binding("prone"))
+	jump_gamepad_bind_button.text = _joy_button_name(GameManager.get_joypad_binding("jump"))
+	dash_gamepad_bind_button.text = _joy_button_name(GameManager.get_joypad_binding("dash"))
+	nightvision_gamepad_bind_button.text = _joy_button_name(GameManager.get_joypad_binding("nightvision"))
+	chat_gamepad_bind_button.text = _joy_button_name(GameManager.get_joypad_binding("chat"))
+	inventory_gamepad_bind_button.text = _joy_button_name(GameManager.get_joypad_binding("inventory"))
 
 # value_changed fires on every step of a drag, not just on release - these
 # three used to call save_game() on every one of those ticks, serializing
@@ -145,10 +216,13 @@ func _on_back() -> void:
 	GameManager.save_game()
 	Transition.change_scene_instant("res://scenes/MainMenu.tscn")
 
-# Read-only reference (see CLAUDE.md's "Controller/gamepad support" - there's
-# deliberately no gamepad rebind UI, keyboard rebinds already apply
-# automatically) plus a live status line, since "is my controller actually
-# being read?" has no other way to check in-game.
+# Live connection status, since "is my controller actually being read?"
+# has no other way to check in-game. The 7 rebindable actions each get
+# their own gamepad-bind button right next to their keyboard one (see
+# the KeybindsView rows) - this section just adds the status line plus
+# a reference for the handful of gamepad inputs that aren't simple
+# single-button binds (analog sticks/triggers) or are fixed system
+# conventions (Pause, Hotbar), so those still have a printed reference.
 var controller_status_label: Label
 
 func _build_controller_section() -> void:
@@ -170,7 +244,7 @@ func _build_controller_section() -> void:
 	keybinds_view.move_child(controller_status_label, keybinds_back_button.get_index())
 
 	var map_label := Label.new()
-	map_label.text = "Move: Left Stick   Aim: Right Stick   Shoot: Right Trigger   Aim Down Sights: Left Trigger\nInteract: A   Jump: Y   Dash: B   Nightvision / Reload: X   Prone: Left Stick Click\nInventory: Start   Chat: Back   Pause: D-Pad Up   Hotbar Prev / Next: LB / RB"
+	map_label.text = "Move: Left Stick   Aim: Right Stick   Shoot: Right Trigger   Aim Down Sights: Left Trigger\nReload: X   Pause: D-Pad Up   Hotbar Prev / Next: LB / RB   Menu Cursor: Left Stick\n(Interact/Jump/Dash/Nightvision/Prone/Chat/Inventory are rebindable above - D-Pad Up cancels a rebind)"
 	map_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	map_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	map_label.add_theme_font_size_override("font_size", 13)

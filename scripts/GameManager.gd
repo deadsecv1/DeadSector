@@ -6055,13 +6055,22 @@ func set_keybind(action: String, keycode: int) -> void:
 
 # --- Gamepad support -------------------------------------------------
 # Every one of the 7 keybinds above (plus a couple of things that were
-# never keybinds at all - reload, hotbar) gets a fixed joypad button
-# here rather than a second rebindable layer - only Prone/Nightvision are
-# even keyboard-rebindable today (see the comment above keybinds), so a
-# full gamepad rebind UI would be rebinding buttons for actions the
-# keyboard side itself treats as fixed. Device 0 only (single local
-# player, no split-screen/multi-controller concept in this game).
-const JOYPAD_BUTTON_BINDINGS := {
+# never keybinds at all - reload, hotbar) gets a joypad button here.
+# Interact/jump/dash/nightvision/prone/chat/inventory are user-rebindable
+# (see set_joypad_binding() below and Settings.gd) - reload/hotbar are
+# not, matching reload not being keyboard-rebindable either. Device 0
+# only (single local player, no split-screen/multi-controller concept).
+var JOYPAD_BUTTON_BINDINGS: Dictionary = {
+	"interact": JOY_BUTTON_A,
+	"jump": JOY_BUTTON_Y,
+	"dash": JOY_BUTTON_B,
+	"nightvision": JOY_BUTTON_X,
+	"prone": JOY_BUTTON_LEFT_STICK,
+	"chat": JOY_BUTTON_BACK,
+	"inventory": JOY_BUTTON_START,
+	"reload": JOY_BUTTON_X,
+}
+const JOYPAD_BUTTON_DEFAULTS := {
 	"interact": JOY_BUTTON_A,
 	"jump": JOY_BUTTON_Y,
 	"dash": JOY_BUTTON_B,
@@ -6075,6 +6084,13 @@ const GAMEPAD_DEVICE := 0
 const STICK_DEADZONE := 0.25
 const TRIGGER_THRESHOLD := 0.4
 
+func get_joypad_binding(action: String) -> int:
+	return int(JOYPAD_BUTTON_BINDINGS.get(action, JOYPAD_BUTTON_DEFAULTS.get(action, -1)))
+
+func set_joypad_binding(action: String, button_index: int) -> void:
+	JOYPAD_BUTTON_BINDINGS[action] = button_index
+	save_game()
+
 # Drop-in replacement for Input.is_key_pressed(get_keybind(action)) that
 # also accepts the matching gamepad button - existing call sites only
 # need their is_key_pressed(get_keybind(...)) wrapper swapped for this,
@@ -6083,7 +6099,7 @@ func is_action_pressed(action: String) -> bool:
 	if Input.is_key_pressed(get_keybind(action)):
 		return true
 	if JOYPAD_BUTTON_BINDINGS.has(action):
-		return Input.is_joy_button_pressed(GAMEPAD_DEVICE, JOYPAD_BUTTON_BINDINGS[action])
+		return Input.is_joy_button_pressed(GAMEPAD_DEVICE, get_joypad_binding(action))
 	return false
 
 # Same idea for the left mouse button / shoot trigger - a held analog
@@ -7613,6 +7629,7 @@ func save_game() -> void:
 		"stat_scav_extractions": stat_scav_extractions,
 		"stat_crates_opened": stat_crates_opened,
 		"stat_blueprints_researched": stat_blueprints_researched,
+		"joypad_bindings": JOYPAD_BUTTON_BINDINGS,
 		"master_volume": master_volume,
 		"music_volume": music_volume,
 		"sfx_volume": sfx_volume,
@@ -8008,6 +8025,11 @@ func load_game() -> void:
 		for action in KEYBIND_DEFAULTS.keys():
 			if loaded_keybinds.has(action):
 				keybinds[action] = int(loaded_keybinds[action])
+	var loaded_joypad_bindings = parsed.get("joypad_bindings", null)
+	if typeof(loaded_joypad_bindings) == TYPE_DICTIONARY:
+		for action in JOYPAD_BUTTON_DEFAULTS.keys():
+			if loaded_joypad_bindings.has(action):
+				JOYPAD_BUTTON_BINDINGS[action] = int(loaded_joypad_bindings[action])
 	# Ammo rarity/slot fixed BEFORE the grid-overlap repair below - repair
 	# can relocate items between stash_items/backpack_storage, and doing
 	# that first left freshly-relocated items still holding their stale

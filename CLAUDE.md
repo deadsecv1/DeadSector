@@ -230,8 +230,26 @@ either function:
 Full gamepad support is an ongoing, additive layer on top of the existing
 keyboard/mouse-only code — every call site keeps working unmodified for
 keyboard/mouse; gamepad checks are OR'd in alongside, never replacing the
-original. Single local player, device 0 only, no rebind UI for gamepad
-(keyboard rebinds already apply automatically — see below).
+original. Single local player, device 0 only. `JOYPAD_BUTTON_BINDINGS`
+(GameManager.gd) is a `var`, not a `const` — the 7 rebindable keyboard
+actions (interact/prone/jump/dash/nightvision/chat/inventory) each get a
+matching gamepad rebind button in Settings' Keybinds view too, via
+`GameManager.set_joypad_binding()`/`get_joypad_binding()` and persisted
+in the save the same way `keybinds` is. D-Pad Up (the fixed pause/back
+button everywhere else) is reserved as the cancel button for an
+in-progress gamepad rebind instead of Escape, and is never itself
+assignable to an action.
+
+A Destiny-style circle-reticle cursor also replaces the normal menu
+cursor while a controller is active outside of actual raid gameplay
+(see `GameManager._update_gamepad_cursor()` / `_apply_menu_cursor()`),
+steerable with the left stick via a real `Input.warp_mouse()` — steer,
+don't overlay, so every existing button/panel's hover and click
+handling works completely unchanged. The one non-obvious part: warping
+needs its target converted through `get_viewport().get_screen_transform()`
+first, since this project's `"canvas_items"`/`"expand"` stretch mode
+means window-space and viewport-space pixels are essentially never the
+same — confirmed empirically with a scratch probe, not assumed.
 
 **Core gameplay input** (`GameManager.gd`): `is_action_pressed(action)` is
 the drop-in replacement for `Input.is_key_pressed(get_keybind(action))` —

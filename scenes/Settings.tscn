@@ -134,9 +134,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -210.0
+offset_left = -280.0
 offset_top = -325.0
-offset_right = 210.0
+offset_right = 280.0
 offset_bottom = 345.0
 theme_override_constants/separation = 14
 
@@ -157,9 +157,14 @@ theme_override_font_sizes/font_size = 17
 text = "Interact"
 
 [node name="InteractBindButton" type="Button" parent="KeybindsView/InteractRow"]
-custom_minimum_size = Vector2(140, 36)
+custom_minimum_size = Vector2(110, 36)
 theme_override_font_sizes/font_size = 15
 text = "F"
+
+[node name="InteractGamepadBindButton" type="Button" parent="KeybindsView/InteractRow"]
+custom_minimum_size = Vector2(110, 36)
+theme_override_font_sizes/font_size = 15
+text = "A"
 
 [node name="ProneRow" type="HBoxContainer" parent="KeybindsView"]
 theme_override_constants/separation = 16
@@ -170,9 +175,14 @@ theme_override_font_sizes/font_size = 17
 text = "Prone"
 
 [node name="ProneBindButton" type="Button" parent="KeybindsView/ProneRow"]
-custom_minimum_size = Vector2(140, 36)
+custom_minimum_size = Vector2(110, 36)
 theme_override_font_sizes/font_size = 15
 text = "Z"
+
+[node name="ProneGamepadBindButton" type="Button" parent="KeybindsView/ProneRow"]
+custom_minimum_size = Vector2(110, 36)
+theme_override_font_sizes/font_size = 15
+text = "L-Stick"
 
 [node name="JumpRow" type="HBoxContainer" parent="KeybindsView"]
 theme_override_constants/separation = 16
@@ -183,9 +193,14 @@ theme_override_font_sizes/font_size = 17
 text = "Jump"
 
 [node name="JumpBindButton" type="Button" parent="KeybindsView/JumpRow"]
-custom_minimum_size = Vector2(140, 36)
+custom_minimum_size = Vector2(110, 36)
 theme_override_font_sizes/font_size = 15
 text = "Space"
+
+[node name="JumpGamepadBindButton" type="Button" parent="KeybindsView/JumpRow"]
+custom_minimum_size = Vector2(110, 36)
+theme_override_font_sizes/font_size = 15
+text = "Y"
 
 [node name="DashRow" type="HBoxContainer" parent="KeybindsView"]
 theme_override_constants/separation = 16
@@ -196,9 +211,14 @@ theme_override_font_sizes/font_size = 17
 text = "Dash"
 
 [node name="DashBindButton" type="Button" parent="KeybindsView/DashRow"]
-custom_minimum_size = Vector2(140, 36)
+custom_minimum_size = Vector2(110, 36)
 theme_override_font_sizes/font_size = 15
 text = "Shift"
+
+[node name="DashGamepadBindButton" type="Button" parent="KeybindsView/DashRow"]
+custom_minimum_size = Vector2(110, 36)
+theme_override_font_sizes/font_size = 15
+text = "B"
 
 [node name="NightvisionRow" type="HBoxContainer" parent="KeybindsView"]
 theme_override_constants/separation = 16
@@ -209,9 +229,14 @@ theme_override_font_sizes/font_size = 17
 text = "Night Vision"
 
 [node name="NightvisionBindButton" type="Button" parent="KeybindsView/NightvisionRow"]
-custom_minimum_size = Vector2(140, 36)
+custom_minimum_size = Vector2(110, 36)
 theme_override_font_sizes/font_size = 15
 text = "N"
+
+[node name="NightvisionGamepadBindButton" type="Button" parent="KeybindsView/NightvisionRow"]
+custom_minimum_size = Vector2(110, 36)
+theme_override_font_sizes/font_size = 15
+text = "X"
 
 [node name="ChatRow" type="HBoxContainer" parent="KeybindsView"]
 theme_override_constants/separation = 16
@@ -222,9 +247,14 @@ theme_override_font_sizes/font_size = 17
 text = "Open Chat"
 
 [node name="ChatBindButton" type="Button" parent="KeybindsView/ChatRow"]
-custom_minimum_size = Vector2(140, 36)
+custom_minimum_size = Vector2(110, 36)
 theme_override_font_sizes/font_size = 15
 text = "Enter"
+
+[node name="ChatGamepadBindButton" type="Button" parent="KeybindsView/ChatRow"]
+custom_minimum_size = Vector2(110, 36)
+theme_override_font_sizes/font_size = 15
+text = "Back"
 
 [node name="InventoryRow" type="HBoxContainer" parent="KeybindsView"]
 theme_override_constants/separation = 16
@@ -235,9 +265,14 @@ theme_override_font_sizes/font_size = 17
 text = "Inventory / Stash"
 
 [node name="InventoryBindButton" type="Button" parent="KeybindsView/InventoryRow"]
-custom_minimum_size = Vector2(140, 36)
+custom_minimum_size = Vector2(110, 36)
 theme_override_font_sizes/font_size = 15
 text = "Tab"
+
+[node name="InventoryGamepadBindButton" type="Button" parent="KeybindsView/InventoryRow"]
+custom_minimum_size = Vector2(110, 36)
+theme_override_font_sizes/font_size = 15
+text = "Start"
 
 [node name="KeybindsBackButton" type="Button" parent="KeybindsView"]
 custom_minimum_size = Vector2(280, 50)
