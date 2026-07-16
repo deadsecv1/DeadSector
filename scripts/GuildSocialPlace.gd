@@ -13,6 +13,8 @@ const SPAWN_SPREAD := Vector2(380.0, 300.0)
 
 @onready var player = $Player
 @onready var hud = $HUD
+@onready var guild_statue_station = $GuildStatueStation
+@onready var guild_contract_panel = $GuildContractPanel
 
 func _ready() -> void:
 	GameManager.set_crosshair_cursor()
@@ -24,6 +26,8 @@ func _ready() -> void:
 	player.health_changed.connect(hud._on_player_health_changed)
 	_spawn_pet()
 	_spawn_guildmates()
+	guild_statue_station.interacted.connect(func(): guild_contract_panel.open())
+	guild_contract_panel.closed.connect(func(): guild_contract_panel.visible = false)
 
 func _spawn_pet() -> void:
 	if GameManager.equipped_pet == "":

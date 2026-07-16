@@ -7575,6 +7575,8 @@ func save_game() -> void:
 		"milestone_tier": milestone_tier, "milestone_progress": milestone_progress,
 		"guild_honor": guild_honor, "guild_battle_pass_tier": guild_battle_pass_tier,
 		"guild_battle_pass_progress": guild_battle_pass_progress, "last_clan_war_day": last_clan_war_day,
+		"guild_contract_start": guild_contract_start, "guild_contract_index": guild_contract_index,
+		"guild_contract_baseline": guild_contract_baseline, "guild_contract_claimed": guild_contract_claimed,
 		"has_shown_chat_keybind_hint": has_shown_chat_keybind_hint,
 		"monthly_pass_owned": monthly_pass_owned, "double_xp_owned": double_xp_owned,
 		"fast_hatching_owned": fast_hatching_owned,
@@ -7774,6 +7776,11 @@ func load_game() -> void:
 	guild_battle_pass_tier = int(parsed.get("guild_battle_pass_tier", 0))
 	guild_battle_pass_progress = int(parsed.get("guild_battle_pass_progress", 0))
 	last_clan_war_day = int(parsed.get("last_clan_war_day", -1))
+	guild_contract_start = int(parsed.get("guild_contract_start", 0))
+	guild_contract_index = int(parsed.get("guild_contract_index", -1))
+	guild_contract_baseline = int(parsed.get("guild_contract_baseline", 0))
+	var loaded_guild_contract_claimed = parsed.get("guild_contract_claimed", [])
+	guild_contract_claimed = loaded_guild_contract_claimed if typeof(loaded_guild_contract_claimed) == TYPE_ARRAY else []
 	has_shown_chat_keybind_hint = bool(parsed.get("has_shown_chat_keybind_hint", false))
 	monthly_pass_owned = bool(parsed.get("monthly_pass_owned", false))
 	double_xp_owned = bool(parsed.get("double_xp_owned", false))
@@ -9443,6 +9450,78 @@ const GUILD_BATTLE_PASS_TIER_DATA := [
 	{"name": "Guild Hero", "type": "lootbag", "bag_tier": "legendary"},
 	{"name": "Founder's Honor", "type": "lootbag", "bag_tier": "mythic"},
 ]
+
+# --- Guild Contract: a rotating weekly guild-wide objective, checked at
+# the Guild Hall's statue. Multiplayer's simulated client-side (see
+# CLAUDE.md's design philosophy note) so "the guild's progress" is just
+# your own stats since the contract started - no separate counter to
+# maintain, just a baseline snapshot of an existing lifetime stat.
+# Resets every 7 real days from whenever the first one started, the
+# same real-wall-clock convention Clan Wars already uses (_flea_now()),
+# not in-game time.
+const GUILD_CONTRACT_TYPES := [
+	{"id": "extraction_drive", "title": "Extraction Drive", "desc": "The guild wants proof the Sector can be beaten, not just survived. Extract successfully as many times as you can.", "stat": "stat_extractions", "target": 15, "icon": "compass"},
+	{"id": "bounty_hunt", "title": "Bounty Hunt", "desc": "Clear the Sector of anything still breathing. Every kill counts toward the contract.", "stat": "stat_enemies_killed", "target": 300, "icon": "combat"},
+	{"id": "salvage_run", "title": "Salvage Run", "desc": "The guild's coffers don't fill themselves. Bring back loot - any loot, as much as you can carry.", "stat": "stat_total_loot_collected", "target": 60000, "icon": "money"},
+]
+const GUILD_CONTRACT_TIER_FRACTIONS := [0.25, 0.5, 0.75, 1.0]
+const GUILD_CONTRACT_TIER_REWARDS := [
+	{"rubles": 5000, "artifacts": 20},
+	{"rubles": 12000, "artifacts": 50},
+	{"rubles": 25000, "artifacts": 100},
+	{"rubles": 60000, "artifacts": 250, "guild_honor": 150},
+]
+const GUILD_CONTRACT_DURATION_SECONDS := 7 * 24 * 3600
+
+var guild_contract_start: int = 0
+var guild_contract_index: int = -1
+var guild_contract_baseline: int = 0
+var guild_contract_claimed: Array = []
+
+func _ensure_guild_contract_current() -> void:
+	var now := int(_flea_now())
+	if guild_contract_index == -1 or now - guild_contract_start >= GUILD_CONTRACT_DURATION_SECONDS:
+		guild_contract_start = now
+		guild_contract_index = (guild_contract_index + 1) % GUILD_CONTRACT_TYPES.size()
+		guild_contract_baseline = int(get(GUILD_CONTRACT_TYPES[guild_contract_index]["stat"]))
+		guild_contract_claimed = []
+
+func get_current_guild_contract() -> Dictionary:
+	_ensure_guild_contract_current()
+	return GUILD_CONTRACT_TYPES[guild_contract_index]
+
+func get_guild_contract_progress() -> int:
+	_ensure_guild_contract_current()
+	var contract := get_current_guild_contract()
+	return max(0, int(get(contract["stat"])) - guild_contract_baseline)
+
+func get_guild_contract_seconds_remaining() -> int:
+	_ensure_guild_contract_current()
+	return max(0, GUILD_CONTRACT_DURATION_SECONDS - (int(_flea_now()) - guild_contract_start))
+
+func get_guild_contract_tier_target(tier_index: int) -> int:
+	var contract := get_current_guild_contract()
+	return int(ceil(float(contract["target"]) * GUILD_CONTRACT_TIER_FRACTIONS[tier_index]))
+
+func is_guild_contract_tier_claimed(tier_index: int) -> bool:
+	_ensure_guild_contract_current()
+	return guild_contract_claimed.has(tier_index)
+
+func claim_guild_contract_tier(tier_index: int) -> bool:
+	_ensure_guild_contract_current()
+	if guild_contract_claimed.has(tier_index):
+		return false
+	if get_guild_contract_progress() < get_guild_contract_tier_target(tier_index):
+		return false
+	guild_contract_claimed.append(tier_index)
+	var reward: Dictionary = GUILD_CONTRACT_TIER_REWARDS[tier_index]
+	add_currency("rubles", int(reward.get("rubles", 0)))
+	add_currency("artifacts", int(reward.get("artifacts", 0)))
+	if reward.has("guild_honor"):
+		grant_guild_honor(int(reward["guild_honor"]))
+	toast_requested.emit("Guild Contract reward claimed!")
+	save_game()
+	return true
 
 func grant_guild_honor(amount: int) -> void:
 	if amount <= 0:
