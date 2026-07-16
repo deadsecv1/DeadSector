@@ -109,9 +109,17 @@ func _ready() -> void:
 		# Quick Sell tracks stash_items indices while items are selected -
 		# sorting reorders that same array out from under it, so a
 		# confirmed sale could hit whatever item now sits at a stale
-		# index instead of what was actually selected.
+		# index instead of what was actually selected. The Weapon
+		# Inspection screen has the same exposure (it also remembers a
+		# weapon by index+source) and now has a real currency-spending
+		# Buy action, so a stale index there isn't just wrong-item-shown
+		# any more - it's Rubles spent installing an attachment onto
+		# whatever unrelated item Sort left at that index.
 		if quick_sell_mode:
 			GameManager.toast_requested.emit("Finish or cancel Quick Sell first")
+			return
+		if weapon_inspection_panel.visible:
+			GameManager.toast_requested.emit("Close the Weapon Inspection screen first")
 			return
 		GameManager.sort_stash()
 		refresh()

@@ -1133,6 +1133,15 @@ const CHANGELOG_CURRENT := [
 		"Void Trench, Ironscrap Yard, The Foundry, and the Graveyard each had zero lootable houses - the other two Sectors' whole 'find the key, crack the vault' loop was missing entirely from 4 of 6 maps. Added one to each: the Trench Bunker, Foreman's Shack, Foundry Office, and Caretaker's Cottage, every one with its own key dropped by a guard planted nearby and a real vault chest.",
 		"Bushes now use real weathered sprite art (four variants, picked randomly per instance) instead of a flat 4-blob vector shape, same convention already used for barrels/crates/vehicles.",
 	]},
+	{"version": "3.67.0", "title": "Second Bug Pass: Currency, Achievements, and a Sealed Room", "notes": [
+		"Found and fixed a real currency-loss bug in the new Weapon Inspection screen: if the weapon list reordered (Sort) while it was left open, buying an attachment could spend Rubles installing it onto whatever unrelated item ended up at that index instead. It now refuses to act on anything that isn't still actually the weapon it opened for.",
+		"The Foundry's new Foundry Office (added this update) turned out to sit in a sealed corner of the map with no path in - moved it to the end of the North corridor, where it's now actually reachable.",
+		"The Quartermaster's shop stock grew by 7 extra items every single 10-minute rotation, forever, since his one guaranteed Loot Bag per rarity tier was being counted as \"already existing gear\" on the next rotation instead of freshly re-added. Fixed - his stock now stays a consistent size.",
+		"The \"Fully Geared\" achievement (described as needing your 6 equipment slots filled) was quietly checking for 7, counting a cosmetic attachment slot that was never one of the described 6 - it can now actually unlock the way it says it does.",
+		"The Sell price shown on a Trader's row didn't include the Haggler skill's currency bonus, even though the Buy price already did - you were always getting paid more than the number shown, now both match.",
+		"A Void Trench pickup was sitting inside the new Trench Bunker's wall, and an equipped skin swapping icon types (or a different weapon opened in the new Inspection screen) could leave a stale texture on screen instead of updating - both fixed.",
+		"Built a real, repeatable test suite (tests/) covering everything above plus the last two updates' reward tables and gear systems - see CLAUDE.md for how to run it. Replaces one-off manual verification with something that keeps checking itself.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

@@ -91,6 +91,39 @@ interact with it. Reimport (`--import`) after adding the test scene/script
 before running it. Then view the saved PNG directly with the Read tool (crop
 with Pillow first if you need to zoom into a small detail).
 
+## Persistent test suite (`tests/`)
+
+Unlike `scratch_test/` (thrown away after one-off verification), `tests/` is
+a real, repeatable regression suite that stays in the repo. Run it after
+any feature work, not just when adding new tests to it:
+
+```
+"<godot exe path>" --headless --path . tests/TestRunner.tscn --quit-after 60
+```
+
+Exits with code 0 if everything passed, 1 if anything failed — safe to check
+`$LASTEXITCODE` (PowerShell) / `$?` (bash) against. It boots as a real scene
+(not `godot -s`) specifically so the `GameManager`/`Sfx`/etc. autoloads
+actually resolve — a bare `-s` script does not initialize autoloads at all
+(see the harmless-noise note above for what that failure mode looks like).
+
+Add a new test by dropping a `tests/test_*.gd` file that `extends TestCase`
+(`tests/TestCase.gd`) and defining any number of `test_*()` methods —
+`TestRunner.gd` discovers and runs them automatically, no manual
+registration. Assertion helpers: `assert_true/false/eq/ne/gt/gte/null/
+not_null/has`. A test that needs a scene tick (e.g. waiting on a
+`call_deferred()` scheduled from another script's own `_ready()`, like
+Enemy.gd's `_find_player`) can just `await get_tree().process_frame` inside
+the test method itself - the runner awaits every test call either way.
+GDScript has no try/catch, so a genuine script error inside a test aborts
+that test immediately rather than being caught - keep test bodies to
+assertions and simple setup.
+
+When you build something a future regression could silently break -
+a reward table that must stay strictly increasing, a generator whose
+geometry math could quietly go negative, a bug you just fixed - add a
+test for it here rather than only verifying by hand once.
+
 ## Art pipeline: fallback-to-real-art convention
 
 Most drawable entities (Enemy, Car, Barrel, Crate, DebrisStash, Wall, ...)

@@ -97,7 +97,15 @@ func _get_weapon() -> Dictionary:
 	var arr := _source_array()
 	if weapon_index < 0 or weapon_index >= arr.size():
 		return {}
-	return arr[weapon_index]
+	var item: Dictionary = arr[weapon_index]
+	# Sort (and anything else that reorders source_array while this panel
+	# is left open) can shift a completely different item into this index -
+	# without this check, buying/installing an attachment would graft an
+	# "attachments" dict onto whatever that item happens to be (even a
+	# stack of bandages) and spend real Rubles doing it.
+	if item.get("slot", "") != "weapon":
+		return {}
+	return item
 
 func refresh() -> void:
 	_close_hotspot_menu()

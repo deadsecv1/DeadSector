@@ -59,7 +59,11 @@ func refresh() -> void:
 	for c in sell_list.get_children():
 		c.queue_free()
 	if trader.get("currency", "rubles") != "rubles" and trader_id != "scrapper":
-		# Non-gear traders (like the Alloy Dealer) don't buy your gear.
+		# Traders who pay out in something other than Rubles (Scrapper is
+		# the deliberate exception) don't buy your gear. The Alloy Dealer's
+		# own "currency" is "rubles" (that's what he charges for Alloys),
+		# so this doesn't exclude him - he does buy gear same as any other
+		# rubles trader, that's intentional, not a gap.
 		var lbl2 := Label.new()
 		lbl2.text = "This trader doesn't buy gear."
 		sell_list.add_child(lbl2)
@@ -193,7 +197,7 @@ func _make_sell_row(item: Dictionary, index: int) -> Control:
 	var built := _make_item_row(item)
 	var btn := Button.new()
 	btn.custom_minimum_size = Vector2(84, 40)
-	btn.text = "Sell\n%d %s" % [int(item.get("value", 0)), _currency_label()]
+	btn.text = "Sell\n%d %s" % [GameManager.get_actual_sell_value(item, _currency()), _currency_label()]
 	btn.add_theme_font_size_override("font_size", 11)
 	btn.pressed.connect(_on_sell_pressed.bind(index))
 	built["hbox"].add_child(btn)

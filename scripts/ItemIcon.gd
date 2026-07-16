@@ -7,7 +7,21 @@ extends Control
 # Works for any Control size since all points are normalized (0..1) then
 # scaled to the control's actual size.
 
-@export var icon_key: String = "generic"
+@export var icon_key: String = "generic":
+	set(value):
+		if value == icon_key:
+			return
+		icon_key = value
+		# Re-check on every change, not just at _ready() - Player.gd/Enemy.gd/
+		# WeaponInspectionPanel.gd all now swap icon_key on an already-live
+		# icon (a gear slot changing weapon type, a different weapon opened
+		# in the inspection screen) rather than only setting it once at
+		# creation. Without this, the first icon_key an instance was ever
+		# given would permanently decide whether it's showing real art or
+		# the vector fallback, regardless of what it's since been changed to.
+		if is_node_ready():
+			_check_external_art()
+			queue_redraw()
 @export var icon_color: Color = Color(0.12, 0.12, 0.12, 1)
 # Slowly rotates the icon a full 360 - opt in for the handful of tiers
 # that deserve to stand out at a glance: Multiversal, Divine, and
@@ -63,9 +77,17 @@ func _on_resized() -> void:
 func _check_external_art() -> void:
 	var path := "res://assets/icons/%s.png" % icon_key
 	if not ResourceLoader.exists(path):
+		# icon_key can change after real art was already showing (a gear
+		# slot swapping weapon type, a different weapon opened in the
+		# inspection screen) - fall back to the vector draw instead of
+		# leaving the previous icon_key's texture stuck on screen.
+		if _art_rect != null:
+			_art_rect.visible = false
 		return
 	var tex: Texture2D = load(path)
 	if tex == null:
+		if _art_rect != null:
+			_art_rect.visible = false
 		return
 	if _art_rect == null:
 		_art_rect = TextureRect.new()
@@ -80,6 +102,7 @@ func _check_external_art() -> void:
 		_art_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		add_child(_art_rect)
 	_art_rect.texture = tex
+	_art_rect.visible = true
 
 @export var stretch_to_fill: bool = false
 
@@ -98,7 +121,7 @@ func _p(nx: float, ny: float) -> Vector2:
 	return offset + Vector2(nx, ny) * s
 
 func _draw() -> void:
-	if _art_rect != null:
+	if _art_rect != null and _art_rect.visible:
 		return
 	match icon_key:
 		"pistol":

@@ -550,7 +550,7 @@ func _generate_battle_pass_rewards() -> Array:
 				item["event_tag"] = EVENT_NAME
 				rewards.append({"type": "item", "data": item})
 			4:
-				rewards.append({"type": "skill_points", "amount": 2 + int(tier / 25.0)})
+				rewards.append({"type": "skill_points", "amount": 2 + int(tier / 20.0)})
 			5:
 				rewards.append({"type": "item", "data": AMMO_POOL[rng.randi() % AMMO_POOL.size()].duplicate(true)})
 			6:
@@ -2201,6 +2201,14 @@ func _rotate_traders() -> void:
 		# as its own previous ammo entries got counted back in.
 		if trader_id == "scavenger":
 			count -= SCAVENGER_AMMO_STOCK.size()
+		# Same reasoning as the Scavenger's static ammo stock above - the
+		# Quartermaster's own guaranteed loot bag (one per LOOT_BAG_TIERS)
+		# gets re-appended below every rotation too, and without this
+		# correction its previous rotation's bags kept getting counted as
+		# "random gear to reroll," making count (and the shop's total size)
+		# grow by len(LOOT_BAG_TIERS) forever, every 10 minutes.
+		elif trader_id == "quartermaster":
+			count -= LOOT_BAG_TIERS.size()
 		# Medic/Quartermaster have no guaranteed static ammo stock, so mix
 		# ammo into their rotating pool too - ammo entries get rolled
 		# through roll_ammo() below so they come out with a real
@@ -2348,6 +2356,17 @@ func get_discounted_trader_cost(base_cost: int) -> int:
 		discount = clamp(discount + 0.1, 0.0, 0.6)
 	return int(round(base_cost * (1.0 - discount)))
 
+# Mirrors sell_item()'s own payout formula exactly, so the Sell button's
+# displayed price matches what actually lands in your currency - without
+# this, the Haggler skill's currency_boost bonus applied silently at sale
+# time (sell_item() below) with the shown price never reflecting it,
+# unlike Buy's matching get_discounted_trader_cost() above.
+func get_actual_sell_value(item: Dictionary, currency: String = "rubles") -> int:
+	var sale_value: int = int(item.get("value", 0))
+	if currency == "rubles":
+		sale_value = int(round(float(sale_value) * (1.0 + get_upgrade_bonus("currency_boost"))))
+	return sale_value
+
 func buy_trader_item(trader_id: String, item_index: int) -> bool:
 	if not TRADER_CATALOG.has(trader_id):
 		return false
@@ -2396,9 +2415,7 @@ func sell_item(trader_id: String, stash_index: int) -> bool:
 	var currency := "rubles"
 	if TRADER_CATALOG.has(trader_id):
 		currency = TRADER_CATALOG[trader_id].get("currency", "rubles")
-	var sale_value: int = int(item.get("value", 0))
-	if currency == "rubles":
-		sale_value = int(round(float(sale_value) * (1.0 + get_upgrade_bonus("currency_boost"))))
+	var sale_value: int = get_actual_sell_value(item, currency)
 	add_currency(currency, sale_value)
 	stat_total_sold += sale_value
 	stash_items.remove_at(stash_index)
@@ -4177,11 +4194,17 @@ func check_achievements() -> void:
 	_maybe_unlock("soul_hoarder", souls >= 1000)
 
 	# --- Gear ---
+	# The 6 real equipment slots the achievement's own description means -
+	# equipped_items also carries "helmet_attachment" (a cosmetic doll-slot
+	# extra, not one of the "6 equipment slots" a player would count), so
+	# checking filled_slots against equipped_items.size() required 7 and
+	# could never actually unlock the way it's described.
+	const FULLY_GEARED_SLOTS := ["head", "body", "weapon", "accessory", "boots", "backpack"]
 	var filled_slots := 0
-	for slot in equipped_items:
-		if equipped_items[slot] != null:
+	for slot in FULLY_GEARED_SLOTS:
+		if equipped_items.get(slot) != null:
 			filled_slots += 1
-	_maybe_unlock("fully_geared", filled_slots >= equipped_items.size())
+	_maybe_unlock("fully_geared", filled_slots >= FULLY_GEARED_SLOTS.size())
 	_maybe_unlock("first_blueprint", stat_blueprints_researched >= 1)
 	_maybe_unlock("master_engineer", stat_blueprints_researched >= 25)
 	var has_mythic := false

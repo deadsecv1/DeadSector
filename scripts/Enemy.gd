@@ -97,12 +97,13 @@ const DASH_DURATION := 0.22
 @onready var chest_strap: Polygon2D = $Visuals/ChestStrap
 @onready var mask: Polygon2D = $Visuals/Mask
 @onready var cap: Polygon2D = $Visuals/Cap
-# Real Player-only overlays (gear icons, weapon sprite swap) live on
-# the base Enemy.tscn only - the 11 typed-monster subclasses below
-# are each their own independent .tscn copy (not Godot scene
-# inheritance) that never sets is_real_player, so they were never
-# given these nodes and would error resolving them at @onready
-# time otherwise.
+# Real Player-only overlays (gear icons, weapon sprite swap). get_node_or_
+# null() rather than $Path since the 11 typed-monster subclasses are each
+# their own independent .tscn copy (not Godot scene inheritance) - they've
+# all been given these same nodes too (so is_real_player can be set on
+# any of them, e.g. Marauder's VoidTrench "TrenchMarauder1"), but nothing
+# guarantees a *future* subclass gets them before someone sets
+# is_real_player on it, and _apply_gear_visuals() below assumes non-null.
 @onready var helmet_icon = get_node_or_null("Visuals/HelmetIcon")
 @onready var backpack_icon = get_node_or_null("Visuals/BackpackIcon")
 @onready var accessory_icon = get_node_or_null("Visuals/AccessoryIcon")
@@ -293,6 +294,11 @@ const GUN_SCALE_BY_ICON := {
 var _enemy_gun_sprite_cache: Dictionary = {}
 
 func _apply_gear_visuals() -> void:
+	# Every current is_real_player scene has these (see the get_node_or_
+	# null() comment above) but nothing enforces that for scenes added
+	# later, so bail instead of null-crashing if one doesn't.
+	if helmet_icon == null or backpack_icon == null or accessory_icon == null or boots_icon == null or external_gun_sprite == null:
+		return
 	var head_item = gear.get("head")
 	helmet_icon.visible = head_item != null
 	if helmet_icon.visible:
