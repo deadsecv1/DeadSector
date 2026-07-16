@@ -47,20 +47,20 @@ indicate a real problem:
   unrelated scripts — autoloads simply don't resolve in that harness mode.
   A real full scene boot (`--path . scenes/Foo.tscn`) is the ground truth;
   trust that over bare-script output.
-- Booting `scenes/Stash.tscn` specifically throws exactly 2x
-  `ERROR: Cannot set object script. Parameter should be null or a reference
-  to a valid script.` during scene instantiation (before any `_ready()`
-  runs). Confirmed harmless: a full post-boot tree walk shows every node
-  that should have a script (all 7 `DystoBG`/`PetsBG` instances across
-  Stash and its nested sub-panels, which all share the same cached
-  `DystopianBackground.gd` resource) ends up with the correct script
-  attached — it's a transient, self-correcting Godot engine quirk tied to
-  this scene's unusually deep nested-scene structure, not a real bug. (An
-  earlier session's memory wrongly attributed this to `_setup_alpha_beta_
-  visuals()` existing in 3 duplicated files — verified 2026-07-14 that
-  function only exists in `InventoryTile.gd`, every `set_script()` call
-  in it and in `Stash.gd`'s doll-slot code succeeds, and the error still
-  appears with all of that code fully instrumented and traced clean.)
+- **Retired 2026-07-16**: this file used to document `scenes/Stash.tscn`
+  throwing exactly 2x `ERROR: Cannot set object script` as a "confirmed
+  harmless" engine quirk (blamed on shared `DystopianBackground.gd`
+  instances). A full multi-agent code audit found the real cause instead:
+  `PocketSlot1`/`PocketSlot2` in that file both did `script =
+  ExtResource("13")`, but id `"13"` in `Stash.tscn` specifically pointed at
+  `BackpackStoragePopup.tscn`, not `scripts/PocketSlot.gd` — a same-id-
+  reused-for-two-different-things collision, not a transient quirk. Both
+  Safe Pocket slots on the Stash screen had **no script at all** and were
+  fully non-functional. Fixed by giving the real script its own id (`"18"`)
+  — the error is now genuinely gone, not just tolerated. Lesson: if a
+  future "confirmed harmless" boot warning ever reappears with a different
+  node/count involved, don't assume it's the same old quirk — re-derive
+  the actual cause, the same way a `.tscn` diff eventually did here.
 
 A headless boot only proves the scene parses and runs without error — it says
 nothing about whether a *visual* change (new icon, card styling, layout)
@@ -126,6 +126,19 @@ never works, since the lambda mutates its own private copy, not the outer
 `var fired := [false]; some_signal.connect(func(): fired[0] = true)`, then
 assert on `fired[0]`. Got bitten by this once writing a test that connects
 to a signal and checks a flag afterward (see `test_gamepad_popup_close.gd`).
+
+This is stronger than just "writes don't propagate back to the enclosing
+scope" — a plain captured value doesn't even persist **across separate
+invocations of the same connected Callable**. A button wired once via
+`btn.pressed.connect(func(): ...)` and clicked three times re-reads the
+original captured snapshot every single click; a reassignment on click 1
+is invisible on click 2, even though it's nominally "the same lambda."
+This broke a real two-click confirm button in production
+(`SocialPanel.gd`'s Prestige button — `var confirming := false` reassigned
+inside the lambda, so the second click never saw `confirming == true` and
+the confirm step could never complete), caught by the 2026-07-16 full-code
+audit, not by hand-testing. Same fix, same reason: box it in a
+single-element Array.
 
 When you build something a future regression could silently break -
 a reward table that must stay strictly increasing, a generator whose
