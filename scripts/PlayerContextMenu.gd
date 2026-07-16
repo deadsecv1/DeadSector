@@ -147,6 +147,11 @@ func _open_profile_popup(entry: Dictionary) -> void:
 	level_lbl.add_theme_font_size_override("font_size", 12)
 	level_lbl.modulate = Color(1, 1, 1, 0.7)
 	name_col.add_child(level_lbl)
+	var device_lbl := Label.new()
+	device_lbl.text = "On: Controller" if _is_on_gamepad(str(entry.get("name", "?"))) else "On: Keyboard & Mouse"
+	device_lbl.add_theme_font_size_override("font_size", 11)
+	device_lbl.modulate = Color(0.75, 0.8, 0.9, 0.85)
+	name_col.add_child(device_lbl)
 
 	var kills: int = int(entry.get("kills", 0))
 	var deaths: int = max(1, int(entry.get("deaths", 1)))
@@ -250,3 +255,10 @@ func _open_profile_popup(entry: Dictionary) -> void:
 
 	add_child(profile_popup)
 	GameManager.focus_first_control(profile_popup)
+
+# Multiplayer's simulated client-side (see CLAUDE.md's design philosophy
+# note) - there's no real second player actually reporting an input
+# device, so this is just a stable per-name coin flip rather than a
+# fresh random roll every time the same profile is opened again.
+func _is_on_gamepad(player_name: String) -> bool:
+	return hash(player_name) % 2 == 0
