@@ -74,17 +74,22 @@ func setup(p_index: int, p_item: Dictionary, p_source: String = "stash") -> void
 	var item_rarity: String = item.get("rarity", "")
 	var is_alpha_beta: bool = item.get("alpha_only", false) or item.get("beta_only", false)
 
-	# Gradient background + tracer is Multiversal-only now (it used to
-	# apply to Exotic and Mythic too, but those two just get the normal
-	# flat rarity-colored border below like everything else). Divine and
-	# Alpha/Tech-Test exclusives each get their own completely distinct
-	# treatment instead of sharing this one.
-	if item_rarity == "divine":
+	# Checked before divine/multiversal, not after - Monochrome (or the
+	# alpha_only/beta_only flags directly, for a save from before that
+	# rarity existed) needs to win regardless of whatever else the item's
+	# own rarity string says, or an item like The Prototype would render
+	# with the wrong tier's look entirely instead of the intended chrome
+	# treatment. Gradient background + tracer is Multiversal-only now (it
+	# used to apply to Exotic and Mythic too, but those two just get the
+	# normal flat rarity-colored border below like everything else).
+	# Divine and Alpha/Tech-Test exclusives each get their own completely
+	# distinct treatment instead of sharing this one.
+	if item_rarity == "monochrome" or is_alpha_beta:
+		_setup_alpha_beta_visuals()
+	elif item_rarity == "divine":
 		_setup_divine_visuals()
 	elif item_rarity == "multiversal":
 		_setup_multiversal_visuals()
-	elif is_alpha_beta:
-		_setup_alpha_beta_visuals()
 	else:
 		var flat_border := ColorRect.new()
 		flat_border.color = GameManager.get_display_color(item)
@@ -366,16 +371,24 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 		var preview := PanelContainer.new()
 		preview.custom_minimum_size = Vector2(fp.x * cell - 4, fp.y * cell - 4)
 		preview.modulate.a = 0.9
-		var rarity_color: Color = GameManager.get_rarity_color(item.get("rarity", "common"))
+		# get_display_color, not get_rarity_color - this tile's own resting
+		# display already accounts for an equipped skin or a Monochrome
+		# Alpha/Tech-Test item (see setup() above); the drag preview was the
+		# one place that still fell back to a flat rarity color, so a
+		# Monochrome item would sit there showing white/chrome correctly and
+		# then snap to whatever color its underlying rarity string happened
+		# to be (previously legendary's orange, for example) the instant you
+		# picked it up.
+		var display_color: Color = GameManager.get_display_color(item)
 		var sb := StyleBoxFlat.new()
 		sb.bg_color = Color(0.1, 0.1, 0.1, 0.9)
-		sb.border_color = rarity_color
+		sb.border_color = display_color
 		sb.set_border_width_all(2)
 		sb.set_corner_radius_all(4)
 		preview.add_theme_stylebox_override("panel", sb)
 		var icon = ItemIconScene.instantiate()
 		icon.icon_key = item.get("icon_key", "generic")
-		icon.icon_color = rarity_color
+		icon.icon_color = display_color
 		preview.add_child(icon)
 		# set_drag_preview positions the preview's top-left AT the cursor by
 		# default - offset it so the item appears centered under the cursor

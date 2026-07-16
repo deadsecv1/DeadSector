@@ -47,6 +47,17 @@ const RARITY_TIERS := {
 	"multiversal": {"multiplier": 10.0, "color": Color(0.95, 0.9, 0.5, 1), "label": "Multiversal"},
 	"divine": {"multiplier": 15.0, "color": Color(1.0, 0.98, 0.9, 1), "label": "Divine"},
 	"godforged": {"multiplier": 25.0, "color": Color(1.0, 0.8, 0.95, 1), "label": "Godforged"},
+	# Exclusively for Alpha/Tech-Test items (The Prototype, Alpha Pioneer's
+	# Rig, Tech Tester's Sidearm, Veteran's Plate, Early Access Visor,
+	# Founder's Boots) - never obtainable any other way, so it sits above
+	# even Godforged. Flat white rather than a color, matching the
+	# black-and-white chrome look those items already render with (see
+	# MONOCHROME_GRADIENT and the shared is_alpha_beta chrome dispatch in
+	# InventoryTile.gd/Stash.gd/InGameInventory.gd) - these used to be
+	# tagged with an ordinary color-associated rarity (legendary/exotic/
+	# multiversal) despite always looking black-and-white, which is
+	# exactly why a drag preview or tooltip showed the wrong color.
+	"monochrome": {"multiplier": 30.0, "color": Color(1.0, 1.0, 1.0, 1), "label": "Monochrome"},
 }
 
 # The Exotic tier is a blend of several colors rather than one flat
@@ -92,6 +103,14 @@ const DIVINE_GRADIENT := [
 const GODFORGED_GRADIENT := [
 	Color(1.0, 0.55, 0.85, 0.3), Color(1.0, 0.8, 0.35, 0.3), Color(1.0, 0.6, 0.9, 0.3),
 	Color(1.0, 0.85, 0.55, 0.3), Color(1.0, 0.5, 0.8, 0.3),
+]
+
+# Monochrome - the exclusive Alpha/Tech-Test tier, one above Godforged.
+# A genuine black-and-white blend rather than another color family, to
+# match the chrome look those items already render with everywhere else.
+const MONOCHROME_GRADIENT := [
+	Color(1.0, 1.0, 1.0, 0.3), Color(0.05, 0.05, 0.05, 0.3), Color(0.6, 0.6, 0.6, 0.3),
+	Color(0.9, 0.9, 0.9, 0.3), Color(0.15, 0.15, 0.15, 0.3),
 ]
 
 
@@ -225,6 +244,16 @@ func equip_skin(skin_id: String, icon_key: String) -> void:
 # Returns the color an item's icon (or in-hand weapon) should render
 # with - a skin tint if one's equipped for that icon_key, else rarity color.
 func get_display_color(item: Dictionary) -> Color:
+	# Alpha/Tech-Test items are always Monochrome regardless of whatever
+	# rarity string is actually stored on this specific instance - a save
+	# from before the Monochrome tier existed would still have the old
+	# color-associated rarity (legendary/exotic/multiversal) saved on it
+	# forever otherwise, since these are one-time-granted items that never
+	# get rerolled. Checked first, ahead of skins - the whole point of a
+	# Monochrome item is being unmistakably identifiable, which a generic
+	# icon_key-matched skin tint would otherwise quietly undermine.
+	if item.get("alpha_only", false) or item.get("beta_only", false):
+		return get_rarity_color("monochrome")
 	var icon_key: String = item.get("icon_key", "generic")
 	if equipped_skins.has(icon_key):
 		var skin := _find_skin(equipped_skins[icon_key], icon_key)
@@ -276,6 +305,8 @@ func roll_gear_from_pool(pool: Array) -> Dictionary:
 	return finalize_rolled_item(pool[randi() % pool.size()].duplicate(true))
 
 func get_gradient_colors(rarity: String) -> Array:
+	if rarity == "monochrome":
+		return MONOCHROME_GRADIENT
 	if rarity == "godforged":
 		return GODFORGED_GRADIENT
 	if rarity == "divine":
@@ -2632,7 +2663,7 @@ const WEAPON_CATALOG := {
 	# to the blade fantasy. ---
 	"bloodfang_blade": {"name": "Bloodfang Blade", "icon_key": "sword", "rarity": "legendary", "value": 340, "stat_type": "damage", "stat_value": 50.0, "desc": "Boneclock's signature weapon, reforged. Skeletons carry crude versions of this - this one's actually been sharpened."},
 	# --- Alpha Cannon: the single Alpha-exclusive weapon in the game. ---
-	"the_prototype": {"name": "The Prototype", "icon_key": "alpha_cannon", "rarity": "multiversal", "value": 1200, "stat_type": "damage", "stat_value": 45.0, "desc": "Nobody outside the Alpha will ever see one of these fire. Pierces through multiple targets and arcs to a second one on every hit.", "alpha_only": true},
+	"the_prototype": {"name": "The Prototype", "icon_key": "alpha_cannon", "rarity": "monochrome", "value": 1200, "stat_type": "damage", "stat_value": 45.0, "desc": "Nobody outside the Alpha will ever see one of these fire. Pierces through multiple targets and arcs to a second one on every hit.", "alpha_only": true},
 	# --- Divine: one tier above Multiversal, a 0.01% Undertow crate
 	# roll. Every one leans on the flashiest existing projectile
 	# behavior in the game instead of a flat single-target hit.
@@ -2640,7 +2671,7 @@ const WEAPON_CATALOG := {
 	"halo_reaver": {"name": "Halo Reaver", "icon_key": "alpha_cannon", "rarity": "divine", "value": 12500, "stat_type": "damage", "stat_value": 182.2, "desc": "Fires the same piercing, sparkle-trailed bolt as the Alpha Cannon - except this one wasn't handed out during a Tech Test. Nobody's quite sure where it came from."},
 	"judgments_reach": {"name": "Judgment's Reach", "icon_key": "sniper", "rarity": "divine", "value": 13000, "stat_type": "damage", "stat_value": 189.0, "desc": "Chills, staggers, and drops nearly anything in the Sector in a single shot. The scope shows the kill before you've even pulled the trigger."},
 	# --- Tech Test exclusive: boosts fire rate instead of raw damage. ---
-	"tech_testers_sidearm": {"name": "Tech Tester's Sidearm", "icon_key": "pistol", "rarity": "legendary", "value": 400, "stat_type": "fire_rate", "stat_value": 0.03, "desc": "A memento from the Tech Test, before Dead Sector was even in Alpha. Trades raw damage for a genuinely absurd fire rate.", "beta_only": true},
+	"tech_testers_sidearm": {"name": "Tech Tester's Sidearm", "icon_key": "pistol", "rarity": "monochrome", "value": 400, "stat_type": "fire_rate", "stat_value": 0.03, "desc": "A memento from the Tech Test, before Dead Sector was even in Alpha. Trades raw damage for a genuinely absurd fire rate.", "beta_only": true},
 }
 
 # --- Armor Compendium: every distinct named piece of gear across the
@@ -2685,8 +2716,8 @@ const ARMOR_CATALOG := {
 	"nano_weave_vest": {"name": "Nano-Weave Vest", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 250, "stat_type": "max_health", "stat_value": 60.8, "desc": "Woven fiber the Scrapper swears is \"basically nanotech.\" It works, whatever it is."},
 	"hollow_vein_plate": {"name": "Hollow Vein Plate", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 330, "stat_type": "max_health", "stat_value": 64.8, "desc": "Bloodline event gear, with veins of something dark running through the plating."},
 	"alpha_predator_plate": {"name": "Alpha Predator Plate", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 460, "stat_type": "max_health", "stat_value": 81.0, "desc": "Salvaged Beasts' apex trophy build. Whatever it came from was already the top of its food chain."},
-	"alpha_pioneers_rig": {"name": "Alpha Pioneer's Rig", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 500, "stat_type": "speed", "stat_value": 22.0, "desc": "Handed out only during the Alpha. Nobody still playing got this one the normal way.", "alpha_only": true},
-	"veterans_plate": {"name": "Veteran's Plate", "slot": "body", "icon_key": "chestplate", "rarity": "legendary", "value": 450, "stat_type": "max_health", "stat_value": 70.0, "desc": "Tech Test veteran gear - a memento from before Dead Sector was even in Alpha.", "beta_only": true},
+	"alpha_pioneers_rig": {"name": "Alpha Pioneer's Rig", "slot": "body", "icon_key": "chestplate", "rarity": "monochrome", "value": 500, "stat_type": "speed", "stat_value": 22.0, "desc": "Handed out only during the Alpha. Nobody still playing got this one the normal way.", "alpha_only": true},
+	"veterans_plate": {"name": "Veteran's Plate", "slot": "body", "icon_key": "chestplate", "rarity": "monochrome", "value": 450, "stat_type": "max_health", "stat_value": 70.0, "desc": "Tech Test veteran gear - a memento from before Dead Sector was even in Alpha.", "beta_only": true},
 	"veil_of_the_tide": {"name": "Veil of the Tide", "slot": "body", "icon_key": "chestplate", "rarity": "mythic", "value": 600, "stat_type": "max_health", "stat_value": 74.2, "desc": "Spectral Tide event gear, damp and cold no matter how long you wear it."},
 	"ironclad_bulwark": {"name": "Ironclad Bulwark", "slot": "body", "icon_key": "chestplate", "rarity": "mythic", "value": 480, "stat_type": "max_health", "stat_value": 78.3, "desc": "Mythic-tier plating - a Loot Bag exclusive, worth every bit of the odds against pulling it."},
 	"sentinels_ward": {"name": "Sentinel's Ward", "slot": "body", "icon_key": "chestplate", "rarity": "mythic", "value": 480, "stat_type": "max_health", "stat_value": 58.0, "desc": "A Blueprint build - research it once, craft it as many times as the materials allow."},
@@ -2725,7 +2756,7 @@ const ARMOR_CATALOG := {
 	"war_crown": {"name": "War Crown", "slot": "head", "icon_key": "helmet", "rarity": "mythic", "value": 300, "stat_type": "max_health", "stat_value": 67.5, "desc": "The Scrapper's finest reforge - a genuine crown, if you don't ask where the metal came from."},
 	"crown_of_hollow_souls": {"name": "Crown of Hollow Souls", "slot": "head", "icon_key": "helmet", "rarity": "mythic", "value": 580, "stat_type": "max_health", "stat_value": 67.5, "desc": "Spectral Tide event gear. Wearing it feels like more than one person is watching through your eyes."},
 	"void_touched_helm": {"name": "Void-Touched Helm", "slot": "head", "icon_key": "helmet", "rarity": "exotic", "value": 760, "stat_type": "max_health", "stat_value": 86.4, "desc": "A Loot Bag's rarest headgear pull. It hums faintly, and never quite stops."},
-	"early_access_visor": {"name": "Early Access Visor", "slot": "head", "icon_key": "helmet", "rarity": "exotic", "value": 500, "stat_type": "vision_range", "stat_value": 40.0, "desc": "Handed out only during the Tech Test, before Dead Sector even reached Alpha.", "beta_only": true},
+	"early_access_visor": {"name": "Early Access Visor", "slot": "head", "icon_key": "helmet", "rarity": "monochrome", "value": 500, "stat_type": "vision_range", "stat_value": 40.0, "desc": "Handed out only during the Tech Test, before Dead Sector even reached Alpha.", "beta_only": true},
 	"eternum_visor": {"name": "Eternum Visor", "slot": "head", "icon_key": "helmet", "rarity": "multiversal", "value": 4700, "stat_type": "max_health", "stat_value": 148.5, "desc": "Multiversal-tier headgear - the highest health bonus a helmet can roll."},
 	"crown_of_ascendance": {"name": "Crown of Ascendance", "slot": "head", "icon_key": "helmet", "rarity": "divine", "value": 10500, "stat_type": "max_health", "stat_value": 216.0, "desc": "Divine-tier, a 0.01% Undertow crate roll. The single best helmet in the Sector."},
 	# --- Boots ---
@@ -2745,7 +2776,7 @@ const ARMOR_CATALOG := {
 	"pack_leaders_hide": {"name": "Pack Leader's Hide", "slot": "boots", "icon_key": "boots", "rarity": "epic", "value": 300, "stat_type": "speed", "stat_value": 43.2, "desc": "Worked from a Salvaged Beasts trophy hide - built to move like whatever it came from."},
 	"marauders_boots": {"name": "Marauder's Boots", "slot": "boots", "icon_key": "boots", "rarity": "legendary", "value": 260, "stat_type": "speed", "stat_value": 43.2, "desc": "A Loot Bag exclusive, taken off an enemy that closed distance faster than you'd like."},
 	"gutter_runner_boots": {"name": "Gutter Runner Boots", "slot": "boots", "icon_key": "boots", "rarity": "legendary", "value": 300, "stat_type": "speed", "stat_value": 51.3, "desc": "Bloodline event gear - built for operators who live in the spaces between fights."},
-	"founders_boots": {"name": "Founder's Boots", "slot": "boots", "icon_key": "boots", "rarity": "legendary", "value": 380, "stat_type": "speed", "stat_value": 24.0, "desc": "Handed out only during the Tech Test, before Dead Sector even reached Alpha.", "beta_only": true},
+	"founders_boots": {"name": "Founder's Boots", "slot": "boots", "icon_key": "boots", "rarity": "monochrome", "value": 380, "stat_type": "speed", "stat_value": 24.0, "desc": "Handed out only during the Tech Test, before Dead Sector even reached Alpha.", "beta_only": true},
 	"ghostwalker_boots": {"name": "Ghostwalker Boots", "slot": "boots", "icon_key": "boots", "rarity": "mythic", "value": 400, "stat_type": "speed", "stat_value": 60.8, "desc": "A Blueprint build - and once you've felt the speed, you'll want it researched twice."},
 	"quicksilver_treads": {"name": "Quicksilver Treads", "slot": "boots", "icon_key": "boots", "rarity": "mythic", "value": 410, "stat_type": "speed", "stat_value": 48.0, "desc": "Another Blueprint result. The soles genuinely shimmer when you move fast enough."},
 	"quickstep_boots": {"name": "Quickstep Boots", "slot": "boots", "icon_key": "boots", "rarity": "mythic", "value": 420, "stat_type": "speed", "stat_value": 56.7, "desc": "Mythic-tier footwear - a Loot Bag exclusive built for operators who never plan to stand still."},
@@ -2921,7 +2952,7 @@ func get_gauntlet_equipped_bonus(stat_type: String) -> float:
 
 # The single highest-rarity equipped piece - used to drive the player's
 # visual tint/glow, so gearing up actually looks different mid-run.
-const RARITY_RANK := {"common": 0, "uncommon": 1, "rare": 2, "epic": 3, "legendary": 4, "mythic": 5, "exotic": 6, "multiversal": 7}
+const RARITY_RANK := {"common": 0, "uncommon": 1, "rare": 2, "epic": 3, "legendary": 4, "mythic": 5, "exotic": 6, "multiversal": 7, "divine": 8, "godforged": 9, "monochrome": 10}
 func get_gauntlet_best_equipped_rarity() -> String:
 	var best := "common"
 	var best_rank := -1
@@ -6826,10 +6857,10 @@ func _maybe_send_tech_test_mail() -> void:
 		return
 	tech_test_mail_sent = true
 	var gear_list: Array = [
-		{"name": "Tech Tester's Sidearm", "value": 400, "slot": "weapon", "stat_type": "fire_rate", "stat_value": 0.03, "icon_key": "pistol", "rarity": "legendary", "beta_only": true},
-		{"name": "Veteran's Plate", "value": 450, "slot": "body", "stat_type": "max_health", "stat_value": 70.0, "icon_key": "chestplate", "rarity": "legendary", "beta_only": true},
-		{"name": "Early Access Visor", "value": 500, "slot": "head", "stat_type": "vision_range", "stat_value": 40.0, "icon_key": "helmet", "rarity": "exotic", "beta_only": true},
-		{"name": "Founder's Boots", "value": 380, "slot": "boots", "stat_type": "speed", "stat_value": 24.0, "icon_key": "boots", "rarity": "legendary", "beta_only": true},
+		{"name": "Tech Tester's Sidearm", "value": 400, "slot": "weapon", "stat_type": "fire_rate", "stat_value": 0.03, "icon_key": "pistol", "rarity": "monochrome", "beta_only": true},
+		{"name": "Veteran's Plate", "value": 450, "slot": "body", "stat_type": "max_health", "stat_value": 70.0, "icon_key": "chestplate", "rarity": "monochrome", "beta_only": true},
+		{"name": "Early Access Visor", "value": 500, "slot": "head", "stat_type": "vision_range", "stat_value": 40.0, "icon_key": "helmet", "rarity": "monochrome", "beta_only": true},
+		{"name": "Founder's Boots", "value": 380, "slot": "boots", "stat_type": "speed", "stat_value": 24.0, "icon_key": "boots", "rarity": "monochrome", "beta_only": true},
 	]
 	send_mail(
 		"From Tech Test to Alpha",
@@ -6913,8 +6944,8 @@ func claim_alpha_rewards() -> bool:
 	add_currency("artifacts", 200)
 	add_currency("alloys", 200)
 	add_currency("skill_points", 15)
-	_add_to_stash({"name": "Alpha Pioneer's Rig", "value": 500, "slot": "body", "stat_type": "speed", "stat_value": 22.0, "icon_key": "chestplate", "rarity": "legendary", "alpha_only": true})
-	_add_to_stash({"name": "The Prototype", "value": 1200, "slot": "weapon", "stat_type": "damage", "stat_value": 45.0, "icon_key": "alpha_cannon", "rarity": "multiversal", "alpha_only": true, "desc": "Nobody outside the Alpha will ever see one of these fire. Pierces through multiple targets and arcs to a second one on every hit."})
+	_add_to_stash({"name": "Alpha Pioneer's Rig", "value": 500, "slot": "body", "stat_type": "speed", "stat_value": 22.0, "icon_key": "chestplate", "rarity": "monochrome", "alpha_only": true})
+	_add_to_stash({"name": "The Prototype", "value": 1200, "slot": "weapon", "stat_type": "damage", "stat_value": 45.0, "icon_key": "alpha_cannon", "rarity": "monochrome", "alpha_only": true, "desc": "Nobody outside the Alpha will ever see one of these fire. Pierces through multiple targets and arcs to a second one on every hit."})
 	_add_to_stash(make_loot_bag("alpha"))
 	toast_requested.emit("Alpha Rewards claimed!")
 	save_game()
@@ -8783,7 +8814,7 @@ func _add_to_stash(item: Dictionary) -> void:
 
 # Re-lays out an item list into neat grid rows, grouped by rarity (best
 # first) then slot - used by the "Sort" button in the Stash/Backpack.
-const RARITY_SORT_ORDER := ["divine", "multiversal", "exotic", "mythic", "legendary", "epic", "rare", "uncommon", "common"]
+const RARITY_SORT_ORDER := ["monochrome", "godforged", "divine", "multiversal", "exotic", "mythic", "legendary", "epic", "rare", "uncommon", "common"]
 
 func _sort_items_in_place(items: Array) -> void:
 	items.sort_custom(func(a, b):

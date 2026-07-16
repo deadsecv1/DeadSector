@@ -135,13 +135,17 @@ func _update_slot_visual(btn, slot_key: String, item) -> void:
 		btn.tooltip_text = "%s" % item.get("name", "?")
 
 		var rarity: String = item.get("rarity", "common")
-		var rarity_color: Color = GameManager.get_rarity_color(rarity)
+		# get_display_color, not get_rarity_color - matches the icon's own
+		# color a few lines down, so an equipped skin (or a Monochrome
+		# Alpha/Tech-Test item) doesn't show one color on the icon and a
+		# different one on the border framing it.
+		var display_color: Color = GameManager.get_display_color(item)
 		var is_alpha_beta: bool = item.get("alpha_only", false) or item.get("beta_only", false)
 		var icon_inset: float = 3.0
 
 		var sb := StyleBoxFlat.new()
 		sb.bg_color = Color(0.12, 0.14, 0.13, 0.95)
-		sb.border_color = Color(0, 0, 0, 0) if (rarity == "divine" or rarity == "multiversal" or is_alpha_beta) else rarity_color
+		sb.border_color = Color(0, 0, 0, 0) if (rarity == "monochrome" or rarity == "divine" or rarity == "multiversal" or is_alpha_beta) else display_color
 		sb.set_border_width_all(3)
 		sb.set_corner_radius_all(4)
 		btn.add_theme_stylebox_override("normal", sb)
@@ -149,7 +153,16 @@ func _update_slot_visual(btn, slot_key: String, item) -> void:
 		btn.add_theme_stylebox_override("pressed", sb)
 		btn.add_theme_stylebox_override("focus", sb)
 
-		if rarity == "divine":
+		if rarity == "monochrome" or is_alpha_beta:
+			var rotating_bg := Control.new()
+			rotating_bg.anchor_right = 1.0
+			rotating_bg.anchor_bottom = 1.0
+			rotating_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			rotating_bg.set_script(RotatingGradientBorderScript)
+			rotating_bg.gradient_colors = [Color(1, 1, 1, 0.3), Color(0.05, 0.05, 0.05, 0.3), Color(0.7, 0.7, 0.7, 0.3)]
+			rotating_bg.rotate_speed = 0.5
+			btn.add_child(rotating_bg)
+		elif rarity == "divine":
 			var flat_border := ColorRect.new()
 			flat_border.color = DIVINE_GOLD
 			flat_border.anchor_right = 1.0
@@ -184,15 +197,6 @@ func _update_slot_visual(btn, slot_key: String, item) -> void:
 			var border = GameManager.make_gradient_border("multiversal")
 			if border != null:
 				btn.add_child(border)
-		elif is_alpha_beta:
-			var rotating_bg := Control.new()
-			rotating_bg.anchor_right = 1.0
-			rotating_bg.anchor_bottom = 1.0
-			rotating_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			rotating_bg.set_script(RotatingGradientBorderScript)
-			rotating_bg.gradient_colors = [Color(1, 1, 1, 0.3), Color(0.05, 0.05, 0.05, 0.3), Color(0.7, 0.7, 0.7, 0.3)]
-			rotating_bg.rotate_speed = 0.5
-			btn.add_child(rotating_bg)
 
 		if rarity == "divine" or rarity == "multiversal" or is_alpha_beta:
 			var slot_bg := ColorRect.new()
@@ -219,7 +223,19 @@ func _update_slot_visual(btn, slot_key: String, item) -> void:
 		icon.set_spin_for_item(item)
 		btn.add_child(icon)
 
-		if rarity == "divine":
+		if rarity == "monochrome" or is_alpha_beta:
+			var trace := Control.new()
+			trace.anchor_right = 1.0
+			trace.anchor_bottom = 1.0
+			trace.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			trace.set_script(GlowTraceBorderScript)
+			trace.trace_color = CHROME_WHITE
+			trace.cycle_colors = [CHROME_WHITE, CHROME_BLACK]
+			trace.cycle_speed = 0.35
+			trace.trace_speed = 55.0
+			trace.trace_segments = 8
+			btn.add_child(trace)
+		elif rarity == "divine":
 			var trace := Control.new()
 			trace.anchor_right = 1.0
 			trace.anchor_bottom = 1.0
@@ -244,18 +260,6 @@ func _update_slot_visual(btn, slot_key: String, item) -> void:
 			trace.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			trace.set_script(GlowTraceBorderScript)
 			trace.trace_color = GameManager.get_rarity_color("multiversal")
-			trace.trace_speed = 55.0
-			trace.trace_segments = 8
-			btn.add_child(trace)
-		elif is_alpha_beta:
-			var trace := Control.new()
-			trace.anchor_right = 1.0
-			trace.anchor_bottom = 1.0
-			trace.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			trace.set_script(GlowTraceBorderScript)
-			trace.trace_color = CHROME_WHITE
-			trace.cycle_colors = [CHROME_WHITE, CHROME_BLACK]
-			trace.cycle_speed = 0.35
 			trace.trace_speed = 55.0
 			trace.trace_segments = 8
 			btn.add_child(trace)
