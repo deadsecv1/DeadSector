@@ -85,7 +85,7 @@ func _maybe_spawn_elite_cache_event() -> void:
 	if randf() >= 0.18:
 		return
 	var ang := randf_range(0.0, TAU)
-	var center: Vector2 = player.global_position + Vector2(cos(ang), sin(ang)) * randf_range(900.0, 1500.0)
+	var center: Vector2 = player.global_position + Vector2(cos(ang), sin(ang)) * randf_range(1800.0, 3000.0)
 	for i in range(2):
 		var guard = ELITE_ENEMY_SCENE.instantiate()
 		guard.is_elite_guard = true
