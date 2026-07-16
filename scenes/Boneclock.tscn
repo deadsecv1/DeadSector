@@ -28,40 +28,48 @@
 [ext_resource type="PackedScene" path="res://scenes/WeatherOverlay.tscn" id="25"]
 [ext_resource type="Script" path="res://scripts/RaidAmbience.gd" id="26"]
 [ext_resource type="Script" path="res://scripts/MovingCar.gd" id="28"]
+[ext_resource type="PackedScene" path="res://scenes/House.tscn" id="29"]
+[ext_resource type="PackedScene" path="res://scenes/Enemy.tscn" id="30"]
+[ext_resource type="PackedScene" path="res://scenes/DebrisStash.tscn" id="31"]
+[ext_resource type="PackedScene" path="res://scenes/Crate.tscn" id="32"]
 
 [node name="Boneclock" type="Node2D"]
 script = ExtResource("1")
 
 [node name="Background" type="Node2D" parent="."]
 script = ExtResource("4")
-ground_size = Vector2(5400, 3800)
+ground_size = Vector2(10800, 7600)
 base_color = Color(0.22, 0.22, 0.24, 1)
 
 [node name="Atmosphere" type="Node2D" parent="."]
 z_index = 7
 script = ExtResource("13")
-area_size = Vector2(5400, 3800)
+area_size = Vector2(10800, 7600)
 
 [node name="BoneScatter" type="Node2D" parent="."]
 script = ExtResource("14")
-area_size = Vector2(5300, 3700)
-bone_count = 210
+area_size = Vector2(10700, 7500)
+bone_count = 460
+rock_count = 48
+dead_tree_count = 24
+grave_count = 24
+skull_pile_count = 8
 
 [node name="WallTop" parent="." instance=ExtResource("3")]
-position = Vector2(0, -1880)
-size = Vector2(5360, 40)
+position = Vector2(0, -3780)
+size = Vector2(10760, 40)
 
 [node name="WallBottom" parent="." instance=ExtResource("3")]
-position = Vector2(0, 1880)
-size = Vector2(5360, 40)
+position = Vector2(0, 3780)
+size = Vector2(10760, 40)
 
 [node name="WallLeft" parent="." instance=ExtResource("3")]
-position = Vector2(-2680, 0)
-size = Vector2(40, 3800)
+position = Vector2(-5380, 0)
+size = Vector2(40, 7600)
 
 [node name="WallRight" parent="." instance=ExtResource("3")]
-position = Vector2(2680, 0)
-size = Vector2(40, 3800)
+position = Vector2(5380, 0)
+size = Vector2(40, 7600)
 
 [node name="RoadMainH" type="Polygon2D" parent="."]
 position = Vector2(0, 0)
@@ -783,12 +791,569 @@ travel_distance = 1600.0
 speed = 55.0
 body_color = Color(0.2, 0.2, 0.22, 1)
 
+[node name="RoadOuterN" type="Polygon2D" parent="."]
+position = Vector2(0, -2350)
+z_index = -3
+color = Color(0.16, 0.16, 0.17, 1)
+polygon = PackedVector2Array(-90, -1050, 90, -1050, 90, 1050, -90, 1050)
+
+[node name="RoadOuterS" type="Polygon2D" parent="."]
+position = Vector2(0, 2350)
+z_index = -3
+color = Color(0.16, 0.16, 0.17, 1)
+polygon = PackedVector2Array(-90, -1050, 90, -1050, 90, 1050, -90, 1050)
+
+[node name="RoadOuterE" type="Polygon2D" parent="."]
+position = Vector2(3250, 0)
+z_index = -3
+color = Color(0.16, 0.16, 0.17, 1)
+polygon = PackedVector2Array(-1350, -90, 1350, -90, 1350, 90, -1350, 90)
+
+[node name="RoadOuterW" type="Polygon2D" parent="."]
+position = Vector2(-3250, 0)
+z_index = -3
+color = Color(0.16, 0.16, 0.17, 1)
+polygon = PackedVector2Array(-1350, -90, 1350, -90, 1350, 90, -1350, 90)
+
+[node name="RoadSpurN" type="Polygon2D" parent="."]
+position = Vector2(45, -2900)
+z_index = -3
+color = Color(0.17, 0.17, 0.18, 1)
+polygon = PackedVector2Array(-390, -70, 390, -70, 390, 70, -390, 70)
+
+[node name="RoadSpurE" type="Polygon2D" parent="."]
+position = Vector2(4150, 220)
+z_index = -3
+color = Color(0.17, 0.17, 0.18, 1)
+polygon = PackedVector2Array(-70, -370, 70, -370, 70, 370, -70, 370)
+
+[node name="RoadSpurS" type="Polygon2D" parent="."]
+position = Vector2(-100, 2975)
+z_index = -3
+color = Color(0.17, 0.17, 0.18, 1)
+polygon = PackedVector2Array(-360, -70, 360, -70, 360, 70, -360, 70)
+
+[node name="RoadSpurW" type="Polygon2D" parent="."]
+position = Vector2(-4250, 120)
+z_index = -3
+color = Color(0.17, 0.17, 0.18, 1)
+polygon = PackedVector2Array(-70, -570, 70, -570, 70, 570, -70, 570)
+
+[node name="RavenscroftMausoleum" parent="." instance=ExtResource("29")]
+position = Vector2(-600, -2950)
+house_name = "Ravenscroft Mausoleum"
+house_size = Vector2(400, 300)
+vault_width = 150.0
+wall_color = Color(0.32, 0.31, 0.35, 1)
+roof_color = Color(0.1, 0.09, 0.12, 1)
+key_id = "ravenscroft_key"
+key_label = "Ravenscroft Key"
+chest_item_name = "Grave Warden's Plate"
+chest_value = 260
+chest_slot = "body"
+chest_stat_type = "max_health"
+chest_stat_value = 34.0
+chest_icon_key = "chestplate"
+chest_rarity = "epic"
+grants_artifacts = 2
+
+[node name="RavenscroftGuard" parent="." instance=ExtResource("19")]
+position = Vector2(-650, -2740)
+drop_key_id = "ravenscroft_key"
+drop_key_label = "Ravenscroft Key"
+
+[node name="RavenscroftBarrel1" parent="." instance=ExtResource("22")]
+position = Vector2(-750, -2740)
+
+[node name="RavenscroftBarrel2" parent="." instance=ExtResource("22")]
+position = Vector2(-600, -2720)
+
+[node name="StreetLight5" parent="." instance=ExtResource("15")]
+position = Vector2(-600, -2760)
+flare_color = Color(0.95, 0.85, 0.5, 1)
+
+[node name="DeadboltDepot" parent="." instance=ExtResource("29")]
+position = Vector2(4150, -350)
+house_name = "Deadbolt Depot"
+house_size = Vector2(420, 300)
+vault_width = 160.0
+wall_color = Color(0.36, 0.28, 0.16, 1)
+roof_color = Color(0.15, 0.12, 0.08, 1)
+key_id = "deadbolt_depot_key"
+key_label = "Deadbolt Depot Key"
+chest_item_name = "Deadbolt Marksman Rifle"
+chest_value = 300
+chest_slot = "weapon"
+chest_stat_type = "damage"
+chest_stat_value = 33.0
+chest_icon_key = "sniper"
+chest_rarity = "legendary"
+grants_artifacts = 2
+
+[node name="DeadboltDepotGuard" parent="." instance=ExtResource("9")]
+position = Vector2(4070, -140)
+drop_key_id = "deadbolt_depot_key"
+drop_key_label = "Deadbolt Depot Key"
+
+[node name="DeadboltBarrel1" parent="." instance=ExtResource("22")]
+position = Vector2(4020, -140)
+
+[node name="DeadboltBarrel2" parent="." instance=ExtResource("22")]
+position = Vector2(4150, -120)
+
+[node name="StreetLight6" parent="." instance=ExtResource("15")]
+position = Vector2(4070, -200)
+flare_color = Color(0.95, 0.85, 0.5, 1)
+
+[node name="UndertakersParlor" parent="." instance=ExtResource("29")]
+position = Vector2(-700, 3000)
+house_name = "Undertaker's Parlor"
+house_size = Vector2(380, 280)
+vault_width = 140.0
+wall_color = Color(0.24, 0.18, 0.24, 1)
+roof_color = Color(0.08, 0.07, 0.09, 1)
+key_id = "undertakers_parlor_key"
+key_label = "Undertaker's Parlor Key"
+chest_item_name = "Undertaker's Pocket Watch"
+chest_value = 240
+chest_slot = "accessory"
+chest_stat_type = "crit_chance"
+chest_stat_value = 0.06
+chest_icon_key = "watch"
+chest_rarity = "epic"
+grants_artifacts = 2
+
+[node name="UndertakersParlorGuard" parent="." instance=ExtResource("19")]
+position = Vector2(-770, 3190)
+drop_key_id = "undertakers_parlor_key"
+drop_key_label = "Undertaker's Parlor Key"
+
+[node name="UndertakerBarrel1" parent="." instance=ExtResource("22")]
+position = Vector2(-820, 3200)
+
+[node name="UndertakerBarrel2" parent="." instance=ExtResource("22")]
+position = Vector2(-680, 3220)
+
+[node name="StreetLight7" parent="." instance=ExtResource("15")]
+position = Vector2(-680, 3190)
+flare_color = Color(0.95, 0.85, 0.5, 1)
+
+[node name="CrookboneSanatorium" parent="." instance=ExtResource("29")]
+position = Vector2(-4200, -650)
+house_name = "Crookbone Sanatorium"
+house_size = Vector2(400, 300)
+vault_width = 150.0
+wall_color = Color(0.3, 0.34, 0.3, 1)
+roof_color = Color(0.1, 0.11, 0.09, 1)
+key_id = "crookbone_key"
+key_label = "Crookbone Key"
+chest_item_name = "Preserved Specimen Jar"
+chest_value = 250
+chest_slot = "valuable"
+chest_stat_type = ""
+chest_stat_value = 0.0
+chest_icon_key = "gpcoin"
+chest_rarity = "epic"
+grants_artifacts = 2
+
+[node name="CrookboneSanatoriumGuard" parent="." instance=ExtResource("9")]
+position = Vector2(-4275, -440)
+drop_key_id = "crookbone_key"
+drop_key_label = "Crookbone Key"
+
+[node name="CrookboneBarrel1" parent="." instance=ExtResource("22")]
+position = Vector2(-4330, -440)
+
+[node name="CrookboneBarrel2" parent="." instance=ExtResource("22")]
+position = Vector2(-4180, -420)
+
+[node name="StreetLight8" parent="." instance=ExtResource("15")]
+position = Vector2(-4275, -500)
+flare_color = Color(0.95, 0.85, 0.5, 1)
+
+[node name="StMarrowsChapel_Floor" type="Polygon2D" parent="."]
+position = Vector2(650, -2900)
+z_index = -2
+color = Color(0.26, 0.24, 0.27, 1)
+polygon = PackedVector2Array(-160, -110, 160, -110, 160, 110, -160, 110)
+
+[node name="StMarrowsChapel_WallTop" parent="." instance=ExtResource("3")]
+position = Vector2(650, -3010)
+size = Vector2(320, 20)
+wall_color = Color(0.4, 0.38, 0.42, 1)
+
+[node name="StMarrowsChapel_WallLeft" parent="." instance=ExtResource("3")]
+position = Vector2(490, -2900)
+size = Vector2(20, 220)
+wall_color = Color(0.4, 0.38, 0.42, 1)
+
+[node name="StMarrowsChapel_WallRight" parent="." instance=ExtResource("3")]
+position = Vector2(810, -2900)
+size = Vector2(20, 220)
+wall_color = Color(0.4, 0.38, 0.42, 1)
+
+[node name="StMarrowsChapel_Label" type="Label" parent="."]
+position = Vector2(570, -3050)
+custom_minimum_size = Vector2(160, 20)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.75, 0.8, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 4
+text = "St. Marrow's Chapel"
+
+[node name="StMarrowsChapel_Chest1" parent="." instance=ExtResource("7")]
+position = Vector2(590, -2920)
+item_name = "Prayer Box"
+base_value = 45
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "rubles_item"
+rarity = "common"
+
+[node name="StMarrowsChapel_Chest2" parent="." instance=ExtResource("7")]
+position = Vector2(710, -2880)
+item_name = "Sacristy Cabinet"
+base_value = 65
+slot = "weapon"
+stat_type = "damage"
+base_stat_value = 9.0
+icon_key = "pistol"
+rarity = "uncommon"
+
+[node name="ChapelCrate1" parent="." instance=ExtResource("32")]
+position = Vector2(620, -3000)
+
+[node name="FoglineMotel_Floor" type="Polygon2D" parent="."]
+position = Vector2(4200, 750)
+z_index = -2
+color = Color(0.3, 0.27, 0.22, 1)
+polygon = PackedVector2Array(-160, -110, 160, -110, 160, 110, -160, 110)
+
+[node name="FoglineMotel_WallTop" parent="." instance=ExtResource("3")]
+position = Vector2(4200, 640)
+size = Vector2(320, 20)
+wall_color = Color(0.44, 0.4, 0.34, 1)
+
+[node name="FoglineMotel_WallLeft" parent="." instance=ExtResource("3")]
+position = Vector2(4040, 750)
+size = Vector2(20, 220)
+wall_color = Color(0.44, 0.4, 0.34, 1)
+
+[node name="FoglineMotel_WallRight" parent="." instance=ExtResource("3")]
+position = Vector2(4360, 750)
+size = Vector2(20, 220)
+wall_color = Color(0.44, 0.4, 0.34, 1)
+
+[node name="FoglineMotel_Label" type="Label" parent="."]
+position = Vector2(4120, 600)
+custom_minimum_size = Vector2(160, 20)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.75, 0.8, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 4
+text = "Fogline Motel"
+
+[node name="FoglineMotel_Chest1" parent="." instance=ExtResource("7")]
+position = Vector2(4140, 770)
+item_name = "Front Desk Drawer"
+base_value = 45
+slot = "weapon"
+stat_type = "damage"
+base_stat_value = 7.0
+icon_key = "pistol"
+rarity = "common"
+
+[node name="FoglineMotel_Chest2" parent="." instance=ExtResource("7")]
+position = Vector2(4260, 800)
+item_name = "Under-bed Vest"
+base_value = 70
+slot = "body"
+stat_type = "max_health"
+base_stat_value = 18.0
+icon_key = "chestplate"
+rarity = "uncommon"
+
+[node name="MotelCrate1" parent="." instance=ExtResource("32")]
+position = Vector2(4260, 660)
+
+[node name="WidowsRow_Floor" type="Polygon2D" parent="."]
+position = Vector2(-4300, 850)
+z_index = -2
+color = Color(0.27, 0.25, 0.23, 1)
+polygon = PackedVector2Array(-160, -110, 160, -110, 160, 110, -160, 110)
+
+[node name="WidowsRow_WallTop" parent="." instance=ExtResource("3")]
+position = Vector2(-4300, 740)
+size = Vector2(320, 20)
+wall_color = Color(0.4, 0.38, 0.36, 1)
+
+[node name="WidowsRow_WallLeft" parent="." instance=ExtResource("3")]
+position = Vector2(-4460, 850)
+size = Vector2(20, 220)
+wall_color = Color(0.4, 0.38, 0.36, 1)
+
+[node name="WidowsRow_WallRight" parent="." instance=ExtResource("3")]
+position = Vector2(-4140, 850)
+size = Vector2(20, 220)
+wall_color = Color(0.4, 0.38, 0.36, 1)
+
+[node name="WidowsRow_Label" type="Label" parent="."]
+position = Vector2(-4380, 700)
+custom_minimum_size = Vector2(160, 20)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.75, 0.8, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 4
+text = "Widow's Row"
+
+[node name="WidowsRow_Chest1" parent="." instance=ExtResource("7")]
+position = Vector2(-4360, 870)
+item_name = "Locked Hope Chest"
+base_value = 65
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "ring"
+rarity = "uncommon"
+
+[node name="WidowsRow_Chest2" parent="." instance=ExtResource("7")]
+position = Vector2(-4240, 900)
+item_name = "Attic Trunk"
+base_value = 50
+slot = "body"
+stat_type = "max_health"
+base_stat_value = 14.0
+icon_key = "chestplate"
+rarity = "common"
+
+[node name="RowCrate1" parent="." instance=ExtResource("32")]
+position = Vector2(-4350, 780)
+
+[node name="GallowsSquare" type="Node2D" parent="."]
+position = Vector2(400, 2950)
+
+[node name="Platform" type="Polygon2D" parent="GallowsSquare"]
+z_index = -2
+color = Color(0.28, 0.22, 0.15, 1)
+polygon = PackedVector2Array(-90, -55, 90, -55, 90, 55, -90, 55)
+
+[node name="PostV" type="Line2D" parent="GallowsSquare"]
+points = PackedVector2Array(0, 55, 0, -70)
+width = 8.0
+default_color = Color(0.15, 0.11, 0.08, 1)
+
+[node name="PostH" type="Line2D" parent="GallowsSquare"]
+points = PackedVector2Array(-45, -70, 45, -70)
+width = 8.0
+default_color = Color(0.15, 0.11, 0.08, 1)
+
+[node name="Rope" type="Line2D" parent="GallowsSquare"]
+points = PackedVector2Array(20, -70, 20, -30)
+width = 2.0
+default_color = Color(0.5, 0.45, 0.35, 0.8)
+
+[node name="Label" type="Label" parent="GallowsSquare"]
+position = Vector2(-90, -105)
+custom_minimum_size = Vector2(180, 20)
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.75, 0.7, 0.65, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 4
+text = "GALLOWS SQUARE"
+
+[node name="GallowsChest1" parent="GallowsSquare" instance=ExtResource("7")]
+position = Vector2(-50, 20)
+item_name = "Hanged Man's Purse"
+base_value = 95
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "rubles_item"
+rarity = "rare"
+
+[node name="GallowsChest2" parent="GallowsSquare" instance=ExtResource("7")]
+position = Vector2(50, 20)
+item_name = "Confiscated Gear"
+base_value = 60
+slot = "body"
+stat_type = "max_health"
+base_stat_value = 15.0
+icon_key = "chestplate"
+rarity = "uncommon"
+
+[node name="ForgottenOffering" parent="." instance=ExtResource("7")]
+position = Vector2(100, -2650)
+item_name = "Forgotten Offering"
+base_value = 35
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "canned_food"
+rarity = "common"
+
+[node name="BoneWell" parent="." instance=ExtResource("31")]
+position = Vector2(-1350, -2500)
+item_name = "Sunken Offerings"
+base_value = 70
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "screws"
+rarity = "uncommon"
+
+[node name="VendingChest" parent="." instance=ExtResource("7")]
+position = Vector2(3850, 150)
+item_name = "Vending Machine"
+base_value = 40
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "canned_food"
+rarity = "common"
+
+[node name="WreckedTruck" parent="." instance=ExtResource("31")]
+position = Vector2(4500, -750)
+item_name = "Raider's Cache"
+base_value = 85
+slot = "weapon"
+stat_type = "damage"
+base_stat_value = 11.0
+icon_key = "shotgun"
+rarity = "uncommon"
+
+[node name="PaupersField" parent="." instance=ExtResource("31")]
+position = Vector2(-1500, 2700)
+item_name = "Buried Trinkets"
+base_value = 30
+slot = "valuable"
+stat_type = ""
+base_stat_value = 0.0
+icon_key = "gpcoin"
+rarity = "common"
+
+[node name="OverturnedHearse" parent="." instance=ExtResource("31")]
+position = Vector2(-3900, 250)
+item_name = "Casket Lining"
+base_value = 110
+slot = "body"
+stat_type = "max_health"
+base_stat_value = 22.0
+icon_key = "chestplate"
+rarity = "rare"
+
+[node name="RustShard5" parent="." instance=ExtResource("23")]
+position = Vector2(700, -2600)
+
+[node name="RustShard6" parent="." instance=ExtResource("23")]
+position = Vector2(4300, 600)
+
+[node name="RustShard7" parent="." instance=ExtResource("23")]
+position = Vector2(-500, 2800)
+
+[node name="RustShard8" parent="." instance=ExtResource("23")]
+position = Vector2(-4400, -300)
+
+[node name="StaticMote4" parent="." instance=ExtResource("24")]
+position = Vector2(-1000, -2700)
+
+[node name="StaticMote5" parent="." instance=ExtResource("24")]
+position = Vector2(3950, -100)
+
+[node name="StaticMote6" parent="." instance=ExtResource("24")]
+position = Vector2(300, 3200)
+
+[node name="StaticMote7" parent="." instance=ExtResource("24")]
+position = Vector2(-4100, 300)
+
+[node name="DecorCar4" parent="." instance=ExtResource("20")]
+position = Vector2(4250, 820)
+rotation = 0.2
+static_decor = true
+
+[node name="CarAlarm" parent="DecorCar4" instance=ExtResource("21")]
+
+[node name="DecorCar5" parent="." instance=ExtResource("20")]
+position = Vector2(-4150, -550)
+rotation = -0.3
+static_decor = true
+
+[node name="CarAlarm" parent="DecorCar5" instance=ExtResource("21")]
+
+[node name="ExtractionZoneOuterNE" parent="." instance=ExtResource("5")]
+position = Vector2(2900, -2200)
+pickup_type = "helicopter"
+
+[node name="ExtractionZoneOuterSW" parent="." instance=ExtResource("5")]
+position = Vector2(-2900, 2200)
+is_paid = true
+unlock_cost = 900
+pickup_type = "car"
+
+[node name="Skeleton11" parent="." instance=ExtResource("9")]
+position = Vector2(200, -2450)
+
+[node name="Skeleton12" parent="." instance=ExtResource("9")]
+position = Vector2(-1000, -3050)
+
+[node name="Ghost8" parent="." instance=ExtResource("10")]
+position = Vector2(700, -2600)
+
+[node name="Skeleton13" parent="." instance=ExtResource("9")]
+position = Vector2(3900, -600)
+
+[node name="Skeleton14" parent="." instance=ExtResource("9")]
+position = Vector2(4400, 500)
+
+[node name="Raider1" parent="." instance=ExtResource("30")]
+position = Vector2(4000, 900)
+
+[node name="Ghost9" parent="." instance=ExtResource("10")]
+position = Vector2(4500, -100)
+
+[node name="Skeleton15" parent="." instance=ExtResource("9")]
+position = Vector2(100, 2750)
+
+[node name="Skeleton16" parent="." instance=ExtResource("9")]
+position = Vector2(-1100, 3200)
+
+[node name="Ghost10" parent="." instance=ExtResource("10")]
+position = Vector2(700, 3300)
+
+[node name="Skeleton17" parent="." instance=ExtResource("9")]
+position = Vector2(-4000, -900)
+
+[node name="Skeleton18" parent="." instance=ExtResource("9")]
+position = Vector2(-4500, 600)
+
+[node name="Raider2" parent="." instance=ExtResource("30")]
+position = Vector2(-3800, -200)
+
+[node name="Ghoul6" parent="." instance=ExtResource("19")]
+position = Vector2(-4600, 900)
+
+[node name="Skeleton19" parent="." instance=ExtResource("9")]
+position = Vector2(3900, 3100)
+
+[node name="Skeleton20" parent="." instance=ExtResource("9")]
+position = Vector2(-3900, -3100)
+
+[node name="Ghost11" parent="." instance=ExtResource("10")]
+position = Vector2(0, -3500)
+
+[node name="Ghost12" parent="." instance=ExtResource("10")]
+position = Vector2(0, 3500)
+
 [node name="HUD" parent="." instance=ExtResource("8")]
 
 [node name="SupplyDropManager" parent="." instance=ExtResource("12")]
-map_half_size = Vector2(1900, 1300)
-exclusion_zone_positions = Array[Vector2]([Vector2(-1150, -950), Vector2(650, -950), Vector2(-1150, 350), Vector2(650, 350), Vector2(1350, -1350), Vector2(-1900, -150), Vector2(1700, -150), Vector2(-1850, -560), Vector2(-1750, 950)])
-exclusion_zone_sizes = Array[Vector2]([Vector2(500, 450), Vector2(500, 450), Vector2(500, 450), Vector2(500, 450), Vector2(500, 500), Vector2(200, 300), Vector2(200, 300), Vector2(500, 520), Vector2(500, 400)])
+map_half_size = Vector2(4700, 3300)
+exclusion_zone_positions = Array[Vector2]([Vector2(-1150, -950), Vector2(650, -950), Vector2(-1150, 350), Vector2(650, 350), Vector2(1350, -1350), Vector2(-1900, -150), Vector2(1700, -150), Vector2(-1850, -560), Vector2(-1750, 950), Vector2(-925, -3250), Vector2(3825, -650), Vector2(-1000, 2725), Vector2(-4525, -950), Vector2(400, -3125), Vector2(3950, 525), Vector2(-4550, 625), Vector2(2800, -2350), Vector2(-3000, 2050)])
+exclusion_zone_sizes = Array[Vector2]([Vector2(500, 450), Vector2(500, 450), Vector2(500, 450), Vector2(500, 450), Vector2(500, 500), Vector2(200, 300), Vector2(200, 300), Vector2(500, 520), Vector2(500, 400), Vector2(650, 600), Vector2(650, 600), Vector2(600, 550), Vector2(650, 600), Vector2(500, 450), Vector2(500, 450), Vector2(500, 450), Vector2(200, 300), Vector2(200, 300)])
 
 [node name="WeatherOverlay" parent="." instance=ExtResource("25")]
 
