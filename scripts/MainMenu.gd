@@ -16,6 +16,7 @@ extends Control
 @onready var quest_panel: Control = $QuestPanel
 @onready var roadmap_button: Button = $RoadmapButton
 @onready var roadmap_panel: Panel = $RoadmapPanel
+@onready var season_button: Button = $SeasonButton
 @onready var stats_button: Button = $StatsButton
 @onready var stats_panel: Panel = $StatsPanel
 @onready var achievements_button: Button = $AchievementsButton
@@ -99,6 +100,46 @@ const QUOTES := [
 	"THE SECTOR WAS NEVER YOURS",
 ]
 
+const MONTH_ABBR := {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6, "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
+
+# Parses a Roadmap-style "Mon DD" date string (e.g. "Jul 18") and returns
+# how many days from today_dict (a Time.get_date_dict_from_system()-style
+# Dictionary) it falls, assuming today's year. Returns -1 for anything
+# unparseable (e.g. "TBD") or already in the past - a pure function on
+# purpose, so it's testable without depending on the real system clock.
+static func days_until_roadmap_date(date_str: String, today_dict: Dictionary) -> int:
+	var parts: PackedStringArray = date_str.split(" ")
+	if parts.size() != 2 or not MONTH_ABBR.has(parts[0]):
+		return -1
+	var today_unix: int = Time.get_unix_time_from_datetime_dict({"year": today_dict["year"], "month": today_dict["month"], "day": today_dict["day"], "hour": 0, "minute": 0, "second": 0})
+	var entry_unix: int = Time.get_unix_time_from_datetime_dict({"year": today_dict["year"], "month": MONTH_ABBR[parts[0]], "day": int(parts[1]), "hour": 0, "minute": 0, "second": 0})
+	var days: int = int((entry_unix - today_unix) / 86400.0)
+	return days if days >= 0 else -1
+
+# The game's still Pre Season (per the Roadmap's own framing - "Season 1"
+# doesn't start until the Alpha tag actually comes off at 1.0 Release), so
+# this button previews whatever's nearest in RoadmapPanel's COMING SOON
+# list rather than pretending a numbered season is already underway.
+func _setup_season_preview() -> void:
+	var today := Time.get_date_dict_from_system()
+	var best_title := ""
+	var best_days := -1
+	for entry in roadmap_panel.ROADMAP:
+		if entry.get("section", "") != roadmap_panel.SECTION_UPCOMING:
+			continue
+		var days := days_until_roadmap_date(String(entry.get("date", "")), today)
+		if days == -1:
+			continue
+		if best_days == -1 or days < best_days:
+			best_days = days
+			best_title = entry.get("title", "")
+	if best_title == "":
+		season_button.text = "PRE SEASON"
+	elif best_days == 0:
+		season_button.text = "PRE SEASON\nNext: %s today" % best_title
+	else:
+		season_button.text = "PRE SEASON\nNext: %s in %dd" % [best_title, best_days]
+
 func _ready() -> void:
 	GameManager.set_default_cursor()
 	MenuMusic.resume_menu_music()
@@ -107,6 +148,8 @@ func _ready() -> void:
 	quest_panel.closed.connect(func(): _close_panel(quest_panel))
 	roadmap_button.pressed.connect(func(): _open_panel(roadmap_panel))
 	roadmap_panel.closed.connect(func(): _close_panel(roadmap_panel))
+	season_button.pressed.connect(func(): _open_panel(roadmap_panel))
+	_setup_season_preview()
 	stats_button.pressed.connect(func(): _open_panel(stats_panel))
 	stats_panel.closed.connect(func(): _close_panel(stats_panel))
 	event_button.pressed.connect(func(): _open_panel(battle_pass_panel))

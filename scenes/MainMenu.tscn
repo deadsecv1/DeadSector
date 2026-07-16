@@ -148,6 +148,27 @@ offset_right = 6.0
 offset_bottom = 6.0
 color = Color(0.03, 0.03, 0.03, 0)
 
+[node name="SeasonButton" type="Button" parent="."]
+offset_left = 16.0
+offset_top = 52.0
+offset_right = 130.0
+offset_bottom = 90.0
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.75, 0.9, 1.0, 1)
+autowrap_mode = 3
+text = "PRE SEASON"
+script = ExtResource("16")
+
+[node name="Glow" type="ColorRect" parent="SeasonButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -6.0
+offset_top = -6.0
+offset_right = 6.0
+offset_bottom = 6.0
+color = Color(0.03, 0.03, 0.03, 0)
+
 [node name="FeedbackButton" type="Button" parent="."]
 offset_left = 16.0
 offset_top = 52.0
