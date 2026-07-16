@@ -58,14 +58,14 @@ func _spawn_passing_ghost() -> void:
 	var ghost = GHOST_PASSER_SCENE.instantiate()
 	add_child(ghost)
 	var side := randi() % 2
-	var y := randf_range(-700.0, 700.0)
+	var y := randf_range(-1400.0, 1400.0)
 	if side == 0:
-		ghost.position = Vector2(-1300.0, y)
+		ghost.position = Vector2(-2600.0, y)
 		ghost.drift_direction = Vector2(1, randf_range(-0.15, 0.15))
 	else:
-		ghost.position = Vector2(1300.0, y)
+		ghost.position = Vector2(2600.0, y)
 		ghost.drift_direction = Vector2(-1, randf_range(-0.15, 0.15))
-	ghost.travel_distance = 2600.0
+	ghost.travel_distance = 5200.0
 
 func _on_statue_interact() -> void:
 	if started:
