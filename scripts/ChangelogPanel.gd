@@ -1191,6 +1191,9 @@ const CHANGELOG_CURRENT := [
 		"14 scannable lore fragments hidden across every raid map and the Hideout, continuing the Collapse/Echo canon from the opening cutscene. Scanning one is permanent (never respawns once found) and grants a small Rubles+XP reward.",
 		"New \"Lore\" button on the Main Menu - browse everything you've found so far, with undiscovered entries shown as locked \"???\" rows. Some are placed in plain sight; a few are deliberately tucked away.",
 	]},
+	{"version": "3.78.0", "title": "Diegetic Ammo Readout", "notes": [
+		"The permanent ammo counter is gone - it now pops in at full opacity on every shot fired or reload, and fades back out about 2 seconds after the last one, instead of sitting on screen constantly.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

@@ -27,6 +27,14 @@ func _update_quest_panel_visibility() -> void:
 
 var _wants_reload_prompt: bool = false
 
+# Diegetic ammo peek: rather than a permanently-visible counter, the
+# ammo readout pops fully opaque on every ammo_changed event (fire,
+# reload, weapon swap) and fades back out a couple seconds after the
+# last one - reads as "checking your mag" instead of a HUD element
+# that's just always sitting there.
+const AMMO_PEEK_DURATION := 2.0
+var _ammo_peek_seconds_left: float = 0.0
+
 func _update_reload_prompt_visibility() -> void:
 	reload_prompt.visible = _wants_reload_prompt and not inventory_panel.visible
 @onready var item_context_menu = $ItemContextMenu
@@ -88,6 +96,7 @@ func _ready() -> void:
 	skins_panel.visible = false
 	open_bag_panel.visible = false
 	stats_label.visible = false
+	ammo_label.modulate.a = 0.0
 	_hit_flash_mat = ShaderMaterial.new()
 	_hit_flash_mat.shader = HitVignetteShader
 	_hit_flash_mat.set_shader_parameter("intensity", 0.0)
@@ -209,7 +218,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.keycode == GameManager.get_keybind("inventory") and event.pressed and not event.echo:
 		get_viewport().set_input_as_handled()
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if GameManager.rubles != _last_rubles or GameManager.junk != _last_junk or GameManager.artifacts != _last_artifacts or GameManager.alloys != _last_alloys:
 		_last_rubles = GameManager.rubles
 		_last_junk = GameManager.junk
@@ -220,6 +229,12 @@ func _process(_delta: float) -> void:
 	if reload_prompt.visible:
 		var mouse_pos := get_viewport().get_mouse_position()
 		reload_prompt.position = mouse_pos + Vector2(18, 18)
+
+	if _ammo_peek_seconds_left > 0.0:
+		_ammo_peek_seconds_left -= delta
+		if _ammo_peek_seconds_left <= 0.0:
+			var tw := create_tween()
+			tw.tween_property(ammo_label, "modulate:a", 0.0, 0.4)
 
 	if _cached_player == null or not is_instance_valid(_cached_player):
 		_cached_player = get_tree().get_first_node_in_group("player")
@@ -336,6 +351,8 @@ func _set_player_locked(locked: bool) -> void:
 
 func update_ammo(current_mag: int, _mag_size: int, reserve_ammo: int, ammo_type: String = "") -> void:
 	ammo_label.text = "%d / %d %s" % [current_mag, reserve_ammo, ammo_type.capitalize()] if ammo_type != "" else "%d / %d" % [current_mag, reserve_ammo]
+	ammo_label.modulate.a = 1.0
+	_ammo_peek_seconds_left = AMMO_PEEK_DURATION
 	_wants_reload_prompt = current_mag < 5 and reserve_ammo > 0
 	_update_reload_prompt_visibility()
 
