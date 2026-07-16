@@ -119,6 +119,14 @@ GDScript has no try/catch, so a genuine script error inside a test aborts
 that test immediately rather than being caught - keep test bodies to
 assertions and simple setup.
 
+GDScript lambdas capture local variables **by value**, not by reference -
+`var fired := false; some_signal.connect(func(): fired = true)` silently
+never works, since the lambda mutates its own private copy, not the outer
+`fired`. Use a single-element Array as a mutable box instead:
+`var fired := [false]; some_signal.connect(func(): fired[0] = true)`, then
+assert on `fired[0]`. Got bitten by this once writing a test that connects
+to a signal and checks a flag afterward (see `test_gamepad_popup_close.gd`).
+
 When you build something a future regression could silently break -
 a reward table that must stay strictly increasing, a generator whose
 geometry math could quietly go negative, a bug you just fixed - add a
