@@ -1208,6 +1208,9 @@ const CHANGELOG_CURRENT := [
 		"Every \"Press F\"/\"Press R\" on-screen prompt in the game - Hideout NPCs, doors, chests, corpses, loot, extraction zones, the reload prompt, and more - now shows the real bound gamepad button (e.g. \"[A]\") instead of the keyboard hint whenever a controller is the active input device.",
 		"Settings' Keybinds screen now shows a real drawn, color-coded button badge (Xbox-style: A green, B red, X blue, Y yellow) next to each gamepad binding instead of plain text alone.",
 	]},
+	{"version": "3.83.0", "title": "Weekly Contract", "notes": [
+		"The Daily Bounties board (now just \"Contracts\") has a new Weekly Contract card below the 3 daily slots - one big pinnacle-style objective that resets once a week instead of once a day, for a much bigger payout (20,000 Rubles, 40 Skill Points, 40 Artifacts).",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

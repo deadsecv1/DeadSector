@@ -6190,6 +6190,9 @@ func reset_character() -> void:
 	guild_contract_claimed = []
 	daily_bounty_day = -1
 	daily_bounty_slots = []
+	weekly_contract_week = -1
+	weekly_contract_baseline = 0
+	weekly_contract_claimed = false
 	gauntlet_best_level = 0
 	engrams = []
 	salvaged_beasts_tickets = 0
@@ -7988,6 +7991,8 @@ func save_game() -> void:
 		"guild_contract_start": guild_contract_start, "guild_contract_index": guild_contract_index,
 		"guild_contract_baseline": guild_contract_baseline, "guild_contract_claimed": guild_contract_claimed,
 		"daily_bounty_day": daily_bounty_day, "daily_bounty_slots": daily_bounty_slots,
+		"weekly_contract_week": weekly_contract_week, "weekly_contract_type_index": weekly_contract_type_index,
+		"weekly_contract_baseline": weekly_contract_baseline, "weekly_contract_claimed": weekly_contract_claimed,
 		"has_shown_chat_keybind_hint": has_shown_chat_keybind_hint,
 		"monthly_pass_owned": monthly_pass_owned, "double_xp_owned": double_xp_owned,
 		"fast_hatching_owned": fast_hatching_owned,
@@ -8208,6 +8213,10 @@ func load_game() -> void:
 	daily_bounty_day = int(parsed.get("daily_bounty_day", -1))
 	var loaded_daily_bounty_slots = parsed.get("daily_bounty_slots", [])
 	daily_bounty_slots = loaded_daily_bounty_slots if typeof(loaded_daily_bounty_slots) == TYPE_ARRAY else []
+	weekly_contract_week = int(parsed.get("weekly_contract_week", -1))
+	weekly_contract_type_index = int(parsed.get("weekly_contract_type_index", 0))
+	weekly_contract_baseline = int(parsed.get("weekly_contract_baseline", 0))
+	weekly_contract_claimed = bool(parsed.get("weekly_contract_claimed", false))
 	has_shown_chat_keybind_hint = bool(parsed.get("has_shown_chat_keybind_hint", false))
 	monthly_pass_owned = bool(parsed.get("monthly_pass_owned", false))
 	double_xp_owned = bool(parsed.get("double_xp_owned", false))
@@ -10055,6 +10064,67 @@ func claim_daily_bounty(slot_index: int) -> bool:
 		toast_requested.emit("All Daily Bounties complete - bonus awarded!")
 	save_game()
 	return true
+
+# --- Weekly Contract: one big pinnacle-style objective, rerolled at a
+# fixed real-calendar-week boundary (same hard-boundary idea as Daily
+# Bounty's own day boundary, just a 7-day period instead of 1). A single
+# high-stakes ask with a correspondingly bigger reward, rather than 3
+# small chores - the contrast with Daily Bounty is deliberate, not a
+# smaller copy of the same system. Lives in the same panel as Daily
+# Bounty (a shared "Contracts" board), not a new top-level menu button.
+const WEEKLY_CONTRACT_TYPES := [
+	{"id": "body_count", "title": "Body Count", "desc": "The Sector wants a real body count this week, not a skirmish.", "stat": "stat_enemies_killed", "target": 400, "icon": "combat"},
+	{"id": "salvage_baron", "title": "Salvage Baron", "desc": "Bring back a week's worth of real salvage - everything counts.", "stat": "stat_total_loot_collected", "target": 120000, "icon": "money"},
+	{"id": "extraction_master", "title": "Extraction Master", "desc": "Prove you can make it out again and again, all week long.", "stat": "stat_extractions", "target": 25, "icon": "compass"},
+]
+const WEEKLY_CONTRACT_REWARD := {"rubles": 20000, "skill_points": 40, "artifacts": 40}
+
+var weekly_contract_week: int = -1
+var weekly_contract_type_index: int = 0
+var weekly_contract_baseline: int = 0
+var weekly_contract_claimed: bool = false
+
+func _current_week_index() -> int:
+	return int(_flea_now() / 604800.0)
+
+func _ensure_weekly_contract_current() -> void:
+	var this_week := _current_week_index()
+	if weekly_contract_week == this_week:
+		return
+	weekly_contract_week = this_week
+	weekly_contract_type_index = randi() % WEEKLY_CONTRACT_TYPES.size()
+	weekly_contract_baseline = int(get(WEEKLY_CONTRACT_TYPES[weekly_contract_type_index]["stat"]))
+	weekly_contract_claimed = false
+
+func get_weekly_contract_type() -> Dictionary:
+	_ensure_weekly_contract_current()
+	return WEEKLY_CONTRACT_TYPES[weekly_contract_type_index]
+
+func get_weekly_contract_progress() -> int:
+	_ensure_weekly_contract_current()
+	return max(0, int(get(get_weekly_contract_type()["stat"])) - weekly_contract_baseline)
+
+func is_weekly_contract_complete() -> bool:
+	return get_weekly_contract_progress() >= int(get_weekly_contract_type()["target"])
+
+func is_weekly_contract_claimed() -> bool:
+	_ensure_weekly_contract_current()
+	return weekly_contract_claimed
+
+func claim_weekly_contract() -> bool:
+	_ensure_weekly_contract_current()
+	if weekly_contract_claimed or not is_weekly_contract_complete():
+		return false
+	weekly_contract_claimed = true
+	add_currency("rubles", int(WEEKLY_CONTRACT_REWARD["rubles"]))
+	add_currency("skill_points", int(WEEKLY_CONTRACT_REWARD["skill_points"]))
+	add_currency("artifacts", int(WEEKLY_CONTRACT_REWARD["artifacts"]))
+	toast_requested.emit("Weekly Contract claimed!")
+	save_game()
+	return true
+
+func weekly_contract_seconds_left() -> int:
+	return int(604800 - (int(_flea_now()) % 604800))
 
 func grant_guild_honor(amount: int) -> void:
 	if amount <= 0:
