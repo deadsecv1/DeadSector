@@ -11,8 +11,33 @@ func _ready() -> void:
 func _p(nx: float, ny: float) -> Vector2:
 	return Vector2(nx, ny) * size
 
+# Only the named trader/Hideout-NPC identities below get the glow-ring/
+# rim-light treatment (see the end of _draw()) - this component is also
+# reused everywhere a small simulated-player avatar shows up (Leaderboard
+# rows at 34x34, chat/social avatars, etc, via "portrait_1".."portrait_6")
+# where those effects would just render as mud at that size. The Traders
+# screen instances these at 140x140, big enough for it to actually read.
+const NAMED_TRADER_IDS := ["medic", "quartermaster", "scavenger", "scrapper", "alloy_dealer", "barterer", "clarity", "sorrow", "glenn", "big_crax"]
+const TRADER_ACCENT_COLORS := {
+	"medic": Color(0.85, 0.25, 0.25, 1),
+	"quartermaster": Color(0.55, 0.75, 0.4, 1),
+	"scavenger": Color(0.75, 0.6, 0.25, 1),
+	"scrapper": Color(0.9, 0.6, 0.2, 1),
+	"alloy_dealer": Color(0.55, 0.7, 0.85, 1),
+	"barterer": Color(0.85, 0.7, 0.25, 1),
+	"clarity": Color(0.75, 0.4, 0.85, 1),
+	"sorrow": Color(0.4, 0.45, 0.65, 1),
+	"glenn": Color(0.55, 0.75, 0.35, 1),
+	"big_crax": Color(0.85, 0.5, 0.15, 1),
+}
+
 func _draw() -> void:
-	# Shared base: shoulders + head, background circle.
+	var is_named: bool = trader_id in NAMED_TRADER_IDS
+	var accent: Color = TRADER_ACCENT_COLORS.get(trader_id, Color(0.6, 0.65, 0.7, 1))
+	# Shared base: shoulders + head, background circle. Named traders get a
+	# soft themed glow halo behind the disc instead of a flat dark backing.
+	if is_named:
+		draw_circle(_p(0.5, 0.5), size.x * 0.5, Color(accent.r, accent.g, accent.b, 0.3))
 	draw_circle(_p(0.5, 0.5), size.x * 0.48, Color(0.08, 0.09, 0.1, 1))
 
 	var skin := Color(0.78, 0.6, 0.47, 1)
@@ -55,6 +80,18 @@ func _draw() -> void:
 			_draw_person(Color(0.42, 0.3, 0.22, 1), Color(0.2, 0.16, 0.12, 1), Color(0.55, 0.25, 0.08, 1), shoulders_pts)
 		_:
 			_draw_generic(skin, shoulders_pts)
+
+	if is_named:
+		# Cheap uniform "lit from above" pass - works regardless of which
+		# trader's draw function just ran, so it doesn't need touching
+		# every individual _draw_*() above. A bright rim along the top
+		# edge, a soft dark one along the bottom, then a crisp themed
+		# accent ring framing the whole bust like the rarity-gradient
+		# borders used elsewhere on item icons.
+		draw_arc(_p(0.5, 0.5), size.x * 0.46, deg_to_rad(200), deg_to_rad(340), 24, Color(1, 1, 1, 0.1), size.x * 0.018, true)
+		draw_arc(_p(0.5, 0.5), size.x * 0.46, deg_to_rad(20), deg_to_rad(160), 24, Color(0, 0, 0, 0.22), size.x * 0.03, true)
+		draw_arc(_p(0.5, 0.5), size.x * 0.48, 0.0, TAU, 48, Color(accent.r, accent.g, accent.b, 0.35), size.x * 0.05, true)
+		draw_arc(_p(0.5, 0.5), size.x * 0.48, 0.0, TAU, 48, accent, size.x * 0.018, true)
 
 func _draw_person(skin: Color, hair: Color, clothing: Color, shoulders: PackedVector2Array) -> void:
 	draw_colored_polygon(shoulders, clothing)

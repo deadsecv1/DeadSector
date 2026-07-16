@@ -1180,6 +1180,9 @@ const CHANGELOG_CURRENT := [
 		"A new 60-tier reward track, separate from the Spectral Tide Battle Pass - progresses from successful extractions instead of a granted currency, so tiers unlock automatically as you play. Ends 2026-08-15 with a real countdown shown on the panel.",
 		"New Main Menu button next to Achievements/Character. Rewards run Rubles, XP, Artifacts, Skill Points, Loot Bags, and a dedicated pool of Season-exclusive gear.",
 	]},
+	{"version": "3.75.0", "title": "Trader Portrait Upgrade", "notes": [
+		"The 5 shop traders and 4 named Hideout NPCs (Clarity, Sorrow, Glenn, Big Crax) now get a themed glow halo, a crisp accent-color ring, and a cheap top-lit/bottom-shadow pass on their portrait - shown on the Traders screen. Small simulated-player avatars used elsewhere (Leaderboard, chat, Social) are unchanged.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
