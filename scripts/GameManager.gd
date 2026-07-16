@@ -1401,6 +1401,39 @@ func get_repairable_items() -> Array:
 			out.append(item)
 	return out
 
+# --- Weapon Manufacturers (Origin Perks): Destiny-style foundries, each
+# with one real mechanical tradeoff (a buff and a nerf, never just a buff).
+# Deterministically hashed from the weapon's own name rather than stored
+# on the item - the same named gun always carries the same brand, and
+# every mint site (loot rolls, trader stock, quest/mail/Alpha rewards,
+# anything written after this comment) gets a manufacturer for free with
+# zero per-item bookkeeping, same lazy-default spirit as
+# has_durability()/get_item_durability() above.
+const WEAPON_MANUFACTURERS := {
+	"veist": {"name": "Veist Arms", "perk": "+30% Reload Speed, +50% Durability Wear", "reload_mult": 0.7, "durability_mult": 1.5, "damage_mult": 1.0, "cooldown_mult": 1.0, "mag_mult": 1.0, "recoil_mult": 1.0},
+	"korovin": {"name": "Korovin Heavy", "perk": "+15% Damage, -15% Fire Rate, +40% Recoil", "reload_mult": 1.0, "durability_mult": 1.0, "damage_mult": 1.15, "cooldown_mult": 1.15, "mag_mult": 1.0, "recoil_mult": 1.4},
+	"omolon": {"name": "Omolon Dynamics", "perk": "+15% Fire Rate, -15% Damage", "reload_mult": 1.0, "durability_mult": 1.0, "damage_mult": 0.85, "cooldown_mult": 0.85, "mag_mult": 1.0, "recoil_mult": 1.0},
+	"sable": {"name": "Sable Precision", "perk": "-30% Recoil, -20% Magazine Size", "reload_mult": 1.0, "durability_mult": 1.0, "damage_mult": 1.0, "cooldown_mult": 1.0, "mag_mult": 0.8, "recoil_mult": 0.7},
+	"ashfall": {"name": "Ashfall Salvage", "perk": "-40% Durability Wear, -10% Damage", "reload_mult": 1.0, "durability_mult": 0.6, "damage_mult": 0.9, "cooldown_mult": 1.0, "mag_mult": 1.0, "recoil_mult": 1.0},
+}
+const WEAPON_MANUFACTURER_IDS := ["veist", "korovin", "omolon", "sable", "ashfall"]
+
+func get_weapon_manufacturer_id(item: Dictionary) -> String:
+	if item.get("slot", "") != "weapon":
+		return ""
+	var key: String = str(item.get("name", ""))
+	if key == "":
+		return ""
+	return WEAPON_MANUFACTURER_IDS[abs(hash(key)) % WEAPON_MANUFACTURER_IDS.size()]
+
+func get_weapon_manufacturer(item: Dictionary) -> Dictionary:
+	return WEAPON_MANUFACTURERS.get(get_weapon_manufacturer_id(item), {})
+
+func get_weapon_manufacturer_mult(item, key: String) -> float:
+	if item == null:
+		return 1.0
+	return float(get_weapon_manufacturer(item).get(key, 1.0))
+
 # Removes and returns a carried item (used when consuming a hotbar item).
 func consume_carried_item(index: int) -> Dictionary:
 	if index < 0 or index >= carried_loot.size():

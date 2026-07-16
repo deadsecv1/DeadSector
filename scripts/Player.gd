@@ -336,6 +336,9 @@ func _recompute_stats() -> void:
 	if weapon_item != null and weapon_item.has("shot_cooldown"):
 		shoot_cooldown = max(1.5, float(weapon_item["shot_cooldown"]) - GameManager.get_equipped_bonus("fire_rate") - GameManager.get_upgrade_bonus("fire_rate"))
 	_apply_ammo_type_tradeoff(weapon_item)
+	if weapon_item != null:
+		damage = int(round(damage * GameManager.get_weapon_manufacturer_mult(weapon_item, "damage_mult")))
+		shoot_cooldown = max(0.08, shoot_cooldown * GameManager.get_weapon_manufacturer_mult(weapon_item, "cooldown_mult"))
 
 	stats_ready.emit(speed, max_health, damage, shoot_cooldown)
 
@@ -429,7 +432,7 @@ func _recompute_ammo() -> void:
 		var mag_att = weapon["attachments"].get("mag")
 		if mag_att != null:
 			mag_bonus = 10
-	var new_size: int = base_mag + mag_bonus
+	var new_size: int = int(round(float(base_mag + mag_bonus) * GameManager.get_weapon_manufacturer_mult(weapon, "mag_mult")))
 	if weapon_icon != _last_weapon_icon:
 		# Switching weapons still tops off the magazine (a fresh weapon
 		# starts loaded), but reserve ammo is per-type now and carries
@@ -885,7 +888,8 @@ func _start_reload() -> void:
 	# player from using a hotbar item.
 	is_reloading = true
 	Sfx.play_reload()
-	var duration: float = max(0.4, _base_reload_for(weapon_icon) - GameManager.get_equipped_bonus("reload_speed") - GameManager.get_upgrade_bonus("reload_speed") - GameManager.get_hideout_bonus("reload_speed"))
+	var reload_mult: float = GameManager.get_weapon_manufacturer_mult(GameManager.equipped_items.get("weapon"), "reload_mult")
+	var duration: float = max(0.4, _base_reload_for(weapon_icon) * reload_mult - GameManager.get_equipped_bonus("reload_speed") - GameManager.get_upgrade_bonus("reload_speed") - GameManager.get_hideout_bonus("reload_speed"))
 	await get_tree().create_timer(duration).timeout
 	var ammo_type := _current_ammo_type()
 	var needed := mag_size - current_mag
@@ -992,7 +996,8 @@ func _shoot() -> void:
 
 	var equipped_weapon = GameManager.equipped_items.get("weapon")
 	if equipped_weapon != null:
-		GameManager.damage_item_durability(equipped_weapon, GameManager.WEAPON_DURABILITY_LOSS_PER_SHOT)
+		var wear_mult: float = GameManager.get_weapon_manufacturer_mult(equipped_weapon, "durability_mult")
+		GameManager.damage_item_durability(equipped_weapon, GameManager.WEAPON_DURABILITY_LOSS_PER_SHOT * wear_mult)
 	var weapon_rarity: String = str(equipped_weapon.get("rarity", "common")) if equipped_weapon != null else "common"
 	var is_top_tier_weapon: bool = weapon_rarity in ["mythic", "multiversal", "divine"]
 	var is_tech_tester_sidearm: bool = weapon_icon == "pistol" and equipped_weapon != null and equipped_weapon.get("beta_only", false)
@@ -1057,10 +1062,10 @@ func _shoot() -> void:
 	else:
 		_spawn_bullet(base_dir, 1.0)
 
-	recoil = -6.0
+	recoil = -6.0 * GameManager.get_weapon_manufacturer_mult(equipped_weapon, "recoil_mult")
 	_flash_muzzle()
 	Sfx.play_gunshot()
-	camera.shake(2.5 * (0.45 if _has_grip_attachment() else 1.0))
+	camera.shake(2.5 * (0.45 if _has_grip_attachment() else 1.0) * GameManager.get_weapon_manufacturer_mult(equipped_weapon, "recoil_mult"))
 	await get_tree().create_timer(shoot_cooldown).timeout
 	can_shoot = true
 

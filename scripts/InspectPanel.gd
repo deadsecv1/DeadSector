@@ -116,6 +116,9 @@ func _build_description(item: Dictionary) -> String:
 		parts.append("Salvaged gear from the Sector - useful to someone, if not to you.")
 
 	if slot == "weapon":
+		var manufacturer: Dictionary = GameManager.get_weapon_manufacturer(item)
+		if not manufacturer.is_empty():
+			parts.append("Manufacturer: %s (%s)" % [manufacturer.get("name", ""), manufacturer.get("perk", "")])
 		var effect_text: String = GameManager.get_weapon_effect_text(icon_key)
 		if effect_text != "":
 			parts.append(effect_text)

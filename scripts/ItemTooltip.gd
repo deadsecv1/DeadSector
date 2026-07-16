@@ -128,6 +128,24 @@ static func build(item: Dictionary) -> Control:
 		ammo_type_lbl.add_theme_color_override("font_color", Color(0.85, 0.8, 0.6, 1))
 		vbox.add_child(ammo_type_lbl)
 		content_h += _line_height(12) + 4.0
+		var manufacturer: Dictionary = GameManager.get_weapon_manufacturer(item)
+		if not manufacturer.is_empty():
+			var mfr_lbl := Label.new()
+			mfr_lbl.text = str(manufacturer.get("name", ""))
+			mfr_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			mfr_lbl.add_theme_font_size_override("font_size", 12)
+			mfr_lbl.add_theme_color_override("font_color", Color(0.85, 0.65, 1.0, 1))
+			vbox.add_child(mfr_lbl)
+			content_h += _line_height(12) + 4.0
+			var perk_lbl := Label.new()
+			perk_lbl.text = str(manufacturer.get("perk", ""))
+			perk_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			perk_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
+			perk_lbl.custom_minimum_size = Vector2(TEXT_WIDTH, 0)
+			perk_lbl.add_theme_font_size_override("font_size", 11)
+			perk_lbl.add_theme_color_override("font_color", Color(0.7, 0.6, 0.85, 1))
+			vbox.add_child(perk_lbl)
+			content_h += _wrapped_height(perk_lbl.text, 11, 36.0) + 4.0
 		var effect_text: String = GameManager.get_weapon_effect_text(str(item.get("icon_key", "")))
 		if effect_text != "":
 			var effect_lbl := Label.new()

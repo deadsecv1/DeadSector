@@ -1172,6 +1172,10 @@ const CHANGELOG_CURRENT := [
 		"Torque, a new NPC in the Hideout, repairs any equipped or stashed item below full durability back to 100% for Rubles - cost scales with how worn the item is and its own value.",
 		"Tooltips and the Inspect screen both show a durability readout on any weapon/armor item, color-coded from green (healthy) to red (broken).",
 	]},
+	{"version": "3.73.0", "title": "Weapon Manufacturers (Origin Perks)", "notes": [
+		"Every named weapon now belongs to one of 5 manufacturer brands - Veist Arms, Korovin Heavy, Omolon Dynamics, Sable Precision, or Ashfall Salvage - each with a real mechanical tradeoff (faster reload but more wear, higher damage but heavier recoil and slower fire rate, and so on). The same gun always carries the same brand.",
+		"Manufacturer and its tradeoff perk now show on both the item tooltip and the Inspect screen for every weapon.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
