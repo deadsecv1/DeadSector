@@ -1150,6 +1150,19 @@ const CHANGELOG_CURRENT := [
 		"Movement, aiming, shooting, reload, jump, dash, night vision, interact, and hotbar switching all now work with a controller during raids and the Gauntlet, alongside keyboard and mouse (which work exactly as before) - left stick to move, right stick to aim, right trigger to fire, left trigger to aim down sights, bumpers to cycle the hotbar, face buttons for everything else.",
 		"This is Part 1 - menus and inventory (Stash, Trading, etc.) are still mouse-only for now, that's Part 2.",
 	]},
+	{"version": "3.69.0", "title": "Gamepad Support, Part 2: Every Menu and Inventory Screen", "notes": [
+		"Every menu, popup, and inventory screen in the game is now fully controller-navigable - Stash, Trading, Settings, the Skill Tree, and everything else, not just core gameplay from Part 1.",
+		"Added a controller-friendly stand-in for drag-and-drop - pick an item up with one button, move to a slot, place it with the same button - to every inventory grid (Stash, Backpack, Backpack Storage, Safe Pockets, Recruits, the Gauntlet).",
+		"Pause, chat, and every popup's own close button now all work with a controller too - previously only the keyboard versions of those did.",
+		"The Skill Tree specifically needed real directional navigation between its 21 branching nodes, not just a generic focus order, since it's a free-form layout rather than a simple list.",
+	]},
+	{"version": "3.70.0", "title": "Bug Fixes: Gamepad Focus Outline, Enemy Sprites, Vicinity Searching", "notes": [
+		"Fixed a stray white outline showing up around a random button (Main Menu's Roadmap button, a popup's Close button, and others) every time a screen opened - a side effect of the new gamepad support grabbing focus everywhere. It now only actually shows once you're using a controller.",
+		"The Noxious Bat (and Ghost, Ghoul, Marauder, Rift Wraith, Sentinel, Skeleton, and Toxic Waste) had a real scene-authoring bug silently forcing them onto the plain generic human sprite instead of their own art - fixed for all of them, and gave the Bat and the Wisp a real non-human redesign (a winged creature and a glowing orb, respectively) instead of a recolored person.",
+		"Vicinity searching: a revealed item is now claimable the instant it shows up instead of needing to wait for the whole search to finish, fixed a size mismatch that made loot look smaller once a search completed, and the item currently being searched now has a real progress animation instead of sitting there static.",
+		"Added a live controller-connection status and button-mapping reference to Settings, so there's an actual way to check a controller is being read.",
+		"Shrunk the oversized Stats button on the Stash character doll.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
