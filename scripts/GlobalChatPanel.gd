@@ -127,6 +127,31 @@ const MESSAGES := [
 	"died on wave 9 again bro im cooked",
 	"new pb wave 17 in bloodline lets goooo",
 	"wave 12 enemies hit different fr",
+	# Loot/economy chatter
+	"anyone else feel like ammo drops way less than it used to",
+	"just found a full set of matching legendary gear, never happens",
+	"selling everything before the next wipe, might as well",
+	"why do keys always drop for houses i already looted",
+	"artifacts feel way more useful now than a few patches ago",
+	"junk to alloys conversion rate still feels rough ngl",
+	"anyone actually track their stash worth over time, im curious",
+	"got my first divine drop today, hands were shaking fr",
+	"still haven't seen a godforged item drop, does anyone even have one",
+	# Raid stories
+	"got sandwiched between two real players and somehow survived",
+	"extraction chopper left without me again, story of my life",
+	"the mechanic shop always has someone camping it lately",
+	"finally found the lake on overgrowth after all this time",
+	"boneclock's skeleton cave still creeps me out ngl",
+	"anyone else think the gas station fight is way harder than it should be",
+	"the boss arena on overgrowth still humbles me every time",
+	"just barely escaped a 3-man squad with one hp, insane run",
+	# Progression / meta talk
+	"prestige reset hits different once you actually understand the bonus",
+	"skill points changed the whole meta honestly",
+	"anyone maxed their skill tree yet or still grinding",
+	"the level cap grind is real but worth it eventually",
+	"still trying to figure out the best build for solo queue",
 ]
 
 # Templates that mention another random player - referencing someone
@@ -143,6 +168,31 @@ const MESSAGES_WITH_OTHER := [
 	"{other} just outran a whole squad, respect",
 	"lmao {other} got cooked by a goblin of all things",
 	"{other} carry me through boneclock next raid please",
+	"{other} clutched that 1v3 like it was nothing, respect",
+	"not {other} extracting with 30 seconds left, heart attack material",
+	"{other} keeps stealing my kills and i love it honestly",
+	"someone tell {other} to stop running solo into everything",
+	"{other} really said trust me and it worked, wild",
+	"watching {other} climb the leaderboard is actually inspiring ngl",
+	"{other} owes me a rematch after that arena loss",
+	"{other} pulled the exact loadout i wanted, jealous",
+	"props to {other} for actually reviving me mid raid",
+	"{other} disappeared the second loot dropped, typical",
+	"{other} and i almost died laughing at that goblin encounter",
+	"did {other} really just walk past a legendary chest, unreal",
+	"{other} carried that whole raid and said nothing about it",
+	"{other} needs to stop baiting me into bad fights lol",
+	"shoutout {other} for the free ammo drop earlier",
+	"{other} somehow finds loot i never even see",
+	"{other} out here soloing bosses like its nothing",
+	"{other} why do you always extract right as i spawn in",
+	"{other} you're the reason i still play this honestly",
+	"{other} keeps calling dibs on loot before it even drops",
+	"{other} just tanked a whole squad's worth of damage, insane",
+	"can {other} teach a class on not dying to goblins please",
+	"{other} really thought that was a safe fight, it was not",
+	"{other} has the worst luck with loot bags i swear",
+	"{other} somehow always has better ammo than me",
 ]
 
 # Genuine "you're doing great" callouts about someone's ACTUAL leaderboard
@@ -180,11 +230,15 @@ const REPLY_ACKS := [
 	"same tbh", "real talk", "facts", "this", "lmaooo true", "bro said it",
 	"ratio", "mid take ngl", "gyatt", "he's so back", "sigma", "goated take",
 	"understood the assignment", "certified", "bro cooked", "not the ratio",
+	"real", "actual facts", "say less", "this is the way", "cooked take ngl",
+	"L take but okay", "hard agree", "not lying", "spitting fr", "period",
 ]
 const REPLY_TO_PLAYER := [
 	"welcome lol", "real", "same energy honestly", "wait fr?",
 	"gl with that", "lmaooo", "based take", "facts no printer",
 	"o7", "W",
+	"real talk", "lowkey true", "no shot", "actually real", "big if true",
+	"L take ngl", "hard agree", "wait that's actually smart",
 ]
 
 # People clowning on each other over rank - always references another
@@ -259,6 +313,21 @@ const MESSAGES_BRAINROT := [
 	"ts pmo when the loot bag despawns right before extraction",
 	"real ones know the flamethrower is actually top tier no cap",
 	"npc dialogue but it's just me narrating my own raid out loud",
+	"the loot bag was mid but the vibes were immaculate honestly",
+	"bro really said one more raid at 2am, we are not the same",
+	"extraction music hits different when you're actually about to make it",
+	"caught myself talking to my pet like it understands me, it doesn't",
+	"the girlboss energy of extracting solo with a full stash cannot be replicated",
+	"not the raid ending in a goblin standoff, peak comedy",
+	"this chat has more personality than the actual npcs ngl",
+	"bro treats every raid like its the chip finals, respect the dedication",
+	"the loot goblins really said no thoughts head empty just vibes",
+	"i said let him cook and he burned the whole kitchen down, 10/10",
+	"extraction anxiety is a real disorder and this game gave it to me",
+	"the way i flinched at my own shadow in boneclock, embarrassing",
+	"certified npc moment walking into my own claymore",
+	"this update lowkey fixed my sleep schedule, worse in every way",
+	"the aura farming in this chat alone could power a small city",
 ]
 
 # Bots occasionally address the player by name unprompted, not just as
@@ -272,6 +341,24 @@ const MESSAGES_TO_PLAYER_BY_NAME := [
 	"anyone seen {player} pull a multiversal yet lol",
 	"{player} carry me next raid please",
 	"{player} what's your loadout rn",
+	"{player} you still grinding or did you finally take a break",
+	"yo {player} what's your stash worth rn",
+	"{player} teach me your extraction timing please",
+	"anyone know if {player} is still active, haven't seen them post",
+	"{player} your last raid clip was actually insane",
+	"{player} you free to squad up later tonight",
+	"not gonna lie {player} your loadout choices are always solid",
+	"{player} did you actually hit the leaderboard yet",
+	"{player} drop your build, i wanna copy it ngl",
+	"{player} you ever miss a wipe or do you always come back stacked",
+	"{player} i see you lurking in chat, say something",
+	"{player} what map you running tonight",
+	"{player} your name's been coming up a lot lately, good stuff",
+	"{player} you selling anything rn or are you hoarding it all",
+	"{player} how's the grind going, worth it?",
+	"{player} you ever get tired of this game, asking for a friend",
+	"{player} your stats looked rough last i checked, everything good?",
+	"{player} you're either really good or really lucky, which is it",
 ]
 
 func _ready() -> void:

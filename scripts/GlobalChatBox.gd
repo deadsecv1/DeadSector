@@ -428,7 +428,7 @@ func _on_chat_submitted(text: String) -> void:
 		_ensure_chat_pool()
 		if not _chat_pool.is_empty() and randf() < 0.65:
 			var replier: Dictionary = _chat_pool[randi() % _chat_pool.size()]
-			var reply_text: String = GlobalChatPanelScript.REPLY_TO_PLAYER[randi() % GlobalChatPanelScript.REPLY_TO_PLAYER.size()]
+			var reply_text: String = _stylize_for_sender(GlobalChatPanelScript.REPLY_TO_PLAYER[randi() % GlobalChatPanelScript.REPLY_TO_PLAYER.size()], replier)
 			var reply_channel := _current_channel
 			await get_tree().create_timer(randf_range(0.8, 2.2)).timeout
 			if not chat_box_open or _current_channel != reply_channel:
@@ -493,7 +493,36 @@ func _add_channel_entry(ch: String, sender: Dictionary) -> void:
 	if ch == "Recruit" and randf() < 0.3:
 		_add_invite_row(ch, sender)
 		return
-	_add_log_row(ch, sender, _roll_message(ch, sender))
+	_add_log_row(ch, sender, _stylize_for_sender(_roll_message(ch, sender), sender))
+
+# Every simulated sender types the same way every time they talk (a
+# stable hash of their own name, not a fresh roll per message) - about a
+# third type with real capitalization/punctuation, a third strip it down
+# further than this pool's already-casual baseline, and a third are left
+# exactly as authored. Never touches the player's own typed text.
+func _stylize_for_sender(text: String, sender: Dictionary) -> String:
+	if text == "":
+		return text
+	var sender_name: String = str(sender.get("name", ""))
+	match hash(sender_name) % 3:
+		0:
+			return _make_proper(text)
+		1:
+			return _make_sloppy(text)
+		_:
+			return text
+
+func _make_proper(text: String) -> String:
+	var result: String = text[0].to_upper() + text.substr(1)
+	if not (result.ends_with(".") or result.ends_with("!") or result.ends_with("?")):
+		result += "."
+	return result
+
+func _make_sloppy(text: String) -> String:
+	var result: String = text.to_lower()
+	for punct in [".", "!", "?", ","]:
+		result = result.replace(punct, "")
+	return result
 
 func _roll_message(ch: String, sender: Dictionary) -> String:
 	match ch:
@@ -519,7 +548,7 @@ func _roll_no_repeat(ch: String, pool: Array) -> String:
 func _roll_global_message(sender: Dictionary) -> String:
 	if randf() < 0.12:
 		var pname: String = GameManager.player_name if GameManager.player_name != "" else "operative"
-		var t: String = GlobalChatPanelScript.MESSAGES_TO_PLAYER_BY_NAME[randi() % GlobalChatPanelScript.MESSAGES_TO_PLAYER_BY_NAME.size()]
+		var t: String = _roll_no_repeat("GlobalToPlayer", GlobalChatPanelScript.MESSAGES_TO_PLAYER_BY_NAME)
 		return t.replace("{player}", pname)
 	var roll := randf()
 	if roll < 0.3 and _chat_pool.size() > 1:
@@ -528,7 +557,7 @@ func _roll_global_message(sender: Dictionary) -> String:
 		while other.get("name", "") == sender.get("name", "") and tries < 6:
 			other = _chat_pool[randi() % _chat_pool.size()]
 			tries += 1
-		var t: String = GlobalChatPanelScript.MESSAGES_WITH_OTHER[randi() % GlobalChatPanelScript.MESSAGES_WITH_OTHER.size()]
+		var t: String = _roll_no_repeat("GlobalWithOther", GlobalChatPanelScript.MESSAGES_WITH_OTHER)
 		return t.replace("{other}", str(other.get("name", "someone")))
 	elif roll < 0.65:
 		return _roll_no_repeat("Global", GlobalChatPanelScript.MESSAGES_BRAINROT)
@@ -551,7 +580,7 @@ func _add_bot_message() -> void:
 		await get_tree().create_timer(randf_range(0.9, 2.0)).timeout
 		if not chat_box_open or _current_channel != ch:
 			return
-		var ack: String = GlobalChatPanelScript.REPLY_ACKS[randi() % GlobalChatPanelScript.REPLY_ACKS.size()]
+		var ack: String = _stylize_for_sender(GlobalChatPanelScript.REPLY_ACKS[randi() % GlobalChatPanelScript.REPLY_ACKS.size()], replier)
 		_add_log_row(ch, replier, ack)
 
 # ------------------------------------------------------------------
@@ -589,6 +618,22 @@ const MARKET_MESSAGES := [
 	"anyone want to trade eggs, got a spare rare tier",
 	"posted a legendary weapon, getting nothing but lowballs so far",
 	"market prices this reset are actually insane compared to last one",
+	"WTS a stack of loot bags, mixed tiers, bulk discount available",
+	"anyone buying artifacts rn, got way more than i need",
+	"just got scammed on a direct trade, be careful out there",
+	"selling a mythic backpack, priced fair not trying to rob anyone",
+	"WTB heavy ammo in bulk, running low every single raid",
+	"is there ever a good time to sell or is it always a buyer's market",
+	"finally offloaded that exotic i've been holding onto for weeks",
+	"selling pet eggs cheap, don't have room to hatch them all",
+	"anyone know the going rate for a divine item, first one i've seen",
+	"WTT skin for skin, got 3 spares nobody wants",
+	"market's flooded with common gear rn, prices are in the floor",
+	"just listed my whole attachment collection, taking offers",
+	"paying above market for anything with loot_sense on it",
+	"selling a full case of specialized gear, medical case included",
+	"WTB a legendary or better chestplate, budget flexible",
+	"anyone still trading blueprints or did that die out",
 ]
 
 const RECRUIT_MESSAGES := [
@@ -617,6 +662,22 @@ const RECRUIT_MESSAGES := [
 	"looking for a scav run partner, low stakes just for fun",
 	"need a medic-style loadout on my team, i run pure damage",
 	"anyone recruiting right now or should i just solo queue",
+	"LFG graveyard, heard the loot's underrated there",
+	"looking for 2 more, got a full squad slot open",
+	"anyone want to run ironscrap yard, never actually been",
+	"team up for the foundry, heard the corridors are rough solo",
+	"need someone who actually revives, tired of getting left",
+	"LFG casual, not trying to sweat just want to have fun",
+	"recruiting experienced players only, tired of getting carried",
+	"anyone else's squad just fall apart mid raid, need new people",
+	"looking for a regular raid group, not just one-offs",
+	"got room for one more if anyone's free right now",
+	"squad looking for a fourth, bring whatever gear you have",
+	"need someone with a sniper build, i'm all close range",
+	"LFG anyone, genuinely don't care what map at this point",
+	"forming a group for a boneclock boss run, bring your best gear",
+	"anyone free to help me finish a quest, need backup",
+	"looking for people who actually communicate, mic or type both fine",
 ]
 
 func _roll_recruit_invite() -> Dictionary:
