@@ -87,11 +87,20 @@ func _spawn_pet() -> void:
 # land the cache in one of the 4 solid corners between arms. Picks a
 # random arm and a distance along ITS length instead, so it always
 # lands somewhere genuinely walkable.
+#
+# All 4 arms now reach a symmetric 2700 from center (each hub edge at
+# 300, doubled from the original 1200-long run to 2400) before the next
+# solid cross-piece - North into FoundryOffice's front wall, East/West/
+# South into their (relocated) end caps. 2450 keeps a clear ~250-unit
+# margin short of every one of those, and also clears the branch
+# corridors added off each arm (Ingot Sorting Bay/Slag Crucible Vault/
+# The Cupola Vault/Casting Floor), since those branch mouths only open
+# the OUTER wall at +-140 and never touch this pure-axis centerline.
 func _maybe_spawn_elite_cache_event() -> void:
 	if randf() >= 0.18:
 		return
 	var arm_dir: Vector2 = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT][randi() % 4]
-	var center: Vector2 = arm_dir * randf_range(600.0, 950.0)
+	var center: Vector2 = arm_dir * randf_range(600.0, 2450.0)
 	for i in range(2):
 		var guard = ELITE_ENEMY_SCENE.instantiate()
 		guard.is_elite_guard = true
