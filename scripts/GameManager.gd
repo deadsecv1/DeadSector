@@ -6178,6 +6178,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if using_gamepad != was_gamepad:
 		input_device_changed.emit(using_gamepad)
 		_update_focus_ring_visibility()
+		if not _in_gameplay_cursor_mode:
+			_apply_menu_cursor()
 
 # The engine's default "focus" StyleBox for Button (a plain white outline)
 # is exactly what focus_first_control() below needs SOMEONE to be able to
@@ -6324,6 +6326,7 @@ func _ready() -> void:
 	_setup_audio_buses()
 	_crosshair_texture = _make_crosshair_texture()
 	_menu_cursor_texture = _make_menu_cursor_texture()
+	_gamepad_cursor_texture = _make_gamepad_cursor_texture()
 	_init_focus_ring_visibility()
 	load_game()
 	_reroll_featured_skins()
@@ -7517,6 +7520,7 @@ var _autosave_timer: float = 0.0
 const AUTOSAVE_INTERVAL := 5.0
 
 func _process(delta: float) -> void:
+	_update_gamepad_cursor(delta)
 	_trader_rotation_timer += delta
 	if _trader_rotation_timer >= TRADER_ROTATION_INTERVAL:
 		_trader_rotation_timer = 0.0
@@ -8133,21 +8137,99 @@ func _repair_grid_list(items: Array, is_backpack: bool) -> void:
 # --- Crosshair cursor (used during gameplay; menus use the Jolt cursor) ---
 var _crosshair_texture: ImageTexture
 var _menu_cursor_texture: Texture2D
+# --- Gamepad menu cursor: a Destiny-style ring reticle that replaces the
+# menu cursor (never the gameplay crosshair - the left stick already
+# means "move" there) the instant a controller is in use, steerable with
+# the left stick via _update_gamepad_cursor() below. Real Input.warp_mouse()
+# under the hood, not a fake overlay, so every existing hover/click/drag
+# handler on every panel keeps working completely unchanged.
+var _gamepad_cursor_texture: ImageTexture
+var _in_gameplay_cursor_mode: bool = false
+var _gamepad_cursor_pos: Vector2 = Vector2.ZERO
+const GAMEPAD_CURSOR_SPEED := 1000.0
 
 func set_crosshair_cursor() -> void:
+	_in_gameplay_cursor_mode = true
 	Input.set_custom_mouse_cursor(_crosshair_texture, Input.CURSOR_ARROW, Vector2(10, 10))
 
 func set_default_cursor() -> void:
-	if _menu_cursor_texture != null:
+	_in_gameplay_cursor_mode = false
+	_apply_menu_cursor()
+
+func _apply_menu_cursor() -> void:
+	if using_gamepad and _gamepad_cursor_texture != null:
+		var viewport := get_viewport()
+		if viewport != null:
+			_gamepad_cursor_pos = viewport.get_mouse_position()
+		Input.set_custom_mouse_cursor(_gamepad_cursor_texture, Input.CURSOR_ARROW, Vector2(14, 14))
+	elif _menu_cursor_texture != null:
 		Input.set_custom_mouse_cursor(_menu_cursor_texture, Input.CURSOR_ARROW, Vector2(8, 5))
 	else:
 		Input.set_custom_mouse_cursor(null, Input.CURSOR_ARROW)
+
+# Steers the real OS cursor with the left stick whenever a controller's in
+# use and we're not in gameplay (see _in_gameplay_cursor_mode - during a
+# raid the left stick already means movement, so this never runs there).
+# Warping the actual cursor position (not a fake sprite) means every
+# button/panel's normal hover state just works with zero extra code; the
+# only new piece needed is following it up by grabbing focus on whatever's
+# now hovered, so the gamepad's existing Accept button (already wired to
+# activate whatever has focus) fires the right thing.
+func _update_gamepad_cursor(delta: float) -> void:
+	if not using_gamepad or _in_gameplay_cursor_mode:
+		return
+	var stick := Vector2(
+		Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_LEFT_X),
+		Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_LEFT_Y)
+	)
+	if stick.length() <= STICK_DEADZONE:
+		return
+	var viewport := get_viewport()
+	if viewport == null:
+		return
+	_gamepad_cursor_pos += stick * GAMEPAD_CURSOR_SPEED * delta
+	var vp_size := viewport.get_visible_rect().size
+	_gamepad_cursor_pos.x = clamp(_gamepad_cursor_pos.x, 0.0, vp_size.x)
+	_gamepad_cursor_pos.y = clamp(_gamepad_cursor_pos.y, 0.0, vp_size.y)
+	# Input.warp_mouse() takes window-space (physical) pixels, but every
+	# other read of the mouse position in this game (get_mouse_position(),
+	# gui_get_hovered_control()) is in viewport-space - these differ
+	# whenever the window isn't rendered at exactly the design resolution
+	# (this project uses "canvas_items"/"expand" stretch, so that's
+	# effectively always). Confirmed empirically with a scratch probe -
+	# warping with the raw viewport-space position lands the OS cursor
+	# at the wrong spot entirely (and hover never resolves), only
+	# converting through get_screen_transform() first lands correctly.
+	Input.warp_mouse(viewport.get_screen_transform() * _gamepad_cursor_pos)
+	var hovered := viewport.gui_get_hovered_control()
+	if hovered != null and hovered.focus_mode != Control.FOCUS_NONE:
+		hovered.grab_focus()
 
 func _make_menu_cursor_texture() -> Texture2D:
 	var path := "res://assets/cursor/menu_cursor.png"
 	if not ResourceLoader.exists(path):
 		return null
 	return load(path)
+
+func _make_gamepad_cursor_texture() -> ImageTexture:
+	# A hollow cyan ring with a small solid center dot - Destiny's
+	# targeting reticle rather than a plain arrow, so a controller
+	# player gets a cursor that visually matches how it's actually
+	# being driven (free-steered, not clicked).
+	var size := 28
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var center := Vector2(size / 2.0, size / 2.0)
+	var outer_r := 12.0
+	var inner_r := 9.5
+	var dot_r := 2.2
+	for x in range(size):
+		for y in range(size):
+			var d: float = Vector2(x + 0.5, y + 0.5).distance_to(center)
+			if d <= dot_r:
+				img.set_pixel(x, y, Color(1, 1, 1, 0.95))
+			elif d >= inner_r and d <= outer_r:
+				img.set_pixel(x, y, Color(0.4, 0.95, 1.0, 0.9))
+	return ImageTexture.create_from_image(img)
 
 func _make_crosshair_texture() -> ImageTexture:
 	# A clean white "gap cross" - four short thick dashes with an open
