@@ -82,6 +82,8 @@ func _ready() -> void:
 	inventory_bind_button.pressed.connect(func(): _start_rebind("inventory", inventory_bind_button))
 	keybinds_back_button.pressed.connect(_show_main)
 
+	_build_controller_section()
+
 func _show_keybinds() -> void:
 	main_view.visible = false
 	keybinds_view.visible = true
@@ -142,3 +144,52 @@ func _on_shake_toggled(pressed: bool) -> void:
 func _on_back() -> void:
 	GameManager.save_game()
 	Transition.change_scene_instant("res://scenes/MainMenu.tscn")
+
+# Read-only reference (see CLAUDE.md's "Controller/gamepad support" - there's
+# deliberately no gamepad rebind UI, keyboard rebinds already apply
+# automatically) plus a live status line, since "is my controller actually
+# being read?" has no other way to check in-game.
+var controller_status_label: Label
+
+func _build_controller_section() -> void:
+	var header := Label.new()
+	header.text = "CONTROLLER"
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 22)
+	header.add_theme_color_override("font_color", Color(0.7, 0.75, 0.85, 1))
+	header.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	header.add_theme_constant_override("outline_size", 3)
+	keybinds_view.add_child(header)
+	keybinds_view.move_child(header, keybinds_back_button.get_index())
+
+	controller_status_label = Label.new()
+	controller_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	controller_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	controller_status_label.add_theme_font_size_override("font_size", 15)
+	keybinds_view.add_child(controller_status_label)
+	keybinds_view.move_child(controller_status_label, keybinds_back_button.get_index())
+
+	var map_label := Label.new()
+	map_label.text = "Move: Left Stick   Aim: Right Stick   Shoot: Right Trigger   Aim Down Sights: Left Trigger\nInteract: A   Jump: Y   Dash: B   Nightvision / Reload: X   Prone: Left Stick Click\nInventory: Start   Chat: Back   Pause: D-Pad Up   Hotbar Prev / Next: LB / RB"
+	map_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	map_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	map_label.add_theme_font_size_override("font_size", 13)
+	map_label.modulate = Color(1, 1, 1, 0.75)
+	keybinds_view.add_child(map_label)
+	keybinds_view.move_child(map_label, keybinds_back_button.get_index())
+
+	Input.joy_connection_changed.connect(func(_device, _connected): _refresh_controller_status())
+	GameManager.input_device_changed.connect(func(_is_gamepad): _refresh_controller_status())
+	_refresh_controller_status()
+
+func _refresh_controller_status() -> void:
+	var connected: bool = Input.get_connected_joypads().size() > 0
+	if not connected:
+		controller_status_label.text = "No controller detected"
+		controller_status_label.add_theme_color_override("font_color", Color(0.9, 0.5, 0.45, 1))
+	elif GameManager.using_gamepad:
+		controller_status_label.text = "Controller connected - currently active"
+		controller_status_label.add_theme_color_override("font_color", Color(0.5, 0.9, 0.55, 1))
+	else:
+		controller_status_label.text = "Controller connected - press any button to test it"
+		controller_status_label.add_theme_color_override("font_color", Color(0.9, 0.8, 0.4, 1))
