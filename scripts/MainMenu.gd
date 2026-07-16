@@ -287,6 +287,7 @@ func _ready() -> void:
 	_chat_popup_next = randf_range(6.0, 16.0)
 	_last_top3_names = GameManager.get_ranked_leaderboard().slice(0, 3).map(func(e): return str(e.get("name", "")))
 	set_process(true)
+	GameManager.focus_first_control(self)
 
 func _process(delta: float) -> void:
 	_store_popup_timer += delta

@@ -23,6 +23,7 @@ func _ready() -> void:
 	sparkles_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	sparkles_holder.gradient_colors = [Color(0.95, 0.75, 0.3, 1), Color(0.9, 0.25, 0.2, 1)]
 	sparkles_holder.intensity = 26
+	GameManager.focus_first_control(self)
 
 func _build_summary() -> void:
 	for c in loot_list.get_children():

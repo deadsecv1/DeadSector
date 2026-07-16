@@ -76,6 +76,7 @@ func _ready() -> void:
 	_build_trail_list()
 	build_slider.value_changed.connect(_on_build_changed)
 	confirm_button.pressed.connect(_on_confirm)
+	GameManager.focus_first_control(self)
 
 func _on_build_changed(value: float) -> void:
 	preview.build = value

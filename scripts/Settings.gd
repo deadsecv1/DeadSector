@@ -60,9 +60,9 @@ func _ready() -> void:
 	vsync_toggle.button_pressed = GameManager.vsync_enabled
 	shake_toggle.button_pressed = GameManager.screen_shake_enabled
 	_refresh_keybind_labels()
-	_add_controller_notice()
 	main_view.visible = true
 	keybinds_view.visible = false
+	GameManager.focus_first_control(main_view)
 
 	master_slider.value_changed.connect(_on_master_changed)
 	music_slider.value_changed.connect(_on_music_changed)
@@ -85,31 +85,12 @@ func _ready() -> void:
 func _show_keybinds() -> void:
 	main_view.visible = false
 	keybinds_view.visible = true
-
-func _add_controller_notice() -> void:
-	var banner := PanelContainer.new()
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.05, 0.055, 0.05, 0.85)
-	sb.border_color = Color(1.0, 0.8, 0.35, 0.5)
-	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(6)
-	sb.content_margin_left = 10
-	sb.content_margin_right = 10
-	sb.content_margin_top = 6
-	sb.content_margin_bottom = 6
-	banner.add_theme_stylebox_override("panel", sb)
-	var lbl := Label.new()
-	lbl.text = "CONTROLLER SUPPORT COMING SOON"
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.add_theme_font_size_override("font_size", 13)
-	lbl.add_theme_color_override("font_color", Color(1.0, 0.8, 0.35, 1))
-	banner.add_child(lbl)
-	main_view.add_child(banner)
-	main_view.move_child(banner, 1)
+	GameManager.focus_first_control(keybinds_view)
 
 func _show_main() -> void:
 	keybinds_view.visible = false
 	main_view.visible = true
+	GameManager.focus_first_control(main_view)
 	rebinding_action = ""
 
 func _start_rebind(action: String, button: Button) -> void:

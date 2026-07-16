@@ -6095,7 +6095,12 @@ func focus_first_control(container: Control) -> void:
 		found.grab_focus()
 
 func _find_first_focusable(node: Node) -> Control:
-	if node is Control and node.focus_mode != Control.FOCUS_NONE and node.visible:
+	# "disabled" only exists on BaseButton, not Control in general - a
+	# disabled-but-still-focus_mode-ALL button (e.g. an unaffordable
+	# recruit card, or DeathScreen's "Killed By" button when there was no
+	# attacker) would otherwise steal initial focus and leave a gamepad
+	# player stuck unable to actually activate anything.
+	if node is Control and node.focus_mode != Control.FOCUS_NONE and node.visible and not ("disabled" in node and node.disabled):
 		return node
 	for child in node.get_children():
 		var found := _find_first_focusable(child)

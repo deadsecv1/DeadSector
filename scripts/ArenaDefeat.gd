@@ -13,6 +13,7 @@ func _ready() -> void:
 	GameManager.set_default_cursor()
 	kills_label.text = "Kills: %d" % GameManager.last_arena_kills
 	continue_button.pressed.connect(_on_continue)
+	GameManager.focus_first_control(self)
 
 func _on_continue() -> void:
 	Transition.change_scene_instant("res://scenes/MainMenu.tscn")

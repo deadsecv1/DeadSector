@@ -19,6 +19,7 @@ func _ready() -> void:
 	solo_button.pressed.connect(func(): _deploy(""))
 	back_button.pressed.connect(func(): Transition.change_scene_instant("res://scenes/MapSelect.tscn"))
 	_build_cards()
+	GameManager.focus_first_control(self)
 
 func _build_cards() -> void:
 	for c in card_row.get_children():

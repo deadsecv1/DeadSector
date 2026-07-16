@@ -24,6 +24,7 @@ func _ready() -> void:
 	night_button.pressed.connect(func(): _start_raid(true))
 	back_button.pressed.connect(func(): Transition.change_scene_instant("res://scenes/MapChoice.tscn"))
 	_update_time()
+	GameManager.focus_first_control(self)
 
 # This screen used to just say "SELECT RAID" with no indication of which
 # Sector you were actually about to deploy into - GameManager.selected_map

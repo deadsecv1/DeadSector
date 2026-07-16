@@ -23,6 +23,7 @@ func _ready() -> void:
 	back_button.pressed.connect(func(): Transition.change_scene_instant("res://scenes/MainMenu.tscn"))
 	_build_pmc_preview()
 	_build_scav_preview()
+	GameManager.focus_first_control(self)
 
 func _build_pmc_preview() -> void:
 	for c in pmc_gear_row.get_children():

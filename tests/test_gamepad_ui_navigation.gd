@@ -51,6 +51,27 @@ func test_focus_first_control_is_safe_with_nothing_focusable() -> void:
 	GameManager.focus_first_control(root) # should not error
 	assert_true(true, "focus_first_control with no focusable children should not crash")
 	remove_child(root)
+
+func test_focus_first_control_skips_a_disabled_button() -> void:
+	# A disabled BaseButton keeps focus_mode == FOCUS_ALL and visible == true -
+	# without an explicit disabled check, an unaffordable recruit card or
+	# DeathScreen's "Killed By" button (disabled when there was no
+	# attacker) would steal initial focus and strand a gamepad player on
+	# a button that does nothing when pressed.
+	var root := Control.new()
+	var disabled_button := Button.new()
+	disabled_button.text = "Disabled"
+	disabled_button.disabled = true
+	root.add_child(disabled_button)
+	var enabled_button := Button.new()
+	enabled_button.text = "Enabled"
+	root.add_child(enabled_button)
+	add_child(root)
+
+	GameManager.focus_first_control(root)
+	assert_true(enabled_button.has_focus(), "focus_first_control should skip a disabled button and land on the next enabled one")
+
+	remove_child(root)
 	root.queue_free()
 
 func test_pickup_then_place_moves_the_item_via_the_slots_own_drop_data() -> void:

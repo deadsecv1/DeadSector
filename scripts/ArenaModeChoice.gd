@@ -24,6 +24,7 @@ func _ready() -> void:
 	GameManager.set_default_cursor()
 	for mode in MODES:
 		card_row.add_child(_make_mode_card(mode))
+	GameManager.focus_first_control(self)
 
 func _make_mode_card(mode: Dictionary) -> Control:
 	var card := Button.new()

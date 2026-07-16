@@ -44,6 +44,7 @@ func _ready() -> void:
 	GameManager.set_default_cursor()
 	for preset in GameManager.ARENA_LOADOUT_PRESETS:
 		card_row.add_child(_make_preset_card(preset))
+	GameManager.focus_first_control(self)
 
 # The single biggest click target in the whole Arena Loadout flow used
 # to have zero hover feedback at all (just default button chrome) -

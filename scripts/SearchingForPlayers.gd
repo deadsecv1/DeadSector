@@ -18,6 +18,7 @@ func _ready() -> void:
 	ranked_label.visible = GameManager.is_ranked_match
 	spinner.draw.connect(_draw_spinner)
 	set_process(true)
+	GameManager.focus_first_control(self)
 	await get_tree().create_timer(SEARCH_SECONDS).timeout
 	_proceed()
 

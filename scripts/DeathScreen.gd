@@ -85,6 +85,7 @@ func _ready() -> void:
 		mannequin.queue_redraw()
 
 	continue_button.pressed.connect(_on_continue)
+	GameManager.focus_first_control(self)
 
 func _on_killed_by_pressed() -> void:
 	context_menu.open_for(_killer_entry, killed_by_button.get_global_rect().position + Vector2(20, 20))

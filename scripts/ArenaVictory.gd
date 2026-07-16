@@ -19,6 +19,7 @@ func _ready() -> void:
 	kills_label.text = "Kills: %d" % GameManager.last_arena_kills
 	rank_points_label.text = "+%d Arena Rank points" % GameManager.last_arena_rank_points_gained
 	continue_button.pressed.connect(_on_continue)
+	GameManager.focus_first_control(self)
 
 func _on_continue() -> void:
 	Transition.change_scene_instant("res://scenes/MainMenu.tscn")

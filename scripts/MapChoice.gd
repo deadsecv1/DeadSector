@@ -68,6 +68,7 @@ func _ready() -> void:
 	ironscrap_button.pressed.connect(func(): _choose("ironscrap"))
 	foundry_button.pressed.connect(func(): _choose("the_foundry"))
 	back_button.pressed.connect(func(): Transition.change_scene_instant("res://scenes/MainMenu.tscn"))
+	GameManager.focus_first_control(self)
 
 # Inserts a themed ItemIcon above the title on a map card - the same
 # icon_key already used for this map on the Data screen's Maps tab, so a

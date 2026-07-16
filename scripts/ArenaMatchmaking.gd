@@ -22,6 +22,7 @@ func _ready() -> void:
 	mode_label.text = "Finding a %dv%d match..." % [_team_size, _team_size]
 	spinner.draw.connect(_draw_spinner)
 	set_process(true)
+	GameManager.focus_first_control(self)
 	await get_tree().create_timer(SEARCH_SECONDS).timeout
 	GameManager.generate_arena_match(_team_size)
 	Transition.change_scene("res://scenes/ArenaLoadoutChoice.tscn")
