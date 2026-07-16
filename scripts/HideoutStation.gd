@@ -44,14 +44,14 @@ func set_locked(value: bool, locked_text: String = "Locked") -> void:
 	_locked = value
 	_locked_text = locked_text
 	if player_in_range:
-		prompt.text = _locked_text if _locked else prompt_text
+		prompt.text = GameManager.format_prompt(_locked_text if _locked else prompt_text)
 		prompt.modulate = Color(1, 1, 1, 0.5) if _locked else Color(1, 1, 1, 1)
 
 func _on_entered(body: Node) -> void:
 	if body.is_in_group("player"):
 		player_in_range = true
 		prompt.visible = true
-		prompt.text = _locked_text if _locked else prompt_text
+		prompt.text = GameManager.format_prompt(_locked_text if _locked else prompt_text)
 		prompt.modulate = Color(1, 1, 1, 0.5) if _locked else Color(1, 1, 1, 1)
 		_show_speech_bubble()
 

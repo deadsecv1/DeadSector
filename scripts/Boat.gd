@@ -18,13 +18,14 @@ var f_was_down: bool = false
 func _ready() -> void:
 	add_to_group("boat")
 	prompt.visible = false
-	prompt.text = "Press F: Board Boat"
+	prompt.text = GameManager.format_prompt("Press F: Board Boat")
 	interact_zone.body_entered.connect(_on_body_entered)
 	interact_zone.body_exited.connect(_on_body_exited)
 
 func _on_body_entered(body: Node) -> void:
 	if body.is_in_group("player") and not player_inside:
 		player_in_range = true
+		prompt.text = GameManager.format_prompt("Press F: Board Boat")
 		prompt.visible = true
 
 func _on_body_exited(body: Node) -> void:
@@ -69,7 +70,7 @@ func _enter_boat() -> void:
 	driver = player
 	player.visible = false
 	player.set_input_locked(true)
-	prompt.text = "Press F: Exit Boat"
+	prompt.text = GameManager.format_prompt("Press F: Exit Boat")
 
 func _exit_boat() -> void:
 	if driver != null and is_instance_valid(driver):
@@ -78,6 +79,6 @@ func _exit_boat() -> void:
 		driver.global_position = global_position + Vector2(0, 45).rotated(rotation - PI / 2.0)
 	player_inside = false
 	driver = null
-	prompt.text = "Press F: Board Boat"
+	prompt.text = GameManager.format_prompt("Press F: Board Boat")
 	if not player_in_range:
 		prompt.visible = false

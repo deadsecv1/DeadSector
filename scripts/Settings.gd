@@ -32,17 +32,40 @@ extends Control
 var rebinding_action: String = ""
 var rebinding_gamepad_action: String = ""
 
-# Xbox-style naming, matching this screen's own existing button-mapping
-# reference text - Godot has no built-in "get joy button string" the way
+const GamepadGlyphScript := preload("res://scripts/GamepadGlyph.gd")
+# One small drawn glyph badge per gamepad-bind button, keyed by action -
+# a real Xbox-colored icon next to the existing text label, rather than
+# just text alone. Built at runtime (not baked into Settings.tscn) so
+# adding this didn't require hand-editing 7 near-identical node blocks.
+var _gamepad_glyphs: Dictionary = {}
+
+func _setup_gamepad_glyphs() -> void:
+	var buttons := {
+		"interact": interact_gamepad_bind_button, "prone": prone_gamepad_bind_button,
+		"jump": jump_gamepad_bind_button, "dash": dash_gamepad_bind_button,
+		"nightvision": nightvision_gamepad_bind_button, "chat": chat_gamepad_bind_button,
+		"inventory": inventory_gamepad_bind_button,
+	}
+	for action in buttons:
+		var button: Button = buttons[action]
+		var glyph = GamepadGlyphScript.new()
+		glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		glyph.anchor_left = 0.0
+		glyph.anchor_top = 0.5
+		glyph.anchor_right = 0.0
+		glyph.anchor_bottom = 0.5
+		glyph.offset_left = 6
+		glyph.offset_top = -12
+		glyph.offset_right = 30
+		glyph.offset_bottom = 12
+		button.add_child(glyph)
+		_gamepad_glyphs[action] = glyph
+
+# Xbox-style naming - reads from GameManager.JOY_BUTTON_GLYPH_LABELS (the
+# same canonical table the in-world "Press F"/"Press R" prompt glyphs use
+# via GameManager.format_prompt()) rather than keeping a second copy.
+# Godot has no built-in "get joy button string" the way
 # OS.get_keycode_string() covers keyboard.
-const JOY_BUTTON_NAMES := {
-	JOY_BUTTON_A: "A", JOY_BUTTON_B: "B", JOY_BUTTON_X: "X", JOY_BUTTON_Y: "Y",
-	JOY_BUTTON_LEFT_SHOULDER: "LB", JOY_BUTTON_RIGHT_SHOULDER: "RB",
-	JOY_BUTTON_LEFT_STICK: "L-Stick", JOY_BUTTON_RIGHT_STICK: "R-Stick",
-	JOY_BUTTON_BACK: "Back", JOY_BUTTON_START: "Start", JOY_BUTTON_GUIDE: "Guide",
-	JOY_BUTTON_DPAD_UP: "D-Pad Up", JOY_BUTTON_DPAD_DOWN: "D-Pad Down",
-	JOY_BUTTON_DPAD_LEFT: "D-Pad Left", JOY_BUTTON_DPAD_RIGHT: "D-Pad Right",
-}
 # D-Pad Up is the fixed pause/back button everywhere in the game (see
 # CLAUDE.md) - reserved as this screen's gamepad-rebind cancel button
 # instead of Escape, and never assignable to an action.
@@ -104,6 +127,7 @@ func _ready() -> void:
 	fullscreen_toggle.select(["windowed", "fullscreen", "windowed_fullscreen"].find(GameManager.window_mode_setting))
 	vsync_toggle.button_pressed = GameManager.vsync_enabled
 	shake_toggle.button_pressed = GameManager.screen_shake_enabled
+	_setup_gamepad_glyphs()
 	_refresh_keybind_labels()
 	_refresh_gamepad_bind_labels()
 	main_view.visible = true
@@ -173,7 +197,7 @@ func _start_gamepad_rebind(action: String, button: Button) -> void:
 	button.text = "Press a button..."
 
 func _joy_button_name(button_index: int) -> String:
-	return JOY_BUTTON_NAMES.get(button_index, "Button %d" % button_index)
+	return GameManager.get_gamepad_button_label(button_index)
 
 func _refresh_gamepad_bind_labels() -> void:
 	interact_gamepad_bind_button.text = _joy_button_name(GameManager.get_joypad_binding("interact"))
@@ -183,6 +207,8 @@ func _refresh_gamepad_bind_labels() -> void:
 	nightvision_gamepad_bind_button.text = _joy_button_name(GameManager.get_joypad_binding("nightvision"))
 	chat_gamepad_bind_button.text = _joy_button_name(GameManager.get_joypad_binding("chat"))
 	inventory_gamepad_bind_button.text = _joy_button_name(GameManager.get_joypad_binding("inventory"))
+	for action in _gamepad_glyphs:
+		_gamepad_glyphs[action].set_button(GameManager.get_joypad_binding(action))
 
 # value_changed fires on every step of a drag, not just on release - these
 # three used to call save_game() on every one of those ticks, serializing

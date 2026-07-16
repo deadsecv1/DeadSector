@@ -6442,6 +6442,54 @@ func set_joypad_binding(action: String, button_index: int) -> void:
 	JOYPAD_BUTTON_BINDINGS[action] = button_index
 	save_game()
 
+# --- Gamepad glyph prompts: swaps "Press F"/"Press R"-style keyboard
+# hints for a compact bracketed button label (e.g. "[A]") when a gamepad
+# is the active input device. Canonical Xbox-style label/color source -
+# Settings.gd's own JOY_BUTTON_NAMES (the pre-existing keybind-screen
+# text) reads from this instead of keeping a second copy, and
+# GamepadGlyph.gd (the drawn badge used on HUD's reload prompt) reads
+# the color table for its face-button tint.
+const JOY_BUTTON_GLYPH_LABELS := {
+	JOY_BUTTON_A: "A", JOY_BUTTON_B: "B", JOY_BUTTON_X: "X", JOY_BUTTON_Y: "Y",
+	JOY_BUTTON_LEFT_SHOULDER: "LB", JOY_BUTTON_RIGHT_SHOULDER: "RB",
+	JOY_BUTTON_LEFT_STICK: "L-Stick", JOY_BUTTON_RIGHT_STICK: "R-Stick",
+	JOY_BUTTON_BACK: "Back", JOY_BUTTON_START: "Start", JOY_BUTTON_GUIDE: "Guide",
+	JOY_BUTTON_DPAD_UP: "D-Pad Up", JOY_BUTTON_DPAD_DOWN: "D-Pad Down",
+	JOY_BUTTON_DPAD_LEFT: "D-Pad Left", JOY_BUTTON_DPAD_RIGHT: "D-Pad Right",
+}
+# Real Xbox controller face-button colors (A green / B red / X blue /
+# Y yellow) - everything else gets a neutral gray badge.
+const JOY_BUTTON_GLYPH_COLORS := {
+	JOY_BUTTON_A: Color(0.35, 0.75, 0.35, 1), JOY_BUTTON_B: Color(0.85, 0.3, 0.3, 1),
+	JOY_BUTTON_X: Color(0.35, 0.55, 0.9, 1), JOY_BUTTON_Y: Color(0.9, 0.75, 0.25, 1),
+}
+const JOY_BUTTON_GLYPH_DEFAULT_COLOR := Color(0.55, 0.55, 0.58, 1)
+
+func get_gamepad_button_label(button_index: int) -> String:
+	return str(JOY_BUTTON_GLYPH_LABELS.get(button_index, "Button %d" % button_index))
+
+func get_gamepad_button_color(button_index: int) -> Color:
+	return JOY_BUTTON_GLYPH_COLORS.get(button_index, JOY_BUTTON_GLYPH_DEFAULT_COLOR)
+
+# Every authored world-prompt string in this game either starts with
+# "Press F"/"Press R" (interact/reload, both exactly 7 characters) or
+# opens with a "[F]" bracket (a handful of scripts' own existing style),
+# followed by the rest of the sentence describing what it does. When a
+# gamepad is active, swap that lead-in for the real bound button's
+# bracketed label and leave the rest of the sentence untouched. Call
+# sites just wrap their existing prompt string; keyboard behavior is
+# completely unchanged when using_gamepad is false.
+func format_prompt(text: String) -> String:
+	if not using_gamepad:
+		return text
+	if text.begins_with("Press F"):
+		return "[%s]%s" % [get_gamepad_button_label(get_joypad_binding("interact")), text.substr(7)]
+	if text.begins_with("Press R"):
+		return "[%s]%s" % [get_gamepad_button_label(get_joypad_binding("reload")), text.substr(7)]
+	if text.begins_with("[F]"):
+		return "[%s]%s" % [get_gamepad_button_label(get_joypad_binding("interact")), text.substr(3)]
+	return text
+
 # Drop-in replacement for Input.is_key_pressed(get_keybind(action)) that
 # also accepts the matching gamepad button - existing call sites only
 # need their is_key_pressed(get_keybind(...)) wrapper swapped for this,

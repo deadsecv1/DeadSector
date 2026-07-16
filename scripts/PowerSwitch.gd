@@ -24,6 +24,7 @@ func _on_entered(body: Node) -> void:
 	if body.is_in_group("player"):
 		player_in_range = true
 		if not powered:
+			prompt.text = GameManager.format_prompt("Press F: Turn On Power")
 			prompt.visible = true
 
 func _on_exited(body: Node) -> void:

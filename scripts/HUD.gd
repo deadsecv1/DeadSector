@@ -37,6 +37,8 @@ var _ammo_peek_seconds_left: float = 0.0
 
 func _update_reload_prompt_visibility() -> void:
 	reload_prompt.visible = _wants_reload_prompt and not inventory_panel.visible
+	if reload_prompt.visible:
+		reload_prompt.text = GameManager.format_prompt("Press R to Reload")
 @onready var item_context_menu = $ItemContextMenu
 @onready var tag_edit_panel = $TagEditPanel
 @onready var inspect_panel = $InspectPanel

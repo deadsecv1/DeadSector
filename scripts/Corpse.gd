@@ -110,11 +110,12 @@ func _update_prompt() -> void:
 	elif loot_items.is_empty():
 		prompt.text = "Nothing on the body"
 	else:
-		prompt.text = "Press F: Search Body"
+		prompt.text = GameManager.format_prompt("Press F: Search Body")
 
 func _on_entered(body: Node) -> void:
 	if body.is_in_group("player"):
 		player_in_range = true
+		_update_prompt()
 		prompt.visible = true
 
 func _on_exited(body: Node) -> void:

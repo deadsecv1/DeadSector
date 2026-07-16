@@ -33,7 +33,7 @@ func _ready() -> void:
 	interact_zone.body_entered.connect(_on_entered)
 	interact_zone.body_exited.connect(_on_exited)
 	prompt.visible = false
-	prompt.text = "[F] Disturb the Bowl"
+	prompt.text = GameManager.format_prompt("[F] Disturb the Bowl")
 
 func _on_entered(body: Node) -> void:
 	if body.is_in_group("player"):
@@ -96,7 +96,7 @@ func _on_enemy_died(beast: Node) -> void:
 func _on_all_waves_cleared() -> void:
 	cleared = true
 	bowl_visual.color = Color(0.3, 0.85, 0.7, 1)
-	prompt.text = "[F] Pacify the beast"
+	prompt.text = GameManager.format_prompt("[F] Pacify the beast")
 	GameManager.toast_requested.emit("The bowl is quiet now. Something's still watching, though.")
 	if player_in_range:
 		prompt.visible = true

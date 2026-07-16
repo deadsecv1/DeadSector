@@ -30,7 +30,7 @@ func _process(_delta: float) -> void:
 	if triggered or not player_in_range:
 		return
 	var boss_alive: bool = not get_tree().get_nodes_in_group("gauntlet_boss").is_empty()
-	prompt.text = "Defeat the boss first!" if boss_alive else "Press F: Extract"
+	prompt.text = "Defeat the boss first!" if boss_alive else GameManager.format_prompt("Press F: Extract")
 	if boss_alive:
 		return
 	var f_down := GameManager.is_action_pressed("interact")

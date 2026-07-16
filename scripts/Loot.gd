@@ -16,6 +16,7 @@ var player_in_range: bool = false
 var final_value: int
 var final_stat_value: float
 var f_was_down: bool = false
+var _base_prompt_text: String = ""
 
 @onready var prompt: Label = $Prompt
 @onready var backdrop: Polygon2D = $Backdrop
@@ -43,9 +44,10 @@ func _ready() -> void:
 
 	prompt.visible = false
 	if door_key_id != "":
-		prompt.text = "Press F: Pick up %s" % item_name
+		_base_prompt_text = "Press F: Pick up %s" % item_name
 	else:
-		prompt.text = "Press F: %s [%s - %s] (%s)" % [item_name, GameManager.get_rarity_label(rarity), slot.capitalize(), _stat_label()]
+		_base_prompt_text = "Press F: %s [%s - %s] (%s)" % [item_name, GameManager.get_rarity_label(rarity), slot.capitalize(), _stat_label()]
+	prompt.text = GameManager.format_prompt(_base_prompt_text)
 	backdrop.color = GameManager.get_rarity_color(rarity)
 	icon_holder.icon_key = icon_key
 	icon_holder.icon_color = Color(0.08, 0.08, 0.08, 1)
@@ -55,6 +57,7 @@ func _ready() -> void:
 func _on_body_entered(body: Node) -> void:
 	if body.is_in_group("player"):
 		player_in_range = true
+		prompt.text = GameManager.format_prompt(_base_prompt_text)
 		prompt.visible = true
 
 func _on_body_exited(body: Node) -> void:

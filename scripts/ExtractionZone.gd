@@ -47,7 +47,7 @@ func _zone_color() -> Color:
 
 func _update_label() -> void:
 	if is_paid and not unlocked:
-		label.text = "LOCKED\nPress F: Pay %d Rubles" % unlock_cost
+		label.text = "LOCKED\n%s" % GameManager.format_prompt("Press F: Pay %d Rubles" % unlock_cost)
 	else:
 		label.text = "EXTRACTION ZONE"
 

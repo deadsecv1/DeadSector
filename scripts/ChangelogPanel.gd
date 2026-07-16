@@ -1204,6 +1204,10 @@ const CHANGELOG_CURRENT := [
 	{"version": "3.81.0", "title": "More Juiced-Up Panels", "notes": [
 		"34 panels across the game (Achievements, Milestones, Mail, Guild, Roadmap, every Hideout station, and more) now play a quick pop-in animation when they open, the same treatment the Changelog and Leaderboard panels always had, plus 3 newer panels (Lore, Season Pass, Post-Raid Breakdown) got the ambient particle backdrop those two also share.",
 	]},
+	{"version": "3.82.0", "title": "Controller Glyph Prompts", "notes": [
+		"Every \"Press F\"/\"Press R\" on-screen prompt in the game - Hideout NPCs, doors, chests, corpses, loot, extraction zones, the reload prompt, and more - now shows the real bound gamepad button (e.g. \"[A]\") instead of the keyboard hint whenever a controller is the active input device.",
+		"Settings' Keybinds screen now shows a real drawn, color-coded button badge (Xbox-style: A green, B red, X blue, Y yellow) next to each gamepad binding instead of plain text alone.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

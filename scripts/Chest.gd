@@ -56,7 +56,7 @@ func _ready() -> void:
 func _on_entered(body: Node) -> void:
 	if body.is_in_group("player") and not searched:
 		player_in_range = true
-		prompt.text = "Press F: Search"
+		prompt.text = GameManager.format_prompt("Press F: Search")
 		prompt.visible = true
 
 func _on_exited(body: Node) -> void:

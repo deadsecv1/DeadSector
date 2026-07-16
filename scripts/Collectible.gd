@@ -46,6 +46,7 @@ func _on_entered(body: Node) -> void:
 	if body.is_in_group("player") and not collected:
 		player_in_range = true
 		player_nearby = true
+		prompt.text = GameManager.format_prompt("Press F to collect")
 		prompt.visible = true
 
 func _on_exited(body: Node) -> void:

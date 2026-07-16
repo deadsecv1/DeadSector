@@ -43,9 +43,9 @@ func _ready() -> void:
 
 func _update_prompt() -> void:
 	if not locked:
-		prompt.text = "Press F: Open Door"
+		prompt.text = GameManager.format_prompt("Press F: Open Door")
 	elif GameManager.has_key_in_backpack(key_id):
-		prompt.text = "Press F: Unlock Door"
+		prompt.text = GameManager.format_prompt("Press F: Unlock Door")
 	else:
 		prompt.text = "Locked - find the matching key"
 

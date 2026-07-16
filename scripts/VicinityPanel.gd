@@ -172,6 +172,7 @@ func refresh() -> void:
 		return
 
 	take_all_prompt.visible = true
+	take_all_prompt.text = GameManager.format_prompt("Press F: Take All")
 	var cell: float = InventoryTileScript.CELL_CARRIED
 	tiles_area.custom_minimum_size = Vector2(GameManager.vicinity_items.size() * cell, cell - 4)
 	for i in range(GameManager.vicinity_items.size()):

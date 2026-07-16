@@ -35,6 +35,7 @@ func _on_entered(body: Node) -> void:
 	if body.is_in_group("player"):
 		player_in_range = true
 		if not popup_open:
+			prompt.text = GameManager.format_prompt("[F] ...something's here")
 			prompt.visible = true
 
 func _on_exited(body: Node) -> void:

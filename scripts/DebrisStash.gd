@@ -51,13 +51,14 @@ func _update_prompt() -> void:
 	if searched:
 		prompt.text = "Searched"
 	elif not cleared:
-		prompt.text = "Press F: Clear Debris"
+		prompt.text = GameManager.format_prompt("Press F: Clear Debris")
 	else:
-		prompt.text = "Press F: Search Stash"
+		prompt.text = GameManager.format_prompt("Press F: Search Stash")
 
 func _on_entered(body: Node) -> void:
 	if body.is_in_group("player"):
 		player_in_range = true
+		_update_prompt()
 		prompt.visible = true
 
 func _on_exited(body: Node) -> void:
