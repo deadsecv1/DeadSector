@@ -1214,6 +1214,9 @@ const CHANGELOG_CURRENT := [
 	{"version": "3.84.0", "title": "Broadcast Alerts", "notes": [
 		"The rare mid-raid guarded-cache event (2 tougher red-tinted Elite Guards standing over a genuinely good item, on every map) now announces itself with a radio-chatter alert the moment it spawns, instead of being a silent encounter you could only stumble onto by chance.",
 	]},
+	{"version": "3.84.1", "title": "Hotfix: Off-Center Lore/Post-Raid Breakdown Panels", "notes": [
+		"Fixed the Lore and Post-Raid Breakdown panels opening shifted off to one side instead of centered, and staying that way - their drag handles were sized to the whole screen's edges instead of just the visible card, so an accidental click-drag near the edge of the window could drag the entire panel off-center.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

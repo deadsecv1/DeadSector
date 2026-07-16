@@ -14,6 +14,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		closed.emit()
 
+@onready var vbox: VBoxContainer = $VBox
 @onready var kills_list: VBoxContainer = $VBox/Columns/KillsColumn/KillsScroll/KillsList
 @onready var damage_list: VBoxContainer = $VBox/Columns/DamageColumn/DamageScroll/DamageList
 @onready var kills_empty_label: Label = $VBox/Columns/KillsColumn/KillsEmptyLabel
@@ -24,7 +25,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _ready() -> void:
 	visible = false
-	DraggablePanelScript.apply(self)
+	# self is a full-screen backdrop wrapper (see PostRaidBreakdownPanel.tscn),
+	# not the visible card - bounds the drag handles to VBox's own rect
+	# instead of the screen edges. See DraggablePanel.apply()'s own comment.
+	DraggablePanelScript.apply(self, vbox)
 	close_button.pressed.connect(func(): closed.emit())
 
 func open() -> void:

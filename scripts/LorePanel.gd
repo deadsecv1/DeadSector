@@ -11,6 +11,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			closed.emit()
 
+@onready var vbox: VBoxContainer = $VBox
 @onready var progress_label: Label = $VBox/ProgressLabel
 @onready var list_scroll: ScrollContainer = $VBox/ListScroll
 @onready var list: VBoxContainer = $VBox/ListScroll/List
@@ -23,7 +24,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _ready() -> void:
 	visible = false
-	DraggablePanelScript.apply(self)
+	# self is a full-screen backdrop wrapper (see LorePanel.tscn), not the
+	# visible card - bounds the drag handles to VBox's own rect instead of
+	# the screen edges. See DraggablePanel.apply()'s own comment.
+	DraggablePanelScript.apply(self, vbox)
 	close_button.pressed.connect(func(): closed.emit())
 	back_button.pressed.connect(_show_list)
 

@@ -15,12 +15,21 @@ extends RefCounted
 const DraggableEdgeScript := preload("res://scripts/DraggableEdge.gd")
 const EDGE_THICKNESS := 5.0
 
-static func apply(panel: Control) -> void:
+# bounds: for a panel whose root fills the whole screen (a full-rect
+# Backdrop/DystopianBackground behind a smaller centered content box -
+# see LorePanel/PostRaidBreakdownPanel), the drag handles need to sit on
+# the visible content box's edges, not the screen's actual edges - pass
+# that content box (e.g. the panel's own VBox) as bounds. Must be a
+# direct child of panel, since an edge's anchors/offsets are computed
+# relative to panel's rect. Omit for a panel whose root IS already the
+# visible box (the common case - most panels using this).
+static func apply(panel: Control, bounds: Control = null) -> void:
+	var b: Control = bounds if bounds != null else panel
 	var edge_color := _detect_edge_color(panel)
-	_make_edge(panel, "top", edge_color)
-	_make_edge(panel, "bottom", edge_color)
-	_make_edge(panel, "left", edge_color)
-	_make_edge(panel, "right", edge_color)
+	_make_edge(panel, b, "top", edge_color)
+	_make_edge(panel, b, "bottom", edge_color)
+	_make_edge(panel, b, "left", edge_color)
+	_make_edge(panel, b, "right", edge_color)
 
 # The frame used to just be flat black everywhere, regardless of what
 # panel it was on - tries the panel's own Backdrop child (most panels
@@ -40,27 +49,35 @@ static func _detect_edge_color(panel: Control) -> Color:
 			base = sb.bg_color
 	return Color(base.r, base.g, base.b, 1.0).darkened(0.55)
 
-static func _make_edge(panel: Control, side: String, edge_color: Color) -> void:
+static func _make_edge(panel: Control, bounds: Control, side: String, edge_color: Color) -> void:
 	var edge := Control.new()
 	edge.set_script(DraggableEdgeScript)
 	edge.target_panel = panel
 	edge.side = side
 	edge.edge_color = edge_color
+	edge.anchor_left = bounds.anchor_left
+	edge.anchor_top = bounds.anchor_top
+	edge.anchor_right = bounds.anchor_right
+	edge.anchor_bottom = bounds.anchor_bottom
 	match side:
 		"top":
-			edge.anchor_right = 1.0
-			edge.offset_bottom = EDGE_THICKNESS
+			edge.offset_left = bounds.offset_left
+			edge.offset_right = bounds.offset_right
+			edge.offset_top = bounds.offset_top
+			edge.offset_bottom = bounds.offset_top + EDGE_THICKNESS
 		"bottom":
-			edge.anchor_top = 1.0
-			edge.anchor_right = 1.0
-			edge.anchor_bottom = 1.0
-			edge.offset_top = -EDGE_THICKNESS
+			edge.offset_left = bounds.offset_left
+			edge.offset_right = bounds.offset_right
+			edge.offset_top = bounds.offset_bottom - EDGE_THICKNESS
+			edge.offset_bottom = bounds.offset_bottom
 		"left":
-			edge.anchor_bottom = 1.0
-			edge.offset_right = EDGE_THICKNESS
+			edge.offset_top = bounds.offset_top
+			edge.offset_bottom = bounds.offset_bottom
+			edge.offset_left = bounds.offset_left
+			edge.offset_right = bounds.offset_left + EDGE_THICKNESS
 		"right":
-			edge.anchor_left = 1.0
-			edge.anchor_right = 1.0
-			edge.anchor_bottom = 1.0
-			edge.offset_left = -EDGE_THICKNESS
+			edge.offset_top = bounds.offset_top
+			edge.offset_bottom = bounds.offset_bottom
+			edge.offset_left = bounds.offset_right - EDGE_THICKNESS
+			edge.offset_right = bounds.offset_right
 	panel.add_child(edge)
