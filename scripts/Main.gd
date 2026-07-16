@@ -13,7 +13,7 @@ const ELITE_CACHE_SCENE := preload("res://scenes/DebrisStash.tscn")
 @onready var power_switch = $AshenHousePowerSwitch
 @onready var ashen_lamps: Array[Node2D] = [$AshenHouseLamp1, $AshenHouseLamp2, $AshenHouseLamp3]
 
-const RUN_TIME_LIMIT := 600.0
+const RUN_TIME_LIMIT := 780.0
 var time_remaining: float = RUN_TIME_LIMIT
 
 func _ready() -> void:
@@ -113,7 +113,7 @@ func _maybe_spawn_elite_cache_event() -> void:
 	if randf() >= 0.18:
 		return
 	var ang := randf_range(0.0, TAU)
-	var center: Vector2 = player.global_position + Vector2(cos(ang), sin(ang)) * randf_range(900.0, 1500.0)
+	var center: Vector2 = player.global_position + Vector2(cos(ang), sin(ang)) * randf_range(1000.0, 1800.0)
 	for i in range(2):
 		var guard = ELITE_ENEMY_SCENE.instantiate()
 		guard.is_elite_guard = true
