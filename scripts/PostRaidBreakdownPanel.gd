@@ -22,17 +22,24 @@ func _unhandled_input(event: InputEvent) -> void:
 @onready var graph: Control = $VBox/GraphPanel/NetWorthGraph
 @onready var summary_label: Label = $VBox/SummaryLabel
 @onready var close_button: Button = $VBox/CloseButton
+var _vbox_home_position: Vector2
 
 func _ready() -> void:
 	visible = false
+	_vbox_home_position = vbox.position
 	# self is a full-screen backdrop wrapper (see PostRaidBreakdownPanel.tscn),
 	# not the visible card - bounds the drag handles to VBox's own rect
-	# instead of the screen edges. See DraggablePanel.apply()'s own comment.
+	# instead of the screen edges, and drags VBox itself rather than self
+	# so the full-screen Backdrop/DystoBG never move. See
+	# DraggablePanel.apply()'s own comment.
 	DraggablePanelScript.apply(self, vbox)
 	close_button.pressed.connect(func(): closed.emit())
 
 func open() -> void:
 	visible = true
+	# Undo any leftover drag from a previous time this same instance was
+	# open - see LorePanel.gd's open() for the same fix and full reasoning.
+	vbox.position = _vbox_home_position
 	refresh()
 	GameManager.focus_first_control(self)
 	PanelOpenFX.animate_open(self)

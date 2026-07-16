@@ -34,6 +34,7 @@ var _wants_reload_prompt: bool = false
 # that's just always sitting there.
 const AMMO_PEEK_DURATION := 2.0
 var _ammo_peek_seconds_left: float = 0.0
+var _ammo_fade_tween: Tween = null
 
 func _update_reload_prompt_visibility() -> void:
 	reload_prompt.visible = _wants_reload_prompt and not inventory_panel.visible
@@ -235,8 +236,8 @@ func _process(delta: float) -> void:
 	if _ammo_peek_seconds_left > 0.0:
 		_ammo_peek_seconds_left -= delta
 		if _ammo_peek_seconds_left <= 0.0:
-			var tw := create_tween()
-			tw.tween_property(ammo_label, "modulate:a", 0.0, 0.4)
+			_ammo_fade_tween = create_tween()
+			_ammo_fade_tween.tween_property(ammo_label, "modulate:a", 0.0, 0.4)
 
 	if _cached_player == null or not is_instance_valid(_cached_player):
 		_cached_player = get_tree().get_first_node_in_group("player")
@@ -353,6 +354,13 @@ func _set_player_locked(locked: bool) -> void:
 
 func update_ammo(current_mag: int, _mag_size: int, reserve_ammo: int, ammo_type: String = "") -> void:
 	ammo_label.text = "%d / %d %s" % [current_mag, reserve_ammo, ammo_type.capitalize()] if ammo_type != "" else "%d / %d" % [current_mag, reserve_ammo]
+	# Kill any in-flight fade-out from a previous peek before snapping
+	# back to fully visible - otherwise that old tween keeps running and
+	# fades the label back to invisible a moment later even though a
+	# fresh peek window just started (rapid sustained fire near the old
+	# peek's ~2s expiry could make the ammo readout flicker away).
+	if _ammo_fade_tween != null and _ammo_fade_tween.is_valid():
+		_ammo_fade_tween.kill()
 	ammo_label.modulate.a = 1.0
 	_ammo_peek_seconds_left = AMMO_PEEK_DURATION
 	_wants_reload_prompt = current_mag < 5 and reserve_ammo > 0

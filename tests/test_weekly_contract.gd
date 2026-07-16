@@ -53,6 +53,8 @@ func test_claiming_a_reached_contract_grants_reward_exactly_once() -> void:
 	GameManager.set(stat_name, before + int(contract_type["target"]))
 
 	var rubles_before: int = GameManager.rubles
+	var skill_points_before: int = GameManager.skill_points
+	var artifacts_before: int = GameManager.artifacts
 	assert_true(GameManager.claim_weekly_contract())
 	assert_eq(GameManager.rubles, rubles_before + int(GameManager.WEEKLY_CONTRACT_REWARD["rubles"]))
 	assert_true(GameManager.is_weekly_contract_claimed())
@@ -61,6 +63,9 @@ func test_claiming_a_reached_contract_grants_reward_exactly_once() -> void:
 	assert_eq(GameManager.rubles, rubles_before + int(GameManager.WEEKLY_CONTRACT_REWARD["rubles"]), "Reward should not be granted twice")
 
 	GameManager.set(stat_name, before)
+	GameManager.rubles = rubles_before
+	GameManager.skill_points = skill_points_before
+	GameManager.artifacts = artifacts_before
 
 func test_seconds_left_is_within_one_week() -> void:
 	var seconds_left: int = GameManager.weekly_contract_seconds_left()

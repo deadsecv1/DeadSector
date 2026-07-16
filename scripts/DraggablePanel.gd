@@ -52,7 +52,15 @@ static func _detect_edge_color(panel: Control) -> Color:
 static func _make_edge(panel: Control, bounds: Control, side: String, edge_color: Color) -> void:
 	var edge := Control.new()
 	edge.set_script(DraggableEdgeScript)
-	edge.target_panel = panel
+	# Drag bounds itself, not necessarily panel - for the common case
+	# (no bounds override) bounds IS panel, same as before. For a
+	# full-screen wrapper (bounds override in play), dragging must move
+	# only the visible content box, never the full-rect Backdrop/
+	# DystopianBackground siblings - those need to stay covering the
+	# whole screen at all times, or the exact "off-center, world visible
+	# at the edge" bug this bounds parameter exists to fix just comes
+	# back via a deliberate drag instead of an accidental one.
+	edge.target_panel = bounds
 	edge.side = side
 	edge.edge_color = edge_color
 	edge.anchor_left = bounds.anchor_left

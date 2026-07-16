@@ -750,6 +750,8 @@ func skip_season_pass_tier() -> bool:
 	return true
 
 func _advance_season_pass_tier() -> void:
+	if season_pass_tier >= SEASON_PASS_MAX_TIER:
+		return
 	season_pass_tier += 1
 	var rewards := _generate_season_pass_rewards()
 	var reward: Dictionary = rewards[season_pass_tier - 1]
@@ -6784,6 +6786,25 @@ const SAVE_BACKUP_PATH := "user://savegame.json.bak"
 # the bottom of save_game(), not its in-memory bookkeeping.
 var test_mode: bool = false
 
+# Test-only: when non-empty, save_game() writes here instead of no-op'ing
+# under test_mode, and skips the .bak rotation - lets a regression test
+# exercise a REAL disk write (e.g. to catch a mid-load_game() save
+# writing a half-loaded snapshot - see test_save_load_ordering.gd)
+# without ever touching the developer's real savegame.json/.bak. A bare
+# instance var rather than a save_game() parameter since the write can
+# be triggered from deep, zero-arg call chains (e.g.
+# _advance_season_pass_tier() inside load_game()) that would otherwise
+# all need threading a path through them just for this.
+var _test_save_path_override: String = ""
+# Logs a duplicate of every save_game() payload while the override above
+# is active, oldest first - a regression test needs to inspect the FIRST
+# write during a load specifically (see test_save_load_ordering.gd),
+# since a later, unrelated save_game() call further down load_game()
+# (e.g. from one of its own trailing migration helpers) could otherwise
+# overwrite the disk evidence of an earlier, buggy premature write and
+# mask the exact bug this exists to catch.
+var _test_save_write_log: Array = []
+
 # A genuine full wipe for the Main Menu's Wipe button - deletes the save
 # file outright rather than manually resetting every individual field
 # (currencies, quests, mail, achievements, badges, titles, Rank Points,
@@ -8086,6 +8107,13 @@ func save_game() -> void:
 		"rose_talked_to": rose_talked_to, "harmon_talked_to": harmon_talked_to, "whisper_tip_day": whisper_tip_day,
 		"found_lore_objects": found_lore_objects,
 	}
+	if _test_save_path_override != "":
+		# Test-only path: log every payload rather than touching disk at
+		# all - a regression test needs to inspect each individual write
+		# during a load, not just the last one. Never touches the
+		# developer's actual savegame.json/.bak.
+		_test_save_write_log.append(data.duplicate(true))
+		return
 	if test_mode:
 		return
 	# Write to a temp file first, then rotate it into place, rather than
@@ -8132,11 +8160,16 @@ func _try_load_save_file(path: String) -> Variant:
 		return null
 	return JSON.parse_string(text)
 
-func load_game() -> void:
-	var primary_existed := FileAccess.file_exists(SAVE_PATH)
-	var parsed = _try_load_save_file(SAVE_PATH)
+# override_path: test-only hook so a regression test can exercise the
+# real field-by-field load sequence (see test_save_load_ordering.gd)
+# against a disposable fixture file instead of the player's real save -
+# every real call site omits this and loads SAVE_PATH as always.
+func load_game(override_path: String = "") -> void:
+	var path := override_path if override_path != "" else SAVE_PATH
+	var primary_existed := FileAccess.file_exists(path)
+	var parsed = _try_load_save_file(path)
 	var used_backup := false
-	if typeof(parsed) != TYPE_DICTIONARY:
+	if typeof(parsed) != TYPE_DICTIONARY and override_path == "":
 		var backup_existed := FileAccess.file_exists(SAVE_BACKUP_PATH)
 		parsed = _try_load_save_file(SAVE_BACKUP_PATH)
 		if typeof(parsed) == TYPE_DICTIONARY:
@@ -8359,7 +8392,6 @@ func load_game() -> void:
 	stat_enemies_killed = int(parsed.get("stat_enemies_killed", 0))
 	stat_deaths = int(parsed.get("stat_deaths", 0))
 	stat_extractions = int(parsed.get("stat_extractions", 0))
-	_sync_season_pass_tier()
 	stat_scav_extractions = int(parsed.get("stat_scav_extractions", 0))
 	stat_crates_opened = int(parsed.get("stat_crates_opened", 0))
 	stat_blueprints_researched = int(parsed.get("stat_blueprints_researched", 0))
@@ -8499,6 +8531,16 @@ func load_game() -> void:
 	_migrate_stale_ammo_items()
 	_repair_overlapping_grid_items()
 	_migrate_stash_eggs_to_hatchery()
+	# Must run only after every field above has been loaded - it can
+	# trigger save_game() internally (via _advance_season_pass_tier(),
+	# once per tier a save is catching up on), and save_game() always
+	# serializes CURRENT in-memory state. Calling this any earlier (it
+	# used to sit right after stat_extractions loaded, before ~40 other
+	# fields) meant that internal save wrote a half-loaded snapshot to
+	# disk - silently reverting everything not yet loaded back to its
+	# class default, and rotating that corrupted write over the one
+	# rotating backup meant to protect against exactly this.
+	_sync_season_pass_tier()
 	if recovered_interrupted_run:
 		toast_requested.emit("Restored your real loadout after an interrupted run")
 		save_game()

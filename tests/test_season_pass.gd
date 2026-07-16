@@ -31,9 +31,34 @@ func test_reward_table_is_deterministic() -> void:
 	for i in range(a.size()):
 		assert_eq(a[i].get("type"), b[i].get("type"), "tier %d type should be identical across generations" % (i + 1))
 
+# _advance_season_pass_tier() has real side effects beyond season_pass_tier
+# itself - it can grant XP (leveling the player), rubles/artifacts/skill
+# points, or append items/loot bags to stash_items, depending on what
+# _generate_season_pass_rewards() rolled for that tier. Every test below
+# that actually triggers a real advance snapshots/restores ALL of that,
+# not just the field it's directly asserting on - otherwise these leak
+# into every test file that sorts alphabetically after this one, since
+# GameManager is a single live singleton shared across the whole suite
+# run (see test_daily_bounties.gd's own comment on this same risk).
+func _snapshot_reward_state() -> Dictionary:
+	return {
+		"player_xp": GameManager.player_xp, "player_level": GameManager.player_level,
+		"rubles": GameManager.rubles, "artifacts": GameManager.artifacts, "skill_points": GameManager.skill_points,
+		"stash_items": GameManager.stash_items.duplicate(true),
+	}
+
+func _restore_reward_state(snapshot: Dictionary) -> void:
+	GameManager.player_xp = snapshot["player_xp"]
+	GameManager.player_level = snapshot["player_level"]
+	GameManager.rubles = snapshot["rubles"]
+	GameManager.artifacts = snapshot["artifacts"]
+	GameManager.skill_points = snapshot["skill_points"]
+	GameManager.stash_items = snapshot["stash_items"]
+
 func test_sync_advances_tier_from_extractions_and_is_idempotent() -> void:
 	var tier_before: int = GameManager.season_pass_tier
 	var extractions_before: int = GameManager.stat_extractions
+	var reward_snapshot := _snapshot_reward_state()
 
 	GameManager.season_pass_tier = 0
 	GameManager.stat_extractions = GameManager.SEASON_PASS_EXTRACTIONS_PER_TIER * 3
@@ -46,10 +71,12 @@ func test_sync_advances_tier_from_extractions_and_is_idempotent() -> void:
 
 	GameManager.season_pass_tier = tier_before
 	GameManager.stat_extractions = extractions_before
+	_restore_reward_state(reward_snapshot)
 
 func test_sync_never_exceeds_max_tier_even_with_huge_extraction_counts() -> void:
 	var tier_before: int = GameManager.season_pass_tier
 	var extractions_before: int = GameManager.stat_extractions
+	var reward_snapshot := _snapshot_reward_state()
 
 	GameManager.season_pass_tier = 0
 	GameManager.stat_extractions = 999999
@@ -58,17 +85,20 @@ func test_sync_never_exceeds_max_tier_even_with_huge_extraction_counts() -> void
 
 	GameManager.season_pass_tier = tier_before
 	GameManager.stat_extractions = extractions_before
+	_restore_reward_state(reward_snapshot)
 
 func test_advance_tier_grants_reward_and_persists_progress() -> void:
 	var tier_before: int = GameManager.season_pass_tier
+	var reward_snapshot := _snapshot_reward_state()
 	GameManager.season_pass_tier = 0
 	GameManager._advance_season_pass_tier()
 	assert_eq(GameManager.season_pass_tier, 1)
 	GameManager.season_pass_tier = tier_before
+	_restore_reward_state(reward_snapshot)
 
 func test_skip_tier_spends_rubles_and_advances() -> void:
 	var tier_before: int = GameManager.season_pass_tier
-	var rubles_before: int = GameManager.rubles
+	var reward_snapshot := _snapshot_reward_state()
 	GameManager.season_pass_tier = 0
 	GameManager.rubles = 100000
 	var skipped: bool = GameManager.skip_season_pass_tier()
@@ -76,7 +106,7 @@ func test_skip_tier_spends_rubles_and_advances() -> void:
 	assert_eq(GameManager.season_pass_tier, 1)
 	assert_eq(GameManager.rubles, 100000 - 3000)
 	GameManager.season_pass_tier = tier_before
-	GameManager.rubles = rubles_before
+	_restore_reward_state(reward_snapshot)
 
 func test_skip_tier_fails_without_enough_rubles() -> void:
 	var tier_before: int = GameManager.season_pass_tier

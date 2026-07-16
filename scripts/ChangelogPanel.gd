@@ -1217,6 +1217,11 @@ const CHANGELOG_CURRENT := [
 	{"version": "3.84.1", "title": "Hotfix: Off-Center Lore/Post-Raid Breakdown Panels", "notes": [
 		"Fixed the Lore and Post-Raid Breakdown panels opening shifted off to one side instead of centered, and staying that way - their drag handles were sized to the whole screen's edges instead of just the visible card, so an accidental click-drag near the edge of the window could drag the entire panel off-center.",
 	]},
+	{"version": "3.84.2", "title": "Hotfix: Save Corruption Risk, Panel Drag, Ammo Flicker", "notes": [
+		"Fixed a real save-corruption risk: loading a save whose Season Pass hadn't caught up yet could write a half-loaded snapshot back to disk mid-load, silently reverting dozens of other fields (achievements, keybinds, volume settings, Lore progress, and more) to their defaults and overwriting the one rotating backup meant to protect against exactly this.",
+		"Finished the 3.84.1 fix properly - dragging the Lore/Post-Raid Breakdown panels by their (now correctly placed) border was still dragging the full-screen dimmed backdrop along with the visible card, which could re-expose the same off-center look the previous fix was meant to solve. Dragging now moves only the visible card; the backdrop always stays put.",
+		"Fixed the diegetic ammo readout sometimes vanishing during sustained fire near the edge of its ~2 second peek window, instead of correctly staying visible.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

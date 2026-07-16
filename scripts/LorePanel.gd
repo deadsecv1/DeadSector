@@ -13,6 +13,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 @onready var vbox: VBoxContainer = $VBox
 @onready var progress_label: Label = $VBox/ProgressLabel
+var _vbox_home_position: Vector2
 @onready var list_scroll: ScrollContainer = $VBox/ListScroll
 @onready var list: VBoxContainer = $VBox/ListScroll/List
 @onready var detail_view: Control = $VBox/DetailView
@@ -24,15 +25,24 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _ready() -> void:
 	visible = false
+	_vbox_home_position = vbox.position
 	# self is a full-screen backdrop wrapper (see LorePanel.tscn), not the
 	# visible card - bounds the drag handles to VBox's own rect instead of
-	# the screen edges. See DraggablePanel.apply()'s own comment.
+	# the screen edges, and drags VBox itself rather than self so the
+	# full-screen Backdrop/DystoBG never move. See DraggablePanel.apply()'s
+	# own comment.
 	DraggablePanelScript.apply(self, vbox)
 	close_button.pressed.connect(func(): closed.emit())
 	back_button.pressed.connect(_show_list)
 
 func open() -> void:
 	visible = true
+	# Undo any leftover drag from a previous time this same instance was
+	# open - the drag handles are on vbox now (see DraggablePanel.apply()
+	# call above), not this full-screen wrapper, so vbox.position is what
+	# can drift; force it back to its authored centered position every
+	# time the panel opens rather than trusting whatever it was left at.
+	vbox.position = _vbox_home_position
 	_show_list()
 	GameManager.focus_first_control(self)
 	PanelOpenFX.animate_open(self)
