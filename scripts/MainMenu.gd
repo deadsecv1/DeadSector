@@ -106,15 +106,24 @@ const MONTH_ABBR := {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
 
 # Parses a Roadmap-style "Mon DD" date string (e.g. "Jul 18") and returns
 # how many days from today_dict (a Time.get_date_dict_from_system()-style
-# Dictionary) it falls, assuming today's year. Returns -1 for anything
-# unparseable (e.g. "TBD") or already in the past - a pure function on
-# purpose, so it's testable without depending on the real system clock.
+# Dictionary) it falls. Assumes today's year, except when the entry's
+# month is earlier than today's month - since this is only ever fed
+# SECTION_UPCOMING entries, a month that's already "passed" this year
+# can only mean the entry is next year (e.g. today is Dec 2026 and the
+# entry reads "Jan 10" - that's Jan 10 2027, not a stale Jan 10 2026).
+# Returns -1 for anything unparseable (e.g. "TBD") or a date that's
+# still in the past even accounting for that rollover - a pure function
+# on purpose, so it's testable without depending on the real system clock.
 static func days_until_roadmap_date(date_str: String, today_dict: Dictionary) -> int:
 	var parts: PackedStringArray = date_str.split(" ")
 	if parts.size() != 2 or not MONTH_ABBR.has(parts[0]):
 		return -1
+	var entry_month: int = MONTH_ABBR[parts[0]]
+	var entry_year: int = today_dict["year"]
+	if entry_month < today_dict["month"]:
+		entry_year += 1
 	var today_unix: int = Time.get_unix_time_from_datetime_dict({"year": today_dict["year"], "month": today_dict["month"], "day": today_dict["day"], "hour": 0, "minute": 0, "second": 0})
-	var entry_unix: int = Time.get_unix_time_from_datetime_dict({"year": today_dict["year"], "month": MONTH_ABBR[parts[0]], "day": int(parts[1]), "hour": 0, "minute": 0, "second": 0})
+	var entry_unix: int = Time.get_unix_time_from_datetime_dict({"year": entry_year, "month": entry_month, "day": int(parts[1]), "hour": 0, "minute": 0, "second": 0})
 	var days: int = int((entry_unix - today_unix) / 86400.0)
 	return days if days >= 0 else -1
 
@@ -371,6 +380,7 @@ func _ambient_popups_suppressed() -> bool:
 		bloodline_panel, delete_confirm_panel, changelog_panel,
 		flea_market_panel, mail_panel, alpha_rewards_panel, feedback_panel, welcome_panel, update_spotlight_panel,
 		milestones_panel, guild_panel, guild_battle_pass_panel,
+		arena_panel, arena_find_team_panel, arena_rewards_panel, arena_rank_rewards_panel, daily_bounties_panel,
 	]
 	for p in panels:
 		if is_instance_valid(p) and p.visible:

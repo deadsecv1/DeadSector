@@ -87,6 +87,14 @@ func _maybe_spawn_elite_cache_event() -> void:
 	# keeps this event a real "well away from spawn" detour instead of it
 	# suddenly feeling close-by on the much bigger trench.
 	var center: Vector2 = player.global_position + Vector2(cos(ang), sin(ang)) * randf_range(1400.0, 2300.0)
+	# Clamp inside VoidTrench.tscn's solid boundary walls (WallTop/WallBottom
+	# at y = +/-2280, WallLeft/WallRight at x = +/-3480, each 40 units thick)
+	# minus a safety margin. WallTop in particular sits only ~1630 units from
+	# the (0, -650) spawn point - much closer than the other three walls - so
+	# without this, a large roll aimed roughly north has a real chance of
+	# landing the cache and its 2 elite guards beyond the wall, in space the
+	# player can never reach.
+	center = center.clamp(Vector2(-3330.0, -2130.0), Vector2(3330.0, 2130.0))
 	for i in range(2):
 		var guard = ELITE_ENEMY_SCENE.instantiate()
 		guard.is_elite_guard = true

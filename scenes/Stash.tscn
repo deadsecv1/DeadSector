@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://scripts/Stash.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/InventoryGrid.gd" id="2"]
@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" path="res://scenes/LoadoutPresetsPanel.tscn" id="15"]
 [ext_resource type="PackedScene" path="res://scenes/CasePanel.tscn" id="16"]
 [ext_resource type="Script" path="res://scripts/WeaponInspectionPanel.gd" id="17"]
+[ext_resource type="Script" path="res://scripts/PocketSlot.gd" id="18"]
 
 [sub_resource type="StyleBoxFlat" id="DollBackdropStyle"]
 bg_color = Color(0.05, 0.07, 0.06, 0.9)
@@ -280,7 +281,7 @@ offset_right = 334.0
 offset_bottom = 347.0
 theme_override_font_sizes/font_size = 8
 text = "Empty"
-script = ExtResource("13")
+script = ExtResource("18")
 pocket_index = 0
 context_source = "stash"
 
@@ -291,7 +292,7 @@ offset_right = 378.0
 offset_bottom = 347.0
 theme_override_font_sizes/font_size = 8
 text = "Empty"
-script = ExtResource("13")
+script = ExtResource("18")
 pocket_index = 1
 context_source = "stash"
 

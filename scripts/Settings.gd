@@ -149,6 +149,11 @@ func _show_main() -> void:
 	GameManager.focus_first_control(main_view)
 	rebinding_action = ""
 	rebinding_gamepad_action = ""
+	# Reset any button left showing "Press a key.../Press a button..." if
+	# Back was pressed mid-rebind instead of completing or Escape-cancelling
+	# it (those paths already refresh labels themselves - see _input()).
+	_refresh_keybind_labels()
+	_refresh_gamepad_bind_labels()
 
 func _start_rebind(action: String, button: Button) -> void:
 	rebinding_action = action

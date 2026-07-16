@@ -76,7 +76,13 @@ func _spin_spikes(delta: float) -> void:
 	spike_angle += delta * 2.0
 	for i in range(spike_nodes.size()):
 		var ang: float = spike_angle + TAU * float(i) / float(spike_nodes.size())
-		spike_nodes[i].position = Vector2(cos(ang), sin(ang)) * spike_radius
+		# Divided by scale.x to counter Spike's own 2.3x node scale (spike
+		# ring nodes are direct children of this scaled root) - without
+		# this the ring renders at spike_radius*2.3 in world space while
+		# _check_spike_damage() below still checks against the raw
+		# spike_radius, leaving the visible ring far outside where damage
+		# actually starts.
+		spike_nodes[i].position = Vector2(cos(ang), sin(ang)) * spike_radius / scale.x
 		spike_nodes[i].rotation = ang + PI / 2.0
 
 func _check_spike_damage(delta: float) -> void:
@@ -113,6 +119,13 @@ func _shoot() -> void:
 	bullet.direction = (player.global_position - muzzle.global_position).normalized()
 	bullet.is_enemy_bullet = true
 	bullet.damage = int(round(36 * enemy_scale_factor * BOSS_DAMAGE_MULT))
+	# Without these, the Death Screen's "Killed by" attribution stayed
+	# stuck on whatever the player's last-named attacker was (or fell back
+	# to "the Sector itself") instead of naming Spike as the actual killer -
+	# get_display_name() falls through to "RAIDER" for bosses (no "spike"
+	# case), so hardcode the same literal the aura hit already uses below.
+	bullet.source_name = "SPIKE"
+	bullet.source_weapon = "Gunfire"
 	get_tree().current_scene.add_child(bullet)
 	bullet.global_position = muzzle.global_position
 	bullet.modulate = Color(0.78, 0.25, 0.95, 1)

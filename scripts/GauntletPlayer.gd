@@ -138,7 +138,7 @@ func _apply_gear_tint() -> void:
 		"common": Color(1, 1, 1, 1), "uncommon": Color(0.85, 1.0, 0.85, 1),
 		"rare": Color(0.8, 0.9, 1.1, 1), "epic": Color(0.95, 0.8, 1.15, 1),
 		"legendary": Color(1.15, 0.95, 0.6, 1), "mythic": Color(1.2, 0.75, 0.9, 1),
-		"exotic": Color(1.25, 0.7, 1.25, 1),
+		"exotic": Color(1.25, 0.7, 1.25, 1), "multiversal": Color(1.3, 1.2, 0.7, 1),
 	}
 	sprite.modulate = tint_colors.get(rarity, Color(1, 1, 1, 1))
 

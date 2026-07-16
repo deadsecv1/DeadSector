@@ -14,6 +14,15 @@ extends Node
 # safe to script/check `$LASTEXITCODE` (PowerShell) or `$?` (bash) against.
 
 func _ready() -> void:
+	# Must be set before any test file runs (GameManager's own _ready()
+	# already ran load_game() by this point, as a normal autoload - that's
+	# harmless since it only reads from disk. This flag instead guards
+	# save_game()'s disk write/rotate, which plenty of real mutators
+	# exercised by the tests below call directly, and which also fires
+	# from the 5-second autosave timer for the whole duration of this run -
+	# without it, running this suite silently overwrites the developer's
+	# actual user://savegame.json and destroys its one .bak backup.
+	GameManager.test_mode = true
 	print("=".repeat(60))
 	print("Dead Sector test suite")
 	print("=".repeat(60))

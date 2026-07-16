@@ -724,17 +724,24 @@ func set_on_ice(value: bool) -> void:
 	_ice_sources = max(0, _ice_sources + (1 if value else -1))
 	is_on_ice = _ice_sources > 0
 
-var _flashlight_disabled: bool = false
+# Reference-counted like set_on_ice()/set_slowed() above - overlapping
+# disable_flashlight() calls (e.g. a SporeBlindCloud hit and a PulseSpire
+# pulse landing at once) used to let whichever call's timer finished FIRST
+# re-enable the flashlight, even while a different, longer-duration call
+# was still supposed to be keeping it off. Each call holds its own count
+# slot until its own duration elapses; the flashlight only comes back on
+# once every outstanding call has released its slot.
+var _flashlight_disable_count: int = 0
 
 func disable_flashlight(duration: float) -> void:
 	if flashlight == null:
 		return
-	_flashlight_disabled = true
+	_flashlight_disable_count += 1
 	flashlight.enabled = false
 	GameManager.toast_requested.emit("Flashlight scrambled!")
 	await get_tree().create_timer(duration).timeout
-	_flashlight_disabled = false
-	if flashlight != null and is_instance_valid(self):
+	_flashlight_disable_count = max(0, _flashlight_disable_count - 1)
+	if _flashlight_disable_count == 0 and flashlight != null and is_instance_valid(self):
 		flashlight.enabled = true
 
 func set_slowed(value: bool) -> void:
@@ -864,8 +871,15 @@ func _handle_reload_input() -> void:
 	_r_was_down = r_down
 
 func _start_reload() -> void:
+	# Deliberately does NOT touch can_shoot - is_reloading (already checked
+	# alongside can_shoot at the top of _handle_shoot()) fully gates weapon
+	# fire during a reload on its own. can_shoot is shared with the hotbar
+	# consumable/grenade-use gate further down in this file; holding it
+	# false for the whole reload used to silently block healing/eating and
+	# drop grenade throws with zero feedback for the entire reload any time
+	# R was pressed, even though nothing about reloading should stop a
+	# player from using a hotbar item.
 	is_reloading = true
-	can_shoot = false
 	Sfx.play_reload()
 	var duration: float = max(0.4, _base_reload_for(weapon_icon) - GameManager.get_equipped_bonus("reload_speed") - GameManager.get_upgrade_bonus("reload_speed") - GameManager.get_hideout_bonus("reload_speed"))
 	await get_tree().create_timer(duration).timeout
@@ -875,7 +889,6 @@ func _start_reload() -> void:
 	current_mag += taken
 	_update_ammo_display()
 	is_reloading = false
-	can_shoot = true
 
 # Grenades: called on release after aiming. Heal items: called on press.
 # Either way, a small cooldown stops instantly re-triggering.

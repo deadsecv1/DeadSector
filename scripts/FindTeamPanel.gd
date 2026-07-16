@@ -94,9 +94,19 @@ func _tick() -> void:
 		if g["joining_countdown"] > 0:
 			g["joining_countdown"] -= 1
 			if g["joining_countdown"] <= 0:
-				to_remove.append(g)
 				if g.get("player_joined", false):
+					# Previously just emitted a toast and stopped - never
+					# actually sent the player into a raid, so "Heading
+					# into <Map>" never happened. Commit to THIS group's
+					# map (the same GameManager.selected_map + MapSelect
+					# hand-off MapChoice._choose() uses once a map is
+					# picked) and go - same fix shape as the equivalent
+					# dead-end already fixed in ArenaFindTeamPanel.gd.
+					GameManager.selected_map = g["map_id"]
 					GameManager.toast_requested.emit("Squad ready! Heading into %s..." % GameManager.MAP_CATALOG.get(g["map_id"], {}).get("name", "the Sector"))
+					Transition.change_scene("res://scenes/MapSelect.tscn")
+					return
+				to_remove.append(g)
 				continue
 			_refresh_row_status(g)
 			continue

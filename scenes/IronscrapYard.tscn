@@ -417,7 +417,7 @@ rarity = "uncommon"
 position = Vector2(4020, -150)
 
 [node name="CraneRowGuard2" parent="." instance=ExtResource("8")]
-position = Vector2(4180, -150)
+position = Vector2(4090, -150)
 
 [node name="SortingLineFloor" type="Polygon2D" parent="."]
 position = Vector2(-3200, -2600)
@@ -471,7 +471,7 @@ icon_key = "gpcoin"
 rarity = "common"
 
 [node name="SortingLineGuard1" parent="." instance=ExtResource("8")]
-position = Vector2(-3260, -2450)
+position = Vector2(-3210, -2450)
 
 [node name="SortingLineGuard2" parent="." instance=ExtResource("8")]
 position = Vector2(-3140, -2450)

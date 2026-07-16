@@ -5842,6 +5842,18 @@ func reset_character() -> void:
 	guild_battle_pass_tier = 0
 	guild_battle_pass_progress = 0
 	last_clan_war_day = -1
+	# Both of these are baseline-snapshot systems (progress = current stat -
+	# baseline taken when the contract/bounty started) - without resetting
+	# them here too, a pre-wipe baseline stays stranded above the freshly-
+	# zeroed stats below, reading as already "complete minus the wipe" and
+	# silently locking out that contract/bounty's rewards until the live
+	# stat organically climbs back past the old baseline.
+	guild_contract_start = 0
+	guild_contract_index = -1
+	guild_contract_baseline = 0
+	guild_contract_claimed = []
+	daily_bounty_day = -1
+	daily_bounty_slots = []
 	gauntlet_best_level = 0
 	engrams = []
 	salvaged_beasts_tickets = 0
@@ -6064,7 +6076,7 @@ var JOYPAD_BUTTON_BINDINGS: Dictionary = {
 	"interact": JOY_BUTTON_A,
 	"jump": JOY_BUTTON_Y,
 	"dash": JOY_BUTTON_B,
-	"nightvision": JOY_BUTTON_X,
+	"nightvision": JOY_BUTTON_DPAD_DOWN,
 	"prone": JOY_BUTTON_LEFT_STICK,
 	"chat": JOY_BUTTON_BACK,
 	"inventory": JOY_BUTTON_START,
@@ -6074,7 +6086,7 @@ const JOYPAD_BUTTON_DEFAULTS := {
 	"interact": JOY_BUTTON_A,
 	"jump": JOY_BUTTON_Y,
 	"dash": JOY_BUTTON_B,
-	"nightvision": JOY_BUTTON_X,
+	"nightvision": JOY_BUTTON_DPAD_DOWN,
 	"prone": JOY_BUTTON_LEFT_STICK,
 	"chat": JOY_BUTTON_BACK,
 	"inventory": JOY_BUTTON_START,
@@ -6371,6 +6383,15 @@ func _notification(what: int) -> void:
 # the window is closed, and periodically while playing.
 const SAVE_PATH := "user://savegame.json"
 const SAVE_BACKUP_PATH := "user://savegame.json.bak"
+
+# Set true only by tests/TestRunner.gd, before any test runs. Every real
+# mutator that calls save_game() (claim_guild_contract_tier,
+# set_joypad_binding, claim_daily_bounty, the 5-second autosave timer in
+# _process(), etc.) would otherwise overwrite the developer's actual
+# user://savegame.json and rotate away the one .bak backup generation on
+# every single test-suite run - this only skips the disk write/rotate at
+# the bottom of save_game(), not its in-memory bookkeeping.
+var test_mode: bool = false
 
 # A genuine full wipe for the Main Menu's Wipe button - deletes the save
 # file outright rather than manually resetting every individual field
@@ -6737,6 +6758,7 @@ func _check_flea_market() -> void:
 				var price: int = int(l.get("price", 0))
 				var item_name: String = str(l["item"].get("name", "an item"))
 				add_currency("rubles", price)
+				stat_total_sold += price
 				send_mail(
 					"Flea Market Sale",
 					"%s bought your %s for %d Rubles. The Rubles have already been added to your balance." % [buyer, item_name, price],
@@ -7669,6 +7691,8 @@ func save_game() -> void:
 		"achievement_flag_close_call": achievement_flag_close_call,
 		"rose_talked_to": rose_talked_to,
 	}
+	if test_mode:
+		return
 	# Write to a temp file first, then rotate it into place, rather than
 	# truncating savegame.json directly - a crash/forced-close mid-write
 	# used to be able to leave a half-written, unparseable save behind,
@@ -7781,7 +7805,16 @@ func load_game() -> void:
 	guild_contract_index = int(parsed.get("guild_contract_index", -1))
 	guild_contract_baseline = int(parsed.get("guild_contract_baseline", 0))
 	var loaded_guild_contract_claimed = parsed.get("guild_contract_claimed", [])
-	guild_contract_claimed = loaded_guild_contract_claimed if typeof(loaded_guild_contract_claimed) == TYPE_ARRAY else []
+	guild_contract_claimed = []
+	if typeof(loaded_guild_contract_claimed) == TYPE_ARRAY:
+		# JSON.parse_string() always returns numbers as float, so without this
+		# per-element int() cast the array would silently become [0.0, 1.0, ...]
+		# - Array.has(int) never matches a float element, so
+		# is_guild_contract_tier_claimed()/claim_guild_contract_tier()'s own
+		# .has(tier_index) guard would always read false after a reload,
+		# letting every tier's reward be re-claimed on every relaunch.
+		for claimed_tier in loaded_guild_contract_claimed:
+			guild_contract_claimed.append(int(claimed_tier))
 	daily_bounty_day = int(parsed.get("daily_bounty_day", -1))
 	var loaded_daily_bounty_slots = parsed.get("daily_bounty_slots", [])
 	daily_bounty_slots = loaded_daily_bounty_slots if typeof(loaded_daily_bounty_slots) == TYPE_ARRAY else []
@@ -8041,6 +8074,16 @@ func load_game() -> void:
 		for action in JOYPAD_BUTTON_DEFAULTS.keys():
 			if loaded_joypad_bindings.has(action):
 				JOYPAD_BUTTON_BINDINGS[action] = int(loaded_joypad_bindings[action])
+	# One-time migration: nightvision used to share JOY_BUTTON_X with reload
+	# (both fired off a single press) in every save written before this fix -
+	# since that's the ONLY way nightvision's persisted binding could still
+	# be X (reload isn't user-rebindable, so it's always been X and never
+	# saved as anything else), reassign nightvision to its new default
+	# rather than trusting the stale loaded value. A save that already
+	# migrated (or a player who deliberately rebinds nightvision to
+	# something else) is unaffected either way.
+	if int(JOYPAD_BUTTON_BINDINGS.get("nightvision", -1)) == JOY_BUTTON_X:
+		JOYPAD_BUTTON_BINDINGS["nightvision"] = JOYPAD_BUTTON_DEFAULTS["nightvision"]
 	# Ammo rarity/slot fixed BEFORE the grid-overlap repair below - repair
 	# can relocate items between stash_items/backpack_storage, and doing
 	# that first left freshly-relocated items still holding their stale
@@ -9777,7 +9820,9 @@ func end_run(success: bool, voluntary: bool = false) -> void:
 		# Secured" figure are all computed from it further below.
 		for item in vicinity_items:
 			carried_loot.append(item)
-			carried_value += int(item.get("value", 0))
+			var vicinity_item_value: int = int(item.get("value", 0))
+			carried_value += vicinity_item_value
+			record_loot_collected(vicinity_item_value)
 		for item in carried_loot:
 			_add_to_stash(item)
 		if is_night_raid:

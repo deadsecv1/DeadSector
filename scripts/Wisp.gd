@@ -73,6 +73,9 @@ func die() -> void:
 	var souls_amount: int = randi_range(3, 8)
 	GameManager.add_currency("souls", souls_amount)
 	died.emit()
+	GameManager.notify_event("kill_enemy")
+	GameManager.record_kill()
+	GameManager.mark_enemy_discovered("wisp")
 	var death_pos := global_position
 	call_deferred("_spawn_kill_burst", death_pos)
 	queue_free()

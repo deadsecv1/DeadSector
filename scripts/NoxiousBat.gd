@@ -81,6 +81,14 @@ func _shoot() -> void:
 	# regular enemy - this used to hardcode a flat 12 that ignored that
 	# entirely, so the bat stopped mattering at all once a player leveled up.
 	bullet.damage = attack_damage
+	# Without these, the Death Screen's "Killed by" attribution stayed
+	# stuck on whatever the player's last-named attacker was (or fell back
+	# to "the Sector itself") instead of naming the Bat as the actual
+	# killer. get_display_name() is safe here (unlike Spike/Rattles) since
+	# it already has a "bat" case and add_to_group("bat") has already run
+	# by the time _shoot() can ever fire.
+	bullet.source_name = get_display_name()
+	bullet.source_weapon = "Gunfire"
 	get_tree().current_scene.add_child(bullet)
 	bullet.global_position = muzzle.global_position
 	bullet.modulate = Color(0.65, 0.2, 0.85, 1)

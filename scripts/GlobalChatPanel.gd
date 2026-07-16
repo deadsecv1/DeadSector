@@ -576,8 +576,15 @@ func _priority_badge_count(entry: Dictionary) -> int:
 func _roll_message(sender: Dictionary) -> String:
 	if randf() < 0.12:
 		var pname: String = GameManager.player_name if GameManager.player_name != "" else "operative"
-		var t2: String = MESSAGES_TO_PLAYER_BY_NAME[randi() % MESSAGES_TO_PLAYER_BY_NAME.size()]
-		return t2.replace("{player}", pname)
+		for attempt in range(8):
+			var t2: String = MESSAGES_TO_PLAYER_BY_NAME[randi() % MESSAGES_TO_PLAYER_BY_NAME.size()]
+			var candidate2: String = t2.replace("{player}", pname)
+			var now_ms2: int = Time.get_ticks_msec()
+			var last_used2: int = int(_recent_message_uses.get(candidate2, -999999))
+			if float(now_ms2 - last_used2) / 1000.0 >= NO_REPEAT_SECONDS:
+				_recent_message_uses[candidate2] = now_ms2
+				return candidate2
+		# Every by-name line is on cooldown - fall through to the rest of the pool below.
 	for attempt in range(8):
 		var candidate: String
 		var roll := randf()
@@ -608,7 +615,18 @@ func _roll_message(sender: Dictionary) -> String:
 			# rank - reads like a real dig instead of a non sequitur.
 			var sender_rank: int = int(sender.get("rank_full_idx", 0))
 			var lower_ranked: Array = _chat_pool.filter(func(e): return int(e.get("rank_full_idx", 0)) < sender_rank and e.get("name", "") != sender.get("name", ""))
-			var target: Dictionary = lower_ranked[randi() % lower_ranked.size()] if not lower_ranked.is_empty() else _chat_pool[randi() % _chat_pool.size()]
+			var target: Dictionary
+			if not lower_ranked.is_empty():
+				target = lower_ranked[randi() % lower_ranked.size()]
+			else:
+				# No genuinely lower-ranked rival this round - fall back to
+				# a random OTHER bot, same self-exclusion every sibling
+				# picker in this file uses, never the sender themselves.
+				target = sender
+				var mock_tries := 0
+				while target.get("name", "") == sender.get("name", "") and mock_tries < 6:
+					target = _chat_pool[randi() % _chat_pool.size()]
+					mock_tries += 1
 			var t3: String = MESSAGES_MOCK_RANK[randi() % MESSAGES_MOCK_RANK.size()]
 			candidate = t3.replace("{other}", str(target.get("name", "someone")))
 		elif roll < 0.4 and _chat_pool.size() > 1:

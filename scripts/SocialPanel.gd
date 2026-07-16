@@ -179,10 +179,16 @@ func _build_prestige_button() -> Button:
 	btn.text = "Prestige (reset Level, keep everything else)"
 	btn.custom_minimum_size = Vector2(0, 32)
 	btn.add_theme_font_size_override("font_size", 11)
-	var confirming := false
+	# GDScript lambda captures are by value AND reset to their original
+	# captured snapshot on every separate invocation of the same connected
+	# Callable - a plain `var confirming := false` reassigned inside this
+	# lambda never sticks across repeated clicks (see CLAUDE.md's lambda-
+	# capture note). Use a single-element Array as a mutable box instead,
+	# same workaround already used in tests/test_gamepad_popup_close.gd.
+	var confirming := [false]
 	btn.pressed.connect(func():
-		if not confirming:
-			confirming = true
+		if not confirming[0]:
+			confirming[0] = true
 			btn.text = "Really Prestige? Click again to confirm"
 			return
 		GameManager.prestige()

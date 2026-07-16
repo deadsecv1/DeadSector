@@ -1432,6 +1432,9 @@ pickup_type = "car"
 [node name="HUD" parent="." instance=ExtResource("7")]
 
 [node name="SupplyDropManager" parent="." instance=ExtResource("27")]
+map_half_size = Vector2(5900, 4000)
+exclusion_zone_positions = Array[Vector2]([Vector2(-950, -1000), Vector2(400, 50), Vector2(1700, -1600), Vector2(1500, 950), Vector2(-1200, 700), Vector2(-550, 750), Vector2(-50, -3650), Vector2(2550, -3650), Vector2(-3200, 3100), Vector2(-100, 3100), Vector2(-3200, -3800), Vector2(2550, 3100), Vector2(4750, -700), Vector2(-5450, -700), Vector2(4780, 1240), Vector2(-5380, 1240)])
+exclusion_zone_sizes = Array[Vector2]([Vector2(1000, 750), Vector2(750, 600), Vector2(600, 550), Vector2(800, 700), Vector2(800, 800), Vector2(700, 550), Vector2(650, 550), Vector2(650, 550), Vector2(650, 550), Vector2(650, 550), Vector2(700, 800), Vector2(900, 700), Vector2(700, 850), Vector2(700, 750), Vector2(600, 500), Vector2(600, 500)])
 
 [node name="WeatherOverlay" parent="." instance=ExtResource("34")]
 

@@ -175,6 +175,11 @@ func _ready() -> void:
 	elif not is_boss:
 		_apply_random_raider_look()
 	health = max_health
+	# max_value is fixed here since max_health never changes again after
+	# _ready() (see the scaling above) - take_damage() only needs to keep
+	# `value` and `visible` current as health drops.
+	health_bar.max_value = max_health
+	health_bar.value = health
 	health_bar.visible = false
 	if not is_real_player and not is_boss:
 		name_tag.visible = true
@@ -491,6 +496,8 @@ func _physics_process(delta: float) -> void:
 			poison_tick_timer = 1.0
 			poison_ticks_remaining -= 1
 			take_damage(poison_damage_per_tick)
+	if is_dead:
+		return
 	if player == null or not is_instance_valid(player):
 		return
 	if Time.get_ticks_msec() < stunned_until_ms:
@@ -675,6 +682,14 @@ func take_damage(amount: int) -> void:
 	if is_dead:
 		return
 	health -= amount
+	# Was never shown or updated at all before this - health_bar.visible was
+	# only ever set false (in _ready()), so no enemy (including bosses) ever
+	# displayed hit feedback beyond the per-hit floating damage number.
+	# Revealed on first damage taken rather than shown at full health from
+	# spawn, same "only relevant once you're actually in the fight" spirit
+	# as the floating hit-line bubble above.
+	health_bar.value = health
+	health_bar.visible = true
 	if health <= 0:
 		die()
 		return

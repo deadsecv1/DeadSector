@@ -26,6 +26,8 @@ func die() -> void:
 	GameManager.notify_event("kill_enemy")
 	GameManager.record_kill()
 	GameManager.mark_enemy_discovered("toxic_waste")
+	if player != null and is_instance_valid(player) and player.in_bush:
+		GameManager.notify_event("sneak_kill")
 	var death_pos := global_position
 	var effective_loot_chance: float = clamp(loot_drop_chance + GameManager.get_equipped_bonus("loot_sense") + GameManager.get_upgrade_bonus("loot_sense"), 0.0, 1.0)
 	var loot_data: Dictionary = GameManager.roll_corpse_loot(false, drop_key_id, drop_key_label, effective_loot_chance)

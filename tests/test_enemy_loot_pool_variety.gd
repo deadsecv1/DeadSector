@@ -35,7 +35,10 @@ func test_new_items_are_actually_present() -> void:
 		assert_true(names.has(expected_name), "Expected new item '%s' missing from ENEMY_LOOT_POOL" % expected_name)
 
 func test_pool_still_rolls_a_valid_item() -> void:
+	var valid_rarities := ["common", "uncommon", "rare", "epic"]
 	for i in range(20):
 		var rolled: Dictionary = GameManager.roll_enemy_loot()
 		assert_true(rolled.has("name"))
 		assert_true(rolled.has("rarity"))
+		assert_true(String(rolled.get("name", "")) != "", "Rolled item has an empty name: %s" % str(rolled))
+		assert_true(valid_rarities.has(rolled.get("rarity", "")), "Rolled item '%s' has an unexpected rarity: %s" % [rolled.get("name", "?"), rolled.get("rarity", "")])

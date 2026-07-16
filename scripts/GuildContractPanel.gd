@@ -92,6 +92,7 @@ func _make_tier_row(tier_index: int) -> Control:
 		btn.pressed.connect(func():
 			if GameManager.claim_guild_contract_tier(tier_index):
 				refresh()
+				GameManager.focus_first_control(self)
 		)
 	else:
 		btn.text = "Locked"

@@ -75,7 +75,13 @@ func _spin_bones(delta: float) -> void:
 	bone_angle += delta * 2.3
 	for i in range(bone_nodes.size()):
 		var ang: float = bone_angle + TAU * float(i) / float(bone_nodes.size())
-		bone_nodes[i].position = Vector2(cos(ang), sin(ang)) * bone_radius
+		# Divided by scale.x to counter Rattles' own 2.4x node scale (bone
+		# ring nodes are direct children of this scaled root) - without
+		# this the ring renders at bone_radius*2.4 in world space while
+		# _check_bone_damage() below still checks against the raw
+		# bone_radius, leaving the visible ring far outside where damage
+		# actually starts.
+		bone_nodes[i].position = Vector2(cos(ang), sin(ang)) * bone_radius / scale.x
 		bone_nodes[i].rotation = ang + PI / 2.0
 
 func _check_bone_damage(delta: float) -> void:
@@ -112,6 +118,14 @@ func _shoot() -> void:
 	bullet.direction = (player.global_position - muzzle.global_position).normalized()
 	bullet.is_enemy_bullet = true
 	bullet.damage = int(round(42 * enemy_scale_factor * BOSS_DAMAGE_MULT))
+	# Without these, the Death Screen's "Killed by" attribution stayed
+	# stuck on whatever the player's last-named attacker was (or fell back
+	# to "the Sector itself") instead of naming Rattles as the actual
+	# killer - get_display_name() falls through to "RAIDER" for bosses (no
+	# "rattles" case), so hardcode the same literal the bone hit already
+	# uses below.
+	bullet.source_name = "RATTLES"
+	bullet.source_weapon = "Gunfire"
 	get_tree().current_scene.add_child(bullet)
 	bullet.global_position = muzzle.global_position
 	bullet.modulate = Color(0.92, 0.9, 0.8, 1)

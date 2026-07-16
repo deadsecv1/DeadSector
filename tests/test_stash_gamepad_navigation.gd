@@ -30,6 +30,13 @@ func test_opening_stash_grabs_initial_focus() -> void:
 	stash.queue_free()
 
 func test_picking_up_a_stash_item_and_placing_it_on_an_equip_slot_actually_equips_it() -> void:
+	# Both of these are live GameManager singleton state, not test-local -
+	# restore whatever was really there when the test is done rather than
+	# permanently leaving this fake fixture in place for the rest of the
+	# process (see test_gear_display.gd's before_each_file for the same
+	# risk class with equipped_skins).
+	var original_weapon = GameManager.equipped_items.get("weapon")
+	var original_stash_items: Array = GameManager.stash_items
 	GameManager.equipped_items["weapon"] = null
 	GameManager.stash_items = [
 		{"name": "Test Rifle", "value": 100, "slot": "weapon", "icon_key": "rifle", "rarity": "common"},
@@ -54,6 +61,8 @@ func test_picking_up_a_stash_item_and_placing_it_on_an_equip_slot_actually_equip
 
 	remove_child(stash)
 	stash.queue_free()
+	GameManager.equipped_items["weapon"] = original_weapon
+	GameManager.stash_items = original_stash_items
 
 func test_refresh_while_holding_cancels_the_hold_instead_of_leaving_a_dangling_reference() -> void:
 	GameManager.stash_items = [
