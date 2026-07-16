@@ -32,6 +32,7 @@ func open() -> void:
 	visible = true
 	refresh()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func refresh() -> void:
 	gpu_count_label.text = "Graphics Cards in Stash: %d" % GameManager.count_carried_graphics_cards()

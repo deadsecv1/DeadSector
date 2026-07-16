@@ -39,6 +39,7 @@ func open() -> void:
 	offset_bottom = 220
 	refresh()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func refresh() -> void:
 	var contract: Dictionary = GameManager.get_current_guild_contract()

@@ -61,6 +61,7 @@ func open() -> void:
 	visible = true
 	_switch_tab("enemies")
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func _switch_tab(tab: String) -> void:
 	current_tab = tab

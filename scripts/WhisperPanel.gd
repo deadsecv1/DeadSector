@@ -25,6 +25,7 @@ func open() -> void:
 	_show_new_rumor()
 	_refresh_tip_button()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func _show_new_rumor() -> void:
 	var rumors: Array = GameManager.WHISPER_RUMORS

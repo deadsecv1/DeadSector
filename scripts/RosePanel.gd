@@ -106,6 +106,7 @@ func open() -> void:
 	GameManager.rose_talked_to = true
 	_show_menu()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func _hide_all() -> void:
 	icon_slot.visible = false

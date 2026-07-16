@@ -33,6 +33,7 @@ func open() -> void:
 	offset_bottom = 230
 	refresh()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func refresh() -> void:
 	var seconds_left: int = 86400 - (int(Time.get_unix_time_from_system()) % 86400)

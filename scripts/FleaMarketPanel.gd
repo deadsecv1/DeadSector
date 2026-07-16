@@ -79,6 +79,7 @@ func open() -> void:
 	refresh()
 	set_process(true)
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func _process(delta: float) -> void:
 	if not visible:

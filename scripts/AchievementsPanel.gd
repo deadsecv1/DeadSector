@@ -33,6 +33,7 @@ func open() -> void:
 		particles._init_particles()
 	refresh()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func refresh() -> void:
 	for c in list.get_children():

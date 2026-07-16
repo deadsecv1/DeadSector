@@ -96,6 +96,7 @@ func open() -> void:
 	_refresh_guild_button()
 	refresh()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func refresh() -> void:
 	for c in profile_box.get_children():

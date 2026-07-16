@@ -38,6 +38,7 @@ func open() -> void:
 	offset_bottom = 190.0
 	_refresh()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func _refresh() -> void:
 	for c in list.get_children():

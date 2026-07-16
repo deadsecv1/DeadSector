@@ -1201,6 +1201,9 @@ const CHANGELOG_CURRENT := [
 		"New \"View Raid Breakdown\" button on both the Rewards and Death screens - a real per-raid kill timeline, damage-taken timeline, and a net-worth-over-time graph, all built from genuine events recorded live during the raid.",
 		"The Death screen's hit-location mannequin now draws your ACTUAL hits from that log instead of rolling a random 3-9 hit count with no connection to the fight that just happened.",
 	]},
+	{"version": "3.81.0", "title": "More Juiced-Up Panels", "notes": [
+		"34 panels across the game (Achievements, Milestones, Mail, Guild, Roadmap, every Hideout station, and more) now play a quick pop-in animation when they open, the same treatment the Changelog and Leaderboard panels always had, plus 3 newer panels (Lore, Season Pass, Post-Raid Breakdown) got the ambient particle backdrop those two also share.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
@@ -1306,3 +1309,4 @@ func _make_row(entry: Dictionary) -> Control:
 func open() -> void:
 	visible = true
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)

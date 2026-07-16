@@ -26,6 +26,7 @@ func open_for(item: Dictionary) -> void:
 	visible = true
 	_refresh()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func _refresh() -> void:
 	for c in list.get_children():

@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/PostRaidBreakdownPanel.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/NetWorthGraph.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="3"]
 
 [node name="PostRaidBreakdownPanel" type="Panel"]
 anchor_right = 1.0
@@ -13,6 +14,12 @@ script = ExtResource("1")
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.05, 0.05, 0.06, 0.98)
+
+[node name="DystoBG" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("3")
 
 [node name="VBox" type="VBoxContainer" parent="."]
 anchor_left = 0.5

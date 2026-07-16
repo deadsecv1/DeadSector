@@ -53,6 +53,7 @@ func open() -> void:
 	offset_bottom = 0.0
 	refresh()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func refresh() -> void:
 	stones_label.text = "Lifetime Stones Earned: %d" % GameManager.stones

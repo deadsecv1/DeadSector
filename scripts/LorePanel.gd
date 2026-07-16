@@ -31,6 +31,7 @@ func open() -> void:
 	visible = true
 	_show_list()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func _show_list() -> void:
 	detail_view.visible = false

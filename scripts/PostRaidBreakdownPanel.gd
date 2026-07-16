@@ -31,6 +31,7 @@ func open() -> void:
 	visible = true
 	refresh()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func refresh() -> void:
 	var data: Dictionary = GameManager.last_raid_breakdown

@@ -157,6 +157,7 @@ func open() -> void:
 	result_box.visible = false
 	_set_mode("decipher")
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func refresh() -> void:
 	for c in engram_list.get_children():

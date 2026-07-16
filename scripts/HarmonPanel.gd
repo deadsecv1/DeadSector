@@ -23,6 +23,7 @@ func open() -> void:
 	GameManager._maybe_grant_harmon_welcome()
 	_show_new_story()
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func _show_new_story() -> void:
 	var stories: Array = GameManager.HARMON_WAR_STORIES

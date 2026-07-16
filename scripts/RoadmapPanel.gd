@@ -144,3 +144,4 @@ func _make_row(entry: Dictionary) -> Control:
 func open() -> void:
 	visible = true
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)

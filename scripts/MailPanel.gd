@@ -69,6 +69,7 @@ func open() -> void:
 	offset_right = 280.0
 	offset_bottom = 300.0
 	_show_list()
+	PanelOpenFX.animate_open(self)
 
 func _show_list() -> void:
 	detail_overlay.visible = false

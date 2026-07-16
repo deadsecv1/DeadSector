@@ -56,6 +56,7 @@ func open() -> void:
 	visible = true
 	_switch_category("score")
 	GameManager.focus_first_control(self)
+	PanelOpenFX.animate_open(self)
 
 func _switch_category(category: String) -> void:
 	current_category = category

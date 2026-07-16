@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/LorePanel.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="2"]
 
 [node name="LorePanel" type="Panel"]
 anchor_right = 1.0
@@ -12,6 +13,12 @@ script = ExtResource("1")
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.06, 0.05, 0.09, 0.98)
+
+[node name="DystoBG" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("2")
 
 [node name="VBox" type="VBoxContainer" parent="."]
 anchor_left = 0.5
