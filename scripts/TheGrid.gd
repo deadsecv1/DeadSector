@@ -103,9 +103,9 @@ func _run_countdown() -> void:
 const ENEMY_SCENE := preload("res://scenes/Enemy.tscn")
 const ALLY_SCRIPT := preload("res://scripts/ArenaAlly.gd")
 const PET_SCENE := preload("res://scenes/Pet.tscn")
-const OPPONENT_BASE_X := 300.0
-const ALLY_BASE_X := -320.0
-const ROSTER_SPREAD_Y := 300.0
+const OPPONENT_BASE_X := 600.0
+const ALLY_BASE_X := -640.0
+const ROSTER_SPREAD_Y := 600.0
 
 # Spreads up to `count` spawn points evenly across the room's vertical
 # span at a fixed x (positive for the opponent side, negative for the
