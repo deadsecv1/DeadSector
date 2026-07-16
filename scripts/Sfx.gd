@@ -335,7 +335,7 @@ func play_reveal() -> void:
 func play_blood_hover() -> void:
 	var p := _get_free_player()
 	p.stream = _blood_hover
-	p.volume_db = -8.0
+	p.volume_db = -10.0
 	p.play()
 
 func play_jump() -> void:
@@ -976,7 +976,13 @@ func _make_energy_shot() -> AudioStreamWAV:
 
 func _make_blood_hover() -> AudioStreamWAV:
 	# A low, ominous double-thump like a heartbeat - dark and heavy,
-	# nothing bright or musical about it.
+	# nothing bright or musical about it. The decay rate used to be too
+	# slow for the 0.15s window (still ~12% amplitude when the window
+	# hard-cut to silence), leaving an audible click on every thump that
+	# on top of how deep/sub-bass the two tones sat, was reported as
+	# sounding like static - decay is now fast enough to actually reach
+	# silence before the cutoff, and the tones sit a bit higher so
+	# they're less likely to make a speaker buzz trying to reproduce them.
 	var dur := 0.55
 	var n := int(SAMPLE_RATE * dur)
 	var data := PackedByteArray()
@@ -988,9 +994,9 @@ func _make_blood_hover() -> AudioStreamWAV:
 		for start in thumps:
 			var local_t: float = t - start
 			if local_t >= 0.0 and local_t < 0.15:
-				var decay: float = exp(-local_t * 14.0)
-				s += sin(TAU * 60.0 * local_t) * decay * 0.6
-				s += sin(TAU * 45.0 * local_t) * decay * 0.3
+				var decay: float = exp(-local_t * 26.0)
+				s += sin(TAU * 75.0 * local_t) * decay * 0.6
+				s += sin(TAU * 58.0 * local_t) * decay * 0.3
 		var s16 := int(clamp(s, -1.0, 1.0) * 32767.0)
 		data.encode_s16(i * 2, s16)
 	return _to_wav(data)
