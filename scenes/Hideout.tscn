@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://scripts/Hideout.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
@@ -26,6 +26,8 @@
 [ext_resource type="PackedScene" path="res://scenes/PlushiesPanel.tscn" id="23"]
 [ext_resource type="PackedScene" path="res://scenes/WanderingPlushie.tscn" id="24"]
 [ext_resource type="Script" path="res://scripts/RepairmanPanel.gd" id="27"]
+[ext_resource type="Script" path="res://scripts/WhisperPanel.gd" id="60"]
+[ext_resource type="Script" path="res://scripts/HarmonPanel.gd" id="61"]
 [ext_resource type="Texture2D" path="res://assets/npcs/lildirty.png" id="25"]
 [ext_resource type="Texture2D" path="res://assets/npcs/justin.png" id="26"]
 
@@ -161,6 +163,20 @@ zone_size = Vector2(130, 120)
 prompt_text = "Press F: Talk to Torque"
 speech_lines = Array[String](["Bring me your busted gear. I fix busted gear.", "Everything wears down eventually. That's what I'm here for.", "Rubles get it running again. Simple as that."])
 speech_bubble_offset = Vector2(0, -110)
+
+[node name="WhisperStation" parent="." instance=ExtResource("5")]
+position = Vector2(750, 500)
+zone_size = Vector2(120, 110)
+prompt_text = "Press F: Talk to Whisper"
+speech_lines = Array[String](["Everyone's got a rumor. Mine are just true.", "One tip a day. That's the deal.", "You didn't hear this from me."])
+speech_bubble_offset = Vector2(0, -100)
+
+[node name="HarmonStation" parent="." instance=ExtResource("5")]
+position = Vector2(800, -450)
+zone_size = Vector2(120, 110)
+prompt_text = "Press F: Talk to Old Harmon"
+speech_lines = Array[String](["Sit a while. I've got stories.", "You're still here. Good. Means you're doing something right.", "The Sector doesn't care how long you've been at it."])
+speech_bubble_offset = Vector2(0, -100)
 
 [node name="BitcoinFarmDesk" parent="." instance=ExtResource("8")]
 position = Vector2(300, 150)
@@ -370,6 +386,113 @@ theme_override_colors/font_color = Color(0.85, 0.55, 0.25, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
 theme_override_constants/outline_size = 3
 text = "Torque - The Repairman"
+
+[node name="WhisperNoticeBoard" type="Polygon2D" parent="."]
+position = Vector2(700, 520)
+color = Color(0.28, 0.22, 0.16, 1)
+polygon = PackedVector2Array(-26, -32, 26, -32, 26, 32, -26, 32)
+
+[node name="WhisperNoticeBoardPin1" type="Polygon2D" parent="."]
+position = Vector2(690, 508)
+color = Color(0.7, 0.15, 0.15, 1)
+polygon = PackedVector2Array(-2, -2, 2, -2, 2, 2, -2, 2)
+
+[node name="WhisperNoticeBoardPin2" type="Polygon2D" parent="."]
+position = Vector2(712, 530)
+color = Color(0.65, 0.55, 0.2, 1)
+polygon = PackedVector2Array(-2, -2, 2, -2, 2, 2, -2, 2)
+
+[node name="Whisper" type="Node2D" parent="."]
+position = Vector2(750, 460)
+scale = Vector2(1.4, 1.4)
+
+[node name="WhisperShadow" type="Polygon2D" parent="Whisper"]
+position = Vector2(0, 26)
+color = Color(0, 0, 0, 0.25)
+polygon = PackedVector2Array(-14, 0, 14, 0, 11, 8, -11, 8)
+
+[node name="WhisperCloak" type="Polygon2D" parent="Whisper"]
+color = Color(0.16, 0.13, 0.28, 1)
+polygon = PackedVector2Array(-15, -12, 15, -12, 24, 22, 15, 32, -15, 32, -24, 22)
+
+[node name="WhisperHood" type="Polygon2D" parent="Whisper"]
+position = Vector2(0, -18)
+color = Color(0.11, 0.09, 0.2, 1)
+polygon = PackedVector2Array(-12, -10, 12, -10, 14, 10, -14, 10)
+
+[node name="WhisperEyeLeft" type="Polygon2D" parent="Whisper"]
+position = Vector2(-4, -16)
+color = Color(0.55, 0.75, 0.95, 0.9)
+polygon = PackedVector2Array(-1.5, -1.5, 1.5, -1.5, 1.5, 1.5, -1.5, 1.5)
+
+[node name="WhisperEyeRight" type="Polygon2D" parent="Whisper"]
+position = Vector2(4, -16)
+color = Color(0.55, 0.75, 0.95, 0.9)
+polygon = PackedVector2Array(-1.5, -1.5, 1.5, -1.5, 1.5, 1.5, -1.5, 1.5)
+
+[node name="WhisperTrim" type="Polygon2D" parent="Whisper"]
+position = Vector2(0, 10)
+color = Color(0.5, 0.4, 0.7, 1)
+polygon = PackedVector2Array(-14, -4, 14, -4, 14, 2, -14, 2)
+
+[node name="WhisperLabel" type="Label" parent="."]
+position = Vector2(715, 375)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.6, 0.55, 0.9, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Whisper"
+
+[node name="HarmonCrate" type="Polygon2D" parent="."]
+position = Vector2(850, -420)
+color = Color(0.3, 0.24, 0.15, 1)
+polygon = PackedVector2Array(-22, -16, 22, -16, 22, 16, -22, 16)
+
+[node name="HarmonCrateLid" type="Polygon2D" parent="."]
+position = Vector2(850, -434)
+color = Color(0.4, 0.32, 0.2, 1)
+polygon = PackedVector2Array(-24, -4, 24, -4, 24, 3, -24, 3)
+
+[node name="Harmon" type="Node2D" parent="."]
+position = Vector2(800, -490)
+scale = Vector2(1.4, 1.4)
+
+[node name="HarmonShadow" type="Polygon2D" parent="Harmon"]
+position = Vector2(0, 26)
+color = Color(0, 0, 0, 0.25)
+polygon = PackedVector2Array(-14, 0, 14, 0, 11, 8, -11, 8)
+
+[node name="HarmonLegs" type="Polygon2D" parent="Harmon"]
+position = Vector2(0, 12)
+color = Color(0.25, 0.22, 0.18, 1)
+polygon = PackedVector2Array(-7, 0, 7, 0, 5, 20, -5, 20)
+
+[node name="HarmonCoat" type="Polygon2D" parent="Harmon"]
+color = Color(0.42, 0.34, 0.22, 1)
+polygon = PackedVector2Array(-12, 0, 12, 0, 10, 7, 0, 13, -10, 7)
+
+[node name="HarmonHead" type="Polygon2D" parent="Harmon"]
+position = Vector2(0, -22)
+color = Color(0.72, 0.55, 0.44, 1)
+polygon = PackedVector2Array(7, 0, 5.7, 4.1, 2.2, 6.7, -2.2, 6.7, -5.7, 4.1, -7, 0, -5.7, -4.1, -2.2, -6.7, 2.2, -6.7, 5.7, -4.1)
+
+[node name="HarmonHair" type="Polygon2D" parent="Harmon"]
+position = Vector2(0, -29)
+color = Color(0.75, 0.75, 0.72, 1)
+polygon = PackedVector2Array(-7, 0, 7, 0, 6, -4, -6, -4)
+
+[node name="HarmonScar" type="Polygon2D" parent="Harmon"]
+position = Vector2(3, -23)
+color = Color(0.55, 0.3, 0.25, 0.8)
+polygon = PackedVector2Array(-0.8, -5, 0.8, -5, 0.8, 5, -0.8, 5)
+
+[node name="HarmonLabel" type="Label" parent="."]
+position = Vector2(755, -565)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.8, 0.65, 0.45, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Old Harmon"
 
 [node name="JustinAnvil" type="Polygon2D" parent="."]
 position = Vector2(600, 355)
@@ -1036,6 +1159,151 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
 [node name="CloseButton" type="Button" parent="HideoutUI/RepairmanPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="WhisperPanel" type="Panel" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -200.0
+offset_right = 260.0
+offset_bottom = 200.0
+visible = false
+script = ExtResource("60")
+
+[node name="Backdrop" type="ColorRect" parent="HideoutUI/WhisperPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.06, 0.06, 0.09, 0.97)
+
+[node name="DystoBG" type="Control" parent="HideoutUI/WhisperPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("14")
+
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/WhisperPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="HideoutUI/WhisperPanel/VBox"]
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.55, 0.5, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "WHISPER"
+
+[node name="Subtitle" type="Label" parent="HideoutUI/WhisperPanel/VBox"]
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.7)
+text = "Trades in rumors nobody else will say out loud. One tip a day, free of charge - the rest costs you something eventually."
+
+[node name="RumorLabel" type="Label" parent="HideoutUI/WhisperPanel/VBox"]
+size_flags_vertical = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.85, 0.82, 0.95, 1)
+text = "\"...\""
+
+[node name="RerollButton" type="Button" parent="HideoutUI/WhisperPanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+theme_override_font_sizes/font_size = 14
+text = "Ask For Another Rumor"
+
+[node name="TipButton" type="Button" parent="HideoutUI/WhisperPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 14
+text = "Take Today's Tip"
+
+[node name="CloseButton" type="Button" parent="HideoutUI/WhisperPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="HarmonPanel" type="Panel" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -190.0
+offset_right = 260.0
+offset_bottom = 190.0
+visible = false
+script = ExtResource("61")
+
+[node name="Backdrop" type="ColorRect" parent="HideoutUI/HarmonPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.07, 0.05, 0.97)
+
+[node name="DystoBG" type="Control" parent="HideoutUI/HarmonPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("14")
+
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/HarmonPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="HideoutUI/HarmonPanel/VBox"]
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.75, 0.6, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "OLD HARMON"
+
+[node name="Subtitle" type="Label" parent="HideoutUI/HarmonPanel/VBox"]
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.7)
+text = "A retired operator who's outlived three raid crews and every reason he should have. Still sits by the gate most days."
+
+[node name="StoryLabel" type="Label" parent="HideoutUI/HarmonPanel/VBox"]
+size_flags_vertical = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.9, 0.82, 0.7, 1)
+text = "\"...\""
+
+[node name="RerollButton" type="Button" parent="HideoutUI/HarmonPanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+theme_override_font_sizes/font_size = 14
+text = "Hear Another Story"
+
+[node name="CloseButton" type="Button" parent="HideoutUI/HarmonPanel/VBox"]
 custom_minimum_size = Vector2(0, 44)
 theme_override_font_sizes/font_size = 16
 text = "Close"

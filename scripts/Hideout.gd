@@ -8,6 +8,8 @@ const RECRUIT_SCENE := preload("res://scenes/Recruit.tscn")
 @onready var lildirty_station = $LilDirtyStation
 @onready var workbench_station = $WorkbenchStation
 @onready var repairman_station = $RepairmanStation
+@onready var whisper_station = $WhisperStation
+@onready var harmon_station = $HarmonStation
 @onready var bitcoin_farm_station = $BitcoinFarmStation
 @onready var clarity_station = $ClarityStation
 @onready var sorrow_station = $SorrowStation
@@ -24,6 +26,8 @@ const RECRUIT_SCENE := preload("res://scenes/Recruit.tscn")
 @onready var lildirty_panel = $HideoutUI/LilDirtyPanel
 @onready var workbench_panel = $HideoutUI/WorkbenchPanel
 @onready var repairman_panel = $HideoutUI/RepairmanPanel
+@onready var whisper_panel = $HideoutUI/WhisperPanel
+@onready var harmon_panel = $HideoutUI/HarmonPanel
 @onready var bitcoin_farm_panel = $HideoutUI/BitcoinFarmPanel
 @onready var recruit_doll_panel = $HideoutUI/RecruitDollPanel
 @onready var pet_shop_panel = $HideoutUI/PetShopPanel
@@ -90,6 +94,8 @@ func _ready() -> void:
 	lildirty_station.interacted.connect(_open_lildirty)
 	workbench_station.interacted.connect(_open_workbench)
 	repairman_station.interacted.connect(_open_repairman)
+	whisper_station.interacted.connect(_open_whisper)
+	harmon_station.interacted.connect(_open_harmon)
 	bitcoin_farm_station.interacted.connect(_open_bitcoin_farm)
 	clarity_station.interacted.connect(func(): _open_recruit_doll("clarity"))
 	sorrow_station.interacted.connect(func(): _open_recruit_doll("sorrow"))
@@ -117,6 +123,8 @@ func _ready() -> void:
 	lildirty_panel.closed.connect(_close_lildirty)
 	workbench_panel.closed.connect(_close_workbench)
 	repairman_panel.closed.connect(_close_repairman)
+	whisper_panel.closed.connect(_close_whisper)
+	harmon_panel.closed.connect(_close_harmon)
 	bitcoin_farm_panel.closed.connect(_close_bitcoin_farm)
 	recruit_doll_panel.closed.connect(_close_recruit_doll)
 	pet_shop_panel.closed.connect(_close_pet_shop)
@@ -182,6 +190,10 @@ func _process(_delta: float) -> void:
 			_close_workbench()
 		elif repairman_panel.visible:
 			_close_repairman()
+		elif whisper_panel.visible:
+			_close_whisper()
+		elif harmon_panel.visible:
+			_close_harmon()
 		elif bitcoin_farm_panel.visible:
 			_close_bitcoin_farm()
 		elif recruit_doll_panel.visible:
@@ -224,7 +236,7 @@ func _on_ammo_changed(current_mag: int, _mag_size: int, reserve_ammo: int, ammo_
 		reload_prompt.text = "Press R to Reload (%d / %d %s)" % [current_mag, reserve_ammo, ammo_type.capitalize()]
 
 func _any_panel_open() -> bool:
-	return gym_panel.visible or lildirty_panel.visible or workbench_panel.visible or repairman_panel.visible or bitcoin_farm_panel.visible or recruit_doll_panel.visible or pet_shop_panel.visible or justin_panel.visible or rose_panel.visible or plushies_panel.visible or plushie_reveal.visible or gamble_panel.visible or pause_overlay.visible or ghost_chat_open
+	return gym_panel.visible or lildirty_panel.visible or workbench_panel.visible or repairman_panel.visible or whisper_panel.visible or harmon_panel.visible or bitcoin_farm_panel.visible or recruit_doll_panel.visible or pet_shop_panel.visible or justin_panel.visible or rose_panel.visible or plushies_panel.visible or plushie_reveal.visible or gamble_panel.visible or pause_overlay.visible or ghost_chat_open
 
 func _open_pause() -> void:
 	pause_overlay.visible = true
@@ -273,6 +285,26 @@ func _open_repairman() -> void:
 
 func _close_repairman() -> void:
 	repairman_panel.visible = false
+	player.set_input_locked(false)
+
+func _open_whisper() -> void:
+	if sleeping or _any_panel_open():
+		return
+	whisper_panel.open()
+	player.set_input_locked(true)
+
+func _close_whisper() -> void:
+	whisper_panel.visible = false
+	player.set_input_locked(false)
+
+func _open_harmon() -> void:
+	if sleeping or _any_panel_open():
+		return
+	harmon_panel.open()
+	player.set_input_locked(true)
+
+func _close_harmon() -> void:
+	harmon_panel.visible = false
 	player.set_input_locked(false)
 
 func _open_bitcoin_farm() -> void:

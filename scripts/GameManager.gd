@@ -4424,6 +4424,7 @@ const ACHIEVEMENTS := {
 
 	# --- Rose & Plushies ---
 	"rose_met": {"name": "Nice to Meet You", "desc": "Talk to Rose in the Hideout.", "icon": "recruits"},
+	"harmon_met": {"name": "War Stories", "desc": "Talk to Old Harmon in the Hideout.", "icon": "recruits"},
 	"plushie_pioneer": {"name": "Plushie Pioneer", "desc": "Have Rose turn a Plushie into a pet.", "icon": "recruits"},
 	"plushie_collector": {"name": "The Whole Shelf", "desc": "Own 5 Plushie-buffed pets.", "icon": "recruits"},
 	"tag_organizer": {"name": "Everything In Its Place", "desc": "Tag 3 cases in your Stash or Backpack Storage.", "icon": "gear"},
@@ -4655,6 +4656,7 @@ func check_achievements() -> void:
 		if String(id).begins_with("plushie_"):
 			plushie_pet_count += 1
 	_maybe_unlock("rose_met", rose_talked_to)
+	_maybe_unlock("harmon_met", harmon_talked_to)
 	_maybe_unlock("plushie_pioneer", plushie_pet_count >= 1)
 	_maybe_unlock("plushie_collector", plushie_pet_count >= 5)
 	var tagged_count := 0
@@ -6138,6 +6140,8 @@ func reset_character() -> void:
 	seen_collectibles = {}
 	ghost_recruited = false
 	rose_talked_to = false
+	harmon_talked_to = false
+	whisper_tip_day = -1
 	recruit_equipment = {
 		"clarity": {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null},
 		"sorrow": {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null},
@@ -7917,7 +7921,7 @@ func save_game() -> void:
 		"has_seen_welcome": has_seen_welcome,
 		"achievement_flag_multiversal_pull": achievement_flag_multiversal_pull,
 		"achievement_flag_close_call": achievement_flag_close_call,
-		"rose_talked_to": rose_talked_to,
+		"rose_talked_to": rose_talked_to, "harmon_talked_to": harmon_talked_to, "whisper_tip_day": whisper_tip_day,
 	}
 	if test_mode:
 		return
@@ -8294,6 +8298,8 @@ func load_game() -> void:
 	achievement_flag_multiversal_pull = bool(parsed.get("achievement_flag_multiversal_pull", false))
 	achievement_flag_close_call = bool(parsed.get("achievement_flag_close_call", false))
 	rose_talked_to = bool(parsed.get("rose_talked_to", false))
+	harmon_talked_to = bool(parsed.get("harmon_talked_to", false))
+	whisper_tip_day = int(parsed.get("whisper_tip_day", -1))
 	var loaded_keybinds = parsed.get("keybinds", null)
 	if typeof(loaded_keybinds) == TYPE_DICTIONARY:
 		for action in KEYBIND_DEFAULTS.keys():
@@ -10013,6 +10019,64 @@ func unequip_to_backpack_storage_cell(slot: String, gx: int, gy: int) -> void:
 # then on.
 var ghost_recruited: bool = false
 var rose_talked_to: bool = false
+
+# --- Whisper: an info broker in the Hideout, always talkable. Hands out a
+# random rumor every visit for flavor, plus a small once-per-real-day
+# stipend - same day-boundary gate _current_day_index() already provides
+# for Clan Wars, just reused here instead of a second copy of the math.
+var whisper_tip_day: int = -1
+const WHISPER_TIP_RUBLES := 60
+const WHISPER_TIP_ARTIFACTS := 4
+const WHISPER_RUMORS := [
+	"Heard a Scav crew found a door in Ironscrap that wasn't on anyone's map. Door's still there. They aren't.",
+	"The Foundry's furnace never actually goes cold. Nobody's figured out what's still feeding it.",
+	"Word is the Undertow doesn't lose his own crates - he just doesn't open the ones that would embarrass him.",
+	"Boneclock only exists at night because whatever's under it doesn't like the sun. That's the polite version.",
+	"Every operative who's gone missing in Void Trench was chasing the same rumor I'm about to tell you. So, your call.",
+	"Torque used to work the line at a real fabrication plant, before. Doesn't talk about the after.",
+	"Rose knows more about the Plushies than she lets on. Ask her about the first one sometime. Watch her face.",
+	"The Quartermaster marks up everything 30% for anyone who hasn't extracted at least once. You're paying full price until you have.",
+	"Somebody's been leaving flowers at the Graveyard's second Spectral Bowl. Not the survivor. Somebody from outside.",
+	"I don't know what a Rift Wraith actually is. Neither does anyone who's still around to ask.",
+]
+
+func whisper_tip_available() -> bool:
+	return _current_day_index() > whisper_tip_day
+
+func claim_whisper_tip() -> bool:
+	if not whisper_tip_available():
+		return false
+	whisper_tip_day = _current_day_index()
+	add_currency("rubles", WHISPER_TIP_RUBLES)
+	add_currency("artifacts", WHISPER_TIP_ARTIFACTS)
+	toast_requested.emit("Whisper's Tip: +%d Rubles, +%d Artifacts" % [WHISPER_TIP_RUBLES, WHISPER_TIP_ARTIFACTS])
+	save_game()
+	return true
+
+# --- Old Harmon: a retired operator in the Hideout, always talkable -
+# pure war-stories flavor (no repeatable reward), same "always available,
+# no quest gate" shape as Lil Dirty. First visit grants a small one-time
+# welcome gift, same spirit as Rose's rose_met achievement.
+var harmon_talked_to: bool = false
+const HARMON_WELCOME_RUBLES := 50
+const HARMON_WAR_STORIES := [
+	"First raid I ever ran, I extracted with an empty backpack and both boots on the wrong feet. Called it a win anyway.",
+	"You learn to stop flinching at gunfire. You never learn to stop flinching at silence.",
+	"Lost three squadmates to Overgrowth's radiation zone before anyone thought to mark it on a map. Wasn't me who thought of it either.",
+	"Best loot I ever pulled wasn't worth anything on paper. Still have it. Never sold it.",
+	"Every operator's got one map that scares them and won't admit it. Mine's the Graveyard. Always will be.",
+	"The Sector doesn't get easier. You just get better at lying to yourself about how scared you are.",
+	"I've watched a lot of new faces walk into the Hideout. Watched fewer of them walk in a second time. Glad you did.",
+	"Somebody asked me once why I don't raid anymore. I told them I already know how my story ends if I go back. Some don't want to hear that.",
+]
+
+func _maybe_grant_harmon_welcome() -> void:
+	if harmon_talked_to:
+		return
+	harmon_talked_to = true
+	add_currency("rubles", HARMON_WELCOME_RUBLES)
+	toast_requested.emit("Old Harmon: \"First one's on me, kid.\" +%d Rubles" % HARMON_WELCOME_RUBLES)
+	save_game()
 # Once-ever flag - the first time the ambient chat-ping popup fires, a
 # toast also mentions the chat keybind, since GlobalChatBox (the real
 # multi-channel chat) has zero on-screen affordance otherwise, unlike

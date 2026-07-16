@@ -1183,6 +1183,10 @@ const CHANGELOG_CURRENT := [
 	{"version": "3.75.0", "title": "Trader Portrait Upgrade", "notes": [
 		"The 5 shop traders and 4 named Hideout NPCs (Clarity, Sorrow, Glenn, Big Crax) now get a themed glow halo, a crisp accent-color ring, and a cheap top-lit/bottom-shadow pass on their portrait - shown on the Traders screen. Small simulated-player avatars used elsewhere (Leaderboard, chat, Social) are unchanged.",
 	]},
+	{"version": "3.76.0", "title": "Two New Hideout NPCs: Whisper and Old Harmon", "notes": [
+		"Whisper, a hooded info broker in the Hideout's southeast corner - always talkable, hands out a random rumor every visit, and gives one free Rubles+Artifacts tip per real day.",
+		"Old Harmon, a retired operator near the recruit cluster - trades in war stories, no gating, and hands over a small welcome gift (plus a new achievement) the first time you talk to him.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
