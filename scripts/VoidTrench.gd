@@ -83,7 +83,10 @@ func _maybe_spawn_elite_cache_event() -> void:
 	if randf() >= 0.18:
 		return
 	var ang := randf_range(0.0, TAU)
-	var center: Vector2 = player.global_position + Vector2(cos(ang), sin(ang)) * randf_range(900.0, 1500.0)
+	# Radius scaled up (was 900-1500) to match the map's doubled dimensions -
+	# keeps this event a real "well away from spawn" detour instead of it
+	# suddenly feeling close-by on the much bigger trench.
+	var center: Vector2 = player.global_position + Vector2(cos(ang), sin(ang)) * randf_range(1400.0, 2300.0)
 	for i in range(2):
 		var guard = ELITE_ENEMY_SCENE.instantiate()
 		guard.is_elite_guard = true

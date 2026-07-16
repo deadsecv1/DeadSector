@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scripts/VoidTrench.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
@@ -20,6 +20,9 @@
 [ext_resource type="PackedScene" path="res://scenes/Sentinel.tscn" id="18"]
 [ext_resource type="Script" path="res://scripts/RaidAmbience.gd" id="19"]
 [ext_resource type="PackedScene" path="res://scenes/House.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://scenes/ToxicWaste.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://scenes/Barrel.tscn" id="22"]
+[ext_resource type="PackedScene" path="res://scenes/Crate.tscn" id="23"]
 
 [node name="VoidTrench" type="Node2D"]
 script = ExtResource("1")
@@ -29,27 +32,27 @@ color = Color(0.3, 0.22, 0.42, 1)
 
 [node name="Ground" type="Node2D" parent="."]
 script = ExtResource("4")
-ground_size = Vector2(3500, 2300)
+ground_size = Vector2(7000, 4600)
 base_color = Color(0.16, 0.1, 0.22, 1)
 
 [node name="WallTop" parent="." instance=ExtResource("3")]
-position = Vector2(0, -1130)
-size = Vector2(3460, 40)
+position = Vector2(0, -2280)
+size = Vector2(6960, 40)
 wall_color = Color(0.28, 0.16, 0.38, 1)
 
 [node name="WallBottom" parent="." instance=ExtResource("3")]
-position = Vector2(0, 1130)
-size = Vector2(3460, 40)
+position = Vector2(0, 2280)
+size = Vector2(6960, 40)
 wall_color = Color(0.28, 0.16, 0.38, 1)
 
 [node name="WallLeft" parent="." instance=ExtResource("3")]
-position = Vector2(-1730, 0)
-size = Vector2(40, 2300)
+position = Vector2(-3480, 0)
+size = Vector2(40, 4600)
 wall_color = Color(0.28, 0.16, 0.38, 1)
 
 [node name="WallRight" parent="." instance=ExtResource("3")]
-position = Vector2(1730, 0)
-size = Vector2(40, 2300)
+position = Vector2(3480, 0)
+size = Vector2(40, 4600)
 wall_color = Color(0.28, 0.16, 0.38, 1)
 
 [node name="TrenchBody" type="Polygon2D" parent="."]
@@ -63,6 +66,36 @@ default_color = Color(0.6, 0.25, 0.9, 0.5)
 
 [node name="TrenchGlowLine2" type="Line2D" parent="."]
 points = PackedVector2Array(-1280, 90, 1280, 90)
+width = 4.0
+default_color = Color(0.6, 0.25, 0.9, 0.5)
+
+[node name="TrenchBodyWestExt" type="Polygon2D" parent="."]
+position = Vector2(-2290, 0)
+color = Color(0.06, 0.03, 0.1, 1)
+polygon = PackedVector2Array(-1010, -90, 1010, -90, 1010, 90, -1010, 90)
+
+[node name="TrenchBodyEastExt" type="Polygon2D" parent="."]
+position = Vector2(2290, 0)
+color = Color(0.06, 0.03, 0.1, 1)
+polygon = PackedVector2Array(-1010, -90, 1010, -90, 1010, 90, -1010, 90)
+
+[node name="TrenchGlowLine1West" type="Line2D" parent="."]
+points = PackedVector2Array(-3300, -90, -1280, -90)
+width = 4.0
+default_color = Color(0.6, 0.25, 0.9, 0.5)
+
+[node name="TrenchGlowLine1East" type="Line2D" parent="."]
+points = PackedVector2Array(1280, -90, 3300, -90)
+width = 4.0
+default_color = Color(0.6, 0.25, 0.9, 0.5)
+
+[node name="TrenchGlowLine2West" type="Line2D" parent="."]
+points = PackedVector2Array(-3300, 90, -1280, 90)
+width = 4.0
+default_color = Color(0.6, 0.25, 0.9, 0.5)
+
+[node name="TrenchGlowLine2East" type="Line2D" parent="."]
+points = PackedVector2Array(1280, 90, 3300, 90)
 width = 4.0
 default_color = Color(0.6, 0.25, 0.9, 0.5)
 
@@ -347,6 +380,527 @@ grants_artifacts = 2
 position = Vector2(300, -420)
 drop_key_id = "trench_bunker_key"
 drop_key_label = "Trench Bunker Key"
+
+[node name="RoadTrenchBunkerToObelisk" type="Polygon2D" parent="."]
+position = Vector2(50, -1225)
+rotation = -1.9513
+z_index = -3
+color = Color(0.2, 0.14, 0.26, 0.55)
+polygon = PackedVector2Array(-673.1, -24, 673.1, -24, 673.1, 24, -673.1, 24)
+
+[node name="RoadGlowTrenchBunkerToObelisk" type="Line2D" parent="."]
+z_index = -2
+points = PackedVector2Array(300, -600, -200, -1850)
+width = 3.0
+default_color = Color(0.6, 0.25, 0.9, 0.35)
+
+[node name="RoadObeliskToWraithsHollow" type="Polygon2D" parent="."]
+position = Vector2(700, -1775)
+rotation = 0.0831
+z_index = -3
+color = Color(0.2, 0.14, 0.26, 0.55)
+polygon = PackedVector2Array(-903.1, -22, 903.1, -22, 903.1, 22, -903.1, 22)
+
+[node name="RoadWraithsHollowToCheckpointNine" type="Polygon2D" parent="."]
+position = Vector2(2150, -1075)
+rotation = 0.8491
+z_index = -3
+color = Color(0.2, 0.14, 0.26, 0.55)
+polygon = PackedVector2Array(-832.5, -22, 832.5, -22, 832.5, 22, -832.5, 22)
+
+[node name="RoadCheckpointNineToExcavation" type="Polygon2D" parent="."]
+position = Vector2(2700, 725)
+rotation = 1.5708
+z_index = -3
+color = Color(0.2, 0.14, 0.26, 0.55)
+polygon = PackedVector2Array(-1175, -22, 1175, -22, 1175, 22, -1175, 22)
+
+[node name="RoadExcavationToSignalArray" type="Polygon2D" parent="."]
+position = Vector2(1500, 1825)
+rotation = -3.0792
+z_index = -3
+color = Color(0.2, 0.14, 0.26, 0.55)
+polygon = PackedVector2Array(-1202.3, -22, 1202.3, -22, 1202.3, 22, -1202.3, 22)
+
+[node name="RoadSignalArrayToBioDome" type="Polygon2D" parent="."]
+position = Vector2(550, 1100)
+rotation = -1.2036
+z_index = -3
+color = Color(0.2, 0.14, 0.26, 0.55)
+polygon = PackedVector2Array(-696.4, -24, 696.4, -24, 696.4, 24, -696.4, 24)
+
+[node name="RoadGlowSignalArrayToBioDome" type="Line2D" parent="."]
+z_index = -2
+points = PackedVector2Array(300, 1750, 800, 450)
+width = 3.0
+default_color = Color(0.6, 0.25, 0.9, 0.35)
+
+[node name="RoadSignalArrayToListeningPost" type="Polygon2D" parent="."]
+position = Vector2(-700, 1725)
+rotation = -3.1166
+z_index = -3
+color = Color(0.2, 0.14, 0.26, 0.55)
+polygon = PackedVector2Array(-1000.3, -20, 1000.3, -20, 1000.3, 20, -1000.3, 20)
+
+[node name="RoadListeningPostToWreckageRow" type="Polygon2D" parent="."]
+position = Vector2(-2150, 1225)
+rotation = -2.3292
+z_index = -3
+color = Color(0.2, 0.14, 0.26, 0.55)
+polygon = PackedVector2Array(-654.3, -20, 654.3, -20, 654.3, 20, -654.3, 20)
+
+[node name="RoadWreckageRowToSmugglingBay" type="Polygon2D" parent="."]
+position = Vector2(-1775, 650)
+rotation = -0.1206
+z_index = -3
+color = Color(0.2, 0.14, 0.26, 0.55)
+polygon = PackedVector2Array(-831, -24, 831, -24, 831, 24, -831, 24)
+
+[node name="RoadGlowWreckageRowToSmugglingBay" type="Line2D" parent="."]
+z_index = -2
+points = PackedVector2Array(-2600, 750, -950, 550)
+width = 3.0
+default_color = Color(0.6, 0.25, 0.9, 0.35)
+
+[node name="RoadCheckpointNineToLastBroadcast" type="Polygon2D" parent="."]
+position = Vector2(2875, -100)
+rotation = 1.1071
+z_index = -3
+color = Color(0.2, 0.14, 0.26, 0.55)
+polygon = PackedVector2Array(-391.3, -16, 391.3, -16, 391.3, 16, -391.3, 16)
+
+[node name="RoadNeonPlazaToObelisk" type="Polygon2D" parent="."]
+position = Vector2(-510, -1150)
+rotation = -1.1539
+z_index = -3
+color = Color(0.2, 0.14, 0.26, 0.55)
+polygon = PackedVector2Array(-765.6, -18, 765.6, -18, 765.6, 18, -765.6, 18)
+
+[node name="ObeliskReliquary" parent="." instance=ExtResource("20")]
+position = Vector2(-200, -1850)
+house_name = "Obelisk Reliquary"
+house_size = Vector2(400, 300)
+vault_width = 150.0
+wall_color = Color(0.24, 0.14, 0.34, 1)
+roof_color = Color(0.1, 0.07, 0.14, 1)
+key_id = "obelisk_key"
+key_label = "Obelisk Key"
+chest_item_name = "Static-Wreathed Circlet"
+chest_value = 290
+chest_slot = "head"
+chest_stat_type = "max_health"
+chest_stat_value = 44.0
+chest_icon_key = "helmet"
+chest_rarity = "legendary"
+grants_artifacts = 2
+
+[node name="ObeliskGuard" parent="." instance=ExtResource("9")]
+position = Vector2(-200, -1650)
+drop_key_id = "obelisk_key"
+drop_key_label = "Obelisk Key"
+
+[node name="CheckpointNine" parent="." instance=ExtResource("20")]
+position = Vector2(2700, -450)
+house_name = "Checkpoint Nine"
+house_size = Vector2(420, 300)
+vault_width = 160.0
+wall_color = Color(0.3, 0.32, 0.28, 1)
+roof_color = Color(0.14, 0.15, 0.12, 1)
+key_id = "checkpoint_nine_key"
+key_label = "Checkpoint Nine Key"
+chest_item_name = "The Last Directive"
+chest_value = 100
+chest_slot = "weapon"
+chest_stat_type = "damage"
+chest_stat_value = 8.5
+chest_icon_key = "railgun"
+chest_rarity = "mythic"
+grants_artifacts = 3
+
+[node name="CheckpointNineGuard" parent="." instance=ExtResource("21")]
+position = Vector2(2500, -450)
+drop_key_id = "checkpoint_nine_key"
+drop_key_label = "Checkpoint Nine Key"
+
+[node name="SignalArray" parent="." instance=ExtResource("20")]
+position = Vector2(300, 1750)
+house_name = "Drowned Signal Array"
+house_size = Vector2(390, 290)
+vault_width = 145.0
+wall_color = Color(0.16, 0.18, 0.24, 1)
+roof_color = Color(0.08, 0.09, 0.13, 1)
+key_id = "signal_array_key"
+key_label = "Signal Array Key"
+chest_item_name = "Array Core Pack"
+chest_value = 235
+chest_slot = "backpack"
+chest_stat_type = "max_health"
+chest_stat_value = 42.0
+chest_icon_key = "backpack"
+chest_rarity = "epic"
+grants_artifacts = 2
+
+[node name="SignalArrayGuard" parent="." instance=ExtResource("18")]
+position = Vector2(300, 1550)
+drop_key_id = "signal_array_key"
+drop_key_label = "Signal Array Key"
+
+[node name="WraithsHollowFloor" type="Polygon2D" parent="."]
+position = Vector2(1600, -1700)
+color = Color(0.16, 0.05, 0.14, 1)
+polygon = PackedVector2Array(-220, -160, 220, -160, 220, 160, -220, 160)
+
+[node name="WraithsHollowWallNorth" parent="." instance=ExtResource("3")]
+position = Vector2(1600, -1870)
+size = Vector2(440, 20)
+wall_color = Color(0.24, 0.1, 0.22, 1)
+
+[node name="WraithsHollowWallWest" parent="." instance=ExtResource("3")]
+position = Vector2(1420, -1700)
+size = Vector2(20, 340)
+wall_color = Color(0.24, 0.1, 0.22, 1)
+
+[node name="WraithsHollowLabel" type="Label" parent="."]
+position = Vector2(1490, -1900)
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.85, 0.35, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "WRAITH'S HOLLOW"
+
+[node name="WraithsHollowChest1" parent="." instance=ExtResource("6")]
+position = Vector2(1520, -1650)
+item_name = "Wraithbound Sigil"
+base_value = 210
+slot = "accessory"
+stat_type = "loot_sense"
+stat_value = 0.025
+icon_key = "ring"
+rarity = "epic"
+
+[node name="WraithsHollowChest2" parent="." instance=ExtResource("6")]
+position = Vector2(1680, -1750)
+item_name = "Hollow-Touched Vest"
+base_value = 150
+slot = "body"
+stat_type = "max_health"
+stat_value = 28.0
+icon_key = "chestplate"
+rarity = "rare"
+
+[node name="WraithsHollowWraith1" parent="." instance=ExtResource("9")]
+position = Vector2(1550, -1650)
+
+[node name="WraithsHollowWraith2" parent="." instance=ExtResource("9")]
+position = Vector2(1650, -1720)
+
+[node name="WraithsHollowWraith3" parent="." instance=ExtResource("9")]
+position = Vector2(1580, -1780)
+
+[node name="ListeningPostFloor" type="Polygon2D" parent="."]
+position = Vector2(-1700, 1700)
+color = Color(0.14, 0.16, 0.22, 1)
+polygon = PackedVector2Array(-200, -140, 200, -140, 200, 140, -200, 140)
+
+[node name="ListeningPostWallTop" parent="." instance=ExtResource("3")]
+position = Vector2(-1700, 1550)
+size = Vector2(420, 18)
+wall_color = Color(0.22, 0.24, 0.3, 1)
+
+[node name="ListeningPostWallBottom" parent="." instance=ExtResource("3")]
+position = Vector2(-1700, 1850)
+size = Vector2(420, 18)
+wall_color = Color(0.22, 0.24, 0.3, 1)
+
+[node name="ListeningPostWallLeft" parent="." instance=ExtResource("3")]
+position = Vector2(-1890, 1700)
+size = Vector2(18, 320)
+wall_color = Color(0.22, 0.24, 0.3, 1)
+
+[node name="ListeningPostLabel" type="Label" parent="."]
+position = Vector2(-1800, 1500)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.6, 0.85, 1.0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "THE LISTENING POST"
+
+[node name="ListeningPostSpire" parent="." instance=ExtResource("15")]
+position = Vector2(-1750, 1620)
+
+[node name="ListeningPostMote1" parent="." instance=ExtResource("13")]
+position = Vector2(-1850, 1550)
+
+[node name="ListeningPostMote2" parent="." instance=ExtResource("13")]
+position = Vector2(-1550, 1850)
+
+[node name="ListeningPostChest1" parent="." instance=ExtResource("6")]
+position = Vector2(-1770, 1750)
+item_name = "Salvaged Comms Rig"
+base_value = 145
+slot = "boots"
+stat_type = "speed"
+stat_value = 24.0
+icon_key = "boots"
+rarity = "rare"
+
+[node name="ListeningPostChest2" parent="." instance=ExtResource("6")]
+position = Vector2(-1630, 1650)
+item_name = "Frequency-Locked Case"
+base_value = 165
+slot = "valuable"
+stat_type = ""
+stat_value = 0.0
+icon_key = "duct_tape"
+rarity = "rare"
+
+[node name="ListeningPostMarauder1" parent="." instance=ExtResource("10")]
+position = Vector2(-1650, 1650)
+
+[node name="ListeningPostMarauder2" parent="." instance=ExtResource("10")]
+position = Vector2(-1770, 1780)
+
+[node name="WreckageRowFloor" type="Polygon2D" parent="."]
+position = Vector2(-2600, 750)
+color = Color(0.12, 0.09, 0.08, 1)
+polygon = PackedVector2Array(-260, -180, 260, -180, 260, 180, -260, 180)
+
+[node name="WreckageRowLabel" type="Label" parent="."]
+position = Vector2(-2720, 600)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.8, 0.65, 0.5, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "WRECKAGE ROW"
+
+[node name="WreckageRowBarrel1" parent="." instance=ExtResource("22")]
+position = Vector2(-2650, 700)
+
+[node name="WreckageRowBarrel2" parent="." instance=ExtResource("22")]
+position = Vector2(-2500, 820)
+
+[node name="WreckageRowBarrel3" parent="." instance=ExtResource("22")]
+position = Vector2(-2450, 750)
+
+[node name="WreckageRowCrate1" parent="." instance=ExtResource("23")]
+position = Vector2(-2700, 780)
+
+[node name="WreckageRowCrate2" parent="." instance=ExtResource("23")]
+position = Vector2(-2550, 680)
+
+[node name="WreckageRowCrate3" parent="." instance=ExtResource("23")]
+position = Vector2(-2620, 850)
+
+[node name="WreckageRowChest1" parent="." instance=ExtResource("6")]
+position = Vector2(-2580, 720)
+item_name = "Smuggler's Last Haul"
+base_value = 200
+slot = "weapon"
+stat_type = "damage"
+stat_value = 18.0
+icon_key = "pistol"
+rarity = "epic"
+
+[node name="WreckageRowDebris1" parent="." instance=ExtResource("14")]
+position = Vector2(-2680, 830)
+item_name = "Convoy Manifest Box"
+base_value = 100
+slot = "valuable"
+stat_type = ""
+stat_value = 0.0
+icon_key = "duct_tape"
+rarity = "uncommon"
+
+[node name="WreckageRowMarauder1" parent="." instance=ExtResource("10")]
+position = Vector2(-2550, 700)
+
+[node name="WreckageRowWraith1" parent="." instance=ExtResource("9")]
+position = Vector2(-2650, 820)
+
+[node name="BuriedTransmitter" parent="." instance=ExtResource("14")]
+position = Vector2(-2900, -1950)
+item_name = "Buried Transmitter"
+base_value = 115
+slot = "valuable"
+stat_type = ""
+stat_value = 0.0
+icon_key = "duct_tape"
+rarity = "rare"
+
+[node name="CollapsedExcavationDebris" parent="." instance=ExtResource("14")]
+position = Vector2(2680, 1880)
+item_name = "Excavation Spoils"
+base_value = 100
+slot = "valuable"
+stat_type = ""
+stat_value = 0.0
+icon_key = "duct_tape"
+rarity = "uncommon"
+
+[node name="CollapsedExcavationChest" parent="." instance=ExtResource("6")]
+position = Vector2(2740, 1940)
+item_name = "Excavator's Sidearm"
+base_value = 180
+slot = "weapon"
+stat_type = "damage"
+stat_value = 16.0
+icon_key = "pistol"
+rarity = "epic"
+
+[node name="LastBroadcastChest" parent="." instance=ExtResource("6")]
+position = Vector2(3050, 250)
+item_name = "The Last Broadcast"
+base_value = 200
+slot = "accessory"
+stat_type = "loot_sense"
+stat_value = 0.03
+icon_key = "ring"
+rarity = "epic"
+
+[node name="LastBroadcastRift" parent="." instance=ExtResource("17")]
+position = Vector2(3050, 150)
+
+[node name="SmugglersOverflow" parent="." instance=ExtResource("14")]
+position = Vector2(-2000, 1250)
+item_name = "Smugglers' Overflow"
+base_value = 95
+slot = "valuable"
+stat_type = ""
+stat_value = 0.0
+icon_key = "duct_tape"
+rarity = "uncommon"
+
+[node name="ForgottenCache" parent="." instance=ExtResource("14")]
+position = Vector2(900, -2000)
+item_name = "Forgotten Cache"
+base_value = 120
+slot = "valuable"
+stat_type = ""
+stat_value = 0.0
+icon_key = "duct_tape"
+rarity = "rare"
+
+[node name="OpenFieldChest3" parent="." instance=ExtResource("6")]
+position = Vector2(1900, -900)
+item_name = "Rift-Scarred Plating"
+base_value = 150
+slot = "body"
+stat_type = "max_health"
+stat_value = 27.0
+icon_key = "chestplate"
+rarity = "rare"
+
+[node name="OpenFieldChest4" parent="." instance=ExtResource("6")]
+position = Vector2(-1500, 1900)
+item_name = "Static-Laced Ring"
+base_value = 140
+slot = "accessory"
+stat_type = "speed"
+stat_value = 24.0
+icon_key = "ring"
+rarity = "rare"
+
+[node name="VoidShard3" parent="." instance=ExtResource("12")]
+position = Vector2(-2400, -1200)
+
+[node name="VoidShard4" parent="." instance=ExtResource("12")]
+position = Vector2(2200, -1400)
+
+[node name="VoidShard5" parent="." instance=ExtResource("12")]
+position = Vector2(2000, 1300)
+
+[node name="VoidShard6" parent="." instance=ExtResource("12")]
+position = Vector2(-2800, 300)
+
+[node name="VoidShard7" parent="." instance=ExtResource("12")]
+position = Vector2(100, -2100)
+
+[node name="VoidShard8" parent="." instance=ExtResource("12")]
+position = Vector2(2950, 900)
+
+[node name="StaticMote3" parent="." instance=ExtResource("13")]
+position = Vector2(1350, -1950)
+
+[node name="StaticMote4" parent="." instance=ExtResource("13")]
+position = Vector2(2750, 600)
+
+[node name="StaticMote5" parent="." instance=ExtResource("13")]
+position = Vector2(-2700, 900)
+
+[node name="StaticMote6" parent="." instance=ExtResource("13")]
+position = Vector2(600, 1900)
+
+[node name="PulseSpire4" parent="." instance=ExtResource("15")]
+position = Vector2(2600, -620)
+
+[node name="PulseSpire5" parent="." instance=ExtResource("15")]
+position = Vector2(0, -1300)
+
+[node name="SporePlant5" parent="." instance=ExtResource("16")]
+position = Vector2(700, 900)
+
+[node name="SporePlant6" parent="." instance=ExtResource("16")]
+position = Vector2(850, 1050)
+
+[node name="SporePlant7" parent="." instance=ExtResource("16")]
+position = Vector2(950, 1200)
+
+[node name="SporePlant8" parent="." instance=ExtResource("16")]
+position = Vector2(650, 1350)
+
+[node name="Puddle5" parent="." instance=ExtResource("11")]
+position = Vector2(2550, -620)
+puddle_radius = 52.0
+
+[node name="Puddle6" parent="." instance=ExtResource("11")]
+position = Vector2(2900, -250)
+puddle_radius = 46.0
+
+[node name="Puddle7" parent="." instance=ExtResource("11")]
+position = Vector2(-1900, 1400)
+puddle_radius = 50.0
+
+[node name="UnstableRift3" parent="." instance=ExtResource("17")]
+position = Vector2(1400, -1550)
+
+[node name="CheckpointNineBarrel1" parent="." instance=ExtResource("22")]
+position = Vector2(2650, -200)
+
+[node name="SignalArrayCrate1" parent="." instance=ExtResource("23")]
+position = Vector2(250, 1650)
+
+[node name="ObeliskCrate1" parent="." instance=ExtResource("23")]
+position = Vector2(-150, -1780)
+
+[node name="RoamingWraith6" parent="." instance=ExtResource("9")]
+position = Vector2(-1900, -1500)
+
+[node name="RoamingWraith7" parent="." instance=ExtResource("9")]
+position = Vector2(2200, 700)
+
+[node name="RoamingWraith8" parent="." instance=ExtResource("9")]
+position = Vector2(-2200, -1700)
+
+[node name="RoamingMarauder5" parent="." instance=ExtResource("10")]
+position = Vector2(-2900, -600)
+
+[node name="RoamingMarauder6" parent="." instance=ExtResource("10")]
+position = Vector2(1200, 1900)
+
+[node name="RoamingMarauder7" parent="." instance=ExtResource("10")]
+position = Vector2(-2900, 1600)
+
+[node name="RoamingSentinel2" parent="." instance=ExtResource("18")]
+position = Vector2(2900, 1400)
+
+[node name="RoamingSentinel3" parent="." instance=ExtResource("18")]
+position = Vector2(0, -2000)
+
+[node name="RoamingToxicWaste1" parent="." instance=ExtResource("21")]
+position = Vector2(2400, 100)
+
+[node name="RoamingToxicWaste2" parent="." instance=ExtResource("21")]
+position = Vector2(900, 1450)
 
 [node name="Player" parent="." instance=ExtResource("2")]
 position = Vector2(0, -650)
