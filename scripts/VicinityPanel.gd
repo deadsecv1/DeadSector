@@ -32,7 +32,7 @@ func _ready() -> void:
 	refresh()
 
 func _process(_delta: float) -> void:
-	var f_down := Input.is_key_pressed(GameManager.get_keybind("interact"))
+	var f_down := GameManager.is_action_pressed("interact")
 	if f_down and not f_was_down and take_all_prompt.visible and is_visible_in_tree() and GameManager.inventory_tab_open:
 		GameManager.vicinity_take_all()
 	f_was_down = f_down

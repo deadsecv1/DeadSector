@@ -93,7 +93,7 @@ func _process(_delta: float) -> void:
 	# held. It used to check is_key_pressed() directly every frame, which
 	# fired "interacted" (and whatever toast/panel that triggers) dozens
 	# of times for a single normal-length key press.
-	var key_down: bool = player_in_range and not _locked and Input.is_key_pressed(GameManager.get_keybind("interact"))
+	var key_down: bool = player_in_range and not _locked and GameManager.is_action_pressed("interact")
 	if key_down and not _key_was_down:
 		interacted.emit()
 	_key_was_down = key_down

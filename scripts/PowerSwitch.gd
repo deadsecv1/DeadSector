@@ -34,7 +34,7 @@ func _on_exited(body: Node) -> void:
 func _process(_delta: float) -> void:
 	if powered or not player_in_range:
 		return
-	if Input.is_key_pressed(GameManager.get_keybind("interact")):
+	if GameManager.is_action_pressed("interact"):
 		_activate()
 
 func _activate() -> void:

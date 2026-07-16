@@ -66,7 +66,7 @@ func _process(_delta: float) -> void:
 	# Keep the prompt fresh in case the key is now in the backpack (or a
 	# key was dropped/consumed since we last checked).
 	_update_prompt()
-	if Input.is_key_pressed(GameManager.get_keybind("interact")):
+	if GameManager.is_action_pressed("interact"):
 		_try_open()
 
 func _try_open() -> void:

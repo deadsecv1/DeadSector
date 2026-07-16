@@ -5948,8 +5948,8 @@ var screen_shake_enabled: bool = true
 # across a couple dozen scripts, not worth the risk of rebinding
 # project-wide in one pass) - Prone and Close-Up View are the two real,
 # rebindable keys.
-var keybinds: Dictionary = {"prone": KEY_Z, "interact": KEY_F, "jump": KEY_SPACE, "dash": KEY_SHIFT, "nightvision": KEY_N, "chat": KEY_ENTER, "inventory": KEY_TAB}
-const KEYBIND_DEFAULTS := {"prone": KEY_Z, "interact": KEY_F, "jump": KEY_SPACE, "dash": KEY_SHIFT, "nightvision": KEY_N, "chat": KEY_ENTER, "inventory": KEY_TAB}
+var keybinds: Dictionary = {"prone": KEY_Z, "interact": KEY_F, "jump": KEY_SPACE, "dash": KEY_SHIFT, "nightvision": KEY_N, "chat": KEY_ENTER, "inventory": KEY_TAB, "reload": KEY_R}
+const KEYBIND_DEFAULTS := {"prone": KEY_Z, "interact": KEY_F, "jump": KEY_SPACE, "dash": KEY_SHIFT, "nightvision": KEY_N, "chat": KEY_ENTER, "inventory": KEY_TAB, "reload": KEY_R}
 
 func get_keybind(action: String) -> int:
 	return int(keybinds.get(action, KEYBIND_DEFAULTS.get(action, KEY_NONE)))
@@ -5957,6 +5957,94 @@ func get_keybind(action: String) -> int:
 func set_keybind(action: String, keycode: int) -> void:
 	keybinds[action] = keycode
 	save_game()
+
+# --- Gamepad support -------------------------------------------------
+# Every one of the 7 keybinds above (plus a couple of things that were
+# never keybinds at all - reload, hotbar) gets a fixed joypad button
+# here rather than a second rebindable layer - only Prone/Nightvision are
+# even keyboard-rebindable today (see the comment above keybinds), so a
+# full gamepad rebind UI would be rebinding buttons for actions the
+# keyboard side itself treats as fixed. Device 0 only (single local
+# player, no split-screen/multi-controller concept in this game).
+const JOYPAD_BUTTON_BINDINGS := {
+	"interact": JOY_BUTTON_A,
+	"jump": JOY_BUTTON_Y,
+	"dash": JOY_BUTTON_B,
+	"nightvision": JOY_BUTTON_X,
+	"prone": JOY_BUTTON_LEFT_STICK,
+	"chat": JOY_BUTTON_BACK,
+	"inventory": JOY_BUTTON_START,
+	"reload": JOY_BUTTON_X,
+}
+const GAMEPAD_DEVICE := 0
+const STICK_DEADZONE := 0.25
+const TRIGGER_THRESHOLD := 0.4
+
+# Drop-in replacement for Input.is_key_pressed(get_keybind(action)) that
+# also accepts the matching gamepad button - existing call sites only
+# need their is_key_pressed(get_keybind(...)) wrapper swapped for this,
+# keyboard behavior is completely unchanged.
+func is_action_pressed(action: String) -> bool:
+	if Input.is_key_pressed(get_keybind(action)):
+		return true
+	if JOYPAD_BUTTON_BINDINGS.has(action):
+		return Input.is_joy_button_pressed(GAMEPAD_DEVICE, JOYPAD_BUTTON_BINDINGS[action])
+	return false
+
+# Same idea for the left mouse button / shoot trigger - a held analog
+# trigger reads as an axis, not a button, in Godot's joypad model.
+func is_shoot_pressed() -> bool:
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		return true
+	return Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_TRIGGER_RIGHT) > TRIGGER_THRESHOLD
+
+func is_aim_down_sights_pressed() -> bool:
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		return true
+	return Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_TRIGGER_LEFT) > TRIGGER_THRESHOLD
+
+# WASD/arrows OR the left stick - whichever the player is actually using,
+# summed rather than chosen, so nothing breaks if someone taps a key
+# while also resting a thumb near the stick.
+func get_movement_vector() -> Vector2:
+	var dir := Vector2.ZERO
+	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
+		dir.y -= 1
+	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
+		dir.y += 1
+	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
+		dir.x -= 1
+	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
+		dir.x += 1
+	var stick := Vector2(
+		Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_LEFT_X),
+		Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_LEFT_Y)
+	)
+	if stick.length() > STICK_DEADZONE:
+		dir += stick
+	if dir.length() > 1.0:
+		dir = dir.normalized()
+	return dir
+
+# Right stick as a synthetic aim point (world position `distance` out
+# from `from_position`), only when it's actually being pushed - lets
+# every existing get_global_mouse_position()-based aim call site fall
+# back to the real mouse the instant the player touches it again, rather
+# than the two input methods fighting each other.
+func get_gamepad_aim_direction() -> Vector2:
+	var stick := Vector2(
+		Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_RIGHT_X),
+		Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_RIGHT_Y)
+	)
+	if stick.length() > STICK_DEADZONE:
+		return stick.normalized()
+	return Vector2.ZERO
+
+func is_hotbar_next_pressed() -> bool:
+	return Input.is_joy_button_pressed(GAMEPAD_DEVICE, JOY_BUTTON_RIGHT_SHOULDER)
+
+func is_hotbar_prev_pressed() -> bool:
+	return Input.is_joy_button_pressed(GAMEPAD_DEVICE, JOY_BUTTON_LEFT_SHOULDER)
 
 func _ready() -> void:
 	_setup_audio_buses()

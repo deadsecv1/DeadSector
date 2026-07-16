@@ -1146,6 +1146,10 @@ const CHANGELOG_CURRENT := [
 		"Delete Character (the in-place Wipe) now backs up your save to its own dedicated file before touching anything, on top of the automatic rotating backup that was already there - an accidental wipe stays recoverable instead of only being protected against a corrupted last save.",
 		"Added automatic testing on every update - the test suite plus a full boot-check of every Sector now run automatically, catching a mistake before it ships instead of after.",
 	]},
+	{"version": "3.68.0", "title": "Gamepad Support, Part 1: Core Gameplay", "notes": [
+		"Movement, aiming, shooting, reload, jump, dash, night vision, interact, and hotbar switching all now work with a controller during raids and the Gauntlet, alongside keyboard and mouse (which work exactly as before) - left stick to move, right stick to aim, right trigger to fire, left trigger to aim down sights, bumpers to cycle the hotbar, face buttons for everything else.",
+		"This is Part 1 - menus and inventory (Stash, Trading, etc.) are still mouse-only for now, that's Part 2.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

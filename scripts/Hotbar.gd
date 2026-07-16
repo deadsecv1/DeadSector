@@ -20,6 +20,10 @@ const REFRESH_INTERVAL := 0.15
 var selected_index: int = 0
 var _key_states: Array = [false, false, false, false, false]
 var _refresh_elapsed: float = 0.0
+# Gamepad has no equivalent of 5 distinct number keys, so bumpers cycle
+# the selection instead - same _move_selection() the scroll wheel uses.
+var _lb_was_down: bool = false
+var _rb_was_down: bool = false
 
 @onready var slots: Array = [$Slot1, $Slot2, $Slot3, $Slot4, $Slot5]
 @onready var icons: Array = [$Slot1/Icon1, $Slot2/Icon2, $Slot3/Icon3, $Slot4/Icon4, $Slot5/Icon5]
@@ -44,6 +48,14 @@ func _process(delta: float) -> void:
 		if down and not _key_states[i]:
 			_select(i)
 		_key_states[i] = down
+	var lb_down := GameManager.is_hotbar_prev_pressed()
+	if lb_down and not _lb_was_down:
+		_move_selection(-1)
+	_lb_was_down = lb_down
+	var rb_down := GameManager.is_hotbar_next_pressed()
+	if rb_down and not _rb_was_down:
+		_move_selection(1)
+	_rb_was_down = rb_down
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _input_blocked():

@@ -51,7 +51,7 @@ func _process(delta: float) -> void:
 	var pulse: float = 0.4 + 0.3 * sin(glow_phase)
 	bowl_glow.modulate.a = pulse
 	if player_in_range and not pacified:
-		var f_down := Input.is_key_pressed(GameManager.get_keybind("interact"))
+		var f_down := GameManager.is_action_pressed("interact")
 		if f_down and not f_was_down:
 			if not activated:
 				_start_waves()

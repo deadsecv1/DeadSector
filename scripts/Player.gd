@@ -627,17 +627,17 @@ func _handle_jump_dash_nightvision(delta: float) -> void:
 		dash_time_left -= delta
 		velocity = dash_direction * DASH_SPEED
 
-	var jump_down := Input.is_key_pressed(GameManager.get_keybind("jump"))
+	var jump_down := GameManager.is_action_pressed("jump")
 	if jump_down and not _jump_was_down:
 		_do_jump_hop()
 	_jump_was_down = jump_down
 
-	var dash_down := Input.is_key_pressed(GameManager.get_keybind("dash"))
+	var dash_down := GameManager.is_action_pressed("dash")
 	if dash_down and not _dash_was_down and dash_cooldown_left <= 0.0:
 		_do_dash()
 	_dash_was_down = dash_down
 
-	var nv_down := Input.is_key_pressed(GameManager.get_keybind("nightvision"))
+	var nv_down := GameManager.is_action_pressed("nightvision")
 	if nv_down and not _nightvision_was_down:
 		_toggle_nightvision()
 	_nightvision_was_down = nv_down
@@ -696,8 +696,7 @@ func _handle_hunger_decay(delta: float) -> void:
 		hunger_bar.update_hunger(hunger, MAX_HUNGER)
 
 func _handle_movement(delta: float) -> void:
-	var prone_key := GameManager.get_keybind("prone")
-	var prone_down := Input.is_key_pressed(prone_key)
+	var prone_down := GameManager.is_action_pressed("prone")
 	if prone_down and not _prone_key_was_down:
 		is_prone = not is_prone
 		var target_scale: Vector2 = Vector2(1.15, 0.55) if is_prone else Vector2(1.0, 1.0)
@@ -705,16 +704,7 @@ func _handle_movement(delta: float) -> void:
 		prone_tw.tween_property(visuals, "scale", target_scale, 0.2).set_trans(Tween.TRANS_QUAD)
 	_prone_key_was_down = prone_down
 
-	var dir := Vector2.ZERO
-	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
-		dir.y -= 1
-	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
-		dir.y += 1
-	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
-		dir.x -= 1
-	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
-		dir.x += 1
-	dir = dir.normalized()
+	var dir := GameManager.get_movement_vector()
 	var prone_mult: float = PRONE_SPEED_MULT if is_prone else 1.0
 	var adrenaline_mult: float = 1.3 if (GameManager.player_trait == "adrenaline_junkie" and health < max_health * 0.3) else 1.0
 	var target_speed := speed * (SCOPED_SPEED_MULT if is_scoped else 1.0) * stun_speed_mult * prone_mult * hazard_speed_mult * adrenaline_mult
@@ -751,8 +741,24 @@ func set_slowed(value: bool) -> void:
 	_slow_sources = max(0, _slow_sources + (1 if value else -1))
 	hazard_speed_mult = 0.5 if _slow_sources > 0 else 1.0
 
+# Every aim-related call in this script goes through this instead of
+# get_global_mouse_position() directly - the right stick gives a
+# DIRECTION, not a position, so this turns that into a synthetic point
+# far enough out (comfortably past vision_range with every upgrade
+# stacked) that the same angle math mouse-aim already uses just works
+# unmodified. Fully additive: the instant the stick is released, this
+# falls straight back to the real mouse position, so keyboard+mouse play
+# is completely unaffected.
+const GAMEPAD_AIM_POINT_DISTANCE := 1000.0
+
+func _get_aim_point() -> Vector2:
+	var stick_dir: Vector2 = GameManager.get_gamepad_aim_direction()
+	if stick_dir != Vector2.ZERO:
+		return global_position + stick_dir * GAMEPAD_AIM_POINT_DISTANCE
+	return get_global_mouse_position()
+
 func _handle_aim() -> void:
-	gun_pivot.look_at(get_global_mouse_position())
+	gun_pivot.look_at(_get_aim_point())
 
 # Turns the whole body smoothly to face wherever the cursor is - the gun
 # itself snaps instantly (it has to, for accurate aim), but the body
@@ -767,7 +773,7 @@ func _handle_aim() -> void:
 const BODY_TURN_SPEED := 11.0
 
 func _handle_body_turn(delta: float) -> void:
-	var to_mouse: Vector2 = get_global_mouse_position() - global_position
+	var to_mouse: Vector2 = _get_aim_point() - global_position
 	if to_mouse.length_squared() < 1.0:
 		return
 	var target_angle: float = to_mouse.angle()
@@ -788,7 +794,7 @@ func can_see_point(world_pos: Vector2) -> bool:
 		return true
 	if dist > vision_range:
 		return false
-	var aim_dir := (get_global_mouse_position() - global_position).normalized()
+	var aim_dir := (_get_aim_point() - global_position).normalized()
 	var angle: float = abs(aim_dir.angle_to(to_point.normalized()))
 	return angle <= deg_to_rad(VISION_CONE_DEG)
 
@@ -796,7 +802,7 @@ var _lmb_was_down: bool = false
 var is_aiming_grenade: bool = false
 
 func _handle_shoot() -> void:
-	var lmb_down := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	var lmb_down := GameManager.is_shoot_pressed()
 
 	if GameManager.active_hotbar_slot == 0:
 		is_aiming_grenade = false
@@ -829,7 +835,7 @@ func _handle_shoot() -> void:
 		if lmb_down:
 			is_aiming_grenade = true
 			trajectory_line.visible = true
-			trajectory_line.points = PackedVector2Array([to_local(muzzle.global_position), to_local(get_global_mouse_position())])
+			trajectory_line.points = PackedVector2Array([to_local(muzzle.global_position), to_local(_get_aim_point())])
 		elif is_aiming_grenade:
 			is_aiming_grenade = false
 			trajectory_line.visible = false
@@ -846,7 +852,7 @@ func _handle_shoot() -> void:
 # --- Reload (R key). Locks firing for the reload duration, then tops the
 # mag off from reserve ammo. ---
 func _handle_reload_input() -> void:
-	var r_down := Input.is_key_pressed(KEY_R)
+	var r_down := GameManager.is_action_pressed("reload")
 	if r_down and not _r_was_down and not is_reloading:
 		if current_mag >= mag_size:
 			pass
@@ -927,12 +933,12 @@ func _has_grip_attachment() -> bool:
 func _update_laser() -> void:
 	if alive and _has_laser_attachment():
 		laser_line.visible = true
-		laser_line.points = PackedVector2Array([to_local(muzzle.global_position), to_local(get_global_mouse_position())])
+		laser_line.points = PackedVector2Array([to_local(muzzle.global_position), to_local(_get_aim_point())])
 	else:
 		laser_line.visible = false
 
 func _handle_scope(delta: float) -> void:
-	var wants_scope := Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and weapon_icon == "sniper" and _has_zoom_scope()
+	var wants_scope := GameManager.is_aim_down_sights_pressed() and weapon_icon == "sniper" and _has_zoom_scope()
 	is_scoped = wants_scope
 
 	var target_zoom := DEFAULT_ZOOM
@@ -1218,7 +1224,7 @@ func apply_consumable(item: Dictionary) -> void:
 
 func _throw_grenade(item: Dictionary) -> void:
 	var gtype: String = item.get("grenade_type", "frag")
-	var target := get_global_mouse_position()
+	var target := _get_aim_point()
 	match gtype:
 		"smoke":
 			var smoke_g = SMOKE_GRENADE_SCENE.instantiate()

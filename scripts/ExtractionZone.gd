@@ -71,7 +71,7 @@ func _process(delta: float) -> void:
 		return
 
 	if is_paid and not unlocked:
-		var f_down := player_inside and Input.is_key_pressed(GameManager.get_keybind("interact"))
+		var f_down := player_inside and GameManager.is_action_pressed("interact")
 		if f_down and not f_was_down:
 			_try_unlock()
 		f_was_down = f_down

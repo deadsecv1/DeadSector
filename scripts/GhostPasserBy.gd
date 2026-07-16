@@ -46,7 +46,7 @@ func _process(delta: float) -> void:
 	if recruited:
 		return
 	if player_in_range and not popup_open:
-		var f_down := Input.is_key_pressed(GameManager.get_keybind("interact"))
+		var f_down := GameManager.is_action_pressed("interact")
 		if f_down and not f_was_down:
 			_open_encounter()
 		f_was_down = f_down

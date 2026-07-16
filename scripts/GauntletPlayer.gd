@@ -167,9 +167,12 @@ func _physics_process(delta: float) -> void:
 		dir -= 1.0
 	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
 		dir += 1.0
+	var stick_x := Input.get_joy_axis(GameManager.GAMEPAD_DEVICE, JOY_AXIS_LEFT_X)
+	if absf(stick_x) > GameManager.STICK_DEADZONE:
+		dir = clampf(dir + stick_x, -1.0, 1.0)
 	velocity.x = dir * move_speed
 
-	var jump_pressed := Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP) or Input.is_key_pressed(KEY_SPACE)
+	var jump_pressed := Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP) or Input.is_key_pressed(KEY_SPACE) or GameManager.is_action_pressed("jump")
 	if jump_pressed and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 		Sfx.play_jump()
@@ -184,7 +187,7 @@ func _physics_process(delta: float) -> void:
 	# The character (and whatever's in their hands) faces the cursor
 	# now, not the movement direction - a raw left/right sign is all
 	# the sprite needs since it's a flip, not a full rotation.
-	var to_mouse: Vector2 = get_global_mouse_position() - global_position
+	var to_mouse: Vector2 = _get_aim_point() - global_position
 	if abs(to_mouse.x) > 1.0:
 		facing = sign(to_mouse.x)
 	sprite.flip_h = facing < 0
@@ -196,16 +199,16 @@ func _physics_process(delta: float) -> void:
 	# the body, but freely rotating to point wherever the mouse is, the
 	# same way weapons aim in the main game.
 	if has_ranged_weapon:
-		gun_pivot.look_at(get_global_mouse_position())
+		gun_pivot.look_at(_get_aim_point())
 	# The sword does the same when idle - only pauses tracking during
 	# the swing animation itself, which briefly takes over its rotation.
 	elif is_melee_equipped and not is_swinging:
-		sword_pivot.look_at(get_global_mouse_position())
+		sword_pivot.look_at(_get_aim_point())
 
-	# Left-click is the only attack input: it swings if a melee weapon
-	# (or nothing) is equipped, or shoots if a ranged weapon is
-	# equipped - never both, and never via right-click anymore.
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+	# Left-click (or the shoot trigger) is the only attack input: it
+	# swings if a melee weapon (or nothing) is equipped, or shoots if a
+	# ranged weapon is equipped - never both, and never via right-click.
+	if GameManager.is_shoot_pressed():
 		if is_melee_equipped:
 			if can_attack:
 				_attack()
@@ -217,10 +220,23 @@ func _physics_process(delta: float) -> void:
 	else:
 		sprite.play("idle")
 
+# Mirrors Player.gd's _get_aim_point() - the right stick gives a
+# direction, not a position, so this turns it into a synthetic point far
+# enough out that every existing get_global_mouse_position()-based aim
+# call here works unmodified, falling back to the real mouse the instant
+# the stick is released.
+const GAMEPAD_AIM_POINT_DISTANCE := 1000.0
+
+func _get_aim_point() -> Vector2:
+	var stick_dir: Vector2 = GameManager.get_gamepad_aim_direction()
+	if stick_dir != Vector2.ZERO:
+		return global_position + stick_dir * GAMEPAD_AIM_POINT_DISTANCE
+	return get_global_mouse_position()
+
 func _shoot() -> void:
 	can_shoot = false
 	Sfx.play_energy_shot()
-	var aim_dir: Vector2 = get_global_mouse_position() - muzzle.global_position
+	var aim_dir: Vector2 = _get_aim_point() - muzzle.global_position
 	if aim_dir.length() < 1.0:
 		aim_dir = Vector2(facing, 0)
 	aim_dir = aim_dir.normalized()
@@ -257,7 +273,7 @@ func _swing_sword() -> void:
 	# moment of the swing, not a fixed left/right slash - so attacking
 	# up-and-to-the-right looks and hits differently than attacking
 	# straight down at your feet.
-	var aim_angle: float = (get_global_mouse_position() - sword_pivot.global_position).angle()
+	var aim_angle: float = (_get_aim_point() - sword_pivot.global_position).angle()
 	var swing_tw := create_tween()
 	swing_tw.tween_property(sword_pivot, "rotation", aim_angle + SWORD_WINDUP_OFFSET, 0.05)
 	swing_tw.tween_property(sword_pivot, "rotation", aim_angle + SWORD_SLASH_OFFSET, 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)

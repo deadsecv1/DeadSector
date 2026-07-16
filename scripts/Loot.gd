@@ -63,7 +63,7 @@ func _on_body_exited(body: Node) -> void:
 		prompt.visible = false
 
 func _process(_delta: float) -> void:
-	var f_down := player_in_range and Input.is_key_pressed(GameManager.get_keybind("interact"))
+	var f_down := player_in_range and GameManager.is_action_pressed("interact")
 	if f_down and not f_was_down:
 		var item := {
 			"name": item_name,

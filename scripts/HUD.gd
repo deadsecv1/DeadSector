@@ -228,7 +228,7 @@ func _process(_delta: float) -> void:
 
 	# Polled (not event-based) so it behaves the same reliable way as the
 	# player's WASD movement checks.
-	var tab_down := Input.is_key_pressed(GameManager.get_keybind("inventory"))
+	var tab_down := GameManager.is_action_pressed("inventory")
 	if tab_down and not tab_was_down and not pause_menu.visible:
 		inventory_panel.visible = not inventory_panel.visible
 		if inventory_panel.visible:

@@ -69,7 +69,7 @@ func _on_exited(body: Node) -> void:
 func _process(_delta: float) -> void:
 	if searched or searching or not player_in_range:
 		return
-	if Input.is_key_pressed(GameManager.get_keybind("interact")):
+	if GameManager.is_action_pressed("interact"):
 		if not cleared:
 			_clear_debris()
 		elif not GameManager.is_searching:
