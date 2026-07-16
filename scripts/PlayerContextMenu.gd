@@ -43,6 +43,7 @@ func open_for(entry: Dictionary, click_pos: Vector2) -> void:
 		clamp(click_pos.y + 12.0, 0.0, max(0.0, vp.y - MENU_SIZE.y))
 	)
 	context_menu.visible = true
+	GameManager.focus_first_control(context_menu)
 
 func _build_context_menu() -> void:
 	context_menu = PanelContainer.new()
@@ -248,3 +249,4 @@ func _open_profile_popup(entry: Dictionary) -> void:
 	vbox.add_child(close_btn)
 
 	add_child(profile_popup)
+	GameManager.focus_first_control(profile_popup)

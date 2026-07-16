@@ -57,6 +57,7 @@ func open() -> void:
 	offset_right = 300.0
 	offset_bottom = 260.0
 	_refresh_rank()
+	GameManager.focus_first_control(self)
 
 func _refresh_rank() -> void:
 	for c in rank_icon_slot.get_children():

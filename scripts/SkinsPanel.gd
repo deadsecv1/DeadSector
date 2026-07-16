@@ -25,6 +25,7 @@ func open_for(item: Dictionary) -> void:
 	title_label.text = "Skins - %s" % item.get("name", "?")
 	visible = true
 	_refresh()
+	GameManager.focus_first_control(self)
 
 func _refresh() -> void:
 	for c in list.get_children():

@@ -45,6 +45,7 @@ func open() -> void:
 	offset_top = -300.0
 	offset_right = 340.0
 	offset_bottom = 300.0
+	GameManager.focus_first_control(self)
 
 func _build_tiers() -> void:
 	for c in tier_list.get_children():

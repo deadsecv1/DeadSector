@@ -78,6 +78,7 @@ func open() -> void:
 	GameManager._check_flea_market()
 	refresh()
 	set_process(true)
+	GameManager.focus_first_control(self)
 
 func _process(delta: float) -> void:
 	if not visible:

@@ -142,3 +142,4 @@ func open() -> void:
 	box.offset_top = -290.0
 	box.offset_right = 300.0
 	box.offset_bottom = 290.0
+	GameManager.focus_first_control(self)

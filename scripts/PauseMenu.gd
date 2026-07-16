@@ -67,7 +67,9 @@ func close() -> void:
 func _show_main() -> void:
 	main_view.visible = true
 	settings_view.visible = false
+	GameManager.focus_first_control(main_view)
 
 func _show_settings() -> void:
 	main_view.visible = false
 	settings_view.visible = true
+	GameManager.focus_first_control(settings_view)

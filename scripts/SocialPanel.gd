@@ -95,6 +95,7 @@ func open() -> void:
 	visible = true
 	_refresh_guild_button()
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	for c in profile_box.get_children():

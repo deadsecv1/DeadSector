@@ -28,6 +28,7 @@ func _ready() -> void:
 func open() -> void:
 	visible = true
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	_build_header()

@@ -105,6 +105,7 @@ func open() -> void:
 	visible = true
 	GameManager.rose_talked_to = true
 	_show_menu()
+	GameManager.focus_first_control(self)
 
 func _hide_all() -> void:
 	icon_slot.visible = false

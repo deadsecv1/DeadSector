@@ -54,6 +54,7 @@ func open_for(item: Dictionary) -> void:
 	icon_node.mouse_default_cursor_shape = Control.CURSOR_DRAG
 	icon_node.gui_input.connect(_on_icon_input)
 	showcase.add_child(icon_node)
+	GameManager.focus_first_control(self)
 
 # Individual loot rolls don't carry hand-written lore, so the description
 # is built from what's actually known about the item: its category, its

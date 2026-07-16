@@ -54,6 +54,7 @@ func _ready() -> void:
 func open() -> void:
 	visible = true
 	_show_menu()
+	GameManager.focus_first_control(self)
 
 func _hide_all() -> void:
 	subtitle_label.visible = false

@@ -38,6 +38,7 @@ func open_for(index: int, source: String) -> void:
 	weapon_source = source
 	visible = true
 	refresh()
+	GameManager.focus_first_control(self)
 
 func _source_array() -> Array:
 	return GameManager.carried_loot if weapon_source == "carried" else GameManager.stash_items

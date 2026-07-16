@@ -28,6 +28,7 @@ func _ready() -> void:
 			GameManager.toast_requested.emit("Write something first")
 			return
 		confirm_popup.visible = true
+		GameManager.focus_first_control(confirm_popup)
 	)
 	confirm_yes.pressed.connect(func():
 		GameManager.submit_feedback(text_edit.text.strip_edges())
@@ -49,3 +50,4 @@ func open() -> void:
 	offset_top = -270.0
 	offset_right = 260.0
 	offset_bottom = 270.0
+	GameManager.focus_first_control(self)

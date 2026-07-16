@@ -55,6 +55,7 @@ func _ready() -> void:
 func open() -> void:
 	visible = true
 	_switch_category("score")
+	GameManager.focus_first_control(self)
 
 func _switch_category(category: String) -> void:
 	current_category = category
@@ -316,6 +317,7 @@ func _open_context_menu(entry: Dictionary, _rank: int, click_pos: Vector2) -> vo
 		clamp(click_pos.y + 12.0, 0.0, max(0.0, vp.y - menu_size.y))
 	)
 	context_menu.visible = true
+	GameManager.focus_first_control(context_menu)
 
 func _on_context_unavailable() -> void:
 	context_menu.visible = false

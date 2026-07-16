@@ -177,6 +177,7 @@ func open() -> void:
 	crate_icon.scale = Vector2(1.0, 1.0)
 	_build_odds_text()
 	_set_mode("gamble")
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	rubles_label.text = "Rubles: %d" % GameManager.rubles

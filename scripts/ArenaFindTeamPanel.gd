@@ -55,6 +55,7 @@ func open() -> void:
 	for i in range(randi_range(5, 8)):
 		_spawn_team()
 	set_process(true)
+	GameManager.focus_first_control(self)
 
 func _exit_tree() -> void:
 	set_process(false)

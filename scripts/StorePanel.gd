@@ -41,6 +41,7 @@ func _process(_delta: float) -> void:
 func open() -> void:
 	visible = true
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	_build_starter_pack_card()

@@ -32,6 +32,7 @@ func open() -> void:
 	if particles.has_method("_init_particles"):
 		particles._init_particles()
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	for c in list.get_children():

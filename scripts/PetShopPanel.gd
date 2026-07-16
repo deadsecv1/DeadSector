@@ -25,6 +25,7 @@ func _ready() -> void:
 func open() -> void:
 	visible = true
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	for c in list.get_children():

@@ -42,6 +42,7 @@ func open() -> void:
 	offset_right = 340.0
 	offset_bottom = 300.0
 	_build_ranks()
+	GameManager.focus_first_control(self)
 
 func _build_ranks() -> void:
 	for c in rank_list.get_children():

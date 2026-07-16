@@ -156,6 +156,7 @@ func open() -> void:
 	visible = true
 	result_box.visible = false
 	_set_mode("decipher")
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	for c in engram_list.get_children():

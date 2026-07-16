@@ -74,6 +74,7 @@ func _show_list() -> void:
 	detail_overlay.visible = false
 	main_vbox.visible = true
 	refresh()
+	GameManager.focus_first_control(main_vbox)
 
 func refresh() -> void:
 	for c in list.get_children():
@@ -254,6 +255,8 @@ func _show_detail(mail_id: int) -> void:
 		detail_claim_button.visible = not claimed
 		detail_claim_button.text = "Claim" if not claimed else "Claimed"
 		detail_claim_button.disabled = claimed
+
+	GameManager.focus_first_control(detail_overlay)
 
 func _add_reward_icon(icon_key: String, icon_color: Color, shiny: bool = false, item_data: Dictionary = {}) -> void:
 	var box := Control.new()

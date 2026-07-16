@@ -66,6 +66,7 @@ func open_for(index: int, source: String, item: Dictionary) -> void:
 	_select_color(existing_color if existing_color is Color else GameManager.TAG_COLORS[0])
 	_update_preview()
 	visible = true
+	GameManager.focus_first_control(self)
 
 func _select_color(col: Color) -> void:
 	_selected_color = col

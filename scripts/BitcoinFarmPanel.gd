@@ -31,6 +31,7 @@ func _process(delta: float) -> void:
 func open() -> void:
 	visible = true
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	gpu_count_label.text = "Graphics Cards in Stash: %d" % GameManager.count_carried_graphics_cards()

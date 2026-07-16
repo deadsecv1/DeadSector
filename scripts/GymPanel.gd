@@ -27,6 +27,7 @@ func _ready() -> void:
 func open() -> void:
 	visible = true
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	alloys_label.text = "Alloys: %d" % GameManager.alloys

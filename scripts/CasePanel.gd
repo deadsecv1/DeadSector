@@ -49,6 +49,7 @@ func set_case_type(p_case_type: String) -> void:
 func open() -> void:
 	visible = true
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	for child in grid.get_children():

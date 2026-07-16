@@ -36,6 +36,7 @@ func open() -> void:
 	offset_right = 230.0
 	offset_bottom = 220.0
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	for c in body.get_children():

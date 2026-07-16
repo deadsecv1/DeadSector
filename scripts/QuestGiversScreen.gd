@@ -40,6 +40,7 @@ func open() -> void:
 	visible = true
 	_build_portraits()
 	_refresh_active_count()
+	GameManager.focus_first_control(self)
 
 func _on_quest_state_changed() -> void:
 	if not visible:
@@ -113,6 +114,7 @@ func _open_detail(npc_id: String) -> void:
 	_refresh_detail_list()
 	detail_popup.visible = true
 	detail_bg.visible = true
+	GameManager.focus_first_control(detail_popup)
 
 func _close_detail() -> void:
 	detail_popup.visible = false

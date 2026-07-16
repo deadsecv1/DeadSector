@@ -39,6 +39,7 @@ func open_for(index: int, source: String, item: Dictionary = {}) -> void:
 		c.queue_free()
 	_show_bag_preview()
 	visible = true
+	GameManager.focus_first_control(self)
 
 # Shows the actual bag before it's opened, instead of nothing at all -
 # common/rare are a plain sackcloth brown, legendary and up use the real

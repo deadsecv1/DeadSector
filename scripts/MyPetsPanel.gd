@@ -52,6 +52,7 @@ func open() -> void:
 	offset_right = 0.0
 	offset_bottom = 0.0
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	for c in grid.get_children():
@@ -248,6 +249,7 @@ func _open_info(instance_id: String) -> void:
 	info_equip_button.disabled = is_equipped
 
 	info_popup.visible = true
+	GameManager.focus_first_control(info_popup)
 
 func _on_equip_from_info() -> void:
 	if current_info_id == "":

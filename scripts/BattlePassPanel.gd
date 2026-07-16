@@ -32,6 +32,7 @@ func _ready() -> void:
 func open() -> void:
 	visible = true
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	souls_label.text = "Souls: %d" % GameManager.souls

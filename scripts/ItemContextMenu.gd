@@ -145,3 +145,4 @@ func _position_and_show(at_position: Vector2) -> void:
 		clamp(at_position.y, 0.0, max(0.0, vp.y - menu_size.y))
 	)
 	visible = true
+	GameManager.focus_first_control(self)

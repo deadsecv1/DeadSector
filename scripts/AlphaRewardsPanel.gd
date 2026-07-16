@@ -77,6 +77,7 @@ func open() -> void:
 	offset_right = 350.0
 	offset_bottom = 300.0
 	refresh()
+	GameManager.focus_first_control(self)
 
 func _process(delta: float) -> void:
 	if not visible:

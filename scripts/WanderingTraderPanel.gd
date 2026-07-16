@@ -25,6 +25,7 @@ func open_for(trader: Node) -> void:
 	trader_ref = trader
 	visible = true
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	if trader_ref == null or not is_instance_valid(trader_ref):

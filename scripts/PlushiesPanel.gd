@@ -35,6 +35,7 @@ func open() -> void:
 	offset_right = 190.0
 	offset_bottom = 215.0
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	var plushie_count := _count_plushie_items()

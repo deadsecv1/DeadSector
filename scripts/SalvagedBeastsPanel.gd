@@ -48,6 +48,7 @@ func _ready() -> void:
 func open() -> void:
 	visible = true
 	refresh()
+	GameManager.focus_first_control(self)
 
 func _process(_delta: float) -> void:
 	if visible:

@@ -327,6 +327,7 @@ func open() -> void:
 	_next_reaction_delay = randf_range(1.0, 2.2)
 	set_process(true)
 	_scroll_to_bottom()
+	GameManager.focus_first_control(self)
 
 func _exit_tree() -> void:
 	set_process(false)
@@ -763,6 +764,7 @@ func _open_message_menu(row_data: Dictionary, click_pos: Vector2) -> void:
 		clamp(click_pos.y + 8.0, 0.0, max(0.0, vp.y - menu_size.y))
 	)
 	message_menu.visible = true
+	GameManager.focus_first_control(message_menu)
 
 func _build_emoji_picker() -> void:
 	emoji_picker = PanelContainer.new()
@@ -803,6 +805,7 @@ func _open_emoji_picker(row_data: Dictionary, near_pos: Vector2) -> void:
 		clamp(near_pos.y + 8.0, 0.0, max(0.0, vp.y - menu_size.y))
 	)
 	emoji_picker.visible = true
+	GameManager.focus_first_control(emoji_picker)
 
 # ------------------------------------------------------------------
 # Reactions
