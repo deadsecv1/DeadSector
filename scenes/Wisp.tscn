@@ -22,6 +22,8 @@ content_margin_bottom = 0.0
 [node name="Wisp" type="CharacterBody2D"]
 z_index = 6
 script = ExtResource("1")
+enemy_type_id = "wisp"
+use_external_sprite = false
 speed = 145.0
 max_health = 75
 detection_range = 470.0

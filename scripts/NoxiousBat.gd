@@ -3,6 +3,17 @@ extends "res://scripts/Enemy.gd"
 # Noxious Bat - a visually distinct flying enemy: purple, winged, hovers
 # with a bob instead of walking on legs, and fires purple toxic bolts
 # instead of the regular enemy pistol shot.
+#
+# Used to just recolor the shared humanoid rig (same octagon torso/head
+# every Raider uses) and glue two small triangles on - still had a
+# skin-toned human head, a human hand gripping a pistol, and (35% of the
+# time, from Enemy.gd's base _apply_random_raider_look() roll) even a
+# human baseball cap, so it read as "a person, but purple" rather than a
+# bat. Hides every human-specific part instead and builds much larger,
+# actually wing-shaped membranes.
+
+@onready var head: Polygon2D = $Visuals/Head
+@onready var head_outline: Line2D = $Visuals/HeadOutline
 
 var wing_phase: float = 0.0
 var left_wing: Polygon2D
@@ -12,25 +23,43 @@ func _ready() -> void:
 	super._ready()
 	add_to_group("bat")
 	torso.color = Color(0.42, 0.12, 0.55, 1)
-	chest_strap.color = Color(0.22, 0.05, 0.3, 1)
+	# A strap/harness accessory and a gun-gripping hand don't make sense on
+	# a creature - hidden rather than recolored like the body is.
+	chest_strap.visible = false
 	mask.visible = false
+	cap.visible = false
 	left_leg.visible = false
 	right_leg.visible = false
+	gun_visual.visible = false
+	# Same dark purple as the body rather than the default skin tone, so
+	# there's no human face hiding in the middle of the silhouette -
+	# muzzle.global_position (still a child of the now-hidden GunVisual)
+	# keeps working fine for _shoot() below regardless of visibility.
+	head.color = Color(0.28, 0.06, 0.35, 1)
+	head_outline.default_color = Color(0.03, 0.03, 0.04, 1)
 	wing_phase = randf() * TAU
 	_build_wings()
 
 func _build_wings() -> void:
 	left_wing = Polygon2D.new()
-	left_wing.polygon = PackedVector2Array([Vector2(0, 0), Vector2(-15, -6), Vector2(-17, 5), Vector2(-6, 7)])
+	left_wing.polygon = PackedVector2Array([
+		Vector2(-2, -4), Vector2(-16, -14), Vector2(-30, -10), Vector2(-26, 0),
+		Vector2(-32, 4), Vector2(-20, 8), Vector2(-8, 10), Vector2(-2, 6),
+	])
 	left_wing.color = Color(0.5, 0.15, 0.62, 0.88)
-	left_wing.position = Vector2(-6, -2)
+	left_wing.position = Vector2(-4, -2)
 	visuals.add_child(left_wing)
+	visuals.move_child(left_wing, torso.get_index())
 
 	right_wing = Polygon2D.new()
-	right_wing.polygon = PackedVector2Array([Vector2(0, 0), Vector2(15, -6), Vector2(17, 5), Vector2(6, 7)])
+	right_wing.polygon = PackedVector2Array([
+		Vector2(2, -4), Vector2(16, -14), Vector2(30, -10), Vector2(26, 0),
+		Vector2(32, 4), Vector2(20, 8), Vector2(8, 10), Vector2(2, 6),
+	])
 	right_wing.color = Color(0.5, 0.15, 0.62, 0.88)
-	right_wing.position = Vector2(6, -2)
+	right_wing.position = Vector2(4, -2)
 	visuals.add_child(right_wing)
+	visuals.move_child(right_wing, torso.get_index())
 
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)

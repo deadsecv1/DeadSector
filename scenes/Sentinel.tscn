@@ -21,8 +21,8 @@ content_margin_right = 0.0
 content_margin_bottom = 0.0
 [node name="Sentinel" type="CharacterBody2D"]
 z_index = 6
-enemy_type_id = "sentinel"
 script = ExtResource("1")
+enemy_type_id = "sentinel"
 speed = 70.0
 max_health = 190
 detection_range = 550.0

@@ -21,8 +21,8 @@ content_margin_right = 0.0
 content_margin_bottom = 0.0
 [node name="Ghoul" type="CharacterBody2D"]
 z_index = 6
-enemy_type_id = "ghoul"
 script = ExtResource("1")
+enemy_type_id = "ghoul"
 speed = 130.0
 max_health = 105
 detection_range = 450.0
