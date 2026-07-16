@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/RaidRewards.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/PostRaidBreakdownPanel.tscn" id="3"]
 
 [sub_resource type="StyleBoxFlat" id="RankCard"]
 bg_color = Color(0.09, 0.1, 0.09, 0.75)
@@ -153,7 +154,14 @@ theme_override_font_sizes/font_size = 12
 modulate = Color(1, 1, 1, 0.75)
 text = "0 / 0 to next rank"
 
+[node name="ViewBreakdownButton" type="Button" parent="Panel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+theme_override_font_sizes/font_size = 14
+text = "View Raid Breakdown"
+
 [node name="ContinueButton" type="Button" parent="Panel/VBox"]
 custom_minimum_size = Vector2(0, 48)
 theme_override_font_sizes/font_size = 18
 text = "Continue"
+
+[node name="PostRaidBreakdownPanel" parent="." instance=ExtResource("3")]

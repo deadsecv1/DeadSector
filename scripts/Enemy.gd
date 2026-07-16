@@ -722,7 +722,7 @@ func die() -> void:
 	is_dead = true
 	died.emit()
 	GameManager.notify_event("kill_enemy")
-	GameManager.record_kill()
+	GameManager.record_kill(enemy_type_id.capitalize() if enemy_type_id != "" else ("Rival Operator" if is_real_player else "Raider"))
 	if is_real_player:
 		GameManager.grant_stones(GameManager.REAL_PLAYER_KILL_STONES)
 	_mark_discovered()

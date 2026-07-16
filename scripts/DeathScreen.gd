@@ -3,10 +3,14 @@ extends Control
 # The Death screen - replaces the old fleeting white "YOU DIED / Lost X
 # loot" text flash with a real screen: who killed you and with what
 # (GameManager.last_death_info, captured from Player.last_attacker_name/
-# weapon right as the death was processed), a quick "where you got hit"
-# mannequin review, and how much loot you lost. The mannequin isn't a
-# real hit-log - there's no per-body-part damage tracking in this game -
-# it's a fresh random roll every death, purely for flavor.
+# weapon right as the death was processed), a "where you got hit"
+# mannequin review, and how much loot you lost. The mannequin now draws
+# from GameManager.last_raid_breakdown.damage_taken - a REAL per-hit log
+# recorded live during the raid (see GameManager.record_damage_taken()) -
+# body part is still a weighted-random pick per hit rather than a true
+# hitbox (this is a top-down 2D game with no real per-region collision),
+# but the hit COUNT, TIMING, and DAMAGE are all genuine now, not a
+# fabricated 3-9 roll disconnected from what actually happened.
 
 const PlayerContextMenuScript := preload("res://scripts/PlayerContextMenu.gd")
 
@@ -31,6 +35,8 @@ const HIT_PARTS := [
 @onready var mannequin: Control = $Panel/VBox/MannequinRow/MannequinHolder/Mannequin
 @onready var hit_list: VBoxContainer = $Panel/VBox/MannequinRow/HitList
 @onready var continue_button: Button = $Panel/VBox/ContinueButton
+@onready var view_breakdown_button: Button = $Panel/VBox/ViewBreakdownButton
+@onready var breakdown_panel = $PostRaidBreakdownPanel
 @onready var context_menu_host: Control = $ContextMenuHost
 
 var _hit_marks: Array = []  # {part index, local jitter offset}
@@ -79,34 +85,34 @@ func _ready() -> void:
 	# that never occurred.
 	mannequin_row.visible = not was_voluntary
 	if not was_voluntary:
-		_roll_hits()
+		_load_hits()
 		_build_hit_list()
 		mannequin.draw.connect(_draw_mannequin)
 		mannequin.queue_redraw()
 
 	continue_button.pressed.connect(_on_continue)
+	view_breakdown_button.pressed.connect(func(): breakdown_panel.open())
+	breakdown_panel.closed.connect(func(): breakdown_panel.visible = false)
 	GameManager.focus_first_control(self)
 
 func _on_killed_by_pressed() -> void:
 	context_menu.open_for(_killer_entry, killed_by_button.get_global_rect().position + Vector2(20, 20))
 
-# Purely cosmetic - picks a random number of hits and scatters them
-# across the body parts, weighted so center-mass parts take more.
-func _roll_hits() -> void:
+# Reads the real per-hit log this raid recorded (GameManager.
+# record_damage_taken(), captured into last_raid_breakdown right before
+# end_run() resets the live arrays for the next raid) - one mark per
+# actual hit taken, at the body part rolled for that specific hit.
+func _load_hits() -> void:
 	_hit_marks.clear()
-	var total_weight := 0
-	for part in HIT_PARTS:
-		total_weight += int(part["weight"])
-	var hit_count := randi_range(3, 9)
-	for i in range(hit_count):
-		var roll := randi_range(1, total_weight)
-		var acc := 0
-		for pi in range(HIT_PARTS.size()):
-			acc += int(HIT_PARTS[pi]["weight"])
-			if roll <= acc:
-				var jitter := Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * float(HIT_PARTS[pi]["radius"]) * 0.5
-				_hit_marks.append({"part": pi, "jitter": jitter})
-				break
+	var name_to_index := {}
+	for i in range(HIT_PARTS.size()):
+		name_to_index[str(HIT_PARTS[i]["name"])] = i
+	var fallback_index: int = int(name_to_index.get("Thorax", 0))
+	var damage_log: Array = GameManager.last_raid_breakdown.get("damage_taken", [])
+	for hit in damage_log:
+		var pi: int = int(name_to_index.get(str(hit.get("body_part", "")), fallback_index))
+		var jitter := Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * float(HIT_PARTS[pi]["radius"]) * 0.5
+		_hit_marks.append({"part": pi, "jitter": jitter})
 
 func _build_hit_list() -> void:
 	for c in hit_list.get_children():

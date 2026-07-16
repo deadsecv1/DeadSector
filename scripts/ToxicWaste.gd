@@ -24,7 +24,7 @@ func die() -> void:
 	is_dead = true
 	died.emit()
 	GameManager.notify_event("kill_enemy")
-	GameManager.record_kill()
+	GameManager.record_kill("Toxic Waste")
 	GameManager.mark_enemy_discovered("toxic_waste")
 	if player != null and is_instance_valid(player) and player.in_bush:
 		GameManager.notify_event("sneak_kill")

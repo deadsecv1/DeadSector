@@ -1,0 +1,104 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/PostRaidBreakdownPanel.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/NetWorthGraph.gd" id="2"]
+
+[node name="PostRaidBreakdownPanel" type="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+script = ExtResource("1")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.05, 0.06, 0.98)
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -310.0
+offset_right = 350.0
+offset_bottom = 310.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="VBox"]
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.95, 0.85, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0.06, 0.05, 0.04, 1)
+theme_override_constants/outline_size = 4
+text = "RAID BREAKDOWN"
+
+[node name="SummaryLabel" type="Label" parent="VBox"]
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+modulate = Color(1, 1, 1, 0.75)
+text = "0 kills · 0 hits taken"
+
+[node name="GraphPanel" type="PanelContainer" parent="VBox"]
+custom_minimum_size = Vector2(0, 150)
+
+[node name="NetWorthGraph" type="Control" parent="VBox/GraphPanel"]
+custom_minimum_size = Vector2(0, 140)
+script = ExtResource("2")
+
+[node name="Columns" type="HBoxContainer" parent="VBox"]
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="KillsColumn" type="VBoxContainer" parent="VBox/Columns"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="KillsHeader" type="Label" parent="VBox/Columns/KillsColumn"]
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.6, 0.9, 0.6, 1)
+text = "Kills"
+
+[node name="KillsEmptyLabel" type="Label" parent="VBox/Columns/KillsColumn"]
+modulate = Color(1, 1, 1, 0.5)
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "No kills this raid."
+visible = false
+
+[node name="KillsScroll" type="ScrollContainer" parent="VBox/Columns/KillsColumn"]
+size_flags_vertical = 3
+
+[node name="KillsList" type="VBoxContainer" parent="VBox/Columns/KillsColumn/KillsScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="DamageColumn" type="VBoxContainer" parent="VBox/Columns"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="DamageHeader" type="Label" parent="VBox/Columns/DamageColumn"]
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.95, 0.5, 0.45, 1)
+text = "Damage Taken"
+
+[node name="DamageEmptyLabel" type="Label" parent="VBox/Columns/DamageColumn"]
+modulate = Color(1, 1, 1, 0.5)
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "No damage taken this raid."
+visible = false
+
+[node name="DamageScroll" type="ScrollContainer" parent="VBox/Columns/DamageColumn"]
+size_flags_vertical = 3
+
+[node name="DamageList" type="VBoxContainer" parent="VBox/Columns/DamageColumn/DamageScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="CloseButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Close"

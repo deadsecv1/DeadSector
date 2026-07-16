@@ -31,6 +31,8 @@ const BAR_STEP_DURATION := 0.45
 @onready var rank_progress_label: Label = $Panel/VBox/RankSection/RankVBox/RankProgressLabel
 
 @onready var continue_button: Button = $Panel/VBox/ContinueButton
+@onready var view_breakdown_button: Button = $Panel/VBox/ViewBreakdownButton
+@onready var breakdown_panel = $PostRaidBreakdownPanel
 @onready var sparkles_holder: Control = $Sparkles
 
 # Tracked so _on_continue() can kill them outright if the player clicks
@@ -43,6 +45,8 @@ var _rank_tween: Tween
 func _ready() -> void:
 	GameManager.set_default_cursor()
 	continue_button.pressed.connect(_on_continue)
+	view_breakdown_button.pressed.connect(func(): breakdown_panel.open())
+	breakdown_panel.closed.connect(func(): breakdown_panel.visible = false)
 	var data: Dictionary = GameManager.last_raid_rewards
 	var is_ranked: bool = bool(data.get("is_ranked", false))
 	var was_scav: bool = bool(data.get("was_scav", false))

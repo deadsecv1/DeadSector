@@ -4171,6 +4171,7 @@ func get_rank_population_percent(full_idx: int) -> float:
 var raid_quests_completed: Array = []
 var last_raid_rewards: Dictionary = {}
 var last_death_info: Dictionary = {}
+var last_raid_breakdown: Dictionary = {}
 
 func begin_raid_session() -> void:
 	raid_quests_completed.clear()
@@ -4787,12 +4788,70 @@ func prestige() -> bool:
 	save_game()
 	return true
 
-func record_kill() -> void:
+# --- Post-Raid Breakdown: real per-raid event logs - who you killed and
+# with what, every hit you took and roughly where, and a net-worth
+# reading at each of those moments so a graph reads as "value over the
+# raid" without a separate polling timer (nothing in this codebase
+# reliably distinguishes "actively in a raid" from "walking the
+# Hideout," so sampling piggybacks on real combat events instead - see
+# _sample_raid_value()). Replaces DeathScreen.gd's old _roll_hits(),
+# which fabricated a random 3-9 hit count with zero connection to what
+# actually happened - this is real data.
+var raid_kill_log: Array = []
+var raid_damage_log: Array = []
+var raid_value_samples: Array = []
+var raid_start_time_ms: int = 0
+
+# Flavor-plausible, not mechanically tracked (this is a top-down 2D
+# shooter with no real per-body-region hitboxes) - same 7 named parts
+# and relative weights DeathScreen.gd's mannequin used to roll purely at
+# random, kept identical here (not just similarly-named) so
+# DeathScreen.gd can draw real hit-log entries at its existing HIT_PARTS
+# positions with zero translation table needed.
+const BODY_PART_WEIGHTS := [
+	{"part": "Head", "weight": 2}, {"part": "Eyes", "weight": 1},
+	{"part": "Thorax", "weight": 6}, {"part": "Left Arm", "weight": 3},
+	{"part": "Right Arm", "weight": 3}, {"part": "Left Leg", "weight": 3},
+	{"part": "Right Leg", "weight": 3},
+]
+
+func _roll_body_part() -> String:
+	var total := 0
+	for entry in BODY_PART_WEIGHTS:
+		total += int(entry["weight"])
+	var roll: int = randi() % max(total, 1)
+	var acc := 0
+	for entry in BODY_PART_WEIGHTS:
+		acc += int(entry["weight"])
+		if roll < acc:
+			return str(entry["part"])
+	return "Thorax"
+
+func _raid_elapsed_seconds() -> float:
+	return float(Time.get_ticks_msec() - raid_start_time_ms) / 1000.0
+
+func _sample_raid_value() -> void:
+	raid_value_samples.append({"time": _raid_elapsed_seconds(), "value": carried_value})
+
+func record_damage_taken(amount: int, attacker_name: String, weapon_name: String) -> void:
+	raid_damage_log.append({
+		"time": _raid_elapsed_seconds(), "amount": amount,
+		"attacker": attacker_name if attacker_name != "" else "Unknown",
+		"weapon": weapon_name if weapon_name != "" else "Unknown",
+		"body_part": _roll_body_part(),
+	})
+	_sample_raid_value()
+
+func record_kill(enemy_name: String = "Enemy") -> void:
 	stat_enemies_killed += 1
 	add_score(5)
 	if in_graveyard_run:
 		graveyard_kills += 1
 		_maybe_grant_loom_weaver()
+	var weapon = equipped_items.get("weapon")
+	var weapon_name: String = str(weapon.get("name", "Unarmed")) if weapon != null else "Unarmed"
+	raid_kill_log.append({"time": _raid_elapsed_seconds(), "enemy": enemy_name, "weapon": weapon_name})
+	_sample_raid_value()
 
 func record_loot_collected(value: int) -> void:
 	stat_total_loot_collected += value
@@ -10268,6 +10327,15 @@ func end_run(success: bool, voluntary: bool = false) -> void:
 					continue
 				equipped_items[slot] = null
 			equipped_changed.emit()
+	# Snapshot this raid's real event logs before the tail below clears
+	# them for the next one - both RaidRewards.gd and DeathScreen.gd read
+	# this same dict via their "View Breakdown" button, regardless of
+	# win/loss.
+	last_raid_breakdown = {
+		"kills": raid_kill_log.duplicate(true),
+		"damage_taken": raid_damage_log.duplicate(true),
+		"value_samples": raid_value_samples.duplicate(true),
+	}
 	# A Scav run's gear was never really "yours" - whatever happened to
 	# it above, your actual PMC loadout comes back untouched now.
 	end_scav_run_if_active()
@@ -10297,6 +10365,11 @@ func end_run(success: bool, voluntary: bool = false) -> void:
 	run_timed_out = false
 	carried_value = 0
 	run_over = false
+	raid_kill_log = []
+	raid_damage_log = []
+	raid_value_samples = []
+	raid_start_time_ms = Time.get_ticks_msec()
+	_sample_raid_value()
 	selected_recruit = ""
 	var was_arena_match := is_arena_match
 	is_arena_match = false

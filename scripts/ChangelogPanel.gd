@@ -1197,6 +1197,10 @@ const CHANGELOG_CURRENT := [
 	{"version": "3.79.0", "title": "Directional Damage Indicator", "notes": [
 		"The screen-edge hit vignette now biases toward whichever side of the screen the damage actually came from - bullets, grenades, Molotovs, and both bosses' auras. Damage with no clear source (radiation, hunger) still shows the original even ring.",
 	]},
+	{"version": "3.80.0", "title": "Post-Raid Breakdown Screen", "notes": [
+		"New \"View Raid Breakdown\" button on both the Rewards and Death screens - a real per-raid kill timeline, damage-taken timeline, and a net-worth-over-time graph, all built from genuine events recorded live during the raid.",
+		"The Death screen's hit-location mannequin now draws your ACTUAL hits from that log instead of rolling a random 3-9 hit count with no connection to the fight that just happened.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

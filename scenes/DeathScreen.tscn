@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/DeathScreen.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/DystopianBackground.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/PostRaidBreakdownPanel.tscn" id="3"]
 
 [node name="DeathScreen" type="Control"]
 anchor_right = 1.0
@@ -84,10 +85,17 @@ mouse_filter = 2
 custom_minimum_size = Vector2(150, 0)
 theme_override_constants/separation = 4
 
+[node name="ViewBreakdownButton" type="Button" parent="Panel/VBox"]
+custom_minimum_size = Vector2(0, 38)
+theme_override_font_sizes/font_size = 14
+text = "View Raid Breakdown"
+
 [node name="ContinueButton" type="Button" parent="Panel/VBox"]
 custom_minimum_size = Vector2(0, 42)
 theme_override_font_sizes/font_size = 16
 text = "Return to Main Menu"
+
+[node name="PostRaidBreakdownPanel" parent="." instance=ExtResource("3")]
 
 [node name="ContextMenuHost" type="Control" parent="."]
 anchor_right = 1.0

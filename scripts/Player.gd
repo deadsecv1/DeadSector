@@ -1204,6 +1204,7 @@ func take_damage(amount: int, attacker_name: String = "", weapon_name: String = 
 	var armor_pct: float = clamp(GameManager.get_equipped_bonus("armor"), 0.0, 60.0)
 	if armor_pct > 0.0:
 		amount = int(round(amount * (1.0 - armor_pct / 100.0)))
+	GameManager.record_damage_taken(amount, attacker_name, weapon_name)
 	# Worn armor takes wear from every hit absorbed, regardless of source
 	# (bullet, fire tick, radiation, spike aura) - it's on your body either way.
 	var equipped_head = GameManager.equipped_items.get("head")
