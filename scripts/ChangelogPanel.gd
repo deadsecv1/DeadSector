@@ -1142,6 +1142,10 @@ const CHANGELOG_CURRENT := [
 		"A Void Trench pickup was sitting inside the new Trench Bunker's wall, and an equipped skin swapping icon types (or a different weapon opened in the new Inspection screen) could leave a stale texture on screen instead of updating - both fixed.",
 		"Built a real, repeatable test suite (tests/) covering everything above plus the last two updates' reward tables and gear systems - see CLAUDE.md for how to run it. Replaces one-off manual verification with something that keeps checking itself.",
 	]},
+	{"version": "3.67.1", "title": "Safety Net Behind the Scenes", "notes": [
+		"Delete Character (the in-place Wipe) now backs up your save to its own dedicated file before touching anything, on top of the automatic rotating backup that was already there - an accidental wipe stays recoverable instead of only being protected against a corrupted last save.",
+		"Added automatic testing on every update - the test suite plus a full boot-check of every Sector now run automatically, catching a mistake before it ships instead of after.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

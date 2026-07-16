@@ -1,0 +1,79 @@
+name: Tests
+
+# Runs the repeatable test suite (tests/TestRunner.tscn, see CLAUDE.md) plus
+# a headless smoke-boot of every raid map and the main screens, on every
+# push/PR to main - the same checks documented for a human to run by hand,
+# just automatic. Catches a broken push before it's the thing you notice
+# mid-playtest.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.7-stable"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Godot binary
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: godot_bin
+          key: godot-${{ env.GODOT_VERSION }}-linux-x86_64
+
+      - name: Download Godot ${{ env.GODOT_VERSION }} (headless-capable Linux build)
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p godot_bin
+          curl -fL -o godot_bin/godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -o godot_bin/godot.zip -d godot_bin
+          chmod +x "godot_bin/Godot_v${GODOT_VERSION}_linux.x86_64"
+
+      - name: Import project assets
+        run: "./godot_bin/Godot_v${GODOT_VERSION}_linux.x86_64 --headless --path . --import"
+
+      - name: Run persistent test suite
+        run: "./godot_bin/Godot_v${GODOT_VERSION}_linux.x86_64 --headless --path . tests/TestRunner.tscn --quit-after 90"
+
+      - name: Smoke-boot every raid map and main screens
+        run: |
+          set -e
+          GODOT="./godot_bin/Godot_v${GODOT_VERSION}_linux.x86_64"
+          scenes=(
+            "scenes/Main.tscn"
+            "scenes/Boneclock.tscn"
+            "scenes/VoidTrench.tscn"
+            "scenes/IronscrapYard.tscn"
+            "scenes/TheFoundry.tscn"
+            "scenes/Graveyard.tscn"
+            "scenes/MainMenu.tscn"
+            "scenes/Stash.tscn"
+            "scenes/TheGrid.tscn"
+            "scenes/SoulRealm.tscn"
+          )
+          failed=0
+          for scene in "${scenes[@]}"; do
+            echo "::group::Booting $scene"
+            set +e
+            output=$("$GODOT" --headless --path . "$scene" --quit-after 90 2>&1)
+            set -e
+            echo "$output"
+            echo "::endgroup::"
+            # "Cannot set object script" / ObjectDB-leak / RID-leak warnings
+            # are known-harmless engine teardown noise (see CLAUDE.md) -
+            # only a genuine script/parse error should fail the build.
+            if echo "$output" | grep -qE "SCRIPT ERROR|Parser Error|Invalid get index|Node not found"; then
+              echo "::error::Real error detected booting $scene"
+              failed=1
+            fi
+          done
+          exit $failed

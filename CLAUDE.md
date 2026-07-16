@@ -160,6 +160,35 @@ Global Chat, Find a Team, Leaderboards, Arena matchmaking, and similar
 real netcode. This is intentional, not a bug or a shortcut to fix. Don't
 "discover" this and try to wire up real networking unless explicitly asked.
 
+## Save data
+
+Single JSON file at `user://savegame.json`, which Godot maps on Windows to
+`%APPDATA%\Godot\app_userdata\Dead Sector\savegame.json`. `save_game()`/
+`load_game()` in GameManager.gd. A few things worth knowing before touching
+either function:
+
+- **Format version**: `SAVE_FORMAT_VERSION` (GameManager.gd) - bump this
+  when a load-time migration actually needs to run, not on every field
+  addition. Most new fields are read with `.get(key, default)` at load time
+  and don't need a version bump at all - only bump it if an old save would
+  otherwise load into a broken/inconsistent state.
+- **Rotating backup**: every `save_game()` call renames the previous
+  `savegame.json` to `savegame.json.bak` before writing the new one, and
+  `load_game()` automatically falls back to the `.bak` file if the primary
+  is missing or fails to parse (e.g. a crash mid-write). This protects
+  against a corrupted *last* save, not against something several saves
+  back - the single backup generation gets rotated away too.
+- **Pre-wipe backup**: `reset_character()` (the in-place Delete
+  Character/Wipe, see below) separately copies whatever's on disk to
+  `savegame.prewipe.json` *before* changing anything in memory, specifically
+  because the rotating backup above doesn't survive long enough to undo an
+  accidental wipe once the player finishes Character Creation and plays a
+  couple more saves. There's no in-game "restore" button for this (nobody's
+  asked for one) - if the user says they wiped by mistake, the fix is
+  manually copying `savegame.prewipe.json` back over `savegame.json` in
+  that `app_userdata` folder (with the game closed) and confirming they
+  don't already have a save newer than the backup they'd be restoring.
+
 ## Godot gotchas that have caused real bugs here
 
 - Scene tree `_ready()` order: children ready before parents. Code that

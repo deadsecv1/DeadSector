@@ -5705,7 +5705,26 @@ const PARTICLE_TRAILS := {
 }
 var player_particle_trail: String = "none"
 
+const SAVE_PREWIPE_BACKUP_PATH := "user://savegame.prewipe.json"
+
+# Delete Character is a full in-place wipe (explicit direction, see
+# CLAUDE.md) with no in-game undo - the normal save_game() rotation only
+# keeps ONE backup generation, so it protects against a corrupted last
+# write but not against "I clicked Delete Character and meant Cancel,"
+# which gets rotated away for good after just 1-2 further saves. This
+# copies whatever's currently on disk to a dedicated path of its own,
+# untouched by anything else, before a single field changes - restoring
+# an accidental wipe is then a manual file copy, not a lost character.
+func _backup_before_wipe() -> void:
+	if not FileAccess.file_exists(SAVE_PATH):
+		return
+	var dir := DirAccess.open("user://")
+	if dir == null:
+		return
+	dir.copy(SAVE_PATH.trim_prefix("user://"), SAVE_PREWIPE_BACKUP_PATH.trim_prefix("user://"))
+
 func reset_character() -> void:
+	_backup_before_wipe()
 	rubles = 0
 	junk = 0
 	artifacts = 0
