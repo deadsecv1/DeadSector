@@ -208,9 +208,9 @@ slot_name = "head"
 [node name="StatsButton" type="Button" parent="VBox/Panels/CharacterPanel/PortraitArea"]
 offset_left = 7.0
 offset_top = 10.0
-offset_right = 137.0
-offset_bottom = 101.0
-theme_override_font_sizes/font_size = 14
+offset_right = 62.0
+offset_bottom = 38.0
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.6, 0.85, 0.95, 1)
 text = "STATS"
 
