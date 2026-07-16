@@ -1176,6 +1176,10 @@ const CHANGELOG_CURRENT := [
 		"Every named weapon now belongs to one of 5 manufacturer brands - Veist Arms, Korovin Heavy, Omolon Dynamics, Sable Precision, or Ashfall Salvage - each with a real mechanical tradeoff (faster reload but more wear, higher damage but heavier recoil and slower fire rate, and so on). The same gun always carries the same brand.",
 		"Manufacturer and its tradeoff perk now show on both the item tooltip and the Inspect screen for every weapon.",
 	]},
+	{"version": "3.74.0", "title": "Pre Season Pass", "notes": [
+		"A new 60-tier reward track, separate from the Spectral Tide Battle Pass - progresses from successful extractions instead of a granted currency, so tiers unlock automatically as you play. Ends 2026-08-15 with a real countdown shown on the panel.",
+		"New Main Menu button next to Achievements/Character. Rewards run Rubles, XP, Artifacts, Skill Points, Loot Bags, and a dedicated pool of Season-exclusive gear.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

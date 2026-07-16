@@ -21,6 +21,8 @@ extends Control
 @onready var stats_panel: Panel = $StatsPanel
 @onready var achievements_button: Button = $AchievementsButton
 @onready var achievements_panel: Panel = $AchievementsPanel
+@onready var season_pass_button: Button = $SeasonPassButton
+@onready var season_pass_panel: Panel = $SeasonPassPanel
 @onready var event_button: Button = $EventButton
 @onready var battle_pass_panel: Panel = $BattlePassPanel
 @onready var store_button: Button = $StoreButton
@@ -182,6 +184,8 @@ func _ready() -> void:
 	changelog_button.pressed.connect(func(): _open_panel(changelog_panel))
 	changelog_panel.closed.connect(func(): _close_panel(changelog_panel))
 	achievements_button.pressed.connect(func(): _open_panel(achievements_panel))
+	season_pass_button.pressed.connect(func(): _open_panel(season_pass_panel))
+	season_pass_panel.closed.connect(func(): _close_panel(season_pass_panel))
 	achievements_panel.closed.connect(func(): _close_panel(achievements_panel))
 	social_button.pressed.connect(func(): _open_panel(social_panel))
 	social_panel.closed.connect(func(): _close_panel(social_panel))
@@ -248,7 +252,7 @@ func _ready() -> void:
 	exit_cancel_button.pressed.connect(func(): exit_confirm_panel.visible = false)
 	exit_confirm_button.pressed.connect(_on_exit)
 
-	for btn in [play_button, quests_button, traders_button, skill_tree_button, hideout_button, stash_button, settings_button, exit_button, roadmap_button, stats_button, changelog_button, social_button, achievements_button, flea_market_button, mail_button, feedback_button, whats_new_button, leaderboard_button, milestones_button, season_button, daily_bounties_button]:
+	for btn in [play_button, quests_button, traders_button, skill_tree_button, hideout_button, stash_button, settings_button, exit_button, roadmap_button, stats_button, changelog_button, social_button, achievements_button, flea_market_button, mail_button, feedback_button, whats_new_button, leaderboard_button, milestones_button, season_button, daily_bounties_button, season_pass_button]:
 		btn.mouse_entered.connect(_play_hover)
 
 	flea_market_button.pressed.connect(func(): _open_panel(flea_market_panel))
@@ -379,7 +383,7 @@ func _ambient_popups_suppressed() -> bool:
 		leaderboard_rewards_panel, rank_percentiles_panel, salvaged_beasts_panel, my_pets_panel,
 		bloodline_panel, delete_confirm_panel, changelog_panel,
 		flea_market_panel, mail_panel, alpha_rewards_panel, feedback_panel, welcome_panel, update_spotlight_panel,
-		milestones_panel, guild_panel, guild_battle_pass_panel,
+		milestones_panel, guild_panel, guild_battle_pass_panel, season_pass_panel,
 		arena_panel, arena_find_team_panel, arena_rewards_panel, arena_rank_rewards_panel, daily_bounties_panel,
 	]
 	for p in panels:
@@ -542,6 +546,7 @@ func _set_main_buttons_visible(vis: bool) -> void:
 	changelog_button.visible = vis
 	social_button.visible = vis
 	achievements_button.visible = vis
+	season_pass_button.visible = vis
 	data_button.visible = vis
 	bloodline_button.visible = vis
 	leaderboard_button.visible = vis

@@ -640,6 +640,136 @@ func _advance_battle_pass_tier() -> void:
 	toast_requested.emit("Battle Pass Tier %d unlocked!" % battle_pass_tier)
 	save_game()
 
+# --- Pre Season Pass: a real-world-time-limited reward track (ends
+# SEASON_PASS_END_TIMESTAMP - unlike Spectral Tide's Battle Pass, not tied
+# to any specific in-fiction event), progressing from successful
+# extractions rather than a granted XP currency. Named "Pre Season" rather
+# than a numbered season to match RoadmapPanel/MainMenu's own framing that
+# a real "Season 1" doesn't start until the Alpha tag comes off at 1.0
+# (see MainMenu.gd's _setup_season_preview()) - this is a taste of the
+# format before that.
+const SEASON_PASS_END_TIMESTAMP := 1786752000.0 # 2026-08-15 00:00 UTC
+const SEASON_PASS_NAME := "Pre Season"
+
+const SEASON_ITEM_POOL := [
+	{"name": "Vanguard's Sidearm", "value": 180, "slot": "weapon", "stat_type": "damage", "stat_value": 22.0, "icon_key": "pistol", "rarity": "rare"},
+	{"name": "Frontier Carbine", "value": 200, "slot": "weapon", "stat_type": "damage", "stat_value": 26.0, "icon_key": "rifle", "rarity": "rare"},
+	{"name": "Longwatch Rifle", "value": 210, "slot": "weapon", "stat_type": "damage", "stat_value": 30.0, "icon_key": "sniper", "rarity": "rare"},
+	{"name": "Trailblazer Vest", "value": 190, "slot": "body", "stat_type": "max_health", "stat_value": 42.0, "icon_key": "chestplate", "rarity": "rare"},
+	{"name": "Trailblazer Helm", "value": 170, "slot": "head", "stat_type": "max_health", "stat_value": 34.0, "icon_key": "helmet", "rarity": "rare"},
+	{"name": "Pathfinder Boots", "value": 160, "slot": "boots", "stat_type": "speed", "stat_value": 30.0, "icon_key": "boots", "rarity": "rare"},
+	{"name": "Frostline Cannon", "value": 480, "slot": "weapon", "stat_type": "damage", "stat_value": 42.0, "icon_key": "railgun", "rarity": "epic"},
+	{"name": "Ironclad Plate", "value": 460, "slot": "body", "stat_type": "max_health", "stat_value": 66.0, "icon_key": "chestplate", "rarity": "epic"},
+	{"name": "Ironclad Visor", "value": 440, "slot": "head", "stat_type": "max_health", "stat_value": 58.0, "icon_key": "helmet", "rarity": "epic"},
+	{"name": "Wayfarer's Pack", "value": 420, "slot": "backpack", "stat_type": "max_health", "stat_value": 60.0, "icon_key": "backpack", "rarity": "epic"},
+	{"name": "Seasonbreaker", "value": 900, "slot": "weapon", "stat_type": "damage", "stat_value": 54.0, "icon_key": "shotgun", "rarity": "legendary"},
+	{"name": "Sector Champion's Plate", "value": 880, "slot": "body", "stat_type": "max_health", "stat_value": 84.0, "icon_key": "chestplate", "rarity": "legendary"},
+]
+
+var season_pass_tier: int = 0
+const SEASON_PASS_MAX_TIER := 60
+# 2 extractions per tier, ~120 extractions to max out - a real long-haul
+# goal, deliberately not reachable by just idling in the Hideout.
+const SEASON_PASS_EXTRACTIONS_PER_TIER := 2
+
+func season_pass_available() -> bool:
+	return _flea_now() < SEASON_PASS_END_TIMESTAMP
+
+func season_pass_seconds_left() -> float:
+	return max(0.0, SEASON_PASS_END_TIMESTAMP - _flea_now())
+
+func _season_pool_for_tier(tier: int) -> Array:
+	var target_rarity := "rare"
+	if tier >= 55:
+		target_rarity = "legendary"
+	elif tier >= 30:
+		target_rarity = "epic"
+	var pool: Array = []
+	for pool_item in SEASON_ITEM_POOL:
+		if pool_item.get("rarity", "") == target_rarity:
+			pool.append(pool_item)
+	if pool.is_empty():
+		pool = SEASON_ITEM_POOL
+	return pool
+
+func _generate_season_pass_rewards() -> Array:
+	var rewards: Array = []
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7117
+	for i in range(SEASON_PASS_MAX_TIER):
+		var tier := i + 1
+		if tier % 10 == 0:
+			var pool := _season_pool_for_tier(tier)
+			var item: Dictionary = pool[rng.randi() % pool.size()].duplicate(true)
+			item["event_tag"] = SEASON_PASS_NAME
+			rewards.append({"type": "item", "data": item})
+			continue
+		if tier % 15 == 7:
+			rewards.append({"type": "lootbag"})
+			continue
+		var roll: int = tier % 6
+		match roll:
+			0:
+				rewards.append({"type": "rubles", "amount": int(200 + tier * 22)})
+			1:
+				rewards.append({"type": "xp", "amount": int(100 + tier * 7)})
+			2:
+				rewards.append({"type": "artifacts", "amount": int(6 + tier / 3.0)})
+			3:
+				var pool := _season_pool_for_tier(tier)
+				var item: Dictionary = pool[rng.randi() % pool.size()].duplicate(true)
+				item["event_tag"] = SEASON_PASS_NAME
+				rewards.append({"type": "item", "data": item})
+			4:
+				rewards.append({"type": "skill_points", "amount": 1 + int(tier / 25.0)})
+			_:
+				rewards.append({"type": "item", "data": AMMO_POOL[rng.randi() % AMMO_POOL.size()].duplicate(true)})
+	return rewards
+
+# Called after stat_extractions changes (and once after load) rather than
+# from a granted-XP call site - progress is derived live from the existing
+# lifetime counter instead of a separately-tracked currency, same "no new
+# hooks needed anywhere in combat code" spirit as Guild Contract. This also
+# means a save with existing extractions catches up retroactively the
+# first time this runs after the feature ships, which is intended - it's
+# credit for raids already run, not a bug.
+func _sync_season_pass_tier() -> void:
+	if not season_pass_available():
+		return
+	var target_tier: int = min(SEASON_PASS_MAX_TIER, int(stat_extractions / float(SEASON_PASS_EXTRACTIONS_PER_TIER)))
+	while season_pass_tier < target_tier:
+		_advance_season_pass_tier()
+
+func skip_season_pass_tier() -> bool:
+	if not season_pass_available() or season_pass_tier >= SEASON_PASS_MAX_TIER:
+		return false
+	if not spend_currency("rubles", 3000):
+		return false
+	_advance_season_pass_tier()
+	return true
+
+func _advance_season_pass_tier() -> void:
+	season_pass_tier += 1
+	var rewards := _generate_season_pass_rewards()
+	var reward: Dictionary = rewards[season_pass_tier - 1]
+	match reward.get("type", ""):
+		"rubles":
+			add_currency("rubles", int(reward.get("amount", 0)))
+		"artifacts":
+			add_currency("artifacts", int(reward.get("amount", 0)))
+		"xp":
+			grant_xp(int(reward.get("amount", 0)))
+		"skill_points":
+			add_currency("skill_points", int(reward.get("amount", 0)))
+		"item":
+			_add_to_stash(reward.get("data", {}).duplicate(true))
+		"lootbag":
+			var sp_bag := make_loot_bag("epic")
+			sp_bag["event_tag"] = SEASON_PASS_NAME
+			_add_to_stash(sp_bag)
+	toast_requested.emit("Pre Season Pass Tier %d unlocked!" % season_pass_tier)
+	save_game()
+
 # --- Milestones: a permanent (non-limited-time) progression track themed
 # around raid/Arena career moments. Its currency (Stones) is earned from
 # successful extractions, killing real-player enemies, and winning Arena
@@ -5932,6 +6062,7 @@ func reset_character() -> void:
 	bloodline_progress = 0
 	battle_pass_tier = 0
 	battle_pass_progress = 0
+	season_pass_tier = 0
 	milestone_tier = 0
 	milestone_progress = 0
 	guild_honor = 0
@@ -7690,6 +7821,7 @@ func save_game() -> void:
 		"blood_shards": blood_shards, "bloodline_tier": bloodline_tier, "bloodline_progress": bloodline_progress,
 		"gauntlet_best_level": gauntlet_best_level, "engrams": engrams,
 		"battle_pass_tier": battle_pass_tier, "battle_pass_progress": battle_pass_progress,
+		"season_pass_tier": season_pass_tier,
 		"milestone_tier": milestone_tier, "milestone_progress": milestone_progress,
 		"guild_honor": guild_honor, "guild_battle_pass_tier": guild_battle_pass_tier,
 		"guild_battle_pass_progress": guild_battle_pass_progress, "last_clan_war_day": last_clan_war_day,
@@ -7891,6 +8023,7 @@ func load_game() -> void:
 		engrams = loaded_engrams
 	battle_pass_tier = int(parsed.get("battle_pass_tier", 0))
 	battle_pass_progress = int(parsed.get("battle_pass_progress", 0))
+	season_pass_tier = int(parsed.get("season_pass_tier", 0))
 	milestone_tier = int(parsed.get("milestone_tier", 0))
 	milestone_progress = int(parsed.get("milestone_progress", 0))
 	guild_honor = int(parsed.get("guild_honor", 0))
@@ -8055,6 +8188,7 @@ func load_game() -> void:
 	stat_enemies_killed = int(parsed.get("stat_enemies_killed", 0))
 	stat_deaths = int(parsed.get("stat_deaths", 0))
 	stat_extractions = int(parsed.get("stat_extractions", 0))
+	_sync_season_pass_tier()
 	stat_scav_extractions = int(parsed.get("stat_scav_extractions", 0))
 	stat_crates_opened = int(parsed.get("stat_crates_opened", 0))
 	stat_blueprints_researched = int(parsed.get("stat_blueprints_researched", 0))
@@ -9937,6 +10071,7 @@ func end_run(success: bool, voluntary: bool = false) -> void:
 			notify_event("low_hp_extract")
 			achievement_flag_close_call = true
 		stat_extractions += 1
+		_sync_season_pass_tier()
 		if is_scav_run:
 			stat_scav_extractions += 1
 		grant_stones(ARENA_WIN_STONES if is_arena_match else EXTRACTION_STONES)
