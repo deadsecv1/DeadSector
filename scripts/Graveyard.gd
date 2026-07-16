@@ -101,3 +101,4 @@ func _maybe_spawn_elite_cache_event() -> void:
 	cache.rarity = ["epic", "legendary"][randi() % 2]
 	add_child(cache)
 	cache.global_position = center
+	GameManager.broadcast_alert_requested.emit("Radio chatter: hostile signal detected somewhere in the sector.")

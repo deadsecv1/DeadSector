@@ -7,6 +7,7 @@ signal equipped_changed
 signal toast_requested(text: String)
 signal gauntlet_equipment_changed
 signal quest_toast_requested(text: String)
+signal broadcast_alert_requested(text: String)
 signal quest_state_changed
 signal search_started(items: Array, duration: float)
 signal search_progress(pct: float)

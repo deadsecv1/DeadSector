@@ -23,6 +23,7 @@ func _ready() -> void:
 
 	GameManager.toast_requested.connect(show_toast)
 	GameManager.quest_toast_requested.connect(show_quest_toast)
+	GameManager.broadcast_alert_requested.connect(show_broadcast_alert)
 
 func show_toast(text: String) -> void:
 	_add_toast(text, Color(0.95, 0.95, 0.85, 1), 16, 2.4, 0.5)
@@ -30,6 +31,13 @@ func show_toast(text: String) -> void:
 func show_quest_toast(text: String) -> void:
 	# Slightly bigger/greener and lingers longer than a normal pickup toast.
 	_add_toast(text, Color(0.55, 0.9, 0.6, 1), 18, 3.2, 0.6)
+
+func show_broadcast_alert(text: String) -> void:
+	# For the rare mid-raid "guarded cache" event (see each map's own
+	# _maybe_spawn_elite_cache_event()) - biggest/reddest/longest-held of
+	# the three toast styles so it reads as a distinct radio-chatter
+	# sting, not just another pickup line.
+	_add_toast(text, Color(0.95, 0.55, 0.35, 1), 20, 4.0, 0.7)
 
 func _add_toast(text: String, color: Color, font_size: int, hold: float, fade: float) -> void:
 	if toast_container.get_child_count() >= MAX_TOASTS:

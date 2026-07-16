@@ -1211,6 +1211,9 @@ const CHANGELOG_CURRENT := [
 	{"version": "3.83.0", "title": "Weekly Contract", "notes": [
 		"The Daily Bounties board (now just \"Contracts\") has a new Weekly Contract card below the 3 daily slots - one big pinnacle-style objective that resets once a week instead of once a day, for a much bigger payout (20,000 Rubles, 40 Skill Points, 40 Artifacts).",
 	]},
+	{"version": "3.84.0", "title": "Broadcast Alerts", "notes": [
+		"The rare mid-raid guarded-cache event (2 tougher red-tinted Elite Guards standing over a genuinely good item, on every map) now announces itself with a radio-chatter alert the moment it spawns, instead of being a silent encounter you could only stumble onto by chance.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the
