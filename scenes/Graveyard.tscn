@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/Graveyard.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
@@ -16,6 +16,8 @@
 [ext_resource type="PackedScene" path="res://scenes/SpectralAsh.tscn" id="15"]
 [ext_resource type="Script" path="res://scripts/GraveyardAmbience.gd" id="14"]
 [ext_resource type="PackedScene" path="res://scenes/House.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://scenes/DebrisStash.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://scenes/Ghoul.tscn" id="18"]
 
 [node name="Graveyard" type="Node2D"]
 script = ExtResource("1")
@@ -25,27 +27,27 @@ color = Color(0.14, 0.15, 0.17, 1)
 
 [node name="Ground" type="Node2D" parent="."]
 script = ExtResource("4")
-ground_size = Vector2(3200, 2150)
+ground_size = Vector2(6400, 4300)
 base_color = Color(0.09, 0.11, 0.09, 1)
 
 [node name="WallTop" parent="." instance=ExtResource("3")]
-position = Vector2(0, -1075)
-size = Vector2(3200, 40)
+position = Vector2(0, -2150)
+size = Vector2(6400, 40)
 wall_color = Color(0.15, 0.15, 0.16, 1)
 
 [node name="WallBottom" parent="." instance=ExtResource("3")]
-position = Vector2(0, 1075)
-size = Vector2(3200, 40)
+position = Vector2(0, 2150)
+size = Vector2(6400, 40)
 wall_color = Color(0.15, 0.15, 0.16, 1)
 
 [node name="WallLeft" parent="." instance=ExtResource("3")]
-position = Vector2(-1600, 0)
-size = Vector2(40, 2150)
+position = Vector2(-3200, 0)
+size = Vector2(40, 4300)
 wall_color = Color(0.15, 0.15, 0.16, 1)
 
 [node name="WallRight" parent="." instance=ExtResource("3")]
-position = Vector2(1600, 0)
-size = Vector2(40, 2150)
+position = Vector2(3200, 0)
+size = Vector2(40, 4300)
 wall_color = Color(0.15, 0.15, 0.16, 1)
 
 [node name="EntranceGateLeft" type="Polygon2D" parent="."]
@@ -269,6 +271,688 @@ position = Vector2(-1400, -300)
 
 [node name="RoamingWraith3" parent="." instance=ExtResource("11")]
 position = Vector2(0, 950)
+
+[node name="PathToChapel" type="Polygon2D" parent="."]
+position = Vector2(-125, -1165)
+rotation = -1.877
+z_index = -3
+color = Color(0.42, 0.36, 0.24, 0.5)
+polygon = PackedVector2Array(-414.3, -30, 414.3, -30, 414.3, 30, -414.3, 30)
+
+[node name="PathToOssuary" type="Polygon2D" parent="."]
+position = Vector2(1687.5, -400)
+z_index = -3
+color = Color(0.42, 0.36, 0.24, 0.5)
+polygon = PackedVector2Array(-737.5, -30, 737.5, -30, 737.5, 30, -737.5, 30)
+
+[node name="PathToMausoleum" type="Polygon2D" parent="."]
+position = Vector2(-1675, 525)
+rotation = 2.971
+z_index = -3
+color = Color(0.42, 0.36, 0.24, 0.5)
+polygon = PackedVector2Array(-735.85, -30, 735.85, -30, 735.85, 30, -735.85, 30)
+
+[node name="PathToSextonsVault" type="Polygon2D" parent="."]
+position = Vector2(75, 1125)
+rotation = 1.4147
+z_index = -3
+color = Color(0.42, 0.36, 0.24, 0.5)
+polygon = PackedVector2Array(-480.9, -30, 480.9, -30, 480.9, 30, -480.9, 30)
+
+[node name="PathWestSouthLink" type="Polygon2D" parent="."]
+position = Vector2(-1125, 1375)
+rotation = 0.3355
+z_index = -3
+color = Color(0.42, 0.36, 0.24, 0.5)
+polygon = PackedVector2Array(-1138.5, -30, 1138.5, -30, 1138.5, 30, -1138.5, 30)
+
+[node name="PottersFieldLabel" type="Label" parent="."]
+position = Vector2(430, -1980)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.5, 0.55, 0.5, 0.85)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "POTTER'S FIELD"
+
+[node name="ChapelWallBack" parent="." instance=ExtResource("3")]
+position = Vector2(-250, -1750)
+size = Vector2(282, 22)
+wall_color = Color(0.32, 0.3, 0.33, 1)
+
+[node name="ChapelWallLeft" parent="." instance=ExtResource("3")]
+position = Vector2(-380, -1650)
+size = Vector2(22, 222)
+wall_color = Color(0.32, 0.3, 0.33, 1)
+
+[node name="ChapelWallRight" parent="." instance=ExtResource("3")]
+position = Vector2(-120, -1650)
+size = Vector2(22, 222)
+wall_color = Color(0.32, 0.3, 0.33, 1)
+
+[node name="ChapelNameTag" type="Label" parent="."]
+position = Vector2(-372, -1800)
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.55, 0.65, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "THE SUNDERED CHAPEL"
+
+[node name="ChapelChest1" parent="." instance=ExtResource("6")]
+position = Vector2(-310, -1620)
+item_name = "Chaplain's Prayer Beads"
+base_value = 150
+slot = "accessory"
+stat_type = "loot_sense"
+stat_value = 0.015
+icon_key = "ring"
+rarity = "rare"
+
+[node name="ChapelChest2" parent="." instance=ExtResource("6")]
+position = Vector2(-190, -1680)
+item_name = "Consecrated Ledger"
+base_value = 130
+slot = "valuable"
+stat_type = ""
+stat_value = 0.0
+icon_key = "watch"
+rarity = "uncommon"
+
+[node name="Headstone11" type="Polygon2D" parent="."]
+position = Vector2(460, -1880)
+color = Color(0.35, 0.35, 0.37, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone12" type="Polygon2D" parent="."]
+position = Vector2(500, -1880)
+color = Color(0.32, 0.32, 0.34, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone13" type="Polygon2D" parent="."]
+position = Vector2(540, -1880)
+color = Color(0.36, 0.36, 0.38, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone14" type="Polygon2D" parent="."]
+position = Vector2(460, -1840)
+color = Color(0.33, 0.33, 0.35, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone15" type="Polygon2D" parent="."]
+position = Vector2(500, -1840)
+color = Color(0.31, 0.31, 0.33, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone16" type="Polygon2D" parent="."]
+position = Vector2(540, -1840)
+color = Color(0.35, 0.35, 0.37, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone17" type="Polygon2D" parent="."]
+position = Vector2(-720, -1400)
+color = Color(0.34, 0.34, 0.36, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone18" type="Polygon2D" parent="."]
+position = Vector2(-680, -1400)
+color = Color(0.32, 0.32, 0.34, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone19" type="Polygon2D" parent="."]
+position = Vector2(-720, -1360)
+color = Color(0.36, 0.36, 0.38, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone20" type="Polygon2D" parent="."]
+position = Vector2(-680, -1360)
+color = Color(0.33, 0.33, 0.35, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone21" type="Polygon2D" parent="."]
+position = Vector2(280, -1250)
+color = Color(0.35, 0.35, 0.37, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone22" type="Polygon2D" parent="."]
+position = Vector2(320, -1250)
+color = Color(0.31, 0.31, 0.33, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone23" type="Polygon2D" parent="."]
+position = Vector2(280, -1210)
+color = Color(0.34, 0.34, 0.36, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone24" type="Polygon2D" parent="."]
+position = Vector2(320, -1210)
+color = Color(0.36, 0.36, 0.38, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="DeadTree1" type="Polygon2D" parent="."]
+position = Vector2(-550, -1750)
+color = Color(0.16, 0.13, 0.11, 1)
+polygon = PackedVector2Array(-4, 0, -5, -50, -22, -66, -6, -58, -7, -80, -3, -95, 0, -100, 5, -85, 18, -70, 6, -60, 5, -45, 4, 0)
+
+[node name="DeadTree2" type="Polygon2D" parent="."]
+position = Vector2(700, -1500)
+color = Color(0.18, 0.15, 0.13, 1)
+polygon = PackedVector2Array(-4, 0, -5, -50, -22, -66, -6, -58, -7, -80, -3, -95, 0, -100, 5, -85, 18, -70, 6, -60, 5, -45, 4, 0)
+
+[node name="DeadTree3" type="Polygon2D" parent="."]
+position = Vector2(-900, -1900)
+color = Color(0.16, 0.13, 0.11, 1)
+polygon = PackedVector2Array(-4, 0, -5, -50, -22, -66, -6, -58, -7, -80, -3, -95, 0, -100, 5, -85, 18, -70, 6, -60, 5, -45, 4, 0)
+
+[node name="IronFenceN1" type="Polygon2D" parent="."]
+position = Vector2(-1000, -1200)
+color = Color(0.2, 0.15, 0.1, 1)
+polygon = PackedVector2Array(-30, -40, -24, -40, -24, 40, -30, 40, -30, -40, 30, -40, 24, -40, 24, 40, 30, 40, 30, -40)
+
+[node name="IronFenceN2" type="Polygon2D" parent="."]
+position = Vector2(900, -1900)
+color = Color(0.2, 0.15, 0.1, 1)
+polygon = PackedVector2Array(-30, -40, -24, -40, -24, 40, -30, 40, -30, -40, 30, -40, 24, -40, 24, 40, 30, 40, 30, -40)
+
+[node name="FogPatchN1" type="Polygon2D" parent="."]
+position = Vector2(-400, -1850)
+color = Color(0.5, 0.55, 0.5, 0.06)
+polygon = PackedVector2Array(-260, -110, 260, -110, 260, 110, -260, 110)
+
+[node name="NorthLightChest1" parent="." instance=ExtResource("6")]
+position = Vector2(300, -1850)
+item_name = "Weathered Grave Goods"
+base_value = 130
+slot = "weapon"
+stat_type = "damage"
+stat_value = 16.0
+icon_key = "sword"
+rarity = "rare"
+
+[node name="NorthDebrisStash1" parent="." instance=ExtResource("17")]
+position = Vector2(-850, -1950)
+item_name = "Forgotten Burial Cache"
+base_value = 85
+rarity = "uncommon"
+
+[node name="StaticMote2" parent="." instance=ExtResource("13")]
+position = Vector2(150, -1400)
+
+[node name="RoamingGhoulN1" parent="." instance=ExtResource("18")]
+position = Vector2(-600, -1500)
+
+[node name="RoamingSkeletonN1" parent="." instance=ExtResource("10")]
+position = Vector2(400, -1750)
+
+[node name="TheOssuary" parent="." instance=ExtResource("16")]
+position = Vector2(2500, -550)
+house_name = "The Ossuary"
+house_size = Vector2(420, 300)
+vault_width = 150.0
+wall_color = Color(0.3, 0.28, 0.25, 1)
+roof_color = Color(0.08, 0.08, 0.09, 1)
+key_id = "ossuary_key"
+key_label = "Ossuary Key"
+chest_item_name = "Ossuary Ward Boots"
+chest_value = 250
+chest_slot = "boots"
+chest_stat_type = "speed"
+chest_stat_value = 34.0
+chest_icon_key = "boots"
+chest_rarity = "legendary"
+grants_artifacts = 1
+
+[node name="OssuaryGuard" parent="." instance=ExtResource("18")]
+position = Vector2(2425, -370)
+drop_key_id = "ossuary_key"
+drop_key_label = "Ossuary Key"
+
+[node name="CryptRowLabel" type="Label" parent="."]
+position = Vector2(2420, 250)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.55, 0.65, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "CRYPT ROW"
+
+[node name="CryptFacade1" parent="." instance=ExtResource("3")]
+position = Vector2(2420, 350)
+size = Vector2(70, 90)
+wall_color = Color(0.28, 0.27, 0.26, 1)
+
+[node name="CryptFacade2" parent="." instance=ExtResource("3")]
+position = Vector2(2540, 350)
+size = Vector2(70, 90)
+wall_color = Color(0.26, 0.25, 0.24, 1)
+
+[node name="CryptFacade3" parent="." instance=ExtResource("3")]
+position = Vector2(2660, 350)
+size = Vector2(70, 90)
+wall_color = Color(0.29, 0.28, 0.27, 1)
+
+[node name="CryptRowChest" parent="." instance=ExtResource("6")]
+position = Vector2(2480, 430)
+item_name = "Crypt-Robber's Locket"
+base_value = 100
+slot = "accessory"
+stat_type = "loot_sense"
+stat_value = 0.015
+icon_key = "ring"
+rarity = "uncommon"
+
+[node name="EastChest1" parent="." instance=ExtResource("6")]
+position = Vector2(2100, 200)
+item_name = "Grave Plot Deed Box"
+base_value = 140
+slot = "body"
+stat_type = "max_health"
+stat_value = 30.0
+icon_key = "chestplate"
+rarity = "rare"
+
+[node name="EastDebrisStash1" parent="." instance=ExtResource("17")]
+position = Vector2(2850, -900)
+item_name = "Buried Grave Robber's Kit"
+base_value = 95
+rarity = "uncommon"
+
+[node name="Headstone25" type="Polygon2D" parent="."]
+position = Vector2(2200, -700)
+color = Color(0.34, 0.34, 0.36, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone26" type="Polygon2D" parent="."]
+position = Vector2(2240, -700)
+color = Color(0.32, 0.32, 0.34, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone27" type="Polygon2D" parent="."]
+position = Vector2(2280, -700)
+color = Color(0.36, 0.36, 0.38, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="IronFenceE1" type="Polygon2D" parent="."]
+position = Vector2(1750, -900)
+color = Color(0.2, 0.15, 0.1, 1)
+polygon = PackedVector2Array(-30, -40, -24, -40, -24, 40, -30, 40, -30, -40, 30, -40, 24, -40, 24, 40, 30, 40, 30, -40)
+
+[node name="DeadTree4" type="Polygon2D" parent="."]
+position = Vector2(2900, 700)
+color = Color(0.16, 0.13, 0.11, 1)
+polygon = PackedVector2Array(-4, 0, -5, -50, -22, -66, -6, -58, -7, -80, -3, -95, 0, -100, 5, -85, 18, -70, 6, -60, 5, -45, 4, 0)
+
+[node name="FogPatchE1" type="Polygon2D" parent="."]
+position = Vector2(2300, -300)
+color = Color(0.5, 0.55, 0.5, 0.06)
+polygon = PackedVector2Array(-220, -100, 220, -100, 220, 100, -220, 100)
+
+[node name="RoamingGhostE1" parent="." instance=ExtResource("9")]
+position = Vector2(2000, -800)
+
+[node name="RoamingSkeletonE1" parent="." instance=ExtResource("10")]
+position = Vector2(2700, 900)
+
+[node name="StaticMote3" parent="." instance=ExtResource("13")]
+position = Vector2(2200, 550)
+
+[node name="ExtractionRustboundSidegate" parent="." instance=ExtResource("5")]
+position = Vector2(2900, 1700)
+is_paid = true
+unlock_cost = 650
+pickup_type = "car"
+
+[node name="RustboundSidegateLabel" type="Label" parent="."]
+position = Vector2(2800, 1610)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.55, 0.65, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "THE RUSTBOUND SIDEGATE"
+
+[node name="RoamingWraithCorner1" parent="." instance=ExtResource("11")]
+position = Vector2(2850, -1800)
+
+[node name="AngelStatue4" type="Polygon2D" parent="."]
+position = Vector2(2900, -1900)
+color = Color(0.28, 0.28, 0.3, 1)
+polygon = PackedVector2Array(-14, 30, -10, -10, -18, -20, -6, -34, 6, -34, 18, -20, 10, -10, 14, 30)
+
+[node name="Headstone42" type="Polygon2D" parent="."]
+position = Vector2(2860, -1900)
+color = Color(0.34, 0.34, 0.36, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone43" type="Polygon2D" parent="."]
+position = Vector2(2820, -1900)
+color = Color(0.32, 0.32, 0.34, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="RoamingSkeletonCorner1" parent="." instance=ExtResource("10")]
+position = Vector2(2750, 1900)
+
+[node name="Headstone38" type="Polygon2D" parent="."]
+position = Vector2(2700, 1950)
+color = Color(0.35, 0.35, 0.37, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone39" type="Polygon2D" parent="."]
+position = Vector2(2660, 1950)
+color = Color(0.33, 0.33, 0.35, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="MarchionessMausoleum" parent="." instance=ExtResource("16")]
+position = Vector2(-2500, 650)
+house_name = "The Marchioness's Mausoleum"
+house_size = Vector2(380, 280)
+vault_width = 140.0
+wall_color = Color(0.24, 0.22, 0.27, 1)
+roof_color = Color(0.09, 0.08, 0.11, 1)
+key_id = "widows_mausoleum_key"
+key_label = "Marchioness's Key"
+chest_item_name = "Marchioness's Silk-Lined Pack"
+chest_value = 250
+chest_slot = "backpack"
+chest_stat_type = "loot_sense"
+chest_stat_value = 0.03
+chest_icon_key = "backpack"
+chest_rarity = "legendary"
+grants_artifacts = 1
+
+[node name="MarchionessGuard" parent="." instance=ExtResource("11")]
+position = Vector2(-2570, 830)
+drop_key_id = "widows_mausoleum_key"
+drop_key_label = "Marchioness's Key"
+
+[node name="ShedWallBack" parent="." instance=ExtResource("3")]
+position = Vector2(-2350, -680)
+size = Vector2(222, 20)
+wall_color = Color(0.3, 0.24, 0.16, 1)
+
+[node name="ShedWallLeft" parent="." instance=ExtResource("3")]
+position = Vector2(-2450, -600)
+size = Vector2(20, 180)
+wall_color = Color(0.3, 0.24, 0.16, 1)
+
+[node name="ShedWallRight" parent="." instance=ExtResource("3")]
+position = Vector2(-2250, -600)
+size = Vector2(20, 180)
+wall_color = Color(0.3, 0.24, 0.16, 1)
+
+[node name="ShedNameTag" type="Label" parent="."]
+position = Vector2(-2470, -740)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.55, 0.65, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "GROUNDSKEEPER'S SHED"
+
+[node name="ShedChest1" parent="." instance=ExtResource("6")]
+position = Vector2(-2350, -560)
+item_name = "Groundskeeper's Toolkit"
+base_value = 110
+slot = "valuable"
+stat_type = ""
+stat_value = 0.0
+icon_key = "watch"
+rarity = "uncommon"
+
+[node name="ShedDebrisStash1" parent="." instance=ExtResource("17")]
+position = Vector2(-2280, -540)
+item_name = "Forgotten Ration Stash"
+base_value = 90
+rarity = "uncommon"
+
+[node name="WestChest1" parent="." instance=ExtResource("6")]
+position = Vector2(-1800, -300)
+item_name = "Rust-Locked Jewel Box"
+base_value = 135
+slot = "accessory"
+stat_type = "loot_sense"
+stat_value = 0.018
+icon_key = "ring"
+rarity = "rare"
+
+[node name="WestDebrisStash1" parent="." instance=ExtResource("17")]
+position = Vector2(-2900, 1200)
+item_name = "Widow's Buried Keepsakes"
+base_value = 90
+rarity = "uncommon"
+
+[node name="Headstone28" type="Polygon2D" parent="."]
+position = Vector2(-1900, 900)
+color = Color(0.33, 0.33, 0.35, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone29" type="Polygon2D" parent="."]
+position = Vector2(-1940, 900)
+color = Color(0.35, 0.35, 0.37, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone30" type="Polygon2D" parent="."]
+position = Vector2(-1980, 900)
+color = Color(0.31, 0.31, 0.33, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="WidowsRowLabel" type="Label" parent="."]
+position = Vector2(-2060, 830)
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.5, 0.55, 0.5, 0.85)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "WIDOW'S ROW"
+
+[node name="AngelStatue3" type="Polygon2D" parent="."]
+position = Vector2(-2150, 400)
+color = Color(0.26, 0.26, 0.28, 1)
+polygon = PackedVector2Array(-14, 30, -10, -10, -18, -20, -6, -34, 6, -34, 18, -20, 10, -10, 14, 30)
+
+[node name="DeadTree5" type="Polygon2D" parent="."]
+position = Vector2(-1750, -900)
+color = Color(0.16, 0.13, 0.11, 1)
+polygon = PackedVector2Array(-4, 0, -5, -50, -22, -66, -6, -58, -7, -80, -3, -95, 0, -100, 5, -85, 18, -70, 6, -60, 5, -45, 4, 0)
+
+[node name="DeadTree6" type="Polygon2D" parent="."]
+position = Vector2(-2800, 300)
+color = Color(0.18, 0.15, 0.13, 1)
+polygon = PackedVector2Array(-4, 0, -5, -50, -22, -66, -6, -58, -7, -80, -3, -95, 0, -100, 5, -85, 18, -70, 6, -60, 5, -45, 4, 0)
+
+[node name="IronFenceW1" type="Polygon2D" parent="."]
+position = Vector2(-1700, 1300)
+color = Color(0.2, 0.15, 0.1, 1)
+polygon = PackedVector2Array(-30, -40, -24, -40, -24, 40, -30, 40, -30, -40, 30, -40, 24, -40, 24, 40, 30, 40, 30, -40)
+
+[node name="FogPatchW1" type="Polygon2D" parent="."]
+position = Vector2(-2600, -200)
+color = Color(0.5, 0.55, 0.5, 0.07)
+polygon = PackedVector2Array(-200, -90, 200, -90, 200, 90, -200, 90)
+
+[node name="RoamingGhostW1" parent="." instance=ExtResource("9")]
+position = Vector2(-1900, -500)
+
+[node name="RoamingGhoulW1" parent="." instance=ExtResource("18")]
+position = Vector2(-2700, 1100)
+
+[node name="SpectralAsh2" parent="." instance=ExtResource("15")]
+position = Vector2(-2100, 200)
+
+[node name="ExtractionWidowsPostern" parent="." instance=ExtResource("5")]
+position = Vector2(-2900, -1700)
+
+[node name="WidowsPosternLabel" type="Label" parent="."]
+position = Vector2(-3000, -1790)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.55, 0.65, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "THE WIDOW'S POSTERN"
+
+[node name="RoamingGhostCorner1" parent="." instance=ExtResource("9")]
+position = Vector2(-2850, -1800)
+
+[node name="DeadTree8" type="Polygon2D" parent="."]
+position = Vector2(-3000, -1600)
+color = Color(0.16, 0.13, 0.11, 1)
+polygon = PackedVector2Array(-4, 0, -5, -50, -22, -66, -6, -58, -7, -80, -3, -95, 0, -100, 5, -85, 18, -70, 6, -60, 5, -45, 4, 0)
+
+[node name="IronFenceNW1" type="Polygon2D" parent="."]
+position = Vector2(-2800, -1950)
+color = Color(0.2, 0.15, 0.1, 1)
+polygon = PackedVector2Array(-30, -40, -24, -40, -24, 40, -30, 40, -30, -40, 30, -40, 24, -40, 24, 40, 30, 40, 30, -40)
+
+[node name="Headstone36" type="Polygon2D" parent="."]
+position = Vector2(-2950, -1900)
+color = Color(0.34, 0.34, 0.36, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone37" type="Polygon2D" parent="."]
+position = Vector2(-2910, -1900)
+color = Color(0.32, 0.32, 0.34, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="RoamingGhoulCorner1" parent="." instance=ExtResource("18")]
+position = Vector2(-2850, 1800)
+
+[node name="Headstone40" type="Polygon2D" parent="."]
+position = Vector2(-2950, 1900)
+color = Color(0.33, 0.33, 0.35, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone41" type="Polygon2D" parent="."]
+position = Vector2(-2990, 1900)
+color = Color(0.36, 0.36, 0.38, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="SextonsVault" parent="." instance=ExtResource("16")]
+position = Vector2(150, 1750)
+house_name = "The Sexton's Vault"
+house_size = Vector2(360, 260)
+vault_width = 130.0
+wall_color = Color(0.22, 0.22, 0.24, 1)
+roof_color = Color(0.1, 0.1, 0.09, 1)
+key_id = "sextons_vault_key"
+key_label = "Sexton's Key"
+chest_item_name = "Sexton's Old Shotgun"
+chest_value = 260
+chest_slot = "weapon"
+chest_stat_type = "damage"
+chest_stat_value = 35.0
+chest_icon_key = "shotgun"
+chest_rarity = "legendary"
+grants_artifacts = 1
+
+[node name="SextonsGuard" parent="." instance=ExtResource("10")]
+position = Vector2(85, 1920)
+drop_key_id = "sextons_vault_key"
+drop_key_label = "Sexton's Key"
+
+[node name="TwinCryptA" parent="." instance=ExtResource("3")]
+position = Vector2(-560, 1850)
+size = Vector2(70, 90)
+wall_color = Color(0.27, 0.26, 0.28, 1)
+
+[node name="TwinCryptB" parent="." instance=ExtResource("3")]
+position = Vector2(-440, 1850)
+size = Vector2(70, 90)
+wall_color = Color(0.25, 0.24, 0.26, 1)
+
+[node name="TwinCryptsLabel" type="Label" parent="."]
+position = Vector2(-565, 1770)
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.55, 0.65, 0.55, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "THE TWIN CRYPTS"
+
+[node name="TwinCryptsChest" parent="." instance=ExtResource("6")]
+position = Vector2(-500, 1900)
+item_name = "Sealed Urn of Ash"
+base_value = 160
+slot = "valuable"
+stat_type = ""
+stat_value = 0.0
+icon_key = "watch"
+rarity = "rare"
+
+[node name="BonePitLabel" type="Label" parent="."]
+position = Vector2(410, 1830)
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.75, 0.75, 0.78, 0.9)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 4
+text = "THE BONE PIT"
+
+[node name="BonePitChest" parent="." instance=ExtResource("6")]
+position = Vector2(450, 1900)
+item_name = "Sun-Bleached Trophy Case"
+base_value = 145
+slot = "accessory"
+stat_type = "loot_sense"
+stat_value = 0.02
+icon_key = "ring"
+rarity = "rare"
+
+[node name="SouthChest1" parent="." instance=ExtResource("6")]
+position = Vector2(-300, 1600)
+item_name = "Muddy Grave-Boots Cache"
+base_value = 130
+slot = "boots"
+stat_type = "speed"
+stat_value = 15.0
+icon_key = "boots"
+rarity = "rare"
+
+[node name="SouthDebrisStash1" parent="." instance=ExtResource("17")]
+position = Vector2(600, 1450)
+item_name = "Shallow Grave Cache"
+base_value = 90
+rarity = "uncommon"
+
+[node name="Headstone31" type="Polygon2D" parent="."]
+position = Vector2(-100, 1400)
+color = Color(0.34, 0.34, 0.36, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone32" type="Polygon2D" parent="."]
+position = Vector2(-60, 1400)
+color = Color(0.36, 0.36, 0.38, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone33" type="Polygon2D" parent="."]
+position = Vector2(-20, 1400)
+color = Color(0.32, 0.32, 0.34, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone34" type="Polygon2D" parent="."]
+position = Vector2(700, 1750)
+color = Color(0.35, 0.35, 0.37, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="Headstone35" type="Polygon2D" parent="."]
+position = Vector2(740, 1750)
+color = Color(0.33, 0.33, 0.35, 1)
+polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="DeadTree7" type="Polygon2D" parent="."]
+position = Vector2(-800, 1700)
+color = Color(0.17, 0.14, 0.12, 1)
+polygon = PackedVector2Array(-4, 0, -5, -50, -22, -66, -6, -58, -7, -80, -3, -95, 0, -100, 5, -85, 18, -70, 6, -60, 5, -45, 4, 0)
+
+[node name="IronFenceS1" type="Polygon2D" parent="."]
+position = Vector2(900, 1900)
+color = Color(0.2, 0.15, 0.1, 1)
+polygon = PackedVector2Array(-30, -40, -24, -40, -24, 40, -30, 40, -30, -40, 30, -40, 24, -40, 24, 40, 30, 40, 30, -40)
+
+[node name="FogPatchS1" type="Polygon2D" parent="."]
+position = Vector2(-200, 1500)
+color = Color(0.5, 0.55, 0.5, 0.07)
+polygon = PackedVector2Array(-230, -100, 230, -100, 230, 100, -230, 100)
+
+[node name="RoamingWraithS1" parent="." instance=ExtResource("11")]
+position = Vector2(-400, 1400)
+
+[node name="RoamingGhostS1" parent="." instance=ExtResource("9")]
+position = Vector2(700, 1550)
+
+[node name="SpectralAsh3" parent="." instance=ExtResource("15")]
+position = Vector2(200, 1650)
 
 [node name="Player" parent="." instance=ExtResource("2")]
 position = Vector2(0, -650)

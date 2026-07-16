@@ -3,6 +3,8 @@ extends Node2D
 const RECRUIT_SCENE := preload("res://scenes/Recruit.tscn")
 const RaidPartyMemberScript := preload("res://scripts/RaidPartyMember.gd")
 const PET_SCENE := preload("res://scenes/Pet.tscn")
+const ELITE_ENEMY_SCENE := preload("res://scenes/Enemy.tscn")
+const ELITE_CACHE_SCENE := preload("res://scenes/DebrisStash.tscn")
 
 @onready var player = $Player
 @onready var hud = $HUD
@@ -17,6 +19,7 @@ func _ready() -> void:
 	_spawn_recruit()
 	_spawn_raid_party()
 	_spawn_pet()
+	_maybe_spawn_elite_cache_event()
 	player.stats_ready.connect(hud.update_stats)
 	player.ammo_changed.connect(hud.update_ammo)
 	player._update_ammo_display()
@@ -73,3 +76,28 @@ func _spawn_pet() -> void:
 	pet.pet_id = GameManager.equipped_pet
 	add_child(pet)
 	pet.global_position = player.global_position + Vector2(-40, 30)
+
+# A rare, telegraphed mid-raid event: a small guarded cache with a real
+# chance of dying to reach - 2 tougher Elite Guards (tinted red so
+# they're identifiable at a glance, unlike a normal Raider) ringed
+# around a genuinely good item. Entirely optional - spawns well away
+# from the player's start and nothing forces a detour to find it.
+# Same pattern as VoidTrench.gd/IronscrapYard.gd's version, reskinned for
+# the Graveyard - this map previously had no Elite Cache event at all.
+func _maybe_spawn_elite_cache_event() -> void:
+	if randf() >= 0.18:
+		return
+	var ang := randf_range(0.0, TAU)
+	var center: Vector2 = player.global_position + Vector2(cos(ang), sin(ang)) * randf_range(900.0, 1500.0)
+	for i in range(2):
+		var guard = ELITE_ENEMY_SCENE.instantiate()
+		guard.is_elite_guard = true
+		add_child(guard)
+		guard.global_position = center + Vector2(60.0, 0.0).rotated(TAU * i / 2.0)
+		guard.modulate = Color(1.3, 0.55, 0.5, 1)
+	var cache = ELITE_CACHE_SCENE.instantiate()
+	cache.item_name = "Grave Robber's Cache"
+	cache.base_value = 320
+	cache.rarity = ["epic", "legendary"][randi() % 2]
+	add_child(cache)
+	cache.global_position = center
