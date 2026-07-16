@@ -1194,6 +1194,9 @@ const CHANGELOG_CURRENT := [
 	{"version": "3.78.0", "title": "Diegetic Ammo Readout", "notes": [
 		"The permanent ammo counter is gone - it now pops in at full opacity on every shot fired or reload, and fades back out about 2 seconds after the last one, instead of sitting on screen constantly.",
 	]},
+	{"version": "3.79.0", "title": "Directional Damage Indicator", "notes": [
+		"The screen-edge hit vignette now biases toward whichever side of the screen the damage actually came from - bullets, grenades, Molotovs, and both bosses' auras. Damage with no clear source (radiation, hunger) still shows the original even ring.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

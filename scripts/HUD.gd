@@ -378,11 +378,15 @@ func flash_stun(duration: float) -> void:
 # at while digging through your bag.
 func _on_player_health_changed(current: int, _maximum: int) -> void:
 	if _last_known_health >= 0 and current < _last_known_health:
-		_flash_hit_vignette()
+		var direction: Vector2 = Vector2.ZERO
+		if _cached_player != null and is_instance_valid(_cached_player):
+			direction = _cached_player.get("last_hit_direction")
+		_flash_hit_vignette(direction)
 	_last_known_health = current
 
-func _flash_hit_vignette() -> void:
+func _flash_hit_vignette(direction: Vector2 = Vector2.ZERO) -> void:
 	_hit_flash_mat.set_shader_parameter("intensity", 1.0)
+	_hit_flash_mat.set_shader_parameter("hit_dir", direction)
 	var tw := create_tween()
 	tw.tween_property(_hit_flash_mat, "shader_parameter/intensity", 0.0, 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 

@@ -183,7 +183,7 @@ func _on_body_entered(body: Node) -> void:
 		return
 	if is_enemy_bullet and body.is_in_group("player"):
 		if body.has_method("take_damage"):
-			body.take_damage(damage, source_name, source_weapon)
+			body.take_damage(damage, source_name, source_weapon, -direction)
 		_spawn_blood()
 		if body.has_node("Camera2D"):
 			body.get_node("Camera2D").shake(6.0)

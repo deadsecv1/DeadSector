@@ -1182,12 +1182,22 @@ var _second_wind_used: bool = false
 var last_attacker_name: String = ""
 var last_attacker_weapon: String = ""
 
-func take_damage(amount: int, attacker_name: String = "", weapon_name: String = "") -> void:
+# Set on every take_damage() call (to the real direction, or explicitly
+# back to ZERO) so HUD.gd's health_changed handler - which fires
+# synchronously within the same call, before any other take_damage() can
+# run - can read exactly which direction (if any) THIS hit came from,
+# without needing a second signal rewired into every map script's
+# ammo_changed/health_changed connection block (Boneclock.gd, Main.gd,
+# VoidTrench.gd, etc - 10 of them).
+var last_hit_direction: Vector2 = Vector2.ZERO
+
+func take_damage(amount: int, attacker_name: String = "", weapon_name: String = "", hit_direction: Vector2 = Vector2.ZERO) -> void:
 	if not alive:
 		return
 	if attacker_name != "":
 		last_attacker_name = attacker_name
 		last_attacker_weapon = weapon_name
+	last_hit_direction = hit_direction.normalized() if hit_direction != Vector2.ZERO else Vector2.ZERO
 	# Armor: a new gear stat - flat percentage damage reduction, capped
 	# well short of 100% so gear can meaningfully soften hits without
 	# ever making the player fully immune to damage.
