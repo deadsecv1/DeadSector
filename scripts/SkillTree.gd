@@ -123,7 +123,9 @@ func _ready() -> void:
 	canvas_wrap.resized.connect(_center_canvas)
 	_center_canvas()
 	_build_nodes()
+	_wire_focus_neighbors()
 	refresh()
+	GameManager.focus_first_control(self)
 
 # The canvas is much bigger than the space it renders in (that's the
 # point - zoom lets you see all of it) - scale alone doesn't change how
@@ -204,6 +206,59 @@ func _build_nodes() -> void:
 
 		tree_canvas.add_child(btn)
 
+# Godot's built-in automatic focus_neighbor fallback (used whenever
+# Control.focus_neighbor_* is left as an empty NodePath) turned out not to
+# be good enough for this free-form layout when tested by hand - from
+# max_health (280,380), pressing Right landed on search_speed (350,520,
+# actually down-right) instead of damage (720,380, directly right and the
+# obviously correct pick). Wiring focus_neighbor_* explicitly, computed
+# once from NODE_POS, is what actually makes arrow-key/gamepad-stick
+# navigation feel correct here.
+func _wire_focus_neighbors() -> void:
+	for key in NODE_ORDER:
+		var btn: Button = tree_canvas.get_node("Node_%s" % key)
+		_wire_one_neighbor(btn, key, Vector2.RIGHT, "focus_neighbor_right")
+		_wire_one_neighbor(btn, key, Vector2.LEFT, "focus_neighbor_left")
+		_wire_one_neighbor(btn, key, Vector2.UP, "focus_neighbor_top")
+		var down_key := _find_neighbor_in_direction(key, Vector2.DOWN)
+		if down_key != "":
+			btn.focus_neighbor_bottom = btn.get_path_to(tree_canvas.get_node("Node_%s" % down_key))
+		else:
+			# A true bottom-edge node - bridge down into the Detail panel
+			# instead of a dead end. There's no gamepad equivalent to Tab,
+			# so without this a controller player could never reach the
+			# panel that actually buys the upgrade at all.
+			btn.focus_neighbor_bottom = btn.get_path_to(detail_button)
+
+func _wire_one_neighbor(btn: Button, key: String, direction: Vector2, neighbor_property: String) -> void:
+	var neighbor_key := _find_neighbor_in_direction(key, direction)
+	if neighbor_key != "":
+		btn.set(neighbor_property, btn.get_path_to(tree_canvas.get_node("Node_%s" % neighbor_key)))
+
+# Standard "nearest node in a direction" heuristic: only consider
+# candidates within a 60-degree cone of the requested direction
+# (dot > 0.5), then prefer whichever is closest, dividing by dot so an
+# off-axis candidate is penalized relative to a straighter one at the
+# same distance.
+func _find_neighbor_in_direction(from_key: String, direction: Vector2) -> String:
+	var from_pos: Vector2 = NODE_POS[from_key]
+	var best_key := ""
+	var best_score := INF
+	for key in NODE_ORDER:
+		if key == from_key:
+			continue
+		var offset: Vector2 = NODE_POS[key] - from_pos
+		if offset.length() < 0.001:
+			continue
+		var dot: float = offset.normalized().dot(direction)
+		if dot < 0.5:
+			continue
+		var score: float = offset.length() / dot
+		if score < best_score:
+			best_score = score
+			best_key = key
+	return best_key
+
 func _update_node_visual(key: String) -> void:
 	var btn: Button = tree_canvas.get_node("Node_%s" % key)
 	var lvl_label: Label = btn.get_node("LevelLabel")
@@ -230,7 +285,14 @@ func _update_node_visual(key: String) -> void:
 	btn.add_theme_stylebox_override("normal", sb)
 	btn.add_theme_stylebox_override("hover", sb)
 	btn.add_theme_stylebox_override("pressed", sb)
-	btn.add_theme_stylebox_override("focus", sb)
+	# A DISTINCT focus stylebox, not just a copy of sb - without this, a
+	# keyboard/gamepad player tabbing or arrow-navigating between nodes had
+	# no visual indication of where focus actually was, since "focus" was
+	# being overridden to look identical to "normal".
+	var focus_sb: StyleBoxFlat = sb.duplicate()
+	focus_sb.border_color = focus_sb.border_color.lightened(0.5)
+	focus_sb.set_border_width_all(5)
+	btn.add_theme_stylebox_override("focus", focus_sb)
 
 	var cost_text := "MAXED" if level >= max_level else "%d Artifacts or %d Skill Point to level up" % [GameManager.get_upgrade_cost(key), GameManager.SKILL_POINT_COST_PER_LEVEL]
 	btn.tooltip_text = "%s\n%s\n%s" % [u.get("label", key), u.get("desc", ""), cost_text]
@@ -256,6 +318,13 @@ func _show_detail(key: String) -> void:
 		detail_skill_point_button.visible = true
 		detail_skill_point_button.text = "Upgrade with %d Skill Point (have %d)" % [GameManager.SKILL_POINT_COST_PER_LEVEL, GameManager.skill_points]
 		detail_skill_point_button.disabled = not GameManager.can_afford_upgrade_with_skill_points(key)
+	# The static focus_neighbor_bottom wiring (see _wire_focus_neighbors)
+	# always enters the Detail panel at detail_button - this is the way
+	# back OUT, updated every time so "up" from the panel always returns
+	# to whichever node is actually selected, not a stale/fixed one.
+	var selected_node: Control = tree_canvas.get_node("Node_%s" % key)
+	detail_button.focus_neighbor_top = detail_button.get_path_to(selected_node)
+	detail_skill_point_button.focus_neighbor_top = detail_skill_point_button.get_path_to(selected_node)
 
 func _on_detail_buy() -> void:
 	if selected_key == "":
