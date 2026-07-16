@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/TheFoundry.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" path="res://scenes/House.tscn" id="12"]
 [ext_resource type="PackedScene" path="res://scenes/DebrisStash.tscn" id="13"]
 [ext_resource type="PackedScene" path="res://scenes/FlareBeacon.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://scenes/LoreObject.tscn" id="15"]
 
 [node name="TheFoundry" type="Node2D"]
 script = ExtResource("1")
@@ -626,6 +627,14 @@ position = Vector2(0, 1700)
 
 [node name="Enemy16" parent="." instance=ExtResource("8")]
 position = Vector2(0, 2500)
+
+[node name="LoreObjectFurnace" parent="." instance=ExtResource("15")]
+position = Vector2(-90, -250)
+lore_id = "foundry_furnace_log"
+
+[node name="LoreObjectShift" parent="." instance=ExtResource("15")]
+position = Vector2(-900, -1600)
+lore_id = "foundry_last_shift"
 
 [node name="HUD" parent="." instance=ExtResource("7")]
 

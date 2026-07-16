@@ -1187,6 +1187,10 @@ const CHANGELOG_CURRENT := [
 		"Whisper, a hooded info broker in the Hideout's southeast corner - always talkable, hands out a random rumor every visit, and gives one free Rubles+Artifacts tip per real day.",
 		"Old Harmon, a retired operator near the recruit cluster - trades in war stories, no gating, and hands over a small welcome gift (plus a new achievement) the first time you talk to him.",
 	]},
+	{"version": "3.77.0", "title": "Lore System: Scannable Objects", "notes": [
+		"14 scannable lore fragments hidden across every raid map and the Hideout, continuing the Collapse/Echo canon from the opening cutscene. Scanning one is permanent (never respawns once found) and grants a small Rubles+XP reward.",
+		"New \"Lore\" button on the Main Menu - browse everything you've found so far, with undiscovered entries shown as locked \"???\" rows. Some are placed in plain sight; a few are deliberately tucked away.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scripts/Hideout.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
@@ -28,6 +28,7 @@
 [ext_resource type="Script" path="res://scripts/RepairmanPanel.gd" id="27"]
 [ext_resource type="Script" path="res://scripts/WhisperPanel.gd" id="60"]
 [ext_resource type="Script" path="res://scripts/HarmonPanel.gd" id="61"]
+[ext_resource type="PackedScene" path="res://scenes/LoreObject.tscn" id="62"]
 [ext_resource type="Texture2D" path="res://assets/npcs/lildirty.png" id="25"]
 [ext_resource type="Texture2D" path="res://assets/npcs/justin.png" id="26"]
 
@@ -177,6 +178,14 @@ zone_size = Vector2(120, 110)
 prompt_text = "Press F: Talk to Old Harmon"
 speech_lines = Array[String](["Sit a while. I've got stories.", "You're still here. Good. Means you're doing something right.", "The Sector doesn't care how long you've been at it."])
 speech_bubble_offset = Vector2(0, -100)
+
+[node name="HideoutLoreObject1" parent="." instance=ExtResource("62")]
+position = Vector2(-800, -600)
+lore_id = "hideout_echo_ledger"
+
+[node name="HideoutLoreObject2" parent="." instance=ExtResource("62")]
+position = Vector2(300, 610)
+lore_id = "hideout_first_operative"
 
 [node name="BitcoinFarmDesk" parent="." instance=ExtResource("8")]
 position = Vector2(300, 150)

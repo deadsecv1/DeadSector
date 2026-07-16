@@ -2867,6 +2867,54 @@ func mark_collectible_seen(collectible_id: String) -> void:
 		seen_collectibles[collectible_id] = true
 		save_game()
 
+# --- Lore: scannable objects hand-placed in each raid map and the
+# Hideout (LoreObject.gd), continuing the Collapse/Echo/the-rifts canon
+# established in LoreIntro.gd. Unlike Collectible.gd's per-raid pickups,
+# a scan is PERMANENT and one-time-ever - found_lore_objects persists
+# across raids/saves the same "if not has(id): dict[id]=true; save_game()"
+# way discovered_enemies/seen_collectibles above already do, and
+# LoreObject.gd itself queue_free()s on _ready() if its id is already
+# found so an already-scanned object simply never appears again.
+const LORE_SCAN_RUBLES := 45
+const LORE_SCAN_XP := 25
+const LORE_ENTRIES := [
+	{"id": "overgrowth_lake_ledger", "title": "The Lake Ledger", "location": "Overgrowth", "text": "A waterlogged shipping manifest, half-dissolved. What's still legible lists crates of \"personnel preservation stock\" bound for a facility that doesn't appear on any surviving map. The boat that was supposed to deliver it never left the dock."},
+	{"id": "overgrowth_spike_cage", "title": "Spike's Cage", "location": "Overgrowth", "text": "Scratched into the inside of the arena wall, over and over, in a hand that got shakier every line: \"IT WAS ALREADY HERE WHEN THEY BUILT THE FENCE.\" Whoever wrote it stopped writing before they finished the sentence a second time."},
+	{"id": "boneclock_tower_log", "title": "The Clocktower Log", "location": "Boneclock", "text": "A maintenance log for a clock that, according to every entry, was already broken. The last technician's final note just reads: \"Stopped trying to fix the hands. Started counting what it counts instead. Don't recommend it.\""},
+	{"id": "boneclock_bone_count", "title": "Rattles' Bone Count", "location": "Boneclock", "text": "A tally, carved deep into stone, organized by a system nobody's ever fully worked out. Some say it's a body count. Some say it's a countdown. Either way, it's still going up."},
+	{"id": "void_trench_rift_report", "title": "The Rift Report", "location": "Void Trench", "text": "An incident report, corporate letterhead still intact, describing \"localized spatial instability\" at the excavation site. The recommended response was redacted. Whatever the fallback plan was, it clearly didn't work."},
+	{"id": "void_trench_pulse_spire", "title": "Pulse Spire Blueprint", "location": "Void Trench", "text": "Schematics for the Pulse Spires, labeled as \"signal disruption infrastructure\" - built, according to the notes, to keep something from calling out. Nobody wrote down what they were worried it was calling to."},
+	{"id": "graveyard_bowl_inscription", "title": "The Spectral Bowl Inscription", "location": "The Graveyard", "text": "Worn text ringing the bowl's rim, in a language that's almost readable and almost isn't. The one phrase every visitor agrees on translating the same way: \"Bring them back gently, or don't bring them back at all.\""},
+	{"id": "graveyard_headstone_name", "title": "A Name on a Headstone", "location": "The Graveyard", "text": "One headstone here has no death date - just a name, and underneath it, freshly re-carved more than once over what must have been years. Somebody keeps coming back to make sure it's still legible."},
+	{"id": "ironscrap_manifest", "title": "The Scrapyard Manifest", "location": "Ironscrap Yard", "text": "An inventory sheet cataloging \"decommissioned assets\" by weight, not by name or function. Every single line item on the third page has been crossed out by hand, in a red that isn't ink."},
+	{"id": "ironscrap_vault_warning", "title": "Vault Crate Warning Label", "location": "Ironscrap Yard", "text": "A hazard label bolted to the guarded vault crate, still bright yellow after everything else has rusted. It doesn't say what's inside. It just says, in smaller print underneath the warning triangle: \"Do not let it count you.\""},
+	{"id": "foundry_furnace_log", "title": "The Furnace Log", "location": "The Foundry", "text": "A shift log, entries getting shorter and shorter, until the final one is just: \"Furnace still running. Nobody's fed it in six days. Not going to be the one who asks how.\""},
+	{"id": "foundry_last_shift", "title": "The Last Shift", "location": "The Foundry", "text": "A time card, clocked in but never clocked out, pinned to the wall next to dozens of identical ones. Someone's added a hand-written note under the newest: \"Building's still warm. That's not the same as running.\""},
+	{"id": "hideout_echo_ledger", "title": "Echo's Old Ledger", "location": "Hideout", "text": "Tucked in a corner nobody bothers to check, a ledger in handwriting that matches nothing else in the Hideout - names, dates, and outcomes, going back further than anyone currently here has been around for. Echo's, presumably. He's never confirmed it, and nobody's asked twice."},
+	{"id": "hideout_first_operative", "title": "The First Operative", "location": "Hideout", "text": "A faded ID badge, photo long since bleached out, filed under a drawer of things nobody's claimed. The name on it doesn't match anyone in the Hideout now. According to Echo's ledger, if you know where to look, it's the very first entry."},
+]
+
+func is_lore_object_found(lore_id: String) -> bool:
+	return found_lore_objects.has(lore_id)
+
+func scan_lore_object(lore_id: String) -> void:
+	if lore_id == "" or found_lore_objects.has(lore_id):
+		return
+	found_lore_objects[lore_id] = true
+	add_currency("rubles", LORE_SCAN_RUBLES)
+	grant_xp(LORE_SCAN_XP)
+	var entry := get_lore_entry(lore_id)
+	toast_requested.emit("Lore Found: %s" % str(entry.get("title", lore_id)))
+	save_game()
+
+func get_lore_entry(lore_id: String) -> Dictionary:
+	for entry in LORE_ENTRIES:
+		if entry.get("id", "") == lore_id:
+			return entry
+	return {}
+
+var found_lore_objects: Dictionary = {}
+
 const MAP_CATALOG := {
 	"overgrowth": {"name": "Overgrowth", "icon_key": "map_overgrowth_icon", "color": Color(0.45, 0.8, 0.45, 1), "desc": "Overgrown houses, a lake with a boat and floating loot, a radiation zone, and Spike's boss arena. Home to Blossoms and the Wandering Trader."},
 	"boneclock": {"name": "Boneclock", "icon_key": "map_boneclock_icon", "color": Color(0.8, 0.75, 0.55, 1), "desc": "A dead town locked behind Level 10 - pavement streets, a gas station, the Skeleton Cave, and Rattles' Bone Clocktower. Only reachable at night from Overgrowth's discovery quest chain."},
@@ -6142,6 +6190,7 @@ func reset_character() -> void:
 	rose_talked_to = false
 	harmon_talked_to = false
 	whisper_tip_day = -1
+	found_lore_objects = {}
 	recruit_equipment = {
 		"clarity": {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null},
 		"sorrow": {"head": null, "body": null, "weapon": null, "accessory": null, "boots": null},
@@ -7922,6 +7971,7 @@ func save_game() -> void:
 		"achievement_flag_multiversal_pull": achievement_flag_multiversal_pull,
 		"achievement_flag_close_call": achievement_flag_close_call,
 		"rose_talked_to": rose_talked_to, "harmon_talked_to": harmon_talked_to, "whisper_tip_day": whisper_tip_day,
+		"found_lore_objects": found_lore_objects,
 	}
 	if test_mode:
 		return
@@ -8300,6 +8350,9 @@ func load_game() -> void:
 	rose_talked_to = bool(parsed.get("rose_talked_to", false))
 	harmon_talked_to = bool(parsed.get("harmon_talked_to", false))
 	whisper_tip_day = int(parsed.get("whisper_tip_day", -1))
+	var loaded_lore_objects = parsed.get("found_lore_objects", null)
+	if typeof(loaded_lore_objects) == TYPE_DICTIONARY:
+		found_lore_objects = loaded_lore_objects
 	var loaded_keybinds = parsed.get("keybinds", null)
 	if typeof(loaded_keybinds) == TYPE_DICTIONARY:
 		for action in KEYBIND_DEFAULTS.keys():

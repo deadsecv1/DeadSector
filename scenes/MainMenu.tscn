@@ -1,4 +1,4 @@
-[gd_scene load_steps=47 format=3]
+[gd_scene load_steps=48 format=3]
 
 [ext_resource type="Script" path="res://scripts/MainMenu.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/DailyBountiesPanel.tscn" id="DailyBountiesPanel"]
@@ -48,6 +48,7 @@
 [ext_resource type="Script" path="res://scripts/GuildButton.gd" id="162"]
 [ext_resource type="PackedScene" path="res://scenes/GuildBattlePassPanel.tscn" id="163"]
 [ext_resource type="PackedScene" path="res://scenes/SeasonPassPanel.tscn" id="170"]
+[ext_resource type="PackedScene" path="res://scenes/LorePanel.tscn" id="171"]
 [ext_resource type="Script" path="res://scripts/DataPanel.gd" id="19"]
 [ext_resource type="Script" path="res://scripts/BloodlineButton.gd" id="20"]
 [ext_resource type="Script" path="res://scripts/BloodlinePanel.gd" id="21"]
@@ -202,6 +203,26 @@ text = "What's New?"
 script = ExtResource("16")
 
 [node name="Glow" type="ColorRect" parent="WhatsNewButton"]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -6.0
+offset_top = -6.0
+offset_right = 6.0
+offset_bottom = 6.0
+color = Color(0.03, 0.03, 0.03, 0)
+
+[node name="LoreButton" type="Button" parent="."]
+offset_left = 16.0
+offset_top = 168.0
+offset_right = 130.0
+offset_bottom = 198.0
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.68, 0.5, 0.98, 1)
+text = "Lore"
+script = ExtResource("16")
+
+[node name="Glow" type="ColorRect" parent="LoreButton"]
 show_behind_parent = true
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -1852,6 +1873,8 @@ color = Color(0.02, 0.02, 0.02, 0)
 [node name="GuildBattlePassPanel" parent="." instance=ExtResource("163")]
 
 [node name="SeasonPassPanel" parent="." instance=ExtResource("170")]
+
+[node name="LorePanel" parent="." instance=ExtResource("171")]
 
 [node name="FeedbackPanel" parent="." instance=ExtResource("45")]
 

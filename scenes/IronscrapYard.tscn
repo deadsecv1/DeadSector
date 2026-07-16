@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/IronscrapYard.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" path="res://scenes/SupplyDropManager.tscn" id="17"]
 [ext_resource type="PackedScene" path="res://scenes/RustShard.tscn" id="18"]
 [ext_resource type="Script" path="res://scripts/MovingCar.gd" id="19"]
+[ext_resource type="PackedScene" path="res://scenes/LoreObject.tscn" id="20"]
 
 [node name="IronscrapYard" type="Node2D"]
 script = ExtResource("1")
@@ -1305,6 +1306,14 @@ flare_color = Color(0.9, 0.75, 0.35, 1)
 [node name="DeepStackFloodlight" parent="." instance=ExtResource("16")]
 position = Vector2(900, 3040)
 flare_color = Color(0.75, 0.35, 0.95, 1)
+
+[node name="LoreObjectManifest" parent="." instance=ExtResource("20")]
+position = Vector2(-750, -3350)
+lore_id = "ironscrap_manifest"
+
+[node name="LoreObjectVaultWarning" parent="." instance=ExtResource("20")]
+position = Vector2(500, -650)
+lore_id = "ironscrap_vault_warning"
 
 [node name="HUD" parent="." instance=ExtResource("7")]
 

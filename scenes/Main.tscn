@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3]
+[gd_scene load_steps=41 format=3]
 
 [ext_resource type="Script" path="res://scripts/Main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
@@ -38,6 +38,7 @@
 [ext_resource type="PackedScene" path="res://scenes/House.tscn" id="37"]
 [ext_resource type="PackedScene" path="res://scenes/Marauder.tscn" id="38"]
 [ext_resource type="PackedScene" path="res://scenes/Sentinel.tscn" id="39"]
+[ext_resource type="PackedScene" path="res://scenes/LoreObject.tscn" id="40"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_housea"]
 size = Vector2(462.5, 212.5)
@@ -484,6 +485,10 @@ position = Vector2(-250, 1140)
 [node name="Spike" parent="." instance=ExtResource("16")]
 position = Vector2(-200, 1000)
 
+[node name="LoreObjectSpike" parent="." instance=ExtResource("40")]
+position = Vector2(0, 1000)
+lore_id = "overgrowth_spike_cage"
+
 [node name="NoxiousBat1" parent="." instance=ExtResource("18")]
 position = Vector2(300, -700)
 
@@ -698,6 +703,10 @@ pickup_type = "helicopter"
 
 [node name="LakeDockFlare" parent="." instance=ExtResource("25")]
 position = Vector2(1935, 1100)
+
+[node name="LoreObjectLake" parent="." instance=ExtResource("40")]
+position = Vector2(1800, 930)
+lore_id = "overgrowth_lake_ledger"
 
 [node name="Container1" parent="." instance=ExtResource("14")]
 position = Vector2(-1500, 900)

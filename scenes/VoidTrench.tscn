@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://scripts/VoidTrench.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
@@ -23,6 +23,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ToxicWaste.tscn" id="21"]
 [ext_resource type="PackedScene" path="res://scenes/Barrel.tscn" id="22"]
 [ext_resource type="PackedScene" path="res://scenes/Crate.tscn" id="23"]
+[ext_resource type="PackedScene" path="res://scenes/LoreObject.tscn" id="24"]
 
 [node name="VoidTrench" type="Node2D"]
 script = ExtResource("1")
@@ -901,6 +902,14 @@ position = Vector2(2400, 100)
 
 [node name="RoamingToxicWaste2" parent="." instance=ExtResource("21")]
 position = Vector2(900, 1450)
+
+[node name="LoreObjectRift" parent="." instance=ExtResource("24")]
+position = Vector2(-680, -780)
+lore_id = "void_trench_rift_report"
+
+[node name="LoreObjectSpire" parent="." instance=ExtResource("24")]
+position = Vector2(-150, -820)
+lore_id = "void_trench_pulse_spire"
 
 [node name="Player" parent="." instance=ExtResource("2")]
 position = Vector2(0, -650)

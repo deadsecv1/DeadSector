@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://scripts/Graveyard.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
@@ -18,6 +18,7 @@
 [ext_resource type="PackedScene" path="res://scenes/House.tscn" id="16"]
 [ext_resource type="PackedScene" path="res://scenes/DebrisStash.tscn" id="17"]
 [ext_resource type="PackedScene" path="res://scenes/Ghoul.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://scenes/LoreObject.tscn" id="19"]
 
 [node name="Graveyard" type="Node2D"]
 script = ExtResource("1")
@@ -165,6 +166,10 @@ pacified_pet_type = "shade_hound"
 [node name="SpectralBowl2" parent="." instance=ExtResource("12")]
 position = Vector2(500, 350)
 pacified_pet_type = "wailing_crow"
+
+[node name="LoreObjectBowl" parent="." instance=ExtResource("19")]
+position = Vector2(-160, 30)
+lore_id = "graveyard_bowl_inscription"
 
 [node name="GraveyardChest1" parent="." instance=ExtResource("6")]
 position = Vector2(-850, 300)
@@ -730,6 +735,10 @@ polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
 position = Vector2(-1980, 900)
 color = Color(0.31, 0.31, 0.33, 1)
 polygon = PackedVector2Array(-8, 14, -8, -8, -5, -14, 5, -14, 8, -8, 8, 14)
+
+[node name="LoreObjectHeadstone" parent="." instance=ExtResource("19")]
+position = Vector2(-1950, 970)
+lore_id = "graveyard_headstone_name"
 
 [node name="WidowsRowLabel" type="Label" parent="."]
 position = Vector2(-2060, 830)
