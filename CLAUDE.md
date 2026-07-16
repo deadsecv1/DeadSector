@@ -208,6 +208,22 @@ either function:
   designed values on some popup panels. Where this has been hit, the fix is
   to force the exact designed anchor + offset values in the panel's `open()`
   rather than trusting the `.tscn`-authored defaults.
+- **A `.tscn` node's custom `@export var` overrides must be listed AFTER
+  `script = ExtResource(...)` in that node's property block, not before.**
+  Godot applies `.tscn` property lines in file order, and a custom export
+  isn't recognized as a settable property until the script actually
+  attaches - a property listed before `script =` silently fails to apply
+  (no warning printed) and the script's own default value wins instead.
+  Native properties (`z_index`, `scale`, etc.) are unaffected either way.
+  This bit 7 enemy scenes at once (Ghost/Ghoul/Marauder/NoxiousBat/
+  RiftWraith/Sentinel/Skeleton/ToxicWaste all had `enemy_type_id`/
+  `use_external_sprite` before `script=`), silently forcing every one of
+  them onto the generic fallback sprite instead of their own art. Caught
+  by instantiating the scene and checking the LIVE property value, not by
+  re-reading the `.tscn` text - reading the file told a completely
+  different (wrong) story than what actually loads. If a `.tscn` node has
+  a script with custom exports, put `script =` as that node's first
+  property, always.
 
 ## Controller/gamepad support
 
