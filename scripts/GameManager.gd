@@ -6082,6 +6082,33 @@ func _unhandled_input(event: InputEvent) -> void:
 		using_gamepad = false
 	if using_gamepad != was_gamepad:
 		input_device_changed.emit(using_gamepad)
+		_update_focus_ring_visibility()
+
+# The engine's default "focus" StyleBox for Button (a plain white outline)
+# is exactly what focus_first_control() below needs SOMEONE to be able to
+# see - but only a gamepad player, who's actually navigating by focus.
+# Without this, a mouse player returning to a screen would see a stray
+# white outline around whatever happened to be the first focusable button
+# in scene-tree order (e.g. Main Menu's Roadmap button, simply because
+# it's declared before the others), which reads as a bug, not a feature.
+# Swapping the theme's default OUT for a StyleBoxEmpty while using_gamepad
+# is false - and back to the real one the instant a controller is
+# touched - means grab_focus() can still run unconditionally everywhere
+# (so gamepad navigation is instant, no first-frame delay) while staying
+# invisible clutter for the vast majority of players who never touch a
+# controller at all.
+var _default_button_focus_stylebox: StyleBox = null
+
+func _init_focus_ring_visibility() -> void:
+	var theme := ThemeDB.get_default_theme()
+	_default_button_focus_stylebox = theme.get_stylebox("focus", "Button")
+	_update_focus_ring_visibility()
+
+func _update_focus_ring_visibility() -> void:
+	if _default_button_focus_stylebox == null:
+		return
+	var theme := ThemeDB.get_default_theme()
+	theme.set_stylebox("focus", "Button", _default_button_focus_stylebox if using_gamepad else StyleBoxEmpty.new())
 
 # Call when a panel becomes visible - grabs focus on the first focusable
 # descendant so ui_up/down/left/right/accept has somewhere to start from.
@@ -6202,6 +6229,7 @@ func _ready() -> void:
 	_setup_audio_buses()
 	_crosshair_texture = _make_crosshair_texture()
 	_menu_cursor_texture = _make_menu_cursor_texture()
+	_init_focus_ring_visibility()
 	load_game()
 	_reroll_featured_skins()
 	_roll_scav_loadout()
