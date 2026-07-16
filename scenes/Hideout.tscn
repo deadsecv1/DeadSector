@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/Hideout.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2"]
@@ -25,6 +25,7 @@
 [ext_resource type="PackedScene" path="res://scenes/PlushiePetReveal.tscn" id="22"]
 [ext_resource type="PackedScene" path="res://scenes/PlushiesPanel.tscn" id="23"]
 [ext_resource type="PackedScene" path="res://scenes/WanderingPlushie.tscn" id="24"]
+[ext_resource type="Script" path="res://scripts/RepairmanPanel.gd" id="27"]
 [ext_resource type="Texture2D" path="res://assets/npcs/lildirty.png" id="25"]
 [ext_resource type="Texture2D" path="res://assets/npcs/justin.png" id="26"]
 
@@ -153,6 +154,13 @@ text = "Workbench"
 position = Vector2(-350, 110)
 zone_size = Vector2(140, 130)
 prompt_text = "Press F: Use Workbench"
+
+[node name="RepairmanStation" parent="." instance=ExtResource("5")]
+position = Vector2(100, 180)
+zone_size = Vector2(130, 120)
+prompt_text = "Press F: Talk to Torque"
+speech_lines = Array[String](["Bring me your busted gear. I fix busted gear.", "Everything wears down eventually. That's what I'm here for.", "Rubles get it running again. Simple as that."])
+speech_bubble_offset = Vector2(0, -110)
 
 [node name="BitcoinFarmDesk" parent="." instance=ExtResource("8")]
 position = Vector2(300, 150)
@@ -310,6 +318,58 @@ theme_override_colors/font_color = Color(0.85, 0.2, 0.25, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
 theme_override_constants/outline_size = 3
 text = "The Undertow's Table"
+
+[node name="TorqueToolbox" type="Polygon2D" parent="."]
+position = Vector2(160, 220)
+color = Color(0.3, 0.28, 0.12, 1)
+polygon = PackedVector2Array(-22, -14, 22, -14, 22, 14, -22, 14)
+
+[node name="TorqueToolboxLid" type="Polygon2D" parent="."]
+position = Vector2(160, 208)
+color = Color(0.85, 0.65, 0.15, 1)
+polygon = PackedVector2Array(-22, -4, 22, -4, 22, 2, -22, 2)
+
+[node name="Torque" type="Node2D" parent="."]
+position = Vector2(100, 140)
+scale = Vector2(1.4, 1.4)
+
+[node name="TorqueShadow" type="Polygon2D" parent="Torque"]
+position = Vector2(0, 26)
+color = Color(0, 0, 0, 0.25)
+polygon = PackedVector2Array(-14, 0, 14, 0, 11, 8, -11, 8)
+
+[node name="TorqueLegs" type="Polygon2D" parent="Torque"]
+position = Vector2(0, 12)
+color = Color(0.25, 0.24, 0.26, 1)
+polygon = PackedVector2Array(-7, 0, 7, 0, 5, 20, -5, 20)
+
+[node name="TorqueBody" type="Polygon2D" parent="Torque"]
+color = Color(0.72, 0.38, 0.14, 1)
+polygon = PackedVector2Array(-11, 0, 11, 0, 9.5, 6.4, 5.5, 11, 0, 12.8, -5.5, 11, -9.5, 6.4)
+
+[node name="TorqueHead" type="Polygon2D" parent="Torque"]
+position = Vector2(0, -22)
+color = Color(0.75, 0.58, 0.48, 1)
+polygon = PackedVector2Array(7, 0, 5.7, 4.1, 2.2, 6.7, -2.2, 6.7, -5.7, 4.1, -7, 0, -5.7, -4.1, -2.2, -6.7, 2.2, -6.7, 5.7, -4.1)
+
+[node name="TorqueGoggles" type="Polygon2D" parent="Torque"]
+position = Vector2(0, -25)
+color = Color(0.12, 0.12, 0.14, 1)
+polygon = PackedVector2Array(-7, -2, 7, -2, 7, 2, -7, 2)
+
+[node name="TorqueWrench" type="Polygon2D" parent="Torque"]
+position = Vector2(12, 4)
+rotation = 0.6
+color = Color(0.55, 0.55, 0.58, 1)
+polygon = PackedVector2Array(-2, -10, 2, -10, 2, 8, -2, 8)
+
+[node name="TorqueLabel" type="Label" parent="."]
+position = Vector2(35, 95)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.85, 0.55, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "Torque - The Repairman"
 
 [node name="JustinAnvil" type="Polygon2D" parent="."]
 position = Vector2(600, 355)
@@ -905,6 +965,77 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
 [node name="CloseButton" type="Button" parent="HideoutUI/WorkbenchPanel/VBox"]
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 16
+text = "Close"
+
+[node name="RepairmanPanel" type="Panel" parent="HideoutUI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -240.0
+offset_right = 260.0
+offset_bottom = 240.0
+visible = false
+script = ExtResource("27")
+
+[node name="Backdrop" type="ColorRect" parent="HideoutUI/RepairmanPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.09, 0.07, 0.05, 0.97)
+
+[node name="DystoBG" type="Control" parent="HideoutUI/RepairmanPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("14")
+
+[node name="VBox" type="VBoxContainer" parent="HideoutUI/RepairmanPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="HideoutUI/RepairmanPanel/VBox"]
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.85, 0.55, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 3
+text = "TORQUE - REPAIRS"
+
+[node name="Subtitle" type="Label" parent="HideoutUI/RepairmanPanel/VBox"]
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.7)
+text = "Fix worn or broken weapons and armor for Rubles - equipped gear and anything sitting in your Stash."
+
+[node name="EmptyLabel" type="Label" parent="HideoutUI/RepairmanPanel/VBox"]
+horizontal_alignment = 1
+autowrap_mode = 2
+modulate = Color(1, 1, 1, 0.6)
+theme_override_font_sizes/font_size = 14
+text = "Everything you own is in good shape. Come back once something's worn down."
+visible = false
+
+[node name="ListScroll" type="ScrollContainer" parent="HideoutUI/RepairmanPanel/VBox"]
+size_flags_vertical = 3
+
+[node name="ItemList" type="VBoxContainer" parent="HideoutUI/RepairmanPanel/VBox/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="CloseButton" type="Button" parent="HideoutUI/RepairmanPanel/VBox"]
 custom_minimum_size = Vector2(0, 44)
 theme_override_font_sizes/font_size = 16
 text = "Close"

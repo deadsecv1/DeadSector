@@ -1167,6 +1167,11 @@ const CHANGELOG_CURRENT := [
 		"Alpha/Tech-Test exclusive gear (The Prototype, Tech Tester's Sidearm, Alpha Pioneer's Rig, Veteran's Plate, Early Access Visor, Founder's Boots) now has its own rarity, Monochrome, above Godforged - fixes dragging or equipping one showing its old color (like Legendary orange) instead of the white chrome look it always had in the Stash.",
 		"Swapped Exotic and Mythic's positions on the rarity ladder - Mythic is now the rarer of the two everywhere: sort order, loot bag/egg/crate/plushie/flea market odds, boss-kill guaranteed drops, and which weapons get the top-tier multi-projectile bonus.",
 	]},
+	{"version": "3.72.0", "title": "Weapon & Armor Durability, and a New Repairman", "notes": [
+		"Weapons and armor now wear down with use - firing a gun and taking hits both cost a little durability, and a worn piece contributes proportionally less of its stat bonus. A weapon at 0 durability is BROKEN and can't fire at all until repaired.",
+		"Torque, a new NPC in the Hideout, repairs any equipped or stashed item below full durability back to 100% for Rubles - cost scales with how worn the item is and its own value.",
+		"Tooltips and the Inspect screen both show a durability readout on any weapon/armor item, color-coded from green (healthy) to red (broken).",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

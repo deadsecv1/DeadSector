@@ -98,6 +98,16 @@ static func build(item: Dictionary) -> Control:
 	vbox.add_child(slot_lbl)
 	content_h += _line_height(13) + 4.0
 
+	if GameManager.has_durability(item):
+		var durability := GameManager.get_item_durability(item)
+		var dur_lbl := Label.new()
+		dur_lbl.text = "BROKEN - Needs Repair" if durability <= 0.0 else "Durability: %d%%" % int(round(durability))
+		dur_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		dur_lbl.add_theme_font_size_override("font_size", 12)
+		dur_lbl.add_theme_color_override("font_color", _durability_color(durability))
+		vbox.add_child(dur_lbl)
+		content_h += _line_height(12) + 4.0
+
 	var stat_lbl := Label.new()
 	stat_lbl.text = _stat_text(item)
 	stat_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -206,6 +216,15 @@ static func build(item: Dictionary) -> Control:
 	# Godot's tooltip popup sizes itself to this instead of guessing.
 	panel.custom_minimum_size.y = content_h + 6.0
 	return panel
+
+static func _durability_color(durability: float) -> Color:
+	if durability <= 0.0:
+		return Color(1.0, 0.3, 0.3, 1)
+	if durability <= 30.0:
+		return Color(1.0, 0.6, 0.3, 1)
+	if durability <= 65.0:
+		return Color(0.95, 0.85, 0.4, 1)
+	return Color(0.6, 0.9, 0.6, 1)
 
 static func _stat_text(item: Dictionary) -> String:
 	var parts: Array = []

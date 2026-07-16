@@ -141,6 +141,13 @@ func _build_description(item: Dictionary) -> String:
 	if stat_type_2 != "" and float(stat_value_2) != 0.0:
 		parts.append("Also grants +%s %s." % [str(stat_value_2), stat_label_map.get(stat_type_2, stat_type_2.capitalize())])
 
+	if GameManager.has_durability(item):
+		var durability := GameManager.get_item_durability(item)
+		if durability <= 0.0:
+			parts.append("BROKEN - needs repair before it's usable again. The Hideout Repairman can fix it.")
+		else:
+			parts.append("Durability: %d%%." % int(round(durability)))
+
 	var value: int = int(item.get("value", 0))
 	if value > 0:
 		parts.append("Worth %d Rubles." % value)

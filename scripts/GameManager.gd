@@ -1338,6 +1338,69 @@ func buy_attachment_for_weapon(weapon_item: Dictionary, pool_entry: Dictionary, 
 	notify_event("equip_attachment")
 	return true
 
+# --- Durability: weapons and armor wear down with use and can be restored
+# to full by the Repairman (Hideout Station) for Rubles. Deliberately NOT
+# stamped onto every item at creation, same lazy-default spirit as
+# get_weapon_attachments_for() above - an item with no "durability" key
+# (including every item that existed in a save from before this feature
+# shipped) simply reads back as pristine via the .get() default.
+const DURABILITY_SLOTS := ["weapon", "head", "body", "boots", "backpack", "accessory", "helmet_attachment"]
+const WEAPON_DURABILITY_LOSS_PER_SHOT := 0.4
+const ARMOR_DURABILITY_LOSS_PER_HIT := 2.0
+
+func has_durability(item: Dictionary) -> bool:
+	return item.get("slot", "") in DURABILITY_SLOTS
+
+func get_item_durability(item: Dictionary) -> float:
+	return clamp(float(item.get("durability", 100.0)), 0.0, 100.0)
+
+func is_item_broken(item) -> bool:
+	if item == null:
+		return false
+	return has_durability(item) and get_item_durability(item) <= 0.0
+
+# Mutates the item dict in place - safe everywhere the same reference is
+# shared (equipped doll, Stash, loadout presets), same as attachments above.
+func damage_item_durability(item: Dictionary, amount: float) -> void:
+	if not has_durability(item):
+		return
+	item["durability"] = clamp(get_item_durability(item) - amount, 0.0, 100.0)
+
+# Repair cost scales with how damaged the item is and its own value, so a
+# scuffed common pistol is pocket change and a badly-worn mythic rifle
+# actually costs something.
+func get_repair_cost(item: Dictionary) -> int:
+	var missing: float = 100.0 - get_item_durability(item)
+	if missing <= 0.0:
+		return 0
+	return max(5, int(round(float(item.get("value", 20)) * (missing / 100.0) * 0.6)))
+
+func repair_item(item: Dictionary) -> bool:
+	var cost := get_repair_cost(item)
+	if cost <= 0:
+		return true
+	if not spend_currency("rubles", cost):
+		toast_requested.emit("Not enough Rubles to repair that")
+		return false
+	item["durability"] = 100.0
+	toast_requested.emit("Repaired %s" % item.get("name", "item"))
+	equipped_changed.emit()
+	save_game()
+	return true
+
+# Every equipped + stashed item currently below full durability - what the
+# Repairman panel lists.
+func get_repairable_items() -> Array:
+	var out: Array = []
+	for slot in equipped_items:
+		var item = equipped_items[slot]
+		if item != null and has_durability(item) and get_item_durability(item) < 100.0:
+			out.append(item)
+	for item in stash_items:
+		if has_durability(item) and get_item_durability(item) < 100.0:
+			out.append(item)
+	return out
+
 # Removes and returns a carried item (used when consuming a hotbar item).
 func consume_carried_item(index: int) -> Dictionary:
 	if index < 0 or index >= carried_loot.size():
@@ -8860,20 +8923,24 @@ func get_equipped_bonus(stat_type: String) -> float:
 		if item != null:
 			var is_armor_slot: bool = slot == "head" or slot == "body"
 			var is_weapon_slot: bool = slot == "weapon"
+			# Worn-down gear contributes proportionally less, down to nothing
+			# at 0 durability (a broken weapon is separately blocked from
+			# firing at all in Player.gd, rather than just dealing 0 damage).
+			var durability_mult: float = get_item_durability(item) / 100.0 if has_durability(item) else 1.0
 			if item.get("stat_type", "") == stat_type:
 				var v := float(item.get("stat_value", 0.0))
 				if is_armor_slot and stat_type == "max_health":
 					v *= ARMOR_HEALTH_MULT
 				if is_weapon_slot and stat_type == "damage":
 					v *= WEAPON_DAMAGE_MULT
-				total += v
+				total += v * durability_mult
 			if item.get("stat_type_2", "") == stat_type:
 				var v2 := float(item.get("stat_value_2", 0.0))
 				if is_armor_slot and stat_type == "max_health":
 					v2 *= ARMOR_HEALTH_MULT
 				if is_weapon_slot and stat_type == "damage":
 					v2 *= WEAPON_DAMAGE_MULT
-				total += v2
+				total += v2 * durability_mult
 	var weapon = equipped_items.get("weapon")
 	if weapon != null and weapon.has("attachments"):
 		var attachments: Dictionary = weapon["attachments"]
@@ -9228,13 +9295,16 @@ func delete_loadout_preset(slot_index: int) -> void:
 # Matches two items ignoring their grid position, since the SAME item
 # will almost always have moved since a preset was saved.
 func _items_match_ignoring_position(a: Dictionary, b: Dictionary) -> bool:
+	# durability is excluded the same way grid_x/grid_y are - a saved
+	# Loadout Preset should still find its weapon/armor after combat wear
+	# has changed the number, not treat it as a different item.
 	for key in b.keys():
-		if key == "grid_x" or key == "grid_y":
+		if key == "grid_x" or key == "grid_y" or key == "durability":
 			continue
 		if not a.has(key) or a[key] != b[key]:
 			return false
 	for key in a.keys():
-		if key == "grid_x" or key == "grid_y":
+		if key == "grid_x" or key == "grid_y" or key == "durability":
 			continue
 		if not b.has(key):
 			return false

@@ -818,8 +818,12 @@ func _handle_shoot() -> void:
 		# equipped - current_mag/can_shoot still worked off the "pistol"
 		# fallback icon used for cosmetic purposes when unarmed, so you
 		# could still fire with no weapon equipped at all.
-		if lmb_down and can_shoot and not is_reloading and GameManager.equipped_items.get("weapon") != null:
-			if current_mag > 0:
+		var equipped_weapon_now = GameManager.equipped_items.get("weapon")
+		if lmb_down and can_shoot and not is_reloading and equipped_weapon_now != null:
+			if GameManager.is_item_broken(equipped_weapon_now):
+				if not _lmb_was_down:
+					GameManager.toast_requested.emit("Weapon is broken - repair it at the Hideout")
+			elif current_mag > 0:
 				_shoot()
 		_lmb_was_down = lmb_down
 		return
@@ -987,6 +991,8 @@ func _shoot() -> void:
 	var base_angle: float = base_dir.angle()
 
 	var equipped_weapon = GameManager.equipped_items.get("weapon")
+	if equipped_weapon != null:
+		GameManager.damage_item_durability(equipped_weapon, GameManager.WEAPON_DURABILITY_LOSS_PER_SHOT)
 	var weapon_rarity: String = str(equipped_weapon.get("rarity", "common")) if equipped_weapon != null else "common"
 	var is_top_tier_weapon: bool = weapon_rarity in ["mythic", "multiversal", "divine"]
 	var is_tech_tester_sidearm: bool = weapon_icon == "pistol" and equipped_weapon != null and equipped_weapon.get("beta_only", false)
@@ -1183,6 +1189,14 @@ func take_damage(amount: int, attacker_name: String = "", weapon_name: String = 
 	var armor_pct: float = clamp(GameManager.get_equipped_bonus("armor"), 0.0, 60.0)
 	if armor_pct > 0.0:
 		amount = int(round(amount * (1.0 - armor_pct / 100.0)))
+	# Worn armor takes wear from every hit absorbed, regardless of source
+	# (bullet, fire tick, radiation, spike aura) - it's on your body either way.
+	var equipped_head = GameManager.equipped_items.get("head")
+	var equipped_body = GameManager.equipped_items.get("body")
+	if equipped_head != null:
+		GameManager.damage_item_durability(equipped_head, GameManager.ARMOR_DURABILITY_LOSS_PER_HIT)
+	if equipped_body != null:
+		GameManager.damage_item_durability(equipped_body, GameManager.ARMOR_DURABILITY_LOSS_PER_HIT)
 	health -= amount
 	if health <= 0 and GameManager.player_trait == "second_wind" and not _second_wind_used:
 		_second_wind_used = true
