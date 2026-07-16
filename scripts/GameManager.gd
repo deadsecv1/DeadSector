@@ -8535,15 +8535,52 @@ func peek_next_carried_cell() -> Vector2i:
 
 # --- Search UX helpers: Chest/Corpse call these instead of emitting the
 # signals directly, so GameManager "uses" its own signals (keeps the editor
-# from flagging them as unused) and callers don't need signal-emit syntax. ---
-func start_search(items: Array, duration: float) -> void:
+# from flagging them as unused) and callers don't need signal-emit syntax.
+#
+# Items used to only actually land in vicinity_items in one batch, added by
+# the CALLER after its own search loop finished - VicinityPanel.gd's
+# "revealed" tiles during the search were purely a visual preview with
+# nothing real behind them yet, which is why clicking one to claim it early
+# never worked. Tracking the item list and a revealed-count HERE instead
+# means report_search_progress can add each item to vicinity_items the
+# moment its own reveal threshold is crossed, so it's genuinely claimable
+# right away - every caller (Chest/Corpse/DebrisStash/FloatingBarrel) now
+# just passes its position once via start_search() instead of looping over
+# every item itself afterward. ---
+var _search_items: Array = []
+var _search_revealed_count: int = 0
+var _search_source_position: Variant = null
+
+func start_search(items: Array, duration: float, source_position = null) -> void:
+	_search_items = items
+	_search_revealed_count = 0
+	_search_source_position = source_position
 	search_started.emit(items, duration)
 
 func report_search_progress(pct: float) -> void:
+	_reveal_searched_items_up_to(pct)
 	search_progress.emit(pct)
 
 func finish_search() -> void:
+	# A final safety net for float rounding - the caller's last progress
+	# tick might land at 0.999... instead of exactly 1.0, which would
+	# otherwise leave the very last item revealed on-screen (Vicinity's
+	# tiles already show it as found) but never actually added to
+	# vicinity_items at all.
+	_reveal_searched_items_up_to(1.0)
+	_search_items = []
+	_search_revealed_count = 0
+	_search_source_position = null
 	search_finished.emit()
+
+func _reveal_searched_items_up_to(pct: float) -> void:
+	if _search_items.is_empty():
+		return
+	var should_be_revealed: int = int(floor(pct * _search_items.size()))
+	should_be_revealed = min(should_be_revealed, _search_items.size())
+	for i in range(_search_revealed_count, should_be_revealed):
+		add_to_vicinity(_search_items[i].duplicate(true), _search_source_position)
+	_search_revealed_count = should_be_revealed
 
 func get_total_value() -> int:
 	var total := 0

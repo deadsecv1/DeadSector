@@ -62,7 +62,7 @@ func _search() -> void:
 		"icon_key": icon_key, "rarity": rarity,
 	}
 	var duration := 1.4
-	GameManager.start_search([rolled_item], duration)
+	GameManager.start_search([rolled_item], duration, global_position)
 	if randf() < 0.05:
 		GameManager.add_currency("skill_points", 1)
 	var elapsed := 0.0
@@ -74,6 +74,8 @@ func _search() -> void:
 		elapsed += 0.1
 		GameManager.report_search_progress(min(elapsed / duration, 1.0))
 	GameManager.is_searching = false
-	GameManager.add_to_vicinity(rolled_item, global_position)
+	# Already added to vicinity_items once its reveal threshold crossed
+	# (see GameManager.report_search_progress) - finish_search() below
+	# also sweeps up anything float rounding left just short of that.
 	GameManager.finish_search()
 	body_poly.color = Color(0.2, 0.18, 0.12, 1)

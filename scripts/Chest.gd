@@ -113,7 +113,7 @@ func _start_search() -> void:
 	if randf() < 0.1:
 		GameManager.add_currency("skill_points", 1)
 
-	GameManager.start_search(rolled_items, effective_duration)
+	GameManager.start_search(rolled_items, effective_duration, global_position)
 	var elapsed := 0.0
 	while elapsed < effective_duration:
 		await get_tree().create_timer(0.1).timeout
@@ -130,8 +130,10 @@ func _finish_search(rolled_items: Array) -> void:
 	searched = true
 	searching = false
 	GameManager.is_searching = false
-	for item in rolled_items:
-		GameManager.add_to_vicinity(item, global_position)
+	# Each item was already added to vicinity_items as its own reveal
+	# threshold was crossed (see GameManager.report_search_progress) -
+	# finish_search() below also sweeps up anything the last progress
+	# tick's float rounding left just short of its own threshold.
 	if grants_artifacts > 0:
 		GameManager.add_currency("artifacts", grants_artifacts)
 	GameManager.finish_search()

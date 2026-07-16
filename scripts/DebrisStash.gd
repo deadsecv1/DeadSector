@@ -92,7 +92,7 @@ func _start_search() -> void:
 		"stat_type": stat_type, "stat_value": snapped(base_stat_value * mult, 0.01),
 		"icon_key": icon_key, "rarity": rarity,
 	}
-	GameManager.start_search([rolled_item], search_duration)
+	GameManager.start_search([rolled_item], search_duration, global_position)
 	if randf() < 0.05:
 		GameManager.add_currency("skill_points", 1)
 	var elapsed := 0.0
@@ -111,7 +111,9 @@ func _finish_search(rolled_item: Dictionary) -> void:
 	searched = true
 	searching = false
 	GameManager.is_searching = false
-	GameManager.add_to_vicinity(rolled_item, global_position)
+	# Already added to vicinity_items once its reveal threshold crossed
+	# (see GameManager.report_search_progress) - finish_search() below
+	# also sweeps up anything float rounding left just short of that.
 	GameManager.finish_search()
 	prompt.text = "Searched"
 	await get_tree().create_timer(1.2).timeout

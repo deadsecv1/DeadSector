@@ -134,7 +134,7 @@ func _start_search() -> void:
 	GameManager.is_searching = true
 	Sfx.play_search()
 	var effective_duration: float = max(0.4, search_duration - GameManager.get_upgrade_bonus("search_speed"))
-	GameManager.start_search(loot_items, effective_duration)
+	GameManager.start_search(loot_items, effective_duration, global_position)
 
 	var elapsed := 0.0
 	while elapsed < effective_duration:
@@ -153,8 +153,10 @@ func _finish_search() -> void:
 	searching = false
 	_remove_loot_glow()
 	GameManager.is_searching = false
-	for item in loot_items:
-		GameManager.add_to_vicinity(item.duplicate(true), global_position)
+	# Each item was already added to vicinity_items as its own reveal
+	# threshold was crossed (see GameManager.report_search_progress) -
+	# finish_search() below also sweeps up anything the last progress
+	# tick's float rounding left just short of its own threshold.
 	for cur in currency_drops:
 		if cur == "tickets":
 			GameManager.grant_salvaged_beasts_tickets(int(currency_drops[cur]))
