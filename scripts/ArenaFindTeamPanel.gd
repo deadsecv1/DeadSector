@@ -236,6 +236,11 @@ func _refresh_row(t: Dictionary) -> void:
 		return
 	var member_holder: HBoxContainer = row["member_holder"]
 	for c in member_holder.get_children():
+		# queue_free() alone defers freeing to end-of-frame, so a stale
+		# child is still a real member_holder child for the rest of this
+		# call - remove_child() first so the immediately-following rebuild
+		# below never briefly renders duplicate/stale member portraits.
+		member_holder.remove_child(c)
 		c.queue_free()
 	for i in range(t["max"]):
 		var slot := Control.new()

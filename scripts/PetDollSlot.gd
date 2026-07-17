@@ -153,4 +153,10 @@ func _show_info_popup() -> void:
 	close_btn.pressed.connect(func(): popup.hide(); popup.queue_free())
 	vbox.add_child(close_btn)
 
+	# PopupPanel's default behavior is to auto-HIDE (not free) on an
+	# outside click - without this, dismissing it that way (rather than
+	# the in-popup Close/Save button, both of which already queue_free()
+	# it themselves) leaves an invisible, permanently-orphaned node behind
+	# every time. Same fix shape as MyPetsPanel.gd's own ad hoc popup.
+	popup.popup_hide.connect(func(): popup.queue_free())
 	popup.popup_centered()

@@ -16,6 +16,21 @@ const SPAWN_SPREAD := Vector2(380.0, 300.0)
 @onready var guild_statue_station = $GuildStatueStation
 @onready var guild_contract_panel = $GuildContractPanel
 
+var _esc_was_down: bool = false
+var _contract_was_open_at_frame_start: bool = false
+
+func _process(_delta: float) -> void:
+	var esc_down := Input.is_key_pressed(KEY_ESCAPE) or GameManager.is_pause_pressed()
+	if esc_down and not _esc_was_down and _contract_was_open_at_frame_start:
+		# guild_contract_panel already closed itself (and hid) via its own
+		# _unhandled_input on this same press - just make sure HUD's
+		# poll-based Pause Menu doesn't also open on top of that. Same fix
+		# shape as SocialPlace.gd's equivalent guard for lilly_panel/
+		# current_teams_panel.
+		hud.suppress_escape_this_frame = true
+	_esc_was_down = esc_down
+	_contract_was_open_at_frame_start = guild_contract_panel.visible
+
 func _ready() -> void:
 	GameManager.set_crosshair_cursor()
 	GameManager.in_social_hub = true

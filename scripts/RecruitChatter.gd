@@ -35,5 +35,9 @@ func _say_something() -> void:
 	await get_tree().create_timer(3.5).timeout
 	if is_instance_valid(bubble_bg):
 		bubble_bg.visible = false
-	showing = false
-	cooldown = 2.0
+	# self (the Area2D) can be freed during this await too (e.g. a scene
+	# change from extraction/death while a chat bubble is showing) - guard
+	# the same way bubble_bg already is just above.
+	if is_instance_valid(self):
+		showing = false
+		cooldown = 2.0

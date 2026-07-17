@@ -40,9 +40,15 @@ func open() -> void:
 	GameManager.focus_first_control(self)
 
 func refresh() -> void:
+	# queue_free() alone defers freeing to end-of-frame, so a stale child
+	# is still a real list child for the rest of this call - remove_child()
+	# first so the immediately-following rebuild below never briefly
+	# renders duplicate/stale member cards.
 	for c in team1_list.get_children():
+		team1_list.remove_child(c)
 		c.queue_free()
 	for c in team2_list.get_children():
+		team2_list.remove_child(c)
 		c.queue_free()
 	var match_data: Dictionary = GameManager.current_arena_match
 	for member in match_data.get("team1", []):
