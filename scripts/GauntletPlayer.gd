@@ -235,11 +235,21 @@ func _physics_process(delta: float) -> void:
 # the stick is released.
 const GAMEPAD_AIM_POINT_DISTANCE := 1000.0
 
+# Cached per physics frame - same fix as Player.gd's own _get_aim_point(),
+# see its comment for why. Called up to 3x per tick here (facing/attack
+# zone, then gun_pivot or sword_pivot look_at).
+var _cached_aim_point: Vector2 = Vector2.ZERO
+var _cached_aim_point_physics_frame: int = -1
+
 func _get_aim_point() -> Vector2:
+	var current_frame := Engine.get_physics_frames()
+	if current_frame == _cached_aim_point_physics_frame:
+		return _cached_aim_point
 	var stick_dir: Vector2 = GameManager.get_gamepad_aim_direction()
-	if stick_dir != Vector2.ZERO:
-		return global_position + stick_dir * GAMEPAD_AIM_POINT_DISTANCE
-	return get_global_mouse_position()
+	var point: Vector2 = (global_position + stick_dir * GAMEPAD_AIM_POINT_DISTANCE) if stick_dir != Vector2.ZERO else get_global_mouse_position()
+	_cached_aim_point = point
+	_cached_aim_point_physics_frame = current_frame
+	return point
 
 func _shoot() -> void:
 	can_shoot = false

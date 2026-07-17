@@ -6540,6 +6540,16 @@ const JOYPAD_BUTTON_DEFAULTS := {
 const GAMEPAD_DEVICE := 0
 const STICK_DEADZONE := 0.25
 const TRIGGER_THRESHOLD := 0.4
+# Tracked via Input.joy_connection_changed (set once in _ready(), updated
+# only on an actual connect/disconnect) rather than calling
+# Input.get_connected_joypads().size() > 0 fresh in every gamepad-input
+# check below - those checks run every physics frame from several call
+# sites (Player.gd movement/jump/dash/shoot, HUD.gd's Tab/Escape polling,
+# etc.), so this avoids both the repeated native call and the Array
+# allocation it returns, for the majority of players who have no
+# controller connected at all. Real gamepad functionality is completely
+# unaffected - this only skips work that would have found nothing anyway.
+var _has_connected_joypad: bool = false
 
 func get_joypad_binding(action: String) -> int:
 	return int(JOYPAD_BUTTON_BINDINGS.get(action, JOYPAD_BUTTON_DEFAULTS.get(action, -1)))
@@ -6614,6 +6624,8 @@ func format_prompt(text: String) -> String:
 func is_action_pressed(action: String) -> bool:
 	if Input.is_key_pressed(get_keybind(action)):
 		return true
+	if not _has_connected_joypad:
+		return false
 	if JOYPAD_BUTTON_BINDINGS.has(action):
 		return Input.is_joy_button_pressed(GAMEPAD_DEVICE, get_joypad_binding(action))
 	return false
@@ -6623,11 +6635,15 @@ func is_action_pressed(action: String) -> bool:
 func is_shoot_pressed() -> bool:
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		return true
+	if not _has_connected_joypad:
+		return false
 	return Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_TRIGGER_RIGHT) > TRIGGER_THRESHOLD
 
 func is_aim_down_sights_pressed() -> bool:
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		return true
+	if not _has_connected_joypad:
+		return false
 	return Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_TRIGGER_LEFT) > TRIGGER_THRESHOLD
 
 # WASD/arrows OR the left stick - whichever the player is actually using,
@@ -6643,12 +6659,13 @@ func get_movement_vector() -> Vector2:
 		dir.x -= 1
 	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
 		dir.x += 1
-	var stick := Vector2(
-		Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_LEFT_X),
-		Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_LEFT_Y)
-	)
-	if stick.length() > STICK_DEADZONE:
-		dir += stick
+	if _has_connected_joypad:
+		var stick := Vector2(
+			Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_LEFT_X),
+			Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_LEFT_Y)
+		)
+		if stick.length() > STICK_DEADZONE:
+			dir += stick
 	if dir.length() > 1.0:
 		dir = dir.normalized()
 	return dir
@@ -6659,6 +6676,8 @@ func get_movement_vector() -> Vector2:
 # back to the real mouse the instant the player touches it again, rather
 # than the two input methods fighting each other.
 func get_gamepad_aim_direction() -> Vector2:
+	if not _has_connected_joypad:
+		return Vector2.ZERO
 	var stick := Vector2(
 		Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_RIGHT_X),
 		Input.get_joy_axis(GAMEPAD_DEVICE, JOY_AXIS_RIGHT_Y)
@@ -6668,10 +6687,10 @@ func get_gamepad_aim_direction() -> Vector2:
 	return Vector2.ZERO
 
 func is_hotbar_next_pressed() -> bool:
-	return Input.is_joy_button_pressed(GAMEPAD_DEVICE, JOY_BUTTON_RIGHT_SHOULDER)
+	return _has_connected_joypad and Input.is_joy_button_pressed(GAMEPAD_DEVICE, JOY_BUTTON_RIGHT_SHOULDER)
 
 func is_hotbar_prev_pressed() -> bool:
-	return Input.is_joy_button_pressed(GAMEPAD_DEVICE, JOY_BUTTON_LEFT_SHOULDER)
+	return _has_connected_joypad and Input.is_joy_button_pressed(GAMEPAD_DEVICE, JOY_BUTTON_LEFT_SHOULDER)
 
 # Escape is a fixed system convention on keyboard (never routed through the
 # rebindable keybinds dictionary, see get_keybind()) - this is its gamepad
@@ -6679,7 +6698,7 @@ func is_hotbar_prev_pressed() -> bool:
 # D-pad Up since every other face/shoulder/stick button on this list is
 # already claimed by something checked every frame during live gameplay.
 func is_pause_pressed() -> bool:
-	return Input.is_joy_button_pressed(GAMEPAD_DEVICE, JOY_BUTTON_DPAD_UP)
+	return _has_connected_joypad and Input.is_joy_button_pressed(GAMEPAD_DEVICE, JOY_BUTTON_DPAD_UP)
 
 # --- Gamepad UI navigation --------------------------------------------
 # Every menu/inventory screen in this game is built from plain Godot
@@ -6700,11 +6719,33 @@ func is_pause_pressed() -> bool:
 # untouched while the player uses mouse/keyboard shouldn't switch modes.
 var using_gamepad: bool = false
 signal input_device_changed(is_gamepad: bool)
+# _update_gamepad_cursor()'s Input.warp_mouse() call (steering the menu
+# cursor with a controller) can itself generate a real InputEventMouseMotion
+# on some platforms (a raw SetCursorPos-equivalent isn't necessarily
+# suppressed as "synthetic" by the engine) - without this, that would flip
+# using_gamepad back to false on every single frame the stick is held,
+# right back to true on the next real joypad motion, a continuous flicker
+# between gamepad/keyboard-mouse mode while steering. Set true right after
+# every warp_mouse() call, consumed (and cleared) by the next
+# InputEventMouseMotion this triggers, whenever it arrives.
+var _suppress_next_gamepad_cursor_mouse_motion: bool = false
 
 func _unhandled_input(event: InputEvent) -> void:
 	var was_gamepad := using_gamepad
-	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+	if event is InputEventJoypadButton:
 		using_gamepad = true
+	elif event is InputEventJoypadMotion:
+		# Analog sticks/triggers on a connected-but-untouched controller
+		# routinely report small nonzero noise - without this deadzone
+		# check, that noise alone would flip using_gamepad to true (and
+		# swap every visible prompt to gamepad glyphs) even while the
+		# player is only touching mouse/keyboard, contradicting the whole
+		# point of this being "whichever device was actually used" rather
+		# than just "is a controller connected."
+		if abs(event.axis_value) > STICK_DEADZONE:
+			using_gamepad = true
+	elif event is InputEventMouseMotion and _suppress_next_gamepad_cursor_mouse_motion:
+		_suppress_next_gamepad_cursor_mouse_motion = false
 	elif event is InputEventMouseMotion or event is InputEventMouseButton or event is InputEventKey:
 		using_gamepad = false
 	if using_gamepad != was_gamepad:
@@ -6868,6 +6909,8 @@ func handle_gamepad_slot_input(event: InputEvent, control: Control) -> bool:
 	return false
 
 func _ready() -> void:
+	_has_connected_joypad = Input.get_connected_joypads().size() > 0
+	Input.joy_connection_changed.connect(func(_device, _connected): _has_connected_joypad = Input.get_connected_joypads().size() > 0)
 	_setup_audio_buses()
 	_crosshair_texture = _make_crosshair_texture()
 	_menu_cursor_texture = _make_menu_cursor_texture()
@@ -8864,6 +8907,7 @@ func _update_gamepad_cursor(delta: float) -> void:
 	# at the wrong spot entirely (and hover never resolves), only
 	# converting through get_screen_transform() first lands correctly.
 	Input.warp_mouse(viewport.get_screen_transform() * _gamepad_cursor_pos)
+	_suppress_next_gamepad_cursor_mouse_motion = true
 	var hovered := viewport.gui_get_hovered_control()
 	if hovered != null and hovered.focus_mode != Control.FOCUS_NONE:
 		hovered.grab_focus()

@@ -761,11 +761,29 @@ func set_slowed(value: bool) -> void:
 # is completely unaffected.
 const GAMEPAD_AIM_POINT_DISTANCE := 1000.0
 
+# Cached per physics frame (keyed off Engine.get_physics_frames(), the
+# engine's own global physics-tick counter) rather than recomputed on
+# every call - this is called up to 5 times in a single tick from
+# Player.gd's own aim/body-turn/shoot/laser logic, PLUS once per living
+# enemy every physics frame via Enemy.gd's can_see_point() vision check
+# (Enemy._physics_process() -> Player.can_see_point() -> this). With N
+# enemies alive, that used to mean N+4 redundant stick-axis-read+
+# normalize computations per tick instead of one. The physics-frame key
+# means this stays correct even when called from a completely different
+# node's _physics_process() (Enemy.gd) at some arbitrary point within the
+# same tick, not just from Player's own.
+var _cached_aim_point: Vector2 = Vector2.ZERO
+var _cached_aim_point_physics_frame: int = -1
+
 func _get_aim_point() -> Vector2:
+	var current_frame := Engine.get_physics_frames()
+	if current_frame == _cached_aim_point_physics_frame:
+		return _cached_aim_point
 	var stick_dir: Vector2 = GameManager.get_gamepad_aim_direction()
-	if stick_dir != Vector2.ZERO:
-		return global_position + stick_dir * GAMEPAD_AIM_POINT_DISTANCE
-	return get_global_mouse_position()
+	var point: Vector2 = (global_position + stick_dir * GAMEPAD_AIM_POINT_DISTANCE) if stick_dir != Vector2.ZERO else get_global_mouse_position()
+	_cached_aim_point = point
+	_cached_aim_point_physics_frame = current_frame
+	return point
 
 func _handle_aim() -> void:
 	gun_pivot.look_at(_get_aim_point())

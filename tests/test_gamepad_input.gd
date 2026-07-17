@@ -99,3 +99,66 @@ func test_joypad_helpers_are_safe_with_no_controller_connected() -> void:
 func test_pause_is_not_accidentally_bound_to_any_existing_keybind_action() -> void:
 	for action in GameManager.KEYBIND_DEFAULTS.keys():
 		assert_ne(GameManager.JOYPAD_BUTTON_BINDINGS.get(action, -1), JOY_BUTTON_DPAD_UP, "D-pad Up is reserved for pause/back - action '%s' should not also claim it" % action)
+
+# Regression coverage (2026-07-17, controller audit) - using_gamepad used
+# to flip to true on ANY InputEventJoypadMotion with no deadzone check.
+# Analog sticks/triggers on a connected-but-untouched controller routinely
+# report small nonzero noise, which would flip every visible prompt to
+# gamepad glyphs even while the player is only using keyboard/mouse.
+func test_tiny_joypad_motion_does_not_flip_using_gamepad() -> void:
+	var was_gamepad: bool = GameManager.using_gamepad
+	GameManager.using_gamepad = false
+
+	var noise := InputEventJoypadMotion.new()
+	noise.axis = JOY_AXIS_LEFT_X
+	noise.axis_value = 0.05
+	GameManager._unhandled_input(noise)
+
+	assert_false(GameManager.using_gamepad, "stick noise well under the deadzone should not switch to gamepad mode")
+
+	var real_push := InputEventJoypadMotion.new()
+	real_push.axis = JOY_AXIS_LEFT_X
+	real_push.axis_value = 0.8
+	GameManager._unhandled_input(real_push)
+
+	assert_true(GameManager.using_gamepad, "a real stick push past the deadzone should switch to gamepad mode")
+
+	GameManager.using_gamepad = was_gamepad
+
+func test_joypad_button_press_flips_using_gamepad_regardless_of_deadzone() -> void:
+	# Buttons are already discrete/deliberate - no deadzone concept
+	# applies, unlike continuous stick/trigger motion.
+	var was_gamepad: bool = GameManager.using_gamepad
+	GameManager.using_gamepad = false
+
+	var btn := InputEventJoypadButton.new()
+	btn.button_index = JOY_BUTTON_A
+	btn.pressed = true
+	GameManager._unhandled_input(btn)
+
+	assert_true(GameManager.using_gamepad)
+	GameManager.using_gamepad = was_gamepad
+
+# Regression coverage (2026-07-17, controller audit) - _update_gamepad_cursor()'s
+# Input.warp_mouse() call can itself generate a real InputEventMouseMotion
+# on some platforms, which would otherwise flip using_gamepad straight back
+# to false every frame while steering the menu cursor with a controller - a
+# flicker loop. _suppress_next_gamepad_cursor_mouse_motion consumes exactly
+# one such self-generated motion event without swallowing a genuine one.
+func test_suppressed_mouse_motion_does_not_flip_using_gamepad_but_a_real_one_does() -> void:
+	var was_gamepad: bool = GameManager.using_gamepad
+	var was_suppress: bool = GameManager._suppress_next_gamepad_cursor_mouse_motion
+	GameManager.using_gamepad = true
+	GameManager._suppress_next_gamepad_cursor_mouse_motion = true
+
+	var motion := InputEventMouseMotion.new()
+	GameManager._unhandled_input(motion)
+	assert_true(GameManager.using_gamepad, "a suppressed (self-generated) mouse motion must not flip using_gamepad")
+	assert_false(GameManager._suppress_next_gamepad_cursor_mouse_motion, "the suppression flag should be consumed by that one event")
+
+	var real_motion := InputEventMouseMotion.new()
+	GameManager._unhandled_input(real_motion)
+	assert_false(GameManager.using_gamepad, "a genuine subsequent mouse motion should flip using_gamepad normally")
+
+	GameManager.using_gamepad = was_gamepad
+	GameManager._suppress_next_gamepad_cursor_mouse_motion = was_suppress
