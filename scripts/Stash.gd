@@ -59,7 +59,12 @@ var stats_popup: PanelContainer = null
 func _input(event: InputEvent) -> void:
 	if GlobalChatBox.chat_box_open:
 		return
-	if event is InputEventKey and event.keycode == GameManager.get_keybind("inventory") and event.pressed and not event.echo:
+	# Same fix as Hideout.gd's Tab-to-open handler - this used to check
+	# keyboard only, so gamepad players could still leave the Stash via
+	# D-pad Up (below) but not via the Tab-equivalent gamepad button,
+	# inconsistent with Tab/D-pad-Up otherwise being equivalent closes.
+	var inventory_pressed: bool = (event is InputEventKey and event.keycode == GameManager.get_keybind("inventory") and event.pressed and not event.echo) or (event is InputEventJoypadButton and event.button_index == GameManager.get_joypad_binding("inventory") and event.pressed)
+	if inventory_pressed:
 		get_viewport().set_input_as_handled()
 		GameManager.save_game()
 		Transition.change_scene_instant(GameManager.stash_return_scene)

@@ -62,7 +62,13 @@ var _last_artifacts: int = -1
 var _last_alloys: int = -1
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.keycode == GameManager.get_keybind("inventory") and event.pressed and not event.echo:
+	# Tab is the ONLY door into the Stash from the Hideout (no station, no
+	# interact zone) - this used to check keyboard only, so a gamepad-only
+	# player had no button that opened the Stash at all. Matches the
+	# rebindable "inventory" gamepad binding HUD.gd's own Tab-toggle
+	# already polls via GameManager.is_action_pressed("inventory").
+	var inventory_pressed: bool = (event is InputEventKey and event.keycode == GameManager.get_keybind("inventory") and event.pressed and not event.echo) or (event is InputEventJoypadButton and event.button_index == GameManager.get_joypad_binding("inventory") and event.pressed)
+	if inventory_pressed:
 		if sleeping or _any_panel_open():
 			return
 		get_viewport().set_input_as_handled()

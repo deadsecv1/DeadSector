@@ -71,8 +71,16 @@ func _input_blocked() -> bool:
 	return player != null and player.input_locked
 
 func _move_selection(dir: int) -> void:
-	selected_index = (selected_index + dir + 5) % 5
-	_update_highlight()
+	# Route through _select() (not just selected_index) so this actually
+	# changes what fires, not just the highlight - _select() is what
+	# writes GameManager.active_hotbar_slot, the only field Player.gd
+	# reads to decide whether a shot fires the weapon or uses a
+	# consumable. Previously this only moved the highlight box, so
+	# gamepad LB/RB (and mouse wheel) visibly selected a different slot
+	# while the trigger kept firing whatever slot number keys last set -
+	# a gamepad-only player (no number keys) could never actually use a
+	# grenade/consumable via hotbar cycling.
+	_select((selected_index + dir + 5) % 5)
 
 func _select(index: int) -> void:
 	selected_index = index
