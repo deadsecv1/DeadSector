@@ -1688,6 +1688,13 @@ const LOOT_BAG_TIERS := {
 	"alpha": {"name": "Exclusive Alpha Chest", "rarity": "multiversal", "value": 2000},
 }
 
+# The Quartermaster's rotating stock restocks one of every LOOT_BAG_TIERS
+# EXCEPT "alpha" - that tier is deliberately never sold, only ever granted
+# via claim_alpha_rewards() or the Rank #1 leaderboard payout. Keep this in
+# sync with the Quartermaster's hand-authored initial catalog above, which
+# also only lists these same 6 tiers.
+const QUARTERMASTER_STOCKED_BAG_TIERS := ["common", "rare", "epic", "legendary", "exotic", "mythic"]
+
 # Loot bags get their own color language instead of borrowing the generic
 # gear-rarity colors: the common/rare bags are just a plain sackcloth
 # brown (two shades) since a "Common Loot Bag" being pale grey never
@@ -2568,13 +2575,15 @@ func _rotate_traders() -> void:
 		if trader_id == "scavenger":
 			count -= SCAVENGER_AMMO_STOCK.size()
 		# Same reasoning as the Scavenger's static ammo stock above - the
-		# Quartermaster's own guaranteed loot bag (one per LOOT_BAG_TIERS)
-		# gets re-appended below every rotation too, and without this
-		# correction its previous rotation's bags kept getting counted as
-		# "random gear to reroll," making count (and the shop's total size)
-		# grow by len(LOOT_BAG_TIERS) forever, every 10 minutes.
+		# Quartermaster's own guaranteed loot bags (one per
+		# QUARTERMASTER_STOCKED_BAG_TIERS, which deliberately excludes the
+		# rank-1/one-time-claim-only "alpha" tier) get re-appended below
+		# every rotation too, and without this correction its previous
+		# rotation's bags kept getting counted as "random gear to reroll,"
+		# making count (and the shop's total size) grow by
+		# len(QUARTERMASTER_STOCKED_BAG_TIERS) forever, every 10 minutes.
 		elif trader_id == "quartermaster":
-			count -= LOOT_BAG_TIERS.size()
+			count -= QUARTERMASTER_STOCKED_BAG_TIERS.size()
 		# Medic/Quartermaster have no guaranteed static ammo stock, so mix
 		# ammo into their rotating pool too - ammo entries get rolled
 		# through roll_ammo() below so they come out with a real
@@ -2595,7 +2604,7 @@ func _rotate_traders() -> void:
 			pick["cost"] = int(pick.get("value", 50))
 			new_items.append(pick)
 		if trader_id == "quartermaster":
-			for bag_tier in LOOT_BAG_TIERS.keys():
+			for bag_tier in QUARTERMASTER_STOCKED_BAG_TIERS:
 				var bag := make_loot_bag(bag_tier)
 				bag["cost"] = int(bag["value"])
 				new_items.append(bag)
@@ -4564,7 +4573,7 @@ func check_achievements() -> void:
 	_maybe_unlock("level_50", player_level >= 50)
 	_maybe_unlock("well_traveled", discovered_enemies.has("raider") and discovered_enemies.has("skeleton") and discovered_enemies.has("rift_wraith") and graveyard_kills > 0)
 	_maybe_unlock("close_call", achievement_flag_close_call)
-	_maybe_unlock("big_score", carried_value >= 5000)
+	_maybe_unlock("big_score", achievement_flag_big_score)
 
 	# --- Ranked ---
 	_maybe_unlock("ranked_rookie", rank_points > 0)
@@ -4793,6 +4802,7 @@ var stat_blueprints_researched: int = 0
 var stat_eggs_hatched: int = 0
 var achievement_flag_multiversal_pull: bool = false
 var achievement_flag_close_call: bool = false
+var achievement_flag_big_score: bool = false
 
 func xp_needed_for_level(level: int) -> int:
 	return 80 + level * 40
@@ -6316,6 +6326,7 @@ func reset_character() -> void:
 	unlocked_achievements = {}
 	achievement_flag_multiversal_pull = false
 	achievement_flag_close_call = false
+	achievement_flag_big_score = false
 	discovered_enemies = {}
 	seen_collectibles = {}
 	ghost_recruited = false
@@ -8184,6 +8195,7 @@ func save_game() -> void:
 		"has_seen_welcome": has_seen_welcome,
 		"achievement_flag_multiversal_pull": achievement_flag_multiversal_pull,
 		"achievement_flag_close_call": achievement_flag_close_call,
+		"achievement_flag_big_score": achievement_flag_big_score,
 		"rose_talked_to": rose_talked_to, "harmon_talked_to": harmon_talked_to, "whisper_tip_day": whisper_tip_day,
 		"found_lore_objects": found_lore_objects,
 	}
@@ -8562,6 +8574,7 @@ func load_game(override_path: String = "") -> void:
 		_saved_arena_pet = ""
 		recovered_interrupted_run = true
 	var loaded_safe_pockets = parsed.get("safe_pockets", null)
+	var should_drain_recovered_safe_pockets := false
 	if typeof(loaded_safe_pockets) == TYPE_ARRAY:
 		for i in range(min(loaded_safe_pockets.size(), safe_pockets.size())):
 			safe_pockets[i] = loaded_safe_pockets[i]
@@ -8569,13 +8582,20 @@ func load_game(override_path: String = "") -> void:
 		# something here means the game closed mid-run before end_run()
 		# could bank them - drain them now the same way a normal
 		# extraction/death would, instead of leaving them stuck in
-		# limbo (or worse, silently lost).
+		# limbo (or worse, silently lost). The actual drain is deferred to
+		# the end of this function (alongside _sync_season_pass_tier())
+		# instead of done here, since _drain_safe_pockets_to_stash() can
+		# call add_to_backpack_storage() -> save_game() internally, which
+		# would otherwise write a half-loaded snapshot to disk and clobber
+		# the one rotating backup - the exact bug class fixed for
+		# _sync_season_pass_tier() below.
 		if safe_pockets.any(func(it): return it != null):
-			_drain_safe_pockets_to_stash()
+			should_drain_recovered_safe_pockets = true
 			recovered_interrupted_run = true
 	has_seen_welcome = bool(parsed.get("has_seen_welcome", false))
 	achievement_flag_multiversal_pull = bool(parsed.get("achievement_flag_multiversal_pull", false))
 	achievement_flag_close_call = bool(parsed.get("achievement_flag_close_call", false))
+	achievement_flag_big_score = bool(parsed.get("achievement_flag_big_score", false))
 	rose_talked_to = bool(parsed.get("rose_talked_to", false))
 	harmon_talked_to = bool(parsed.get("harmon_talked_to", false))
 	whisper_tip_day = int(parsed.get("whisper_tip_day", -1))
@@ -8620,6 +8640,11 @@ func load_game(override_path: String = "") -> void:
 	# disk - silently reverting everything not yet loaded back to its
 	# class default, and rotating that corrupted write over the one
 	# rotating backup meant to protect against exactly this.
+	# Draining recovered Safe Pockets is deferred here for the identical
+	# reason (see should_drain_recovered_safe_pockets above) - it can also
+	# trigger an internal save_game() via add_to_backpack_storage().
+	if should_drain_recovered_safe_pockets:
+		_drain_safe_pockets_to_stash()
 	_sync_season_pass_tier()
 	if recovered_interrupted_run:
 		toast_requested.emit("Restored your real loadout after an interrupted run")
@@ -10483,6 +10508,7 @@ func end_run(success: bool, voluntary: bool = false) -> void:
 			notify_event("night_extract")
 		if carried_value >= 5000:
 			notify_event("extract_5000_loot")
+			achievement_flag_big_score = true
 		var player_node = get_tree().get_first_node_in_group("player")
 		if player_node != null and player_node.get("health") != null and int(player_node.health) < 50:
 			notify_event("low_hp_extract")

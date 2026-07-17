@@ -86,3 +86,61 @@ func test_mid_load_season_pass_catchup_does_not_write_a_half_loaded_save() -> vo
 	GameManager.stat_extractions = stat_extractions_before
 	GameManager.harmon_talked_to = harmon_talked_to_before
 	_delete_fixture(FIXTURE_INPUT_PATH)
+
+# Regression coverage for the same bug class (2026-07-17 audit) found in a
+# second call site: load_game() recovering Safe Pockets left over from a
+# crashed/quit-mid-raid session used to call _drain_safe_pockets_to_stash()
+# immediately upon reading them - well before has_seen_welcome, both
+# achievement flags, rose_talked_to/harmon_talked_to/whisper_tip_day,
+# found_lore_objects, keybinds, and joypad_bindings had loaded. If the
+# recovered item is on BACKPACK_STORAGE_ONLY_ITEM_IDS (the Graveyard Key)
+# and Backpack Storage has room, that drain calls add_to_backpack_storage(),
+# which itself calls save_game() - writing the same kind of half-loaded
+# snapshot to disk (and clobbering the one rotating backup) as the
+# _sync_season_pass_tier() bug above. Fixed by deferring the actual drain
+# (should_drain_recovered_safe_pockets) to the end of load_game(), same as
+# _sync_season_pass_tier().
+func test_mid_load_safe_pocket_recovery_does_not_write_a_half_loaded_save() -> void:
+	var safe_pockets_before: Array = GameManager.safe_pockets.duplicate(true)
+	var backpack_storage_before: Array = GameManager.backpack_storage.duplicate(true)
+	var harmon_talked_to_before: bool = GameManager.harmon_talked_to
+
+	_delete_fixture(FIXTURE_INPUT_PATH)
+
+	var fixture := {
+		"save_format_version": GameManager.SAVE_FORMAT_VERSION,
+		"safe_pockets": [GameManager.GRAVEYARD_KEY_ITEM.duplicate(true), null],
+		"backpack_storage": [],
+		"harmon_talked_to": true,
+	}
+	var f := FileAccess.open(FIXTURE_INPUT_PATH, FileAccess.WRITE)
+	f.store_string(JSON.stringify(fixture))
+	f.close()
+
+	GameManager.harmon_talked_to = false
+	GameManager._test_save_write_log = []
+	GameManager._test_save_path_override = "logging"
+	GameManager.load_game(FIXTURE_INPUT_PATH)
+	GameManager._test_save_path_override = ""
+	var write_log: Array = GameManager._test_save_write_log
+	GameManager._test_save_write_log = []
+
+	# Sanity check the recovery actually drained the pocket into Backpack
+	# Storage (and therefore actually exercised save_game() during load) -
+	# otherwise this test would trivially pass by never writing anything.
+	assert_true(GameManager.safe_pockets.all(func(it): return it == null), "The recovered Safe Pocket should have been drained")
+	var found_key := false
+	for it in GameManager.backpack_storage:
+		if it.get("item_id", "") == "graveyard_key":
+			found_key = true
+	assert_true(found_key, "Fixture's Graveyard Key should have landed in Backpack Storage, not the Stash")
+	assert_gt(write_log.size(), 0, "The mid-load pocket drain should have triggered at least one real save_game() call")
+
+	if write_log.size() > 0:
+		var first_write: Dictionary = write_log[0]
+		assert_true(bool(first_write.get("harmon_talked_to", false)), "A field loaded AFTER the pocket-drain point must already be present in the VERY FIRST save made DURING that same load - proves the drain no longer fires before the load is complete")
+
+	GameManager.safe_pockets = safe_pockets_before
+	GameManager.backpack_storage = backpack_storage_before
+	GameManager.harmon_talked_to = harmon_talked_to_before
+	_delete_fixture(FIXTURE_INPUT_PATH)
