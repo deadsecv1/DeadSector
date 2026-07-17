@@ -42,7 +42,9 @@ const EMPTY_DOT_COLOR := Color(0.4, 0.4, 0.44, 1)
 @onready var close_button: Button = $VBox/ButtonRow/CloseButton
 
 var icon_node: Control = null
-var weapon_index: int = -1
+# Identified by object reference (not index) - see WeaponAttachmentsPanel.gd
+# for why a plain index goes stale while this panel is left open.
+var _weapon_ref: Dictionary = {}
 var weapon_source: String = "carried"
 var hotspot_buttons: Dictionary = {}
 var hotspot_menu: PanelContainer = null
@@ -85,8 +87,9 @@ func _ready() -> void:
 	)
 
 func open_for(index: int, source: String) -> void:
-	weapon_index = index
 	weapon_source = source
+	var arr := _source_array()
+	_weapon_ref = arr[index] if index >= 0 and index < arr.size() else {}
 	visible = true
 	refresh()
 	GameManager.focus_first_control(self)
@@ -95,18 +98,18 @@ func _source_array() -> Array:
 	return GameManager.carried_loot if weapon_source == "carried" else GameManager.stash_items
 
 func _get_weapon() -> Dictionary:
-	var arr := _source_array()
-	if weapon_index < 0 or weapon_index >= arr.size():
+	if _weapon_ref.is_empty():
 		return {}
-	var item: Dictionary = arr[weapon_index]
 	# Sort (and anything else that reorders source_array while this panel
-	# is left open) can shift a completely different item into this index -
-	# without this check, buying/installing an attachment would graft an
-	# "attachments" dict onto whatever that item happens to be (even a
-	# stack of bandages) and spend real Rubles doing it.
-	if item.get("slot", "") != "weapon":
-		return {}
-	return item
+	# is left open) can shift a completely different item into whatever
+	# index this weapon used to be at - re-resolving by true reference
+	# identity (is_same(), not ==) rather than trusting a stale index means
+	# Buy/Install/Remove always operate on the actual weapon being shown,
+	# never a different item (even a different weapon) that shifted in.
+	for item in _source_array():
+		if is_same(item, _weapon_ref) and item.get("slot", "") == "weapon":
+			return item
+	return {}
 
 func refresh() -> void:
 	_close_hotspot_menu()

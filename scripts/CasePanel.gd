@@ -52,6 +52,7 @@ func open() -> void:
 	GameManager.focus_first_control(self)
 
 func refresh() -> void:
+	GameManager.cancel_gamepad_hold_if_within(grid)
 	for child in grid.get_children():
 		child.queue_free()
 	var TileScene := preload("res://scenes/InventoryTile.tscn")

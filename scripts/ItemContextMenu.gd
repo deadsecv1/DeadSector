@@ -83,6 +83,10 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		if not get_global_rect().has_point(event.global_position):
 			visible = false
+			# Without this, the same click that closes the menu also still
+			# reaches whatever Control is underneath (e.g. re-triggering
+			# that tile's own click/double-click-timer logic).
+			get_viewport().set_input_as_handled()
 
 func open_for(index: int, source: String, item: Dictionary, at_position: Vector2) -> void:
 	current_index = index

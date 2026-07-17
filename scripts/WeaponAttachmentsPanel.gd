@@ -18,10 +18,14 @@ const SLOT_LABELS := {
 @onready var slot_list: VBoxContainer = $VBox/SlotList
 @onready var close_button: Button = $VBox/CloseButton
 
-# Which weapon we're editing - identified by its index + which array it
-# lives in ("carried" or "stash"), looked up fresh each refresh so we're
-# always mutating the live item, wherever it currently sits.
-var weapon_index: int = -1
+# Which weapon we're editing - identified by object reference (not index)
+# + which array it lives in ("carried" or "stash"). A plain index goes
+# stale the moment anything earlier in that array is removed/reordered
+# while this panel is left open (Sort, another Install consuming a spare
+# attachment, etc.) - re-resolving by reference in _get_weapon() below
+# means Install/Remove always operate on the actual weapon being shown,
+# never a different item that happened to shift into a stale index.
+var _weapon_ref: Dictionary = {}
 var weapon_source: String = "carried"
 
 func _ready() -> void:
@@ -34,8 +38,9 @@ func _ready() -> void:
 # from and returned to that same source array (Backpack while in a raid,
 # Stash while at the Hideout/Main Menu).
 func open_for(index: int, source: String) -> void:
-	weapon_index = index
 	weapon_source = source
+	var arr := _source_array()
+	_weapon_ref = arr[index] if index >= 0 and index < arr.size() else {}
 	visible = true
 	refresh()
 	GameManager.focus_first_control(self)
@@ -44,10 +49,15 @@ func _source_array() -> Array:
 	return GameManager.carried_loot if weapon_source == "carried" else GameManager.stash_items
 
 func _get_weapon() -> Dictionary:
-	var arr := _source_array()
-	if weapon_index < 0 or weapon_index >= arr.size():
+	if _weapon_ref.is_empty():
 		return {}
-	return arr[weapon_index]
+	for item in _source_array():
+		# is_same() (true reference identity) rather than == (deep value
+		# equality) - two distinct items could otherwise have identical
+		# contents and falsely match.
+		if is_same(item, _weapon_ref) and item.get("slot", "") == "weapon":
+			return item
+	return {}
 
 func refresh() -> void:
 	for c in slot_list.get_children():

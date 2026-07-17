@@ -97,16 +97,39 @@ func _show_bag_preview() -> void:
 	name_lbl.add_theme_color_override("font_color", color)
 	bag_preview.add_child(name_lbl)
 
+# Re-resolves the bag's CURRENT index by object identity instead of
+# trusting the index captured at open_for() time - this panel is a
+# floating (non-modal) popup, so the Stash's Sort button and other
+# stash_items-reordering actions stay clickable behind it. A stale index
+# is already safely no-op'd by open_stash_loot_bag()'s own "not a lootbag
+# anymore" check, but if a DIFFERENT loot bag happened to shift into that
+# exact index in the meantime, the stale index would silently open and
+# consume the wrong bag instead.
+func _resolve_live_bag_index() -> int:
+	var arr: Array
+	match bag_source:
+		"stash": arr = GameManager.stash_items
+		"vicinity": arr = GameManager.vicinity_items
+		_: arr = GameManager.carried_loot
+	for i in range(arr.size()):
+		if is_same(arr[i], bag_item):
+			return i
+	return -1
+
 func _on_open() -> void:
 	open_button.disabled = true
+	var live_index := _resolve_live_bag_index()
+	if live_index < 0:
+		status_label.text = "Nothing happened..."
+		return
 	var contents: Dictionary
 	match bag_source:
 		"stash":
-			contents = GameManager.open_stash_loot_bag(bag_index)
+			contents = GameManager.open_stash_loot_bag(live_index)
 		"vicinity":
-			contents = GameManager.open_vicinity_loot_bag(bag_index)
+			contents = GameManager.open_vicinity_loot_bag(live_index)
 		_:
-			contents = GameManager.open_carried_loot_bag(bag_index)
+			contents = GameManager.open_carried_loot_bag(live_index)
 
 	if contents.is_empty():
 		status_label.text = "Nothing happened..."

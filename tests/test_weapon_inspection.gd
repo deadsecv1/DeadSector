@@ -39,6 +39,37 @@ func test_stale_index_pointing_at_non_weapon_is_rejected() -> void:
 	remove_child(stash)
 	stash.queue_free()
 
+# A second, stricter regression test (2026-07-17 audit): the fix above
+# only caught a stale index landing on a NON-weapon item. It didn't catch
+# a stale index landing on a DIFFERENT weapon after a reorder - the panel
+# would silently start showing/operating on the wrong gun. Fixed by
+# tracking the weapon by object reference (_weapon_ref) instead of index,
+# re-resolved by identity (is_same()) in _get_weapon() every time.
+func test_reorder_does_not_switch_the_panel_to_a_different_weapon() -> void:
+	GameManager.stash_items = [
+		{"name": "Weapon A", "value": 100, "slot": "weapon", "icon_key": "rifle", "rarity": "common"},
+		{"name": "Weapon B", "value": 200, "slot": "weapon", "icon_key": "sniper", "rarity": "rare"},
+	]
+	var stash = StashScene.instantiate()
+	add_child(stash)
+	var panel = stash.weapon_inspection_panel
+	panel.open_for(0, "stash")
+	assert_eq(panel.title_label.text, "Weapon A", "Panel should open on Weapon A")
+
+	# Simulate a reorder that shifts Weapon B into index 0 (e.g. Weapon A
+	# got moved to the back of the array by some other action) - the
+	# panel's originally-captured index now points at a completely
+	# different real weapon, not just a non-weapon item.
+	var a = GameManager.stash_items.pop_front()
+	GameManager.stash_items.append(a)
+	assert_eq(GameManager.stash_items[0].get("name"), "Weapon B", "test setup: Weapon B should now sit at index 0")
+
+	panel.refresh()
+	assert_eq(panel.title_label.text, "Weapon A", "Panel must keep tracking the original weapon by identity, not whatever now sits at the old index")
+
+	remove_child(stash)
+	stash.queue_free()
+
 func test_valid_weapon_index_still_works_normally() -> void:
 	# Guards against an overzealous fix - a real weapon at a stable index
 	# must still open and behave normally.

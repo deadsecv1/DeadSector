@@ -174,6 +174,11 @@ func _ready() -> void:
 			armor_case_button.visible = GameManager.unlocked_cases.get("armor", false)
 			key_case_button.visible = GameManager.unlocked_cases.get("key", false)
 		else:
+			# Same stale-index risk as the specialized-case branch above -
+			# opening a plain Loot Bag removes it from stash_items too.
+			if source == "stash" and quick_sell_mode:
+				GameManager.toast_requested.emit("Finish or cancel Quick Sell first")
+				return
 			open_bag_panel.open_for(index, source, item)
 	)
 	item_context_menu.deposit_egg_requested.connect(func(index, _source, _item):
