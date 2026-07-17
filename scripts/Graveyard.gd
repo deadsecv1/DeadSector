@@ -89,6 +89,15 @@ func _maybe_spawn_elite_cache_event() -> void:
 		return
 	var ang := randf_range(0.0, TAU)
 	var center: Vector2 = player.global_position + Vector2(cos(ang), sin(ang)) * randf_range(900.0, 1500.0)
+	# Clamp inside Graveyard.tscn's solid boundary walls (WallTop/WallBottom
+	# at y = +/-2150, WallLeft/WallRight at x = +/-3200, each 40 units thick)
+	# minus a safety margin - same fix VoidTrench.gd/IronscrapYard.gd's own
+	# version of this event already has. Player spawns at (0, -650), well
+	# within reach of WallTop at the top of this roll's range (1500), so
+	# without this a large roll aimed roughly north had a real chance of
+	# landing the cache and its 2 elite guards beyond the wall, in space
+	# the player can never reach.
+	center = center.clamp(Vector2(-3050.0, -2000.0), Vector2(3050.0, 2000.0))
 	for i in range(2):
 		var guard = ELITE_ENEMY_SCENE.instantiate()
 		guard.is_elite_guard = true

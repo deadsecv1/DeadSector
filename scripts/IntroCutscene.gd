@@ -83,7 +83,7 @@ func _ready() -> void:
 	_play_sequence()
 
 func _input(event: InputEvent) -> void:
-	if waiting_for_start and not start_requested and (event is InputEventKey or event is InputEventMouseButton) and event.pressed:
+	if waiting_for_start and not start_requested and (event is InputEventKey or event is InputEventMouseButton or event is InputEventJoypadButton) and event.pressed:
 		start_requested = true
 		Sfx.play_menu_confirm()
 		get_viewport().set_input_as_handled()
@@ -133,8 +133,16 @@ func _show_press_start() -> void:
 	_quote_timer = 0.0
 	_quote_index = 0
 
-	while not start_requested:
+	# Auto-advances after a generous read window even with no input, same
+	# as every other splash/cutscene screen in this project's boot
+	# sequence (StudioSplash.gd/LegalSplash.gd/etc.) - this loop used to
+	# have no fallback at all, so a gamepad-only player (no keyboard/mouse
+	# attached) could get stuck here permanently if their button press was
+	# ever missed for any reason, unable to ever reach the Main Menu.
+	var elapsed := 0.0
+	while elapsed < 20.0 and not start_requested:
 		await get_tree().process_frame
+		elapsed += get_process_delta_time()
 	blink_tw.kill()
 	waiting_for_start = false
 	start_requested = false

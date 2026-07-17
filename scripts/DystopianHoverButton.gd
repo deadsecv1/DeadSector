@@ -23,7 +23,16 @@ const SPARKLE_COUNT := 14
 @onready var glow: ColorRect = $Glow
 
 func _ready() -> void:
-	pivot_offset = size / 2.0
+	# Deferred rather than read synchronously here - VBox-nested Main Menu
+	# buttons (QuestsButton/TradersButton/etc.) only get their real size
+	# from a VBoxContainer parent's own deferred layout pass, which hasn't
+	# necessarily resolved yet at _ready() time. A stale (0,0)-based pivot
+	# scaled the hover bounce from the wrong corner instead of the
+	# button's actual center. resized.connect() alone wasn't enough - it
+	# only self-corrects AFTER a wrong value was already visible.
+	var set_pivot := func(): pivot_offset = size / 2.0
+	set_pivot.call_deferred()
+	resized.connect(set_pivot)
 	mouse_entered.connect(_on_hover_start)
 	mouse_exited.connect(_on_hover_end)
 	glow.color = Color(0.03, 0.03, 0.03, 0.0)

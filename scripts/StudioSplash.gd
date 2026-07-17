@@ -63,7 +63,7 @@ func _build_name_letters() -> void:
 		_letter_labels.append(lbl)
 
 func _input(event: InputEvent) -> void:
-	if _waiting_for_skip and not _skip_requested and (event is InputEventKey or event is InputEventMouseButton) and event.pressed:
+	if _waiting_for_skip and not _skip_requested and (event is InputEventKey or event is InputEventMouseButton or event is InputEventJoypadButton) and event.pressed:
 		_skip_requested = true
 		Sfx.play_menu_confirm()
 		get_viewport().set_input_as_handled()

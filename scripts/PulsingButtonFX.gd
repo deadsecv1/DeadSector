@@ -11,8 +11,16 @@ extends RefCounted
 const GlowTraceBorderScript := preload("res://scripts/GlowTraceBorder.gd")
 
 static func apply(button: Button, color: Color) -> void:
-	button.pivot_offset = button.size / 2.0
-	button.resized.connect(func(): button.pivot_offset = button.size / 2.0)
+	# Deferred rather than read synchronously here - apply() is called
+	# from a panel's own _ready(), before a parent Container's deferred
+	# layout pass has necessarily resolved this button's real size yet
+	# (same class of bug UpdateHeroBanner.gd's sparkle emission area fix
+	# documents). The resized connection alone isn't enough on its own -
+	# it only self-corrects AFTER the first (possibly wrong) value was
+	# already visible for a frame or more.
+	var set_pivot := func(): button.pivot_offset = button.size / 2.0
+	set_pivot.call_deferred()
+	button.resized.connect(set_pivot)
 
 	# Tracing outline - a brighter, faster trace than the Alpha/Tech Test
 	# item treatment since this needs to read clearly from across a menu,
@@ -58,5 +66,5 @@ static func apply(button: Button, color: Color) -> void:
 	var size_particles := func():
 		particles.position = button.size / 2.0
 		particles.emission_rect_extents = Vector2(max(button.size.x * 0.5, 4.0), max(button.size.y * 0.5, 4.0))
-	size_particles.call()
+	size_particles.call_deferred()
 	button.resized.connect(size_particles)
