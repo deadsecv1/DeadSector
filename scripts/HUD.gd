@@ -45,6 +45,7 @@ func _update_reload_prompt_visibility() -> void:
 @onready var inspect_panel = $InspectPanel
 @onready var skins_panel = $SkinsPanel
 @onready var open_bag_panel = $OpenLootBagPanel
+@onready var case_panel = $CasePanel
 @onready var vicinity_panel = $InventoryPanel/VBox/Panels/VicinityPanel
 
 var tab_was_down: bool = false
@@ -54,6 +55,10 @@ var cursor_is_default: bool = false
 # frame - see the Escape handling below for why this has to be the OLD
 # value, not a live re-check.
 var _tag_edit_was_open_at_frame_start: bool = false
+# Same reasoning as _tag_edit_was_open_at_frame_start above - CasePanel.gd
+# also closes itself via its own event-based _unhandled_input(), which
+# fires before this polled _process() check on the same Escape press.
+var _case_panel_was_open_at_frame_start: bool = false
 # Lets a parent scene with its own scene-specific panels HUD has no way
 # to know about (e.g. TheGrid's Lilly panel, opened via Escape since
 # there's no in-map NPC there anymore) suppress this frame's Escape
@@ -98,6 +103,7 @@ func _ready() -> void:
 	inspect_panel.visible = false
 	skins_panel.visible = false
 	open_bag_panel.visible = false
+	case_panel.visible = false
 	stats_label.visible = false
 	ammo_label.modulate.a = 0.0
 	_hit_flash_mat = ShaderMaterial.new()
@@ -120,7 +126,23 @@ func _ready() -> void:
 	item_context_menu.inspect_requested.connect(func(item): inspect_panel.open_for(item))
 	item_context_menu.attachments_requested.connect(_open_attachments)
 	item_context_menu.skins_requested.connect(func(item): skins_panel.open_for(item))
-	item_context_menu.open_bag_requested.connect(func(index, source, item): open_bag_panel.open_for(index, source, item))
+	item_context_menu.open_bag_requested.connect(func(index, source, item):
+		var slot: String = item.get("slot", "")
+		if slot in ["medical_case", "gun_case", "armor_case", "key_case"]:
+			# Same specialized-case handling Stash.gd's own open_bag_requested
+			# already has - this in-raid HUD version used to always fall
+			# through to open_bag_panel, which only understands plain Loot
+			# Bags and silently rejected anything else ("Nothing
+			# happened..."), so a specialized case found mid-raid could
+			# never actually be opened until you extracted.
+			var case_type: String = slot.trim_suffix("_case")
+			GameManager.open_case_item(index, source, case_type)
+			inventory_panel.refresh()
+			case_panel.set_case_type(case_type)
+			case_panel.open()
+		else:
+			open_bag_panel.open_for(index, source, item)
+	)
 	item_context_menu.rotate_requested.connect(_on_rotate_requested)
 	item_context_menu.tag_requested.connect(func(index, source, item): tag_edit_panel.open_for(index, source, item))
 	tag_edit_panel.closed.connect(func(): tag_edit_panel.visible = false)
@@ -146,6 +168,7 @@ func _ready() -> void:
 	)
 	open_bag_panel.closed.connect(func(): open_bag_panel.visible = false)
 	open_bag_panel.bag_opened.connect(inventory_panel.refresh)
+	case_panel.closed.connect(func(): case_panel.visible = false)
 	inspect_panel.closed.connect(func(): inspect_panel.visible = false)
 	skins_panel.closed.connect(func(): skins_panel.visible = false)
 	attachments_panel.closed.connect(_close_attachments)
@@ -292,6 +315,8 @@ func _process(delta: float) -> void:
 			# happened), so it still correctly reflects "yes, it was open
 			# when this Escape press landed."
 			pass
+		elif _case_panel_was_open_at_frame_start:
+			pass
 		elif inventory_panel.visible:
 			inventory_panel.visible = false
 			_set_player_locked(false)
@@ -305,11 +330,12 @@ func _process(delta: float) -> void:
 			get_tree().paused = true
 	esc_was_down = esc_down
 	_tag_edit_was_open_at_frame_start = tag_edit_panel.visible
+	_case_panel_was_open_at_frame_start = case_panel.visible
 
 	# Keep the mouse cursor as a normal arrow whenever a menu/screen covers
 	# the view, and restore the in-game crosshair the instant it's all
 	# closed again - so you're never stuck with the wrong cursor.
-	var want_default: bool = inventory_panel.visible or pause_menu.visible or attachments_panel.visible or item_context_menu.visible or inspect_panel.visible or skins_panel.visible or open_bag_panel.visible or wandering_trader_panel.visible or tag_edit_panel.visible
+	var want_default: bool = inventory_panel.visible or pause_menu.visible or attachments_panel.visible or item_context_menu.visible or inspect_panel.visible or skins_panel.visible or open_bag_panel.visible or wandering_trader_panel.visible or tag_edit_panel.visible or case_panel.visible
 	if want_default != cursor_is_default:
 		cursor_is_default = want_default
 		if cursor_is_default:
