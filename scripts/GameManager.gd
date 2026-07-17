@@ -4223,6 +4223,11 @@ func begin_raid_session() -> void:
 	in_social_hub = false
 	MenuMusic.stop_menu_music()
 	_seed_carried_loot_from_backpack_storage()
+	# Deploying into this raid's actual scene is still a beat away (matchmaking
+	# screen), but reset the periodic net-worth sampler here too so its first
+	# tick lands a full interval after real gameplay starts, not leftover from
+	# time spent in the Hideout/menus before deploying.
+	_networth_sample_timer = 0.0
 
 # Backpack Storage is what you've actually loaded up to bring - moving
 # it into carried_loot here (right as a normal PMC/Scav raid begins) is
@@ -4847,6 +4852,15 @@ var raid_damage_log: Array = []
 var raid_value_samples: Array = []
 var raid_start_time_ms: int = 0
 
+# Combat events (record_damage_taken/record_kill below) already sample
+# raid_value_samples on their own, but a loot-only stealthy raid with no
+# combat at all used to produce just the single t=0 point end_run() seeds -
+# a flat/empty graph even though carried_value genuinely moved. This timer
+# adds a periodic sample alongside the combat-triggered ones, same
+# accumulator-in-_process() shape as _autosave_timer/_flea_market_timer.
+var _networth_sample_timer: float = 0.0
+const NETWORTH_SAMPLE_INTERVAL := 15.0
+
 # Flavor-plausible, not mechanically tracked (this is a top-down 2D
 # shooter with no real per-body-region hitboxes) - same 7 named parts
 # and relative weights DeathScreen.gd's mannequin used to roll purely at
@@ -4877,6 +4891,13 @@ func _raid_elapsed_seconds() -> float:
 
 func _sample_raid_value() -> void:
 	raid_value_samples.append({"time": _raid_elapsed_seconds(), "value": carried_value})
+
+func _tick_networth_sampler(delta: float) -> void:
+	_networth_sample_timer += delta
+	if _networth_sample_timer >= NETWORTH_SAMPLE_INTERVAL:
+		_networth_sample_timer = 0.0
+		if not run_over and get_tree().get_first_node_in_group("player") != null:
+			_sample_raid_value()
 
 func record_damage_taken(amount: int, attacker_name: String, weapon_name: String) -> void:
 	raid_damage_log.append({
@@ -8049,6 +8070,7 @@ func _process(delta: float) -> void:
 	if _autosave_timer >= AUTOSAVE_INTERVAL:
 		_autosave_timer = 0.0
 		save_game()
+	_tick_networth_sampler(delta)
 
 func save_game() -> void:
 	check_achievements()
