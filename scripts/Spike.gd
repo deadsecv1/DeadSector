@@ -116,7 +116,14 @@ func _throw_grenade_at_player() -> void:
 func _shoot() -> void:
 	can_shoot = false
 	var bullet = BULLET_SCENE.instantiate()
-	bullet.direction = (player.global_position - muzzle.global_position).normalized()
+	# Same fix as the base Enemy.gd's own _shoot() - direction comes from
+	# the gun's actual aim rotation (gun_pivot.look_at() already ran this
+	# frame in _physics_process), not a fresh muzzle-to-target vector that
+	# can point backwards/sideways if the target is closer than the
+	# muzzle's forward offset. This matters especially here since
+	# _hold_distance() deliberately closes Spike to well inside that
+	# muzzle offset for its spinning-ring melee mechanic.
+	bullet.direction = Vector2.RIGHT.rotated(gun_pivot.global_rotation)
 	bullet.is_enemy_bullet = true
 	bullet.damage = int(round(36 * enemy_scale_factor * BOSS_DAMAGE_MULT))
 	# Without these, the Death Screen's "Killed by" attribution stayed
