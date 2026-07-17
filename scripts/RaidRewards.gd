@@ -73,6 +73,10 @@ func _ready() -> void:
 	rank_section.visible = is_ranked
 	if is_ranked:
 		_build_rank_section(data)
+	# Shown after EVERY successful extraction - likely the single most
+	# commonly-hit gamepad dead-end in the game if left unset, since a
+	# gamepad player would land here with nothing focused.
+	GameManager.focus_first_control(self)
 
 func _build_rewards(data: Dictionary) -> void:
 	for c in rewards_list.get_children():

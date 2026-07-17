@@ -6735,7 +6735,20 @@ func _find_first_focusable(node: Node) -> Control:
 	# recruit card, or DeathScreen's "Killed By" button when there was no
 	# attacker) would otherwise steal initial focus and leave a gamepad
 	# player stuck unable to actually activate anything.
-	if node is Control and node.focus_mode != Control.FOCUS_NONE and node.visible and not ("disabled" in node and node.disabled):
+	# Must be == FOCUS_ALL specifically, not just != FOCUS_NONE - Godot's
+	# newer accessibility framework gives controls like RichTextLabel a
+	# default focus_mode of FOCUS_ACCESSIBILITY (screen-reader-only,
+	# grab_focus() on one just warns and silently does nothing outside an
+	# active screen reader). A `!= FOCUS_NONE` check treated that as a
+	# real focusable target, so any panel with a RichTextLabel/similar
+	# control positioned before its real buttons (e.g. LoreIntro.gd's lore
+	# text above its Continue/Enter buttons) landed "focus" on inert text
+	# instead, leaving a gamepad player with nothing actually focused.
+	# Every real navigable control in this codebase is explicitly FOCUS_ALL
+	# already (Buttons default to it; custom slots set it by convention -
+	# see CLAUDE.md), so this is a strict correctness fix, not a behavior
+	# narrowing.
+	if node is Control and node.focus_mode == Control.FOCUS_ALL and node.visible and not ("disabled" in node and node.disabled):
 		return node
 	for child in node.get_children():
 		var found := _find_first_focusable(child)

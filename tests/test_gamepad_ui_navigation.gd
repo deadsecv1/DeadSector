@@ -42,6 +42,31 @@ func test_focus_first_control_finds_the_first_focusable_descendant() -> void:
 	remove_child(root)
 	root.queue_free()
 
+# Regression coverage (2026-07-17, controller audit) - Godot's newer
+# accessibility framework gives RichTextLabel (and potentially other
+# controls) a default focus_mode of FOCUS_ACCESSIBILITY (screen-reader-
+# only) rather than FOCUS_NONE. The old `!= FOCUS_NONE` check treated that
+# as a real focusable target and called grab_focus() on it, which just
+# warns and silently does nothing outside an active screen reader -
+# leaving a gamepad player with nothing actually focused whenever a panel
+# has a RichTextLabel/similar control before its real buttons (exactly
+# LoreIntro.gd's shape: lore text above its Continue/Enter buttons).
+func test_focus_first_control_skips_accessibility_only_controls() -> void:
+	var root := Control.new()
+	var rich_text := RichTextLabel.new()
+	assert_eq(rich_text.focus_mode, Control.FOCUS_ACCESSIBILITY, "test assumption: RichTextLabel defaults to FOCUS_ACCESSIBILITY, not FOCUS_NONE")
+	root.add_child(rich_text)
+	var button := Button.new()
+	button.text = "Target"
+	root.add_child(button)
+	add_child(root)
+
+	GameManager.focus_first_control(root)
+	assert_true(button.has_focus(), "focus_first_control must skip an accessibility-only control and land on the real button instead")
+
+	remove_child(root)
+	root.queue_free()
+
 func test_focus_first_control_is_safe_with_nothing_focusable() -> void:
 	var root := Control.new()
 	var not_focusable := Control.new()

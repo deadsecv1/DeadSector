@@ -23,6 +23,7 @@ func _ready() -> void:
 	continue_reading_button.pressed.connect(_on_continue_reading)
 	character_creation_button.pressed.connect(_on_character_creation)
 	_start_page(1)
+	GameManager.focus_first_control(self)
 
 func _start_page(p: int) -> void:
 	page = p

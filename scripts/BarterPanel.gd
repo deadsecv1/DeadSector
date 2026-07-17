@@ -11,6 +11,7 @@ const RECIPE_ICONS := {
 func _ready() -> void:
 	back_button.pressed.connect(func(): Transition.change_scene_instant("res://scenes/Traders.tscn"))
 	refresh()
+	GameManager.focus_first_control(self)
 
 func refresh() -> void:
 	for c in list.get_children():

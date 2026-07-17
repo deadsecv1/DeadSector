@@ -28,6 +28,7 @@ func _ready() -> void:
 	)
 	GameManager.traders_rotated.connect(refresh)
 	refresh()
+	GameManager.focus_first_control(self)
 
 func _process(_delta: float) -> void:
 	if trader_id in ROTATING_TRADERS:
