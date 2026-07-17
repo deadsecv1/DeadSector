@@ -33,6 +33,60 @@ func test_is_action_pressed_respects_a_rebound_gamepad_button() -> void:
 	assert_eq(GameManager.JOYPAD_BUTTON_BINDINGS["nightvision"], JOY_BUTTON_DPAD_DOWN)
 	GameManager.set_joypad_binding("nightvision", original)
 
+# Regression coverage (2026-07-17, controller audit) - set_joypad_binding()/
+# set_keybind() used to blindly overwrite whatever was passed in, with no
+# check for whether another action already used that same button/key. A
+# player could silently bind two actions to the same physical input and
+# both would fire together on every press, with no warning at all.
+func test_set_joypad_binding_rejects_a_button_already_used_by_another_action() -> void:
+	var original_jump: int = GameManager.get_joypad_binding("jump")
+	var interact_binding: int = GameManager.get_joypad_binding("interact")
+
+	var succeeded: bool = GameManager.set_joypad_binding("jump", interact_binding)
+
+	assert_false(succeeded, "binding jump onto interact's existing button should be rejected")
+	assert_eq(GameManager.get_joypad_binding("jump"), original_jump, "jump's binding should be untouched after a rejected rebind")
+	assert_eq(GameManager.get_joypad_binding("interact"), interact_binding, "interact's binding should also be untouched")
+
+	GameManager.set_joypad_binding("jump", original_jump)
+
+func test_set_joypad_binding_rejects_conflicting_with_the_fixed_reload_button() -> void:
+	# "reload" is deliberately not user-rebindable (fixed to X, same as
+	# reload being keyboard-fixed to R) - but it must still count as
+	# "occupied" when checking a REBINDABLE action against it, or a player
+	# could bind e.g. nightvision onto X too and both would fire on every
+	# X press.
+	var original_nightvision: int = GameManager.get_joypad_binding("nightvision")
+	var reload_binding: int = GameManager.get_joypad_binding("reload")
+
+	var succeeded: bool = GameManager.set_joypad_binding("nightvision", reload_binding)
+
+	assert_false(succeeded, "binding nightvision onto reload's fixed button should be rejected")
+	assert_eq(GameManager.get_joypad_binding("nightvision"), original_nightvision)
+
+	GameManager.set_joypad_binding("nightvision", original_nightvision)
+
+func test_set_joypad_binding_allows_rebinding_an_action_to_its_own_current_button() -> void:
+	# Re-confirming the same button for the same action must not count as
+	# "already used by another action" - that would make it impossible to
+	# ever re-press-and-confirm an unchanged binding.
+	var current: int = GameManager.get_joypad_binding("chat")
+	var succeeded: bool = GameManager.set_joypad_binding("chat", current)
+	assert_true(succeeded)
+	assert_eq(GameManager.get_joypad_binding("chat"), current)
+
+func test_set_keybind_rejects_a_key_already_used_by_another_action() -> void:
+	var original_jump: int = GameManager.get_keybind("jump")
+	var interact_binding: int = GameManager.get_keybind("interact")
+
+	var succeeded: bool = GameManager.set_keybind("jump", interact_binding)
+
+	assert_false(succeeded, "binding jump onto interact's existing key should be rejected")
+	assert_eq(GameManager.get_keybind("jump"), original_jump)
+	assert_eq(GameManager.get_keybind("interact"), interact_binding)
+
+	GameManager.set_keybind("jump", original_jump)
+
 func test_every_rebindable_action_has_a_joypad_default() -> void:
 	for action in ["interact", "prone", "jump", "dash", "nightvision", "chat", "inventory"]:
 		assert_true(GameManager.JOYPAD_BUTTON_DEFAULTS.has(action), "Missing a JOYPAD_BUTTON_DEFAULTS entry for '%s'" % action)

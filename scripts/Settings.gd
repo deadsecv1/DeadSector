@@ -82,9 +82,14 @@ func _input(event: InputEvent) -> void:
 			rebinding_action = ""
 			_refresh_keybind_labels()
 			return
-		GameManager.set_keybind(rebinding_action, event.keycode)
-		_refresh_keybind_labels()
-		rebinding_action = ""
+		# On a rejected (conflicting) bind, stay in rebind-waiting mode
+		# instead of silently exiting it - GameManager.set_keybind()
+		# already emitted a toast explaining why, and the player should be
+		# able to just try a different key immediately rather than having
+		# to click the row again.
+		if GameManager.set_keybind(rebinding_action, event.keycode):
+			_refresh_keybind_labels()
+			rebinding_action = ""
 		return
 	if rebinding_gamepad_action != "" and event is InputEventJoypadButton and event.pressed:
 		get_viewport().set_input_as_handled()
@@ -92,9 +97,9 @@ func _input(event: InputEvent) -> void:
 			rebinding_gamepad_action = ""
 			_refresh_gamepad_bind_labels()
 			return
-		GameManager.set_joypad_binding(rebinding_gamepad_action, event.button_index)
-		_refresh_gamepad_bind_labels()
-		rebinding_gamepad_action = ""
+		if GameManager.set_joypad_binding(rebinding_gamepad_action, event.button_index):
+			_refresh_gamepad_bind_labels()
+			rebinding_gamepad_action = ""
 		return
 	if event is InputEventKey and event.keycode == KEY_TAB and event.pressed and not event.echo:
 		get_viewport().set_input_as_handled()

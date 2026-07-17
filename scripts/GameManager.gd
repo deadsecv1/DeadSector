@@ -6487,9 +6487,19 @@ const KEYBIND_DEFAULTS := {"prone": KEY_Z, "interact": KEY_F, "jump": KEY_SPACE,
 func get_keybind(action: String) -> int:
 	return int(keybinds.get(action, KEYBIND_DEFAULTS.get(action, KEY_NONE)))
 
-func set_keybind(action: String, keycode: int) -> void:
+# Returns false (and leaves the old binding untouched) if keycode is
+# already bound to a DIFFERENT action - without this, a player could
+# silently bind e.g. "jump" onto the same key "interact" already uses,
+# and both actions would fire together on every press of that key with
+# no warning at all.
+func set_keybind(action: String, keycode: int) -> bool:
+	for other_action in keybinds:
+		if other_action != action and int(keybinds[other_action]) == keycode:
+			toast_requested.emit("%s is already bound to %s" % [OS.get_keycode_string(keycode), str(other_action).capitalize()])
+			return false
 	keybinds[action] = keycode
 	save_game()
+	return true
 
 # Settings' "Reset to Defaults" button - the only way back for a player
 # who rebound something (Interact especially) and forgot, with no memory
@@ -6534,9 +6544,20 @@ const TRIGGER_THRESHOLD := 0.4
 func get_joypad_binding(action: String) -> int:
 	return int(JOYPAD_BUTTON_BINDINGS.get(action, JOYPAD_BUTTON_DEFAULTS.get(action, -1)))
 
-func set_joypad_binding(action: String, button_index: int) -> void:
+# Returns false (and leaves the old binding untouched) if button_index is
+# already bound to a DIFFERENT action - same reasoning as set_keybind()
+# above. Checks against every entry in JOYPAD_BUTTON_BINDINGS, including
+# the non-rebindable "reload" (fixed to X) - without this a player could
+# rebind e.g. "nightvision" onto X too, and both would silently fire
+# together on every X press.
+func set_joypad_binding(action: String, button_index: int) -> bool:
+	for other_action in JOYPAD_BUTTON_BINDINGS:
+		if other_action != action and int(JOYPAD_BUTTON_BINDINGS[other_action]) == button_index:
+			toast_requested.emit("That button is already bound to %s" % str(other_action).capitalize())
+			return false
 	JOYPAD_BUTTON_BINDINGS[action] = button_index
 	save_game()
+	return true
 
 # --- Gamepad glyph prompts: swaps "Press F"/"Press R"-style keyboard
 # hints for a compact bracketed button label (e.g. "[A]") when a gamepad
