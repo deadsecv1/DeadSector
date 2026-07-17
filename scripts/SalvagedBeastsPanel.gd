@@ -313,7 +313,19 @@ func _update_egg_slot(box: Control, index: int) -> void:
 	var status: Label = vbox.get_node("Status")
 	var btn: Button = vbox.get_node("ActionButton")
 
-	if not btn.pressed.is_connected(_on_slot_button):
+	# The original guard checked is_connected() against the UNBOUND
+	# _on_slot_button, but the connection actually made is the BOUND
+	# _on_slot_button.bind(index) - a different Callable that never
+	# matched, so the guard never once detected an existing connection.
+	# _update_egg_slot() runs every frame from _process() while this panel
+	# is visible and reuses the same 5 button nodes indefinitely, so a
+	# fresh duplicate connection stacked up every single frame. A plain
+	# "already wired" flag sidesteps relying on bound-Callable equality
+	# entirely - box/index pairing is fixed for a given button's lifetime
+	# (egg_slots_row's children are only ever rebuilt from scratch, never
+	# reordered in place), so wiring it once is always correct.
+	if not btn.has_meta("_wired"):
+		btn.set_meta("_wired", true)
 		btn.pressed.connect(_on_slot_button.bind(index))
 
 	if index >= GameManager.egg_hatching_slots.size():

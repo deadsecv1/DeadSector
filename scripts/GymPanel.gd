@@ -26,6 +26,18 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	# Force the designed centered rect back explicitly - since this panel
+	# is draggable (DraggablePanelScript.apply() above), a drag from a
+	# previous open persists in .offset_*/.position indefinitely (this
+	# node stays alive, just hidden, between opens) unless reset here.
+	anchor_left = 0.5
+	anchor_top = 0.5
+	anchor_right = 0.5
+	anchor_bottom = 0.5
+	offset_left = -230.0
+	offset_top = -220.0
+	offset_right = 230.0
+	offset_bottom = 220.0
 	refresh()
 	GameManager.focus_first_control(self)
 	PanelOpenFX.animate_open(self)

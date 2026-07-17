@@ -103,6 +103,18 @@ func _build_ellie_corner() -> void:
 
 func open() -> void:
 	visible = true
+	# Force the designed centered rect back explicitly - since this panel
+	# is draggable (DraggablePanelScript.apply() above), a drag from a
+	# previous open persists in .offset_*/.position indefinitely (this
+	# node stays alive, just hidden, between opens) unless reset here.
+	anchor_left = 0.5
+	anchor_top = 0.5
+	anchor_right = 0.5
+	anchor_bottom = 0.5
+	offset_left = -230.0
+	offset_top = -260.0
+	offset_right = 230.0
+	offset_bottom = 260.0
 	GameManager.rose_talked_to = true
 	_show_menu()
 	GameManager.focus_first_control(self)
