@@ -13,7 +13,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 @onready var vbox: VBoxContainer = $VBox
 @onready var progress_label: Label = $VBox/ProgressLabel
-var _vbox_home_position: Vector2
 @onready var list_scroll: ScrollContainer = $VBox/ListScroll
 @onready var list: VBoxContainer = $VBox/ListScroll/List
 @onready var detail_view: Control = $VBox/DetailView
@@ -25,12 +24,11 @@ var _vbox_home_position: Vector2
 
 func _ready() -> void:
 	visible = false
-	_vbox_home_position = vbox.position
-	# self is a full-screen backdrop wrapper (see LorePanel.tscn), not the
-	# visible card - bounds the drag handles to VBox's own rect instead of
-	# the screen edges, and drags VBox itself rather than self so the
-	# full-screen Backdrop/DystoBG never move. See DraggablePanel.apply()'s
-	# own comment.
+	# self is a full-screen backdrop wrapper (see LorePanel.tscn) with no
+	# offsets of its own (anchor 0/0/1/1, offset 0/0/0/0) - bounds just
+	# scopes the drag HITBOX to vbox's rect instead of the whole screen's
+	# edges; dragging still moves self (backdrop + content together) as
+	# one cohesive unit. See DraggablePanel.apply()'s own comment.
 	DraggablePanelScript.apply(self, vbox)
 	close_button.pressed.connect(func(): closed.emit())
 	back_button.pressed.connect(_show_list)
@@ -38,11 +36,14 @@ func _ready() -> void:
 func open() -> void:
 	visible = true
 	# Undo any leftover drag from a previous time this same instance was
-	# open - the drag handles are on vbox now (see DraggablePanel.apply()
-	# call above), not this full-screen wrapper, so vbox.position is what
-	# can drift; force it back to its authored centered position every
-	# time the panel opens rather than trusting whatever it was left at.
-	vbox.position = _vbox_home_position
+	# open. self's authored position is (0,0) (full-rect anchors, zero
+	# offsets, per LorePanel.tscn) - NOT captured at _ready() time, since
+	# a Control's .position can read back wrong before its first real
+	# layout pass resolves (this bit LorePanel/PostRaidBreakdownPanel
+	# once already: capturing vbox.position in _ready() sometimes
+	# captured a pre-layout (0,0)-ish value instead of vbox's real
+	# centered position, making the panel open pinned to the top-left).
+	position = Vector2.ZERO
 	_show_list()
 	GameManager.focus_first_control(self)
 	PanelOpenFX.animate_open(self)

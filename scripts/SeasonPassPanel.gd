@@ -18,6 +18,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		closed.emit()
 
+@onready var vbox: VBoxContainer = $VBox
 @onready var countdown_label: Label = $VBox/TopRow/CountdownLabel
 @onready var extractions_label: Label = $VBox/TopRow/ExtractionsLabel
 @onready var tier_label: Label = $VBox/TierRow/TierLabel
@@ -33,6 +34,19 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	# Anchors/offsets can read back as their un-set defaults (0,0,0,0)
+	# instead of the .tscn-designed centered values on some popup panels
+	# (a known project gotcha - see CLAUDE.md) - force them explicitly
+	# every time this opens instead of trusting whatever they currently
+	# read as, same fix already applied elsewhere for this exact symptom.
+	vbox.anchor_left = 0.5
+	vbox.anchor_top = 0.5
+	vbox.anchor_right = 0.5
+	vbox.anchor_bottom = 0.5
+	vbox.offset_left = -320.0
+	vbox.offset_top = -290.0
+	vbox.offset_right = 320.0
+	vbox.offset_bottom = 290.0
 	refresh()
 	GameManager.focus_first_control(self)
 	PanelOpenFX.animate_open(self)

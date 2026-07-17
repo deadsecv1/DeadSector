@@ -1226,6 +1226,11 @@ const CHANGELOG_CURRENT := [
 		"Boots and helmet attachments now actually wear down from combat hits, matching head/body armor - they were always listed as repairable but could never actually take wear.",
 		"The Post-Raid Breakdown kill log now credits the weapon that actually got the kill (a grenade, a poison tick) instead of always guessing it was whatever's currently equipped.",
 	]},
+	{"version": "3.84.4", "title": "Keybind Reset, Season Pass/Lore/Post-Raid Breakdown Positioning", "notes": [
+		"Added a \"Reset to Defaults\" button to Settings' Keybinds screen - if a key ever gets rebound to something unexpected with no memory of how, this is the way back instead of hunting through every row.",
+		"Fixed the Season Pass panel opening pinned to the top-left corner instead of centered - the same underlying issue Lore/Post-Raid Breakdown had before, now fixed there too so it can't come back.",
+		"Fixed dragging the Lore/Post-Raid Breakdown panels by their border feeling broken (only the inner card visibly moved, not the panel's own border/background) - dragging now moves the whole panel together as one piece again, the way every other draggable panel in the game already works.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

@@ -19,6 +19,7 @@ extends Control
 @onready var nightvision_bind_button: Button = $KeybindsView/NightvisionRow/NightvisionBindButton
 @onready var chat_bind_button: Button = $KeybindsView/ChatRow/ChatBindButton
 @onready var inventory_bind_button: Button = $KeybindsView/InventoryRow/InventoryBindButton
+@onready var reset_keybinds_button: Button = $KeybindsView/ResetKeybindsButton
 @onready var keybinds_back_button: Button = $KeybindsView/KeybindsBackButton
 
 @onready var interact_gamepad_bind_button: Button = $KeybindsView/InteractRow/InteractGamepadBindButton
@@ -150,6 +151,7 @@ func _ready() -> void:
 	nightvision_bind_button.pressed.connect(func(): _start_rebind("nightvision", nightvision_bind_button))
 	chat_bind_button.pressed.connect(func(): _start_rebind("chat", chat_bind_button))
 	inventory_bind_button.pressed.connect(func(): _start_rebind("inventory", inventory_bind_button))
+	reset_keybinds_button.pressed.connect(_on_reset_keybinds)
 	keybinds_back_button.pressed.connect(_show_main)
 
 	interact_gamepad_bind_button.pressed.connect(func(): _start_gamepad_rebind("interact", interact_gamepad_bind_button))
@@ -178,6 +180,17 @@ func _show_main() -> void:
 	# it (those paths already refresh labels themselves - see _input()).
 	_refresh_keybind_labels()
 	_refresh_gamepad_bind_labels()
+
+func _on_reset_keybinds() -> void:
+	# Cancel any rebind in progress first - otherwise the next keypress
+	# after this could get captured as a rebind for whatever action was
+	# mid-listen, immediately undoing the reset for that one action.
+	rebinding_action = ""
+	rebinding_gamepad_action = ""
+	GameManager.reset_keybinds_to_defaults()
+	_refresh_keybind_labels()
+	_refresh_gamepad_bind_labels()
+	GameManager.toast_requested.emit("Keybinds reset to defaults")
 
 func _start_rebind(action: String, button: Button) -> void:
 	rebinding_action = action

@@ -6409,10 +6409,13 @@ var window_mode_setting: String = "windowed_fullscreen"
 var vsync_enabled: bool = true
 var screen_shake_enabled: bool = true
 
-# --- Keybinds: Interact (F) is fixed for now (it's referenced directly
-# across a couple dozen scripts, not worth the risk of rebinding
-# project-wide in one pass) - Prone and Close-Up View are the two real,
-# rebindable keys.
+# --- Keybinds: all 7 of these are user-rebindable via Settings' Keybinds
+# screen (interact included - despite what an older version of this
+# comment used to claim about it being "fixed for now"; it's been
+# rebindable in the actual UI for a while, this just never got updated
+# to say so). reload is the one action NOT in here - it's keyboard-fixed
+# to R, matching how it's also not in JOYPAD_BUTTON_BINDINGS's
+# user-rebindable set below.
 var keybinds: Dictionary = {"prone": KEY_Z, "interact": KEY_F, "jump": KEY_SPACE, "dash": KEY_SHIFT, "nightvision": KEY_N, "chat": KEY_ENTER, "inventory": KEY_TAB, "reload": KEY_R}
 const KEYBIND_DEFAULTS := {"prone": KEY_Z, "interact": KEY_F, "jump": KEY_SPACE, "dash": KEY_SHIFT, "nightvision": KEY_N, "chat": KEY_ENTER, "inventory": KEY_TAB, "reload": KEY_R}
 
@@ -6421,6 +6424,15 @@ func get_keybind(action: String) -> int:
 
 func set_keybind(action: String, keycode: int) -> void:
 	keybinds[action] = keycode
+	save_game()
+
+# Settings' "Reset to Defaults" button - the only way back for a player
+# who rebound something (Interact especially) and forgot, with no memory
+# of which action it even was. Resets both keyboard and gamepad bindings
+# together since Settings shows them on the same screen/row.
+func reset_keybinds_to_defaults() -> void:
+	keybinds = KEYBIND_DEFAULTS.duplicate()
+	JOYPAD_BUTTON_BINDINGS = JOYPAD_BUTTON_DEFAULTS.duplicate()
 	save_game()
 
 # --- Gamepad support -------------------------------------------------

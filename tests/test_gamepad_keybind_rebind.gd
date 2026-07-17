@@ -36,3 +36,26 @@ func test_is_action_pressed_respects_a_rebound_gamepad_button() -> void:
 func test_every_rebindable_action_has_a_joypad_default() -> void:
 	for action in ["interact", "prone", "jump", "dash", "nightvision", "chat", "inventory"]:
 		assert_true(GameManager.JOYPAD_BUTTON_DEFAULTS.has(action), "Missing a JOYPAD_BUTTON_DEFAULTS entry for '%s'" % action)
+
+# Regression coverage (2026-07-16) - a real save was found with "interact"
+# rebound away from F to an unrelated key (M), with no memory of how or
+# when, and no way back short of manually finding and re-rebinding the
+# exact right row in Settings. reset_keybinds_to_defaults() (Settings'
+# new "Reset to Defaults" button) is the escape hatch.
+func test_reset_keybinds_to_defaults_restores_a_scrambled_keyboard_binding() -> void:
+	var keybinds_before: Dictionary = GameManager.keybinds.duplicate()
+	var joypad_before: Dictionary = GameManager.JOYPAD_BUTTON_BINDINGS.duplicate()
+
+	GameManager.set_keybind("interact", KEY_M)
+	GameManager.set_joypad_binding("jump", JOY_BUTTON_DPAD_LEFT)
+	assert_ne(GameManager.get_keybind("interact"), KEY_F)
+
+	GameManager.reset_keybinds_to_defaults()
+	assert_eq(GameManager.get_keybind("interact"), KEY_F)
+	for action in GameManager.KEYBIND_DEFAULTS:
+		assert_eq(GameManager.get_keybind(action), GameManager.KEYBIND_DEFAULTS[action], "keybind '%s' should match its default after reset" % action)
+	for action in GameManager.JOYPAD_BUTTON_DEFAULTS:
+		assert_eq(GameManager.get_joypad_binding(action), GameManager.JOYPAD_BUTTON_DEFAULTS[action], "joypad binding '%s' should match its default after reset" % action)
+
+	GameManager.keybinds = keybinds_before
+	GameManager.JOYPAD_BUTTON_BINDINGS = joypad_before
