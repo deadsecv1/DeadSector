@@ -11,29 +11,42 @@ extends Control
 var _time: float = 0.0
 var _sweep_x: float = 0.0
 
+var _sparkles: CPUParticles2D
+
 func _ready() -> void:
 	set_process(true)
-	var sparkles := CPUParticles2D.new()
-	sparkles.z_index = 1
-	sparkles.emitting = true
-	sparkles.amount = 18
-	sparkles.lifetime = 2.4
-	sparkles.direction = Vector2.ZERO
-	sparkles.spread = 180.0
-	sparkles.gravity = Vector2.ZERO
-	sparkles.initial_velocity_min = 3.0
-	sparkles.initial_velocity_max = 12.0
-	sparkles.scale_amount_min = 1.0
-	sparkles.scale_amount_max = 2.2
-	sparkles.color = Color(hero_color.r, hero_color.g, hero_color.b, 0.7)
-	sparkles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
-	add_child(sparkles)
-	resized.connect(func():
-		sparkles.position = size / 2.0
-		sparkles.emission_rect_extents = Vector2(max(size.x * 0.48, 4.0), max(size.y * 0.4, 4.0))
-	)
-	sparkles.position = size / 2.0
-	sparkles.emission_rect_extents = Vector2(max(size.x * 0.48, 4.0), max(size.y * 0.4, 4.0))
+	_sparkles = CPUParticles2D.new()
+	_sparkles.z_index = 1
+	_sparkles.emitting = true
+	_sparkles.amount = 18
+	_sparkles.lifetime = 2.4
+	_sparkles.direction = Vector2.ZERO
+	_sparkles.spread = 180.0
+	_sparkles.gravity = Vector2.ZERO
+	_sparkles.initial_velocity_min = 3.0
+	_sparkles.initial_velocity_max = 12.0
+	_sparkles.scale_amount_min = 1.0
+	_sparkles.scale_amount_max = 2.2
+	_sparkles.color = Color(hero_color.r, hero_color.g, hero_color.b, 0.7)
+	_sparkles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	add_child(_sparkles)
+	resized.connect(_update_sparkle_emission_area)
+	# NOT called directly here - this banner can be a fresh child of a
+	# just-restructured container (e.g. GuildPanel's full-screen VBox)
+	# whose layout hasn't resolved a single frame yet, so `size` read
+	# right now can still be a stale pre-layout value. All 18 sparkles
+	# would spawn clustered into that wrong (often tiny) area and, since
+	# CPUParticles2D doesn't relocate already-emitted particles when
+	# emission_rect_extents changes later, stay visually clumped there
+	# for their full 2.4s lifetime - dense enough with 18 overlapping
+	# glows to look like a solid, misplaced rectangle. Deferring one
+	# frame lets layout settle first, same fix shape as the panel-
+	# position bug this project already hit once (see CLAUDE.md).
+	call_deferred("_update_sparkle_emission_area")
+
+func _update_sparkle_emission_area() -> void:
+	_sparkles.position = size / 2.0
+	_sparkles.emission_rect_extents = Vector2(max(size.x * 0.48, 4.0), max(size.y * 0.4, 4.0))
 
 func _process(delta: float) -> void:
 	_time += delta

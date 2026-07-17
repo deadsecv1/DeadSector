@@ -1235,6 +1235,9 @@ const CHANGELOG_CURRENT := [
 		"Fixed the pistol's held-weapon sprite - it was a plain gray rectangle instead of an actual gun, the only weapon in the game with this problem (every other weapon's art was checked and is fine).",
 		"Ammo stored in a Safe Pocket now counts toward your usable ammo reserve during a raid, the same as ammo in Backpack Storage - it's spent last, after everything else runs out, so your protected stack stays protected as long as possible.",
 	]},
+	{"version": "3.85.0", "title": "Guild Is Now a Full Screen", "notes": [
+		"The Guild panel is now a full screen instead of a small window - the same animated hero banner treatment as the Arena/Skill Tree updates, a lot more breathing room for the member roster, Clan Wars, and Guild Battle Pass cards, and the same drag/close behavior as every other panel.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

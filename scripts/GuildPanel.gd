@@ -15,26 +15,38 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		closed.emit()
 
+@onready var vbox: VBoxContainer = $VBox
+@onready var hero_banner = $VBox/HeroBanner
 @onready var body: VBoxContainer = $VBox/Scroll/Body
 @onready var close_button: Button = $VBox/CloseButton
 
 func _ready() -> void:
 	visible = false
-	DraggablePanelScript.apply(self)
+	hero_banner.hero_color = ACCENT
+	hero_banner.hero_label = "GUILD"
+	# self is a full-screen backdrop wrapper (see GuildPanel.tscn), not the
+	# visible card - bounds the drag handles to VBox's own rect instead of
+	# the screen edges, while dragging still moves self (backdrop + content
+	# together) as one cohesive unit. See DraggablePanel.apply()'s own
+	# comment.
+	DraggablePanelScript.apply(self, vbox)
 	close_button.pressed.connect(func(): closed.emit())
 
 func open() -> void:
 	visible = true
-	# Same runtime anchor-collapse bug as Flea Market/Mail - force the
-	# designed centered layout back explicitly.
-	anchor_left = 0.5
-	anchor_top = 0.5
-	anchor_right = 0.5
-	anchor_bottom = 0.5
-	offset_left = -230.0
-	offset_top = -220.0
-	offset_right = 230.0
-	offset_bottom = 220.0
+	# Anchors/offsets can read back as their un-set defaults (0,0,0,0)
+	# instead of the .tscn-designed centered values on some popup panels
+	# (a known project gotcha - see CLAUDE.md) - force them explicitly
+	# every time this opens instead of trusting whatever they currently
+	# read as.
+	vbox.anchor_left = 0.5
+	vbox.anchor_top = 0.5
+	vbox.anchor_right = 0.5
+	vbox.anchor_bottom = 0.5
+	vbox.offset_left = -420.0
+	vbox.offset_top = -350.0
+	vbox.offset_right = 420.0
+	vbox.offset_bottom = 350.0
 	refresh()
 	GameManager.focus_first_control(self)
 	PanelOpenFX.animate_open(self)
