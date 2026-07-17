@@ -489,3 +489,4 @@ func _open_profile_popup(entry: Dictionary) -> void:
 	vbox.add_child(close_btn)
 
 	add_child(profile_popup)
+	GameManager.focus_first_control(profile_popup)

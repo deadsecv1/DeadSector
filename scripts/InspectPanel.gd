@@ -1,4 +1,5 @@
 extends Panel
+const DraggablePanelScript := preload("res://scripts/DraggablePanel.gd")
 
 signal closed
 
@@ -21,6 +22,7 @@ var dragging: bool = false
 
 func _ready() -> void:
 	visible = false
+	DraggablePanelScript.apply(self)
 	close_button.pressed.connect(func(): closed.emit())
 
 func open_for(item: Dictionary) -> void:

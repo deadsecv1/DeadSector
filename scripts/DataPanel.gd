@@ -77,6 +77,8 @@ func _switch_tab(tab: String) -> void:
 	refresh()
 
 func refresh() -> void:
+	if context_menu != null:
+		context_menu.visible = false
 	for c in list.get_children():
 		list.remove_child(c)
 		c.queue_free()
@@ -717,6 +719,7 @@ func _open_context_menu(entry: Dictionary, click_pos: Vector2) -> void:
 		clamp(click_pos.y + 8.0, 0.0, max(0.0, vp.y - MENU_SIZE.y))
 	)
 	context_menu.visible = true
+	GameManager.focus_first_control(context_menu)
 
 func _on_inspect_pressed() -> void:
 	context_menu.visible = false
@@ -845,6 +848,7 @@ func _open_inspect_popup(entry: Dictionary) -> void:
 	vbox.add_child(close_btn)
 
 	add_child(inspect_popup)
+	GameManager.focus_first_control(inspect_popup)
 
 # A static stand-in for the bullet each weapon style fires, matching
 # Bullet.gd's own per-style modulate/scale so this is an honest preview

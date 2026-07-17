@@ -30,6 +30,7 @@ func _ready() -> void:
 
 	_build_ranks()
 	_build_your_rank_panel()
+	GameManager.focus_first_control(self)
 
 func _build_ranks() -> void:
 	for c in rank_list.get_children():
