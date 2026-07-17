@@ -42,6 +42,19 @@ func open() -> void:
 	# _ready() time, which can read back wrong before the first real
 	# layout pass resolves).
 	position = Vector2.ZERO
+	# vbox's own anchors/offsets can ALSO read back as their un-set
+	# defaults instead of the .tscn-designed centered values - see
+	# LorePanel.gd's open() for the same fix and full reasoning. Missing
+	# this half is what let the panel keep opening cropped/off-position
+	# even after the drag-drift half (above) was already fixed.
+	vbox.anchor_left = 0.5
+	vbox.anchor_top = 0.5
+	vbox.anchor_right = 0.5
+	vbox.anchor_bottom = 0.5
+	vbox.offset_left = -350.0
+	vbox.offset_top = -310.0
+	vbox.offset_right = 350.0
+	vbox.offset_bottom = 310.0
 	refresh()
 	GameManager.focus_first_control(self)
 	PanelOpenFX.animate_open(self)

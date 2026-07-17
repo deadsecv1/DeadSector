@@ -44,6 +44,20 @@ func open() -> void:
 	# captured a pre-layout (0,0)-ish value instead of vbox's real
 	# centered position, making the panel open pinned to the top-left).
 	position = Vector2.ZERO
+	# Separately, vbox's own anchors/offsets can ALSO read back as their
+	# un-set defaults (0,0,0,0) instead of the .tscn-designed centered
+	# values - the same project-wide gotcha SeasonPassPanel/GuildPanel
+	# already guard against (see CLAUDE.md). Missing this half of the fix
+	# here is exactly what let the panel keep opening cropped/off-position
+	# even after the drag-drift half was fixed - force it explicitly too.
+	vbox.anchor_left = 0.5
+	vbox.anchor_top = 0.5
+	vbox.anchor_right = 0.5
+	vbox.anchor_bottom = 0.5
+	vbox.offset_left = -320.0
+	vbox.offset_top = -290.0
+	vbox.offset_right = 320.0
+	vbox.offset_bottom = 290.0
 	_show_list()
 	GameManager.focus_first_control(self)
 	PanelOpenFX.animate_open(self)

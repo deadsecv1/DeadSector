@@ -133,8 +133,13 @@ static func days_until_roadmap_date(date_str: String, today_dict: Dictionary) ->
 
 # The game's still Pre Season (per the Roadmap's own framing - "Season 1"
 # doesn't start until the Alpha tag actually comes off at 1.0 Release), so
-# this button previews whatever's nearest in RoadmapPanel's COMING SOON
-# list rather than pretending a numbered season is already underway.
+# this button (labeled "COMING SOON" - was "PRE SEASON" until a real user
+# report flagged it as easily confused with the separate, unrelated
+# Season Pass button) previews whatever's nearest in RoadmapPanel's own
+# COMING SOON list rather than pretending a numbered season is already
+# underway. Opens roadmap_panel, same as the Roadmap button right above
+# it - that's intentional, this is just a live countdown teaser for it,
+# not a second copy of Season Pass.
 func _setup_season_preview() -> void:
 	var today := Time.get_date_dict_from_system()
 	var best_title := ""
@@ -149,11 +154,11 @@ func _setup_season_preview() -> void:
 			best_days = days
 			best_title = entry.get("title", "")
 	if best_title == "":
-		season_button.text = "PRE SEASON"
+		season_button.text = "COMING SOON"
 	elif best_days == 0:
-		season_button.text = "PRE SEASON\nNext: %s today" % best_title
+		season_button.text = "COMING SOON\n%s today" % best_title
 	else:
-		season_button.text = "PRE SEASON\nNext: %s in %dd" % [best_title, best_days]
+		season_button.text = "COMING SOON\n%s in %dd" % [best_title, best_days]
 
 func _ready() -> void:
 	GameManager.set_default_cursor()

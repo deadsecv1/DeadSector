@@ -1,11 +1,14 @@
 extends TestCase
 
-# Regression coverage for the "PRE SEASON" preview button added to
-# MainMenu (2026-07-16) - the game explicitly isn't calling its current
-# content "Season 1" (that's reserved for 1.0 Release, per RoadmapPanel's
-# own framing), so this button just previews the nearest RoadmapPanel
-# "COMING SOON" entry instead. days_until_roadmap_date() is a pure
-# function specifically so this doesn't depend on the real system clock.
+# Regression coverage for the "COMING SOON" preview button added to
+# MainMenu (2026-07-16, renamed from "PRE SEASON" the same day after a
+# real user report - it opens roadmap_panel and was easily confused with
+# the separate, unrelated Season Pass button/panel). The game explicitly
+# isn't calling its current content "Season 1" (that's reserved for 1.0
+# Release, per RoadmapPanel's own framing), so this button just previews
+# the nearest RoadmapPanel "COMING SOON" entry instead.
+# days_until_roadmap_date() is a pure function specifically so this
+# doesn't depend on the real system clock.
 
 const MainMenuScript := preload("res://scripts/MainMenu.gd")
 

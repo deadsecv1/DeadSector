@@ -34,6 +34,11 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	# Undo any leftover drag from a previous time this same instance was
+	# open - self's authored position is (0,0) (full-rect anchors, zero
+	# offsets, per GuildPanel.tscn). See LorePanel.gd's open() for the
+	# full reasoning (this is the exact same panel shape).
+	position = Vector2.ZERO
 	# Anchors/offsets can read back as their un-set defaults (0,0,0,0)
 	# instead of the .tscn-designed centered values on some popup panels
 	# (a known project gotcha - see CLAUDE.md) - force them explicitly

@@ -1238,6 +1238,11 @@ const CHANGELOG_CURRENT := [
 	{"version": "3.85.0", "title": "Guild Is Now a Full Screen", "notes": [
 		"The Guild panel is now a full screen instead of a small window - the same animated hero banner treatment as the Arena/Skill Tree updates, a lot more breathing room for the member roster, Clan Wars, and Guild Battle Pass cards, and the same drag/close behavior as every other panel.",
 	]},
+	{"version": "3.85.1", "title": "Hotfix: Panel Cropping, Season Pass Border, Confusing Button", "notes": [
+		"Fixed the Lore and Post-Raid Breakdown panels still opening cropped/off-position for some players even after the earlier fix - that fix only covered half the underlying issue.",
+		"The Season Pass panel now has the same black draggable border every other panel has (it was missing because Season Pass was never made draggable in the first place).",
+		"Renamed the confusing \"PRE SEASON\" button (which opens the Roadmap, not the actual Season Pass) to \"COMING SOON\" - it was sitting right next to the Roadmap button and both opened the same panel, which understandably looked like a bug.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

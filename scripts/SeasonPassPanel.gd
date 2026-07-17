@@ -9,6 +9,7 @@ extends Panel
 
 signal closed
 
+const DraggablePanelScript := preload("res://scripts/DraggablePanel.gd")
 const SmallIconScene := preload("res://scenes/SmallIcon.tscn")
 const ItemIconScene := preload("res://scenes/ItemIcon.tscn")
 const ACCENT := Color(1.0, 0.75, 0.3, 1)
@@ -29,11 +30,25 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _ready() -> void:
 	visible = false
+	# self is a full-screen backdrop wrapper (see SeasonPassPanel.tscn),
+	# not the visible card - bounds the drag handles to vbox's own rect
+	# instead of the screen's edges, while dragging still moves self
+	# (backdrop + content together) as one cohesive unit. Also the source
+	# of the panel's black draggable-edge border, which this panel didn't
+	# have before (it never called this at all) unlike Lore/Post-Raid
+	# Breakdown/Guild, which is why it looked visually inconsistent with
+	# them - see DraggablePanel.apply()'s own comment.
+	DraggablePanelScript.apply(self, vbox)
 	close_button.pressed.connect(func(): closed.emit())
 	skip_button.pressed.connect(_on_skip)
 
 func open() -> void:
 	visible = true
+	# Undo any leftover drag from a previous time this same instance was
+	# open - self's authored position is (0,0) (full-rect anchors, zero
+	# offsets, per SeasonPassPanel.tscn). See LorePanel.gd's open() for
+	# the full reasoning (this is the exact same panel shape).
+	position = Vector2.ZERO
 	# Anchors/offsets can read back as their un-set defaults (0,0,0,0)
 	# instead of the .tscn-designed centered values on some popup panels
 	# (a known project gotcha - see CLAUDE.md) - force them explicitly
