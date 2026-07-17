@@ -1231,6 +1231,10 @@ const CHANGELOG_CURRENT := [
 		"Fixed the Season Pass panel opening pinned to the top-left corner instead of centered - the same underlying issue Lore/Post-Raid Breakdown had before, now fixed there too so it can't come back.",
 		"Fixed dragging the Lore/Post-Raid Breakdown panels by their border feeling broken (only the inner card visibly moved, not the panel's own border/background) - dragging now moves the whole panel together as one piece again, the way every other draggable panel in the game already works.",
 	]},
+	{"version": "3.84.5", "title": "Pistol Art, Safe Pocket Ammo", "notes": [
+		"Fixed the pistol's held-weapon sprite - it was a plain gray rectangle instead of an actual gun, the only weapon in the game with this problem (every other weapon's art was checked and is fine).",
+		"Ammo stored in a Safe Pocket now counts toward your usable ammo reserve during a raid, the same as ammo in Backpack Storage - it's spent last, after everything else runs out, so your protected stack stays protected as long as possible.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

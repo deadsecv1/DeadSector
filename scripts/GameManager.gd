@@ -1270,14 +1270,27 @@ func get_backpack_ammo_amount(ammo_type: String) -> int:
 	for item in backpack_storage:
 		if item.get("consumable_type", "") == "ammo" and item.get("ammo_type", "") == ammo_type:
 			total += int(item.get("ammo_amount", 0))
+	# Safe Pocket items genuinely travel into the raid with you (see the
+	# interrupted-run drain logic in load_game() - a Safe Pocket still
+	# holding something after a cold boot means a raid closed mid-run
+	# before end_run() could bank it) - ammo sitting there should count
+	# the same as Backpack Storage ammo, not sit unusable until you dig
+	# it back out after the raid.
+	for item in safe_pockets:
+		if item != null and item.get("consumable_type", "") == "ammo" and item.get("ammo_type", "") == ammo_type:
+			total += int(item.get("ammo_amount", 0))
 	return total
 
 # Deducts up to `amount` rounds of `ammo_type` from Backpack ammo stacks
 # (used by reload) - removes a stack entirely once it hits 0. Returns
 # how much was actually available/deducted, which may be less than asked.
 # Drains carried_loot first (already "in hand" from this raid), then
-# backpack_storage - see get_backpack_ammo_amount() above for why
-# stash_items is deliberately excluded.
+# backpack_storage, then Safe Pockets last of all (see
+# get_backpack_ammo_amount() above for why it's included at all) -
+# spending down the expendable/loot-found stacks before ever touching
+# the "safe" reserve matches what a player actually wants. stash_items
+# is deliberately excluded throughout - that's Hideout-only, never in
+# the raid with you.
 func consume_backpack_ammo(ammo_type: String, amount: int) -> int:
 	var remaining := amount
 	for pool in [carried_loot, backpack_storage]:
@@ -1297,6 +1310,26 @@ func consume_backpack_ammo(ammo_type: String, amount: int) -> int:
 			i += 1
 		if remaining <= 0:
 			break
+	if remaining > 0:
+		var touched_pockets := false
+		for i in range(safe_pockets.size()):
+			if remaining <= 0:
+				break
+			var item = safe_pockets[i]
+			if item == null or item.get("consumable_type", "") != "ammo" or item.get("ammo_type", "") != ammo_type:
+				continue
+			touched_pockets = true
+			var have: int = int(item.get("ammo_amount", 0))
+			var taken: int = min(have, remaining)
+			remaining -= taken
+			var left: int = have - taken
+			if left <= 0:
+				safe_pockets[i] = null
+			else:
+				item["ammo_amount"] = left
+				item["name"] = "%s x%d" % [item.get("base_name", "%s Ammo" % ammo_type.capitalize()), left]
+		if touched_pockets:
+			pockets_changed.emit()
 	return amount - remaining
 
 # Which weapon family each weapon type draws from - pistols and Thorns
