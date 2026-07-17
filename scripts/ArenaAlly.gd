@@ -16,6 +16,7 @@ extends CharacterBody2D
 @export var detection_range: float = 480.0
 @export var attack_range: float = 260.0
 @export var shoot_cooldown: float = 1.1
+@export var max_health: int = 90
 # Which slot in current_arena_match["team1"] this particular ally
 # represents - team1[0] is always the player, so the first ally is 1,
 # the second is 2, and so on (set by TheGrid.gd right after spawning,
@@ -27,6 +28,8 @@ var can_shoot: bool = true
 var target: Node2D = null
 var walk_cycle: float = 0.0
 var chat_cooldown_until_ms: int = 0
+var health: int = 0
+var is_dead: bool = false
 
 # Retargeting every physics tick is an O(allies x enemies) group scan - a
 # new nearest target every 0.25s is imperceptible during combat but cuts
@@ -52,9 +55,14 @@ const CHAT_LINES := [
 @onready var cap: Polygon2D = $Visuals/Cap
 @onready var name_tag: Label = $Visuals/NameTag
 @onready var external_sprite: Sprite2D = $Visuals/ExternalSprite
+@onready var health_bar: ProgressBar = $Visuals/HealthBar
 
 func _ready() -> void:
 	add_to_group("arena_ally")
+	health = max_health
+	health_bar.max_value = max_health
+	health_bar.value = health
+	health_bar.visible = false
 	torso.color = Color(0.14, 0.22, 0.5, 1)
 	chest_strap.color = Color(0.07, 0.11, 0.28, 1)
 	mask.visible = false
@@ -169,3 +177,37 @@ func _flash_muzzle() -> void:
 	await get_tree().create_timer(0.05).timeout
 	if is_instance_valid(muzzle_flash):
 		muzzle_flash.visible = false
+
+# Enemy.gd's _current_chase_target() deliberately spreads opponent fire
+# across the player AND every arena_ally, "so opponents spread fire
+# across the team instead of every opponent dogpiling one person" - but
+# Bullet.gd never actually applied damage to group "arena_ally" until
+# this fix, making every ally permanently unkillable. Signature matches
+# Player.gd's take_damage() (Bullet.gd calls both the same way) - this is
+# a much lighter implementation since a simulated ally has no armor/
+# durability/save-economy state to touch, unlike the real player.
+func take_damage(amount: int, _attacker_name: String = "", _weapon_name: String = "", _hit_direction: Vector2 = Vector2.ZERO) -> void:
+	if is_dead:
+		return
+	health -= amount
+	health_bar.value = max(health, 0)
+	health_bar.visible = true
+	if health <= 0:
+		_die()
+
+func _die() -> void:
+	if is_dead:
+		return
+	is_dead = true
+	can_shoot = false
+	target = null
+	velocity = Vector2.ZERO
+	set_physics_process(false)
+	# Leaving the arena_ally group means Enemy.gd's own
+	# _current_chase_target() (opponents) and Bullet.gd's hit checks both
+	# stop seeing this ally at all - a downed teammate should neither draw
+	# more fire nor be hittable again.
+	remove_from_group("arena_ally")
+	var tw := create_tween()
+	tw.tween_property(self, "modulate:a", 0.0, 0.6)
+	tw.tween_callback(queue_free)

@@ -16,6 +16,7 @@ const SHOOT_COOLDOWN := 0.4
 var move_speed: float = BASE_MOVE_SPEED
 var attack_damage: int = BASE_ATTACK_DAMAGE
 var shoot_damage: int = BASE_SHOOT_DAMAGE
+var shoot_cooldown: float = SHOOT_COOLDOWN
 var base_max_health: int = 100
 var has_ranged_weapon: bool = false
 var is_melee_equipped: bool = true
@@ -108,6 +109,13 @@ func _recompute_gauntlet_stats() -> void:
 	move_speed = BASE_MOVE_SPEED + GameManager.get_gauntlet_equipped_bonus("speed")
 	attack_damage = BASE_ATTACK_DAMAGE + int(GameManager.get_gauntlet_equipped_bonus("damage"))
 	shoot_damage = BASE_SHOOT_DAMAGE + int(GameManager.get_gauntlet_equipped_bonus("damage"))
+	# fire_rate gear (e.g. "Squad Headset", "Tactical Comms Array") rolls
+	# and displays fine (GauntletInventoryPanel.gd shows a real "+X% Fire
+	# Rate" line) but was never actually applied anywhere - _shoot()'s
+	# cooldown was a fixed constant, unlike Player.gd's non-Gauntlet
+	# equivalent, which genuinely reduces shoot_cooldown via
+	# get_equipped_bonus("fire_rate"). Same reduction shape here.
+	shoot_cooldown = max(0.08, SHOOT_COOLDOWN - GameManager.get_gauntlet_equipped_bonus("fire_rate"))
 	health_changed.emit(health, max_health)
 	# Left-click is the only attack button now: it swings if you have
 	# no weapon or a melee-type weapon (sword, thorn) equipped, or
@@ -249,7 +257,7 @@ func _shoot() -> void:
 	proj.rotation = aim_dir.angle()
 	if "damage" in proj:
 		proj.damage = shoot_damage
-	await get_tree().create_timer(SHOOT_COOLDOWN).timeout
+	await get_tree().create_timer(shoot_cooldown).timeout
 	can_shoot = true
 
 func _attack() -> void:

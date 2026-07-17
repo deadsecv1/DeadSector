@@ -181,7 +181,13 @@ func _on_body_entered(body: Node) -> void:
 			_spawn_scorch()
 		queue_free()
 		return
-	if is_enemy_bullet and body.is_in_group("player"):
+	if is_enemy_bullet and (body.is_in_group("player") or body.is_in_group("arena_ally")):
+		# Enemy.gd's _current_chase_target() deliberately spreads opponent
+		# fire across the player AND every arena_ally ("so opponents spread
+		# fire across the team instead of every opponent dogpiling one
+		# person") - without the arena_ally check here, every ally that got
+		# targeted this way was permanently unkillable, making Arena
+		# matches easier than intended.
 		if body.has_method("take_damage"):
 			body.take_damage(damage, source_name, source_weapon, -direction)
 		_spawn_blood()
