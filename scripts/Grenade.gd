@@ -37,7 +37,7 @@ func _explode() -> void:
 			if global_position.distance_to(enemy.global_position) <= radius and enemy.has_method("take_damage"):
 				if enemy.health <= damage:
 					GameManager.notify_event("grenade_kill")
-				enemy.take_damage(damage)
+				enemy.take_damage(damage, "Grenade")
 
 	Sfx.play_explosion()
 	if player != null and player.has_node("Camera2D"):

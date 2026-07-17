@@ -64,4 +64,4 @@ func _deal_damage() -> void:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if is_instance_valid(enemy) and global_position.distance_to(enemy.global_position) <= radius:
 			if enemy.has_method("take_damage"):
-				enemy.take_damage(damage_per_tick)
+				enemy.take_damage(damage_per_tick, "Molotov")

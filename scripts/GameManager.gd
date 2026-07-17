@@ -1477,6 +1477,15 @@ func buy_attachment_for_weapon(weapon_item: Dictionary, pool_entry: Dictionary, 
 # get_weapon_attachments_for() above - an item with no "durability" key
 # (including every item that existed in a save from before this feature
 # shipped) simply reads back as pristine via the .get() default.
+# backpack/accessory are listed here (so has_durability()/the Repairman
+# UI treat them as durability-bearing, always showing 100%) but nothing
+# actually calls damage_item_durability() on them - Player.gd's take_damage()
+# wears down head/body/boots/helmet_attachment on every hit (the "worn
+# armor" slots) and shoot() wears down the equipped weapon, but there's
+# no sensible real-world trigger for a backpack or a ring/watch to wear
+# down the same way. Left in the list deliberately (rather than trimmed)
+# so a save with a stray "durability" field on one of these still reads
+# back correctly instead of falling through has_durability()'s check.
 const DURABILITY_SLOTS := ["weapon", "head", "body", "boots", "backpack", "accessory", "helmet_attachment"]
 const WEAPON_DURABILITY_LOSS_PER_SHOT := 0.4
 const ARMOR_DURABILITY_LOSS_PER_HIT := 2.0
@@ -4845,14 +4854,18 @@ func record_damage_taken(amount: int, attacker_name: String, weapon_name: String
 	})
 	_sample_raid_value()
 
-func record_kill(enemy_name: String = "Enemy") -> void:
+func record_kill(enemy_name: String = "Enemy", weapon_name_override: String = "") -> void:
 	stat_enemies_killed += 1
 	add_score(5)
 	if in_graveyard_run:
 		graveyard_kills += 1
 		_maybe_grant_loom_weaver()
-	var weapon = equipped_items.get("weapon")
-	var weapon_name: String = str(weapon.get("name", "Unarmed")) if weapon != null else "Unarmed"
+	var weapon_name: String
+	if weapon_name_override != "":
+		weapon_name = weapon_name_override
+	else:
+		var weapon = equipped_items.get("weapon")
+		weapon_name = str(weapon.get("name", "Unarmed")) if weapon != null else "Unarmed"
 	raid_kill_log.append({"time": _raid_elapsed_seconds(), "enemy": enemy_name, "weapon": weapon_name})
 	_sample_raid_value()
 

@@ -1222,6 +1222,10 @@ const CHANGELOG_CURRENT := [
 		"Finished the 3.84.1 fix properly - dragging the Lore/Post-Raid Breakdown panels by their (now correctly placed) border was still dragging the full-screen dimmed backdrop along with the visible card, which could re-expose the same off-center look the previous fix was meant to solve. Dragging now moves only the visible card; the backdrop always stays put.",
 		"Fixed the diegetic ammo readout sometimes vanishing during sustained fire near the edge of its ~2 second peek window, instead of correctly staying visible.",
 	]},
+	{"version": "3.84.3", "title": "Durability Coverage, Accurate Kill Credit", "notes": [
+		"Boots and helmet attachments now actually wear down from combat hits, matching head/body armor - they were always listed as repairable but could never actually take wear.",
+		"The Post-Raid Breakdown kill log now credits the weapon that actually got the kill (a grenade, a poison tick) instead of always guessing it was whatever's currently equipped.",
+	]},
 ]
 
 # Combined timeline, oldest to newest - for anything that needs "the

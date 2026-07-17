@@ -495,7 +495,7 @@ func _physics_process(delta: float) -> void:
 		if poison_tick_timer <= 0.0:
 			poison_tick_timer = 1.0
 			poison_ticks_remaining -= 1
-			take_damage(poison_damage_per_tick)
+			take_damage(poison_damage_per_tick, "Poison")
 	if is_dead:
 		return
 	if player == null or not is_instance_valid(player):
@@ -677,8 +677,19 @@ const HIT_LINES := [
 	"Watch it!", "Damn it!", "Where's that coming from?!",
 ]
 var _took_first_hit: bool = false
+# Remembers the last NAMED damage source (grenade type, "Poison", etc.) -
+# die()'s record_kill() call uses this instead of always guessing "the
+# player's currently equipped weapon", which is wrong for anything that
+# isn't gunfire (a grenade thrown from a hotbar slot, a poison DOT tick
+# from a completely different weapon). Left blank by callers that don't
+# know/care (plain bullet hits), in which case record_kill() falls back
+# to the equipped-weapon guess - correct there anyway, since an ordinary
+# bullet almost always did come from whatever's currently equipped.
+var _last_damage_weapon: String = ""
 
-func take_damage(amount: int) -> void:
+func take_damage(amount: int, weapon_name: String = "") -> void:
+	if weapon_name != "":
+		_last_damage_weapon = weapon_name
 	if is_dead:
 		return
 	health -= amount
@@ -722,7 +733,7 @@ func die() -> void:
 	is_dead = true
 	died.emit()
 	GameManager.notify_event("kill_enemy")
-	GameManager.record_kill(enemy_type_id.capitalize() if enemy_type_id != "" else ("Rival Operator" if is_real_player else "Raider"))
+	GameManager.record_kill(enemy_type_id.capitalize() if enemy_type_id != "" else ("Rival Operator" if is_real_player else "Raider"), _last_damage_weapon)
 	if is_real_player:
 		GameManager.grant_stones(GameManager.REAL_PLAYER_KILL_STONES)
 	_mark_discovered()

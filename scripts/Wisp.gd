@@ -74,7 +74,7 @@ func die() -> void:
 	GameManager.add_currency("souls", souls_amount)
 	died.emit()
 	GameManager.notify_event("kill_enemy")
-	GameManager.record_kill("Wisp")
+	GameManager.record_kill("Wisp", _last_damage_weapon)
 	GameManager.mark_enemy_discovered("wisp")
 	var death_pos := global_position
 	call_deferred("_spawn_kill_burst", death_pos)

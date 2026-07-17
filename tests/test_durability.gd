@@ -114,6 +114,49 @@ func test_get_repairable_items_only_lists_items_below_full_durability() -> void:
 	assert_true(found, "a worn equipped item should show up as repairable")
 	GameManager.equipped_items["body"] = body_before
 
+func test_get_repairable_items_excludes_a_pristine_item() -> void:
+	var body_before = GameManager.equipped_items.get("body")
+	GameManager.equipped_items["body"] = {"slot": "body", "durability": 100.0, "value": 100, "name": "Pristine Test Vest"}
+	var found: bool = false
+	for item in GameManager.get_repairable_items():
+		if item.get("name") == "Pristine Test Vest":
+			found = true
+	assert_false(found, "a full-durability equipped item should NOT show up as repairable")
+	GameManager.equipped_items["body"] = body_before
+
+# Real integration test (not just calling damage_item_durability()
+# directly) - confirms Player.gd's take_damage() actually wears down
+# every "worn armor" slot on a real hit, same pattern as
+# test_post_raid_breakdown.gd's test_player_take_damage_flows_through_to_the_real_log().
+func test_take_damage_wears_down_every_worn_armor_slot() -> void:
+	var head_before = GameManager.equipped_items.get("head")
+	var body_before = GameManager.equipped_items.get("body")
+	var boots_before = GameManager.equipped_items.get("boots")
+	var helmet_attachment_before = GameManager.equipped_items.get("helmet_attachment")
+
+	GameManager.equipped_items["head"] = {"slot": "head", "durability": 100.0, "value": 50, "name": "Test Helmet"}
+	GameManager.equipped_items["body"] = {"slot": "body", "durability": 100.0, "value": 50, "name": "Test Vest"}
+	GameManager.equipped_items["boots"] = {"slot": "boots", "durability": 100.0, "value": 50, "name": "Test Boots"}
+	GameManager.equipped_items["helmet_attachment"] = {"slot": "helmet_attachment", "durability": 100.0, "value": 50, "name": "Test NVG"}
+
+	var PlayerScene := load("res://scenes/Player.tscn")
+	var player = PlayerScene.instantiate()
+	add_child(player)
+	player.health = 100
+	player.max_health = 100
+	player.alive = true
+	player.take_damage(5, "Test Enemy", "Test Weapon")
+	remove_child(player)
+	player.queue_free()
+
+	for slot in ["head", "body", "boots", "helmet_attachment"]:
+		assert_true(GameManager.get_item_durability(GameManager.equipped_items[slot]) < 100.0, "equipped %s should have taken wear from a real hit" % slot)
+
+	GameManager.equipped_items["head"] = head_before
+	GameManager.equipped_items["body"] = body_before
+	GameManager.equipped_items["boots"] = boots_before
+	GameManager.equipped_items["helmet_attachment"] = helmet_attachment_before
+
 func test_loadout_preset_matching_ignores_durability() -> void:
 	var pristine := {"name": "Field Vest", "slot": "body", "value": 45, "durability": 100.0}
 	var worn := {"name": "Field Vest", "slot": "body", "value": 45, "durability": 63.0}

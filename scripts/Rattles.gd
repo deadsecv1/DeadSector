@@ -150,7 +150,7 @@ func die() -> void:
 	died.emit()
 	GameManager.notify_event("kill_enemy")
 	GameManager.notify_event("kill_rattles")
-	GameManager.record_kill("Rattles")
+	GameManager.record_kill("Rattles", _last_damage_weapon)
 	var death_pos := global_position
 	var loot_data: Dictionary = GameManager.roll_corpse_loot(false, "", "", 1.0)
 	var items: Array = loot_data.get("items", [])

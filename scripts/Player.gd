@@ -1206,13 +1206,23 @@ func take_damage(amount: int, attacker_name: String = "", weapon_name: String = 
 		amount = int(round(amount * (1.0 - armor_pct / 100.0)))
 	GameManager.record_damage_taken(amount, attacker_name, weapon_name)
 	# Worn armor takes wear from every hit absorbed, regardless of source
-	# (bullet, fire tick, radiation, spike aura) - it's on your body either way.
+	# (bullet, fire tick, radiation, spike aura) - it's on your body either
+	# way. Covers every DURABILITY_SLOTS entry that's plausibly "worn
+	# armor" (head/body/boots/helmet_attachment) - backpack and accessory
+	# are deliberately left out, there's no sense in which getting shot
+	# wears down a ring or a backpack the same way it wears down armor.
 	var equipped_head = GameManager.equipped_items.get("head")
 	var equipped_body = GameManager.equipped_items.get("body")
+	var equipped_boots = GameManager.equipped_items.get("boots")
+	var equipped_helmet_attachment = GameManager.equipped_items.get("helmet_attachment")
 	if equipped_head != null:
 		GameManager.damage_item_durability(equipped_head, GameManager.ARMOR_DURABILITY_LOSS_PER_HIT)
 	if equipped_body != null:
 		GameManager.damage_item_durability(equipped_body, GameManager.ARMOR_DURABILITY_LOSS_PER_HIT)
+	if equipped_boots != null:
+		GameManager.damage_item_durability(equipped_boots, GameManager.ARMOR_DURABILITY_LOSS_PER_HIT)
+	if equipped_helmet_attachment != null:
+		GameManager.damage_item_durability(equipped_helmet_attachment, GameManager.ARMOR_DURABILITY_LOSS_PER_HIT)
 	health -= amount
 	if health <= 0 and GameManager.player_trait == "second_wind" and not _second_wind_used:
 		_second_wind_used = true
