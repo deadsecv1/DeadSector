@@ -343,7 +343,12 @@ func _input(event: InputEvent) -> void:
 	# GlobalChatBox.chat_box_open explicitly before acting on Escape.
 	var is_escape_press: bool = (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed)
 	var is_pause_button_press: bool = event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_DPAD_UP
-	if (is_escape_press or is_pause_button_press) and chat_box_open:
+	# Let the press fall through to context_menu's own _unhandled_input
+	# (PlayerContextMenu.gd) when its context_menu/profile_popup is open,
+	# instead of unconditionally consuming it here first and closing the
+	# whole chat box underneath it.
+	var player_context_menu_open: bool = context_menu != null and (context_menu.context_menu.visible or (context_menu.profile_popup != null and is_instance_valid(context_menu.profile_popup) and context_menu.profile_popup.visible))
+	if (is_escape_press or is_pause_button_press) and chat_box_open and not player_context_menu_open:
 		get_viewport().set_input_as_handled()
 		_close_chat_box()
 	if event is InputEventMouseButton and event.pressed and chat_box_open:

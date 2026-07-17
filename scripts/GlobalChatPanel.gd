@@ -9,6 +9,12 @@ func _input(event: InputEvent) -> void:
 	if (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed):
 		if GlobalChatBox.chat_box_open:
 			return
+		# Let the press fall through to context_menu's own _unhandled_input
+		# (PlayerContextMenu.gd) when its context_menu/profile_popup is
+		# open, instead of unconditionally consuming it here first and
+		# closing the whole chat panel underneath it.
+		if context_menu != null and (context_menu.context_menu.visible or (context_menu.profile_popup != null and is_instance_valid(context_menu.profile_popup) and context_menu.profile_popup.visible)):
+			return
 		get_viewport().set_input_as_handled()
 		closed.emit()
 		return

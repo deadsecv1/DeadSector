@@ -35,6 +35,24 @@ func _input(event: InputEvent) -> void:
 		if not context_menu.get_global_rect().has_point(event.global_position):
 			context_menu.visible = false
 
+# Same close-on-Escape-or-D-pad-Up convention every other popup in the
+# game already has - this reusable component previously had none at all
+# (mouse-click-outside only), leaving keyboard/gamepad players with no
+# way to back out of either the small context_menu or the follow-up
+# profile_popup except finding a Close button (context_menu doesn't even
+# have one - only Cancel-by-clicking-elsewhere).
+func _unhandled_input(event: InputEvent) -> void:
+	var closing_press: bool = event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed
+	if not closing_press:
+		return
+	if profile_popup != null and is_instance_valid(profile_popup) and profile_popup.visible:
+		get_viewport().set_input_as_handled()
+		profile_popup.visible = false
+		profile_popup.queue_free()
+	elif context_menu.visible:
+		get_viewport().set_input_as_handled()
+		context_menu.visible = false
+
 func open_for(entry: Dictionary, click_pos: Vector2) -> void:
 	context_entry = entry
 	var vp := get_viewport_rect().size

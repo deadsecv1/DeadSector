@@ -59,6 +59,11 @@ var _tag_edit_was_open_at_frame_start: bool = false
 # also closes itself via its own event-based _unhandled_input(), which
 # fires before this polled _process() check on the same Escape press.
 var _case_panel_was_open_at_frame_start: bool = false
+# Same reasoning again - ItemContextMenu.gd gained its own event-based
+# _unhandled_input() (2026-07-17, controller audit, so the Stash screen's
+# right-click menu can close itself instead of exiting the whole Stash on
+# Escape/D-pad-Up), which now also fires before this polled check here.
+var _item_context_menu_was_open_at_frame_start: bool = false
 # Lets a parent scene with its own scene-specific panels HUD has no way
 # to know about (e.g. TheGrid's Lilly panel, opened via Escape since
 # there's no in-map NPC there anymore) suppress this frame's Escape
@@ -290,8 +295,14 @@ func _process(delta: float) -> void:
 			pass
 		elif suppress_escape_this_frame:
 			suppress_escape_this_frame = false
-		elif item_context_menu.visible:
-			item_context_menu.visible = false
+		elif _item_context_menu_was_open_at_frame_start:
+			# See _item_context_menu_was_open_at_frame_start's declaration -
+			# item_context_menu.visible already reads false here since its
+			# own _unhandled_input() already closed it earlier this same
+			# frame, so a live check could never match and this used to
+			# fall through to opening the Pause Menu as an unwanted side
+			# effect.
+			pass
 		elif inspect_panel.visible:
 			inspect_panel.visible = false
 		elif skins_panel.visible:
@@ -331,6 +342,7 @@ func _process(delta: float) -> void:
 	esc_was_down = esc_down
 	_tag_edit_was_open_at_frame_start = tag_edit_panel.visible
 	_case_panel_was_open_at_frame_start = case_panel.visible
+	_item_context_menu_was_open_at_frame_start = item_context_menu.visible
 
 	# Keep the mouse cursor as a normal arrow whenever a menu/screen covers
 	# the view, and restore the in-game crosshair the instant it's all

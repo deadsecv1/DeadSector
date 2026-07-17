@@ -1,5 +1,15 @@
 extends Panel
 
+# Same close-on-Escape-or-D-pad-Up convention every other popup in the
+# game already has - this menu previously had none at all (only a Cancel
+# button, mouse-click-outside, or falling through and exiting the whole
+# parent screen), leaving both keyboard and gamepad players with no real
+# way to back out except finding the Cancel button.
+func _unhandled_input(event: InputEvent) -> void:
+	if visible and (event is InputEventKey and event.keycode == KEY_ESCAPE and event.pressed and not event.echo or event is InputEventJoypadButton and event.button_index == JOY_BUTTON_DPAD_UP and event.pressed):
+		get_viewport().set_input_as_handled()
+		visible = false
+
 signal inspect_requested(item: Dictionary)
 signal attachments_requested(index: int, source: String, item: Dictionary)
 signal skins_requested(item: Dictionary)

@@ -89,9 +89,14 @@ func _input(event: InputEvent) -> void:
 		Transition.change_scene_instant(GameManager.stash_return_scene)
 
 func _any_sub_panel_open() -> bool:
+	# item_context_menu was missing here - since it has no _unhandled_input
+	# of its own to fall through to (fixed separately in
+	# ItemContextMenu.gd), Escape/D-pad-Up while the right-click menu was
+	# open didn't match any branch above and fell all the way through to
+	# exiting the entire Stash screen instead of just closing the menu.
 	return tag_edit_panel.visible or inspect_panel.visible or skins_panel.visible \
 		or open_bag_panel.visible or weapon_inspection_panel.visible or pet_case_panel.visible \
-		or case_panel.visible \
+		or case_panel.visible or item_context_menu.visible \
 		or filter_popup.visible or backpack_storage_popup.visible or loadout_presets_panel.visible \
 		or (is_instance_valid(stats_popup) and stats_popup.visible)
 
